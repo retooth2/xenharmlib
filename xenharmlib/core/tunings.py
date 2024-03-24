@@ -164,25 +164,29 @@ class AbstractTuning:
 
         base_pitch = self.pitch(0)
 
-        if frequency < base_pitch.frequency:
-            raise InvalidFrequency(
-                'Frequency cannot be lower than lowest '
-                'frequency of tuning'
-            )
-
         # first find the appropriate search window
 
-        i = 0
-        while True:
-            top_pitch = self.pitch(2**i)
-            if top_pitch.frequency > frequency:
-                break
-            i += 1
+        if frequency >= base_pitch.frequency:
+            bottom_pitch = base_pitch
+            i = 0
+            while True:
+                top_pitch = self.pitch(2**i)
+                if top_pitch.frequency > frequency:
+                    break
+                i += 1
+        else:
+            top_pitch = base_pitch
+            i = 0
+            while True:
+                bottom_pitch = self.pitch(-2**i)
+                if bottom_pitch.frequency < frequency:
+                    break
+                i += 1
 
         # then do binary search
 
-        lower_pi = base_pitch.pitch_index
         higher_pi = top_pitch.pitch_index
+        lower_pi = bottom_pitch.pitch_index
 
         while (higher_pi - lower_pi) > 1:
 

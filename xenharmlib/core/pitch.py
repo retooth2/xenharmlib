@@ -56,10 +56,6 @@ class Pitch:
                  pitch_index: int):
 
         self.tuning = tuning
-        if pitch_index < 0:
-            raise InvalidPitchIndex(
-                'Pitch index cannot be lower than 0'
-            )
         self._pitch_index = pitch_index
 
     @property
@@ -71,10 +67,6 @@ class Pitch:
 
     @pitch_index.setter
     def pitch_index(self, pitch_index):
-        if pitch_index < 0:
-            raise InvalidPitchIndex(
-                'Pitch index cannot be lower than 0'
-            )
         self._pitch_index = pitch_index
 
     @property
@@ -214,10 +206,6 @@ class PeriodicPitch(Pitch):
 
     @pitch_index.setter
     def pitch_index(self, pitch_index):
-        if pitch_index < 0:
-            raise InvalidPitchIndex(
-                'Pitch index cannot be lower than 0'
-            )
         tuning_len = len(self.tuning)
         self._pitch_index = pitch_index
         self._pc_index = pitch_index % tuning_len
@@ -254,12 +242,6 @@ class PeriodicPitch(Pitch):
     def bi_index(self, bi_index):
 
         tuning_len = len(self.tuning)
-        if bi_index < 0:
-            raise InvalidBaseIntervalIndex(
-                'Base interval index cannot be '
-                'lower than 0'
-            )
-
         self._bi_index = bi_index
         self._pitch_index = (
             self._pc_index +

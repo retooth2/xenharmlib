@@ -14,12 +14,6 @@ edo31 = EDTuning('31edo', 31, Frequency(2))
 ed13_3 = EDTuning('13ed3', 13, Frequency(3))
 
 
-def test_invalid_pitch_index():
-
-    with pytest.raises(InvalidPitchIndex):
-        EDPitch(edo31, -4)
-
-
 def test_pitch_index_change():
 
     pitch = EDPitch(edo31, 12)
@@ -29,14 +23,6 @@ def test_pitch_index_change():
     pitch.pitch_index = 35
     assert pitch.pc_index == 4
     assert pitch.bi_index == 1
-
-
-def test_pitch_index_change_invalid():
-
-    pitch = EDPitch(edo31, 12)
-
-    with pytest.raises(InvalidPitchIndex):
-        pitch.pitch_index = -1
 
 
 def test_pc_index_change():
@@ -70,14 +56,6 @@ def test_bi_index_change():
     assert pitch.pitch_index == 103
 
 
-def test_bi_index_change_invalid():
-
-    pitch = EDPitch(edo31, 12)
-
-    with pytest.raises(InvalidBaseIntervalIndex):
-        pitch.bi_index = -1
-
-
 @pytest.mark.parametrize(
     'tuning, pitch_index, diff, new_index',
     [
@@ -92,6 +70,10 @@ def test_bi_index_change_invalid():
         (
             EDTuning('13d3', 17, Frequency(3)), 
             19, 3, 22
+        ),
+        (
+            EDTuning('12edo', 12, Frequency(2)),
+            -7, 10, 3
         ),
     ]
 )
@@ -118,6 +100,10 @@ def test_transpose_int(tuning, pitch_index, diff, new_index):
             EDTuning('13d3', 17, Frequency(3)), 
             19, 3, 22
         ),
+        (
+            EDTuning('12edo', 12, Frequency(2)),
+            -9, 13, 4
+        ),
     ]
 )
 def test_transpose_interval(tuning, pitch_index, diff, new_index):
@@ -142,6 +128,7 @@ def test_transpose_interval(tuning, pitch_index, diff, new_index):
         (EDPitch(edo31, 9), EDPitch(edo31, 1), 9),
         (EDPitch(edo31, 5), EDPitch(edo31, 9), 4),
         (EDPitch(ed13_3, 8), EDPitch(ed13_3, 7), 3),
+        (EDPitch(edo12, -10), EDPitch(edo12, 7), 2),
     ]
 )
 def test_get_generator_index(pitch, gen_pitch, gen_index):
@@ -167,6 +154,7 @@ def test_get_generator_index_invalid_generator():
         EDPitch(edo31, 0),
         EDPitch(edo31, 18),
         EDPitch(edo31, 32),
+        EDPitch(edo31, -9),
     ]
 )
 def test_get_bi_normalized(pitch):
@@ -181,6 +169,7 @@ def test_get_bi_normalized(pitch):
         (EDPitch(edo12, 24), EDPitch(edo31, 62)),
         (EDPitch(edo12, 7), EDPitch(edo31, 18)),
         (EDPitch(edo12, 7), EDPitch(ed13_3, 5)),
+        (EDPitch(edo12, -7), EDPitch(ed13_3, -5)),
     ]
 )
 def test_retune(pitch_a, pitch_b):
@@ -196,6 +185,9 @@ def test_retune(pitch_a, pitch_b):
         (EDPitch(edo31, 18), EDPitch(edo31, 19)),
         (EDPitch(edo31, 18), EDPitch(edo12, 7)),
         (EDPitch(edo12, 7), EDPitch(ed13_3, 5)),
+        (EDPitch(edo12, -7), EDPitch(ed13_3, 5)),
+        (EDPitch(edo12, -7), EDPitch(ed13_3, -2)),
+        (EDPitch(edo12, -7), EDPitch(edo12, -6)),
     ]
 )
 def test_lt_gt(pitch_a, pitch_b):
@@ -210,6 +202,7 @@ def test_lt_gt(pitch_a, pitch_b):
         (EDPitch(edo31, 9), EDPitch(edo31, 9)),
         (EDPitch(edo12, 3), EDPitch(edo24, 6)),
         (EDPitch(edo12, 19), EDPitch(edo24, 38)),
+        (EDPitch(edo12, -13), EDPitch(edo24, -26)),
     ]
 )
 def test_eq(pitch_a, pitch_b):
@@ -236,6 +229,7 @@ def test_incompatible_tunings(pitch_b):
         (9, 2),
         (8, 4),
         (1, 0),
+        (-10, 2),
     ]
 )
 def test_arithmetic(index_a, index_b):
@@ -270,6 +264,7 @@ def test_arithmetic(index_a, index_b):
         (9, 2),
         (8, 4),
         (1, 0),
+        (-9, 2),
     ]
 )
 def test_arithmetic_incompatible_tunings(index_a, index_b):

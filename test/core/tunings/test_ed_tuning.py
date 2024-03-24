@@ -54,6 +54,11 @@ def test_get_frequency_incompatible_tunings():
             440
         ),
         (
+            EDTuning('12edo', 12, Frequency(2)),
+            -12,
+            8.175
+        ),
+        (
             EDTuning('13edo', 12, Frequency(2)),
             6,
             Frequency(16.3) * Frequency(3**6, 2**9)
@@ -72,23 +77,13 @@ def test_get_frequency_incompatible_tunings():
             EDTuning('13ed3', 13, Frequency(3), ref_frequency=Frequency(16.3)),
             27,
             159.6
-        )
+        ),
     ]
 )
 def test_get_approx_pitch(tuning, pitch_index, freq):
     pitch = tuning.get_approx_pitch(freq)
     assert pitch.pitch_index == pitch_index
     assert (float(pitch.frequency) - freq) < FREQ_EPSILON
-
-
-def test_get_approx_pitch_below_zero():
-
-    edo12 = EDTuning('12edo', 12, Frequency(2))
-    zero_pitch = edo12.pitch(0)
-    freq = zero_pitch.frequency / 2
-    
-    with pytest.raises(InvalidFrequency):
-        edo12.get_approx_pitch(freq)
 
 
 @pytest.mark.parametrize(
