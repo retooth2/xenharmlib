@@ -560,7 +560,7 @@ class PeriodicPitchScale(PitchScale):
         inverted_scale.add_pitch(pitch)
         return inverted_scale
 
-    def inversion(self, order):
+    def inversion(self, order: int) -> Self:
         """
         Returns the inversion of the n-th order of this scale.
 

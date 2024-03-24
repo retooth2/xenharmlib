@@ -454,7 +454,7 @@ class PitchInterval:
         return freq_b / freq_a
 
     @property
-    def cents(self):
+    def cents(self) -> float:
         """
         The interval in cents (e.g. 1200 for an octave)
         """
