@@ -83,4 +83,22 @@ class InvalidGenerator(Exception):
     tuning
     """
 
-                        
+class InvalidNaturalIndex(Exception):
+    """
+    Gets raised when a natural index does not adhere
+    to a certain restriction, for example if it is
+    out of bounds of a predefined limit
+    """
+
+class InvalidAccidentalValue(Exception):
+    """
+    Gets raised when an accidental value is not
+    allowed in a notation
+    """
+
+class InvalidNaturalDiffClassIndex(Exception):
+    """
+    Gets raised when a natural diff class index does not
+    adhere to a certain restriction, for example if it is
+    out of bounds of a predefined limit
+    """
