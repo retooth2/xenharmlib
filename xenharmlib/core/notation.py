@@ -115,7 +115,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
     @abstractmethod
-    def note_scale(self, notes: List[NoteT]) -> ScaleT:
+    def note_scale(self, notes: Optional[List[NoteT]] = None) -> ScaleT:
         """
         Returns a note scale of the note scale type this
         notation was initialized with
@@ -241,7 +241,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             note_b
         )
 
-    def note_scale(self, notes: List[NatAccNote]) -> NatAccNoteScale:
+    def note_scale(self, notes: Optional[List[NatAccNote]] = None) -> NatAccNoteScale:
         """
         Creates a note scale from a list of notes
 
@@ -251,6 +251,9 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         :param notes: A list of notes created by this
             notation
         """
+
+        if notes is None:
+            notes = []
 
         for note in notes:
             if note.notation != self:
