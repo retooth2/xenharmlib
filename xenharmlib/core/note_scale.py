@@ -19,7 +19,7 @@ types of scale notation systems.
 """
 
 from abc import ABC
-from abc import abstractclassmethod
+from abc import abstractmethod
 from typing import *
 from bisect import insort
 from collections import defaultdict
@@ -410,7 +410,8 @@ class NoteScale(ABC, Generic[NoteT]):
 
         return is_superset and not (self == other)
 
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_notes(cls, notes: List[NoteT]) -> Self:
         pass
 
