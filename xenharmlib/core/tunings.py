@@ -469,6 +469,27 @@ class EDOTuning(EDTuning):
             ref_frequency=ref_frequency
         )
 
+    @property
+    def best_fifth(self):
+        """
+        Returns the pitch that best approximates the pure fifth
+        (frequency ratio 3/2) in this tuning.
+        """
+        return self.get_approx_pitch(
+            self.ref_frequency * Frequency(3, 2)
+        )
+
+    @property
+    def fifth(self):
+        """
+        Returns the pitch that represents the fifth of
+        this tuning. In the default implementation this
+        is the best fifth, however subclasses can also
+        overwrite this behavior, so e.g. the second-best
+        fifth is returned.
+        """
+        return self.best_fifth
+
     def get_ring_number(self, pitch: Optional[PeriodicPitch] = None) -> int:
         """
         Returns the greatest common divisor of a pitch and the
@@ -480,9 +501,7 @@ class EDOTuning(EDTuning):
         """
 
         if pitch is None:
-            pitch = self.get_approx_pitch(
-                self.ref_frequency * Frequency(3, 2)
-            )
+            pitch = self.best_fifth
 
         return super().get_ring_number(pitch)
 
@@ -499,9 +518,7 @@ class EDOTuning(EDTuning):
         the pitch difference in an octave.
         """
 
-        fifth = self.get_approx_pitch(
-            self.ref_frequency * Frequency(3, 2)
-        )
+        fifth = self.fifth
         return(fifth.pitch_index * 7 - self.divisions * 4)
 
     def __repr__(self):
