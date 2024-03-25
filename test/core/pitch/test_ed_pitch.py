@@ -14,46 +14,29 @@ edo31 = EDTuning('31edo', 31, Frequency(2))
 ed13_3 = EDTuning('13ed3', 13, Frequency(3))
 
 
-def test_pitch_index_change():
+def test_pitch_periodic_indices():
 
     pitch = EDPitch(edo31, 12)
     assert pitch.pc_index == 12
     assert pitch.bi_index == 0
 
-    pitch.pitch_index = 35
-    assert pitch.pc_index == 4
+    pitch = EDPitch(edo31, 32)
+    assert pitch.pc_index == 1
     assert pitch.bi_index == 1
 
-
-def test_pc_index_change():
-
-    pitch = EDPitch(edo31, 39)
-    assert pitch.pc_index == 8
-    assert pitch.bi_index == 1
-
-    pitch.pc_index = 7
-    assert pitch.pitch_index == 38
+    pitch = EDPitch(edo31, -1)
+    assert pitch.pc_index == 30
+    assert pitch.bi_index == -1
 
 
-def test_pc_index_change_invalid():
-
-    pitch = EDPitch(edo31, 12)
-
-    with pytest.raises(InvalidPitchClassIndex):
-        pitch.pc_index = -1
-
-    with pytest.raises(InvalidPitchClassIndex):
-        pitch.pc_index = 35
-
-
-def test_bi_index_change():
+def test_tranpose_bi_index():
 
     pitch = EDPitch(edo31, 41)
     assert pitch.pc_index == 10
     assert pitch.bi_index == 1
 
-    pitch.bi_index = 3
-    assert pitch.pitch_index == 103
+    transposed = pitch.transpose_bi_index(2)
+    assert transposed.pitch_index == 103
 
 
 @pytest.mark.parametrize(

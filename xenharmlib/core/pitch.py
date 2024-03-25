@@ -65,10 +65,6 @@ class Pitch:
         """
         return self._pitch_index
 
-    @pitch_index.setter
-    def pitch_index(self, pitch_index):
-        self._pitch_index = pitch_index
-
     @property
     def frequency(self) -> Frequency:
         """
@@ -204,32 +200,12 @@ class PeriodicPitch(Pitch):
         """
         return self._pitch_index
 
-    @pitch_index.setter
-    def pitch_index(self, pitch_index):
-        tuning_len = len(self.tuning)
-        self._pitch_index = pitch_index
-        self._pc_index = pitch_index % tuning_len
-        self._bi_index = pitch_index // tuning_len
-
     @property
     def pc_index(self):
         """
         The pitch class index of this pitch
         """
         return self._pc_index
-
-    @pc_index.setter
-    def pc_index(self, pc_index):
-
-        tuning_len = len(self.tuning)
-        if not (0 <= pc_index < tuning_len):
-            raise InvalidPitchClassIndex()
-
-        self._pc_index = pc_index
-        self._pitch_index = (
-            self._pc_index +
-            self._bi_index * tuning_len
-        )
 
     @property
     def bi_index(self):
@@ -238,15 +214,22 @@ class PeriodicPitch(Pitch):
         """
         return self._bi_index
 
-    @bi_index.setter
-    def bi_index(self, bi_index):
+    def transpose_bi_index(self, bi_diff: int) -> Self:
+        """
+        Returns a pitch with the same pitch class index
+        but a transposed base interval
+
+        :param bi_diff: The difference in base interval
+            between this pitch and the resulting one
+        """
 
         tuning_len = len(self.tuning)
-        self._bi_index = bi_index
-        self._pitch_index = (
+        bi_index = self._bi_index + bi_diff
+        pitch_index = (
             self._pc_index +
-            self._bi_index * tuning_len
+            bi_index * tuning_len
         )
+        return self.tuning.pitch(pitch_index)
 
     def get_bi_normalized(self) -> PeriodicPitch:
         """

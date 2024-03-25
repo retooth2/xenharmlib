@@ -533,7 +533,7 @@ class PeriodicPitchScale(PitchScale):
         )
 
         if pitch < inverted_scale[-1]:
-            pitch.bi_index += 1
+            pitch = pitch.transpose_bi_index(1)
 
         inverted_scale.add_pitch(pitch)
         return inverted_scale
@@ -555,7 +555,7 @@ class PeriodicPitchScale(PitchScale):
         )
 
         if pitch > inverted_scale[0]:
-            pitch.bi_index -= 1
+            pitch = pitch.transpose_bi_index(-1)
 
         inverted_scale.add_pitch(pitch)
         return inverted_scale
