@@ -55,6 +55,10 @@ class NoteScale(ABC, Generic[NoteT]):
             for note in notes:
                 self.add_note(note)
 
+    @property
+    def tuning(self):
+        return self.notation.tuning
+
     def add_note(self, note: NoteT):
         """
         Inserts a new note into to the scale at the right

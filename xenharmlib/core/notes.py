@@ -489,6 +489,13 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         return self._notation
 
     @property
+    def tuning(self):
+        """
+        The tuning associated with this note interval
+        """
+        return self.notation.tuning
+
+    @property
     def ref_note(self) -> NoteT:
         """
         A reference note for the interval. (This is important
