@@ -231,13 +231,13 @@ class PeriodicPitch(Pitch):
         )
         return self.tuning.pitch(pitch_index)
 
-    def get_bi_normalized(self) -> PeriodicPitch:
+    def get_bi_normalized(self) -> Self:
         """
         Returns the equivalent of this pitch in the first base interval
         """
         return self.tuning.pitch(self.pc_index)
 
-    def get_generator_index(self, generator_pitch: PeriodicPitch):
+    def get_generator_index(self, generator_pitch: Self):
         """
         Calculates the number of steps needed to reach this pitch
         when iteratively adding the given generator to the zero
