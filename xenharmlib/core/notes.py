@@ -140,6 +140,10 @@ class PeriodicNoteABC(NoteABC):
     Abstract base class for periodic notes. Implements
     proxy properties :attr:`pc_index` and :attr:`bi_index`
     that refer to the underlying periodic pitch object.
+
+    Subclasses need to implement the :meth:`transpose_bi_index`
+    method (in addition to the abstract properties and methods
+    of NoteABC)
     """
 
     @property
@@ -156,6 +160,25 @@ class PeriodicNoteABC(NoteABC):
         """
         return self.pitch.bi_index
 
+    @abstractmethod
+    def transpose_bi_index(self, bi_diff: int) -> Self:
+        """
+        Returns a note with the same pitch class index
+        and symbol, but with a transposed base interval
+
+        :param bi_diff: The difference in base interval
+            between this note and the resulting one
+        """
+        pass
+
+    def get_bi_normalized(self) -> Self:
+        """
+        Returns the equivalent of this note in the first
+        base interval
+        """
+        return self.transpose_bi_index(
+            -self.bi_index
+        )
 
 class NatAccNote(PeriodicNoteABC):
     """
@@ -205,6 +228,20 @@ class NatAccNote(PeriodicNoteABC):
             self.nat_pc_index + len(tuning) * self.nat_bi_index
         ) + self.acc_value
         return tuning.pitch(pitch_index)
+
+    def transpose_bi_index(self, bi_diff: int) -> Self:
+        """
+        Returns a note with the same pitch class index
+        and symbol, but with a transposed base interval
+
+        :param bi_diff: The difference in base interval
+            between this note and the resulting one
+        """
+
+        nat_bi_index = self.nat_bi_index + bi_diff
+        return self.notation.note(
+            self.pc_symbol, nat_bi_index
+        )
 
     def is_notated_same(self, other) -> bool:
         """
