@@ -130,7 +130,7 @@ class NoteScale(ABC, Generic[NoteT]):
                     if interval == object:
                         return True
 
-        return object in self._sorted_pitches
+        return object in self._sorted_notes
 
     # the obligatory __repr__
 
