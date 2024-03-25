@@ -121,7 +121,6 @@ class NoteABC(ABC):
         """
         pass
 
-    @property
     @abstractmethod
     def is_notated_same(self, other) -> bool:
         """
