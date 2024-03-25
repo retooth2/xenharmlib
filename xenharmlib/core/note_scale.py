@@ -653,7 +653,7 @@ class PeriodicNoteScale(NoteScale):
             b_map[n_note].add(note)
 
         if is_notated_same:
-            difference = a_map.keys()
+            difference = set(a_map)
             for n_note_a in a_map:
                 for n_note_b in b_map:
                     if n_note_a.is_notated_same(n_note_b):
