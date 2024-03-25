@@ -211,7 +211,7 @@ class NatAccNote(PeriodicNoteABC):
                  natc_symbol: str,
                  acc_symbol: str):
 
-        super.__init__(notation)
+        super().__init__(notation)
         self._natc_index = natc_index
         self._nat_bi_index = nat_bi_index
         self._acc_value = acc_value
