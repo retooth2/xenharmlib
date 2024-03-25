@@ -328,7 +328,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         scale = self.note_scale()
         for symbol in self._nat_symbols.values():
             note = self.note(symbol, bi_index)
-            scale.add(note)
+            scale.add_note(note)
         return scale
 
     # methods for mapping of natural indices / natural class
