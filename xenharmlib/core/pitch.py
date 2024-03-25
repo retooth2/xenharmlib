@@ -523,7 +523,7 @@ class EDPitchInterval(PeriodicPitchInterval):
         )
 
 
-class EDOPitchInterval():
+class EDOPitchInterval(EDPitchInterval):
 
     """
     Pitch intervals class for 'equal division of the octave'
