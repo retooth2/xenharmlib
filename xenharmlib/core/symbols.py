@@ -93,9 +93,9 @@ class SymbolCode(ABC):
         pass
 
 
-class SymbolArithmetic(SymbolCode):
+class SymbolSumArithmetic(SymbolCode):
     """
-    A symbol arithmetic is a mapping between string symbol sequences
+    A symbol sum arithmetic is a mapping between string symbol sequences
     and integer sums. It parses expressions like 'b##x' into a list
     of known symbols (like 'b', '#', '#', 'x') and translates it into
     an equivalent list of integers (like -1, 1, 1, 2) from which it
@@ -366,9 +366,9 @@ class SymbolArithmetic(SymbolCode):
         return symbol_str
 
 
-class SymbolArithmeticSet(SymbolCode):
+class SymbolSumArithmeticSet(SymbolCode):
     """
-    SymbolArithmeticSets combine different SymbolArithmetics
+    SymbolSumArithmeticSets combine different SymbolSumArithmetics
     allowing to use multiple symbols for the same value and 
     to segment the space of whole numbers into multiple
     arithmetics with different offsets.
@@ -388,10 +388,10 @@ class SymbolArithmeticSet(SymbolCode):
         define the set
     """
 
-    def __init__(self, arithmetics: List[SymbolArithmetic]):
+    def __init__(self, arithmetics: List[SymbolSumArithmetic]):
         self._arithmetics = arithmetics
 
-    def add_arithmetic(self, arithmetic: SymbolArithmetic):
+    def add_arithmetic(self, arithmetic: SymbolSumArithmetic):
         """
         Adds another symbol arithmetic to this set
 
