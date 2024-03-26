@@ -49,8 +49,11 @@ from ..exc import IncompatibleTunings
 from ..exc import InvalidFrequency
 from typing import *
 
+PitchT = TypeVar('PitchT', bound=Pitch)
+IntervalT = TypeVar('IntervalT', bound=PitchInterval)
+ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
-class TuningABC(ABC):
+class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -81,9 +84,9 @@ class TuningABC(ABC):
     """
 
     def __init__(self,
-                 pitch_cls: type[Pitch],
-                 pitch_interval_cls: type[PitchInterval],
-                 pitch_scale_cls: type[PitchScale],
+                 pitch_cls: type[PitchT],
+                 pitch_interval_cls: type[IntervalT],
+                 pitch_scale_cls: type[ScaleT],
                  ref_frequency: Frequency):
 
         self.ref_frequency = ref_frequency
@@ -91,7 +94,7 @@ class TuningABC(ABC):
         self._pitch_interval_cls = pitch_interval_cls
         self._pitch_scale_cls = pitch_scale_cls
 
-    def pitch(self, pitch_index) -> Pitch:
+    def pitch(self, pitch_index: int) -> PitchT:
         """
         Returns a pitch having the pitch type this tuning
         was configured with
@@ -101,7 +104,7 @@ class TuningABC(ABC):
         """
         return self._pitch_cls(self, pitch_index)
 
-    def pitch_interval(self, pitch_a, pitch_b) -> PitchInterval:
+    def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
         Returns a pitch interval having the pitch intervals type
         this tuning was configured with
@@ -113,7 +116,7 @@ class TuningABC(ABC):
             pitch_a, pitch_b
         )
 
-    def pitch_scale(self, pitches=None) -> PitchScale:
+    def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
         Returns a pitch scale having the pitch scale type
         this tuning was configured with
@@ -143,13 +146,13 @@ class TuningABC(ABC):
             yield self.pitch(i)
 
     @abstractmethod
-    def get_frequency(self, pitch: Pitch) -> Frequency:
+    def get_frequency(self, pitch: PitchT) -> Frequency:
         """
         (Must be overwritten by subclasses)
         Returns the frequency for a given pitch
         """
 
-    def get_approx_pitch(self, frequency: Frequency) -> Pitch:
+    def get_approx_pitch(self, frequency: Frequency) -> PitchT:
         """
         Returns the closest pitch in the tuning
         to a given frequency.
@@ -220,7 +223,11 @@ class TuningABC(ABC):
         )
 
 
-class PeriodicTuning(TuningABC):
+PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
+PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
+
+class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT]):
 
     """
     This abstract class makes the assumption that the tuning has
@@ -255,9 +262,9 @@ class PeriodicTuning(TuningABC):
 
     def __init__(self,
                  period_length: int,
-                 pitch_cls: type[PeriodicPitch],
-                 pitch_interval_cls: type[PeriodicPitchInterval],
-                 pitch_scale_cls: type[PeriodicPitchScale],
+                 pitch_cls: type[PeriodicPitchT],
+                 pitch_interval_cls: type[PeriodicIntervalT],
+                 pitch_scale_cls: type[PeriodicScaleT],
                  ref_frequency: Frequency):
 
         super().__init__(
@@ -279,7 +286,7 @@ class PeriodicTuning(TuningABC):
             self.eq_ratio == getattr(other, 'eq_ratio', None)
         )
 
-    def get_ring_number(self, pitch: PeriodicPitch) -> int:
+    def get_ring_number(self, pitch: PeriodicPitchT) -> int:
         """
         Returns the greatest common divisor of a pitch and the
         period length of the tuning.
@@ -296,7 +303,7 @@ class PeriodicTuning(TuningABC):
         return p
 
     @property
-    def generator_pitches(self) -> List[PeriodicPitch]:
+    def generator_pitches(self) -> List[PeriodicPitchT]:
         """
         Returns a list of pitch objects which can be used
         to generate the complete set of pitches in this
@@ -326,7 +333,7 @@ class PeriodicTuning(TuningABC):
         return generators
 
 
-class EDTuning(PeriodicTuning):
+class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
     """
     EDTuning ("equal division tuning") takes a base interval
@@ -393,7 +400,7 @@ class EDTuning(PeriodicTuning):
             self.eq_ratio == getattr(other, 'eq_ratio', None)
         )
 
-    def get_frequency(self, pitch: Pitch) -> Frequency:
+    def get_frequency(self, pitch: EDPitch) -> Frequency:
         """
         Returns the frequency of a given note
 
@@ -481,7 +488,7 @@ class EDOTuning(EDTuning):
         """
         return self.best_fifth
 
-    def get_ring_number(self, pitch: Optional[PeriodicPitch] = None) -> int:
+    def get_ring_number(self, pitch: Optional[EDOPitch] = None) -> int:
         """
         Returns the greatest common divisor of a pitch and the
         period length of the tuning.

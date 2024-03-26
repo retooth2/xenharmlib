@@ -314,9 +314,10 @@ class EDOPitch(EDPitch):
     """
     pass
 
+PitchT = TypeVar('PitchT', bound=Pitch)
 
 @total_ordering
-class PitchInterval:
+class PitchInterval(Generic[PitchT]):
     """
     The most abstract form of an interval of two pitches.
     Implements conversion functions to frequency ratios
@@ -349,7 +350,7 @@ class PitchInterval:
     """
 
     def __init__(self,
-                 ref_pitch: Pitch,
+                 ref_pitch: PitchT,
                  pitch_diff: int,
                  tuning):
 
@@ -358,7 +359,7 @@ class PitchInterval:
         self.tuning = tuning
 
     @classmethod
-    def from_pitches(cls, pitch_a, pitch_b):
+    def from_pitches(cls, pitch_a: PitchT, pitch_b: PitchT) -> Self:
         """
         Constructs an interval out of two pitches of the same tuning.
         If the second pitch is lower than the first pitch the Interval
@@ -429,15 +430,16 @@ class PitchInterval:
             CENTS_PRECISION
         )
 
+PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
-class PeriodicPitchInterval(PitchInterval):
+class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
     """
     The pitch interval class for periodic tunings.
     """
 
     def get_generator_distance(
         self,
-        generator_pitch: PeriodicPitch
+        generator_pitch: PeriodicPitchT
     ) -> int:
         """
         Calculates the minimum number of steps needed to reach
@@ -473,14 +475,14 @@ class PeriodicPitchInterval(PitchInterval):
         return min(i_diff, 12 - i_diff)
 
 
-class EDPitchInterval(PeriodicPitchInterval):
+class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
 
     """
     Pitch interval class for equal division tunings
     """
 
     @classmethod
-    def from_pitches(cls, pitch_a, pitch_b):
+    def from_pitches(cls, pitch_a: EDPitch, pitch_b: EDPitch) -> Self:
         """
         Constructs an interval out of two pitches of the same tuning.
         If the second pitch is lower than the first pitch the Interval

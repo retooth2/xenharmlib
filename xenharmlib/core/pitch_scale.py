@@ -33,16 +33,17 @@ from __future__ import annotations
 
 from collections import defaultdict
 from bisect import insort
-from typing import List
-from typing import Optional
-from typing import Union
-from typing import Self
+from typing import *
 from .pitch import Pitch
+from .pitch import PeriodicPitch
+from .pitch import EDPitch
 from .pitch import PitchInterval
+from .frequencies import Frequency
 from ..exc import IncompatibleTunings
 
+PitchT = TypeVar('PitchT', bound=Pitch)
 
-class PitchScale:
+class PitchScale(Generic[PitchT]):
     """
     The base class of all pitch scales. Implements list and set
     operations, transposition, retuning, etc.
@@ -106,14 +107,14 @@ class PitchScale:
     * is_superset
     """
 
-    def __init__(self, tuning, pitches=None):
+    def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
         self.tuning = tuning
         if pitches is None:
             self._sorted_pitches = []
         else:
             self._sorted_pitches = sorted(pitches)
 
-    def add_pitch(self, pitch: Pitch):
+    def add_pitch(self, pitch: PitchT):
         """
         Inserts a new pitch into to the scale at
         the right position
@@ -149,7 +150,7 @@ class PitchScale:
     @classmethod
     def from_pitch_indices(cls,
                            pitch_indices: List[int],
-                           tuning) -> PitchScale:
+                           tuning) -> Self:
         """
         Creates a scale from a list of pitch
         indices
@@ -226,7 +227,7 @@ class PitchScale:
     # pitches
 
     @property
-    def frequencies(self):
+    def frequencies(self) -> List[Frequency]:
         return [pitch.frequency for pitch in self]
 
     @property
@@ -251,7 +252,7 @@ class PitchScale:
             )
         return intervals
 
-    def transpose(self, diff: Union[int, PitchInterval]) -> PitchScale:
+    def transpose(self, diff: Union[int, PitchInterval]) -> Self:
         """
         Transposes the scale upwards or downwards
 
@@ -465,8 +466,9 @@ class PitchScale:
 
         return is_superset and not (self == other)
 
+PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
-class PeriodicPitchScale(PitchScale):
+class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
     """
     Pitch scale class for periodic tunings. Implements
     operations like inversion and customized set operations
@@ -476,7 +478,7 @@ class PeriodicPitchScale(PitchScale):
 
     # normalization methods
 
-    def get_bi_normalized(self) -> PeriodicPitchScale:
+    def get_bi_normalized(self) -> Self:
         """
         Returns a normalized version of this scale where
         all the pitches of the scale are put into the first
@@ -494,7 +496,7 @@ class PeriodicPitchScale(PitchScale):
 
         return n_scale
 
-    def get_bi_normalized_complement(self):
+    def get_bi_normalized_complement(self) -> Self:
         """
         Normalizes this scale to the first base interval
         and returns the complement (that is: a scale of
@@ -518,7 +520,7 @@ class PeriodicPitchScale(PitchScale):
 
     # typical scale operations in music theory
 
-    def inverted_up(self):
+    def inverted_up(self) -> Self:
         """
         Create a new scale by transposing the lowest pitch
         upwards until it is above the highest pitch
@@ -538,7 +540,7 @@ class PeriodicPitchScale(PitchScale):
         inverted_scale.add_pitch(pitch)
         return inverted_scale
 
-    def inverted_down(self):
+    def inverted_down(self) -> Self:
         """
         Create a new scale by transposing the highest pitch
         downwards until it is below the lowest pitch
@@ -906,7 +908,7 @@ class PeriodicPitchScale(PitchScale):
         return is_superset and not equal
 
 
-class EDPitchScale(PeriodicPitchScale):
+class EDPitchScale(PeriodicPitchScale[EDPitch]):
     """ Pitch scale class for equal division tunings """
     pass
 
