@@ -26,6 +26,8 @@ that need a couple of methods implemented by a subclass.
 """
 
 from __future__ import annotations
+from abc import ABC
+from abc import abstractmethod
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -48,7 +50,7 @@ from ..exc import InvalidFrequency
 from typing import *
 
 
-class AbstractTuning:
+class TuningABC(ABC):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -140,15 +142,12 @@ class AbstractTuning:
         for i in range(start, stop, step):
             yield self.pitch(i)
 
+    @abstractmethod
     def get_frequency(self, pitch: Pitch) -> Frequency:
         """
         (Must be overwritten by subclasses)
         Returns the frequency for a given pitch
         """
-        raise NotImplementedError(
-            f'Missing get_frequency method in implementation '
-            f'of {self.__class__.__name__}'
-        )
 
     def get_approx_pitch(self, frequency: Frequency) -> Pitch:
         """
@@ -207,7 +206,7 @@ class AbstractTuning:
 
     def __eq__(self, other: object) -> bool:
 
-        if not isinstance(other, AbstractTuning):
+        if not isinstance(other, TuningABC):
             return False
 
         return (
@@ -221,7 +220,7 @@ class AbstractTuning:
         )
 
 
-class PeriodicTuning(AbstractTuning):
+class PeriodicTuning(TuningABC):
 
     """
     This abstract class makes the assumption that the tuning has
