@@ -318,6 +318,13 @@ class SymbolSumArithmetic(SymbolCode):
             lb_list.append(lb)
             ub_list.append(ub)
 
+        if not self._allow_empty:
+            A_array.append(
+                [1] * symbol_count
+            )
+            lb_list.append(1)
+            ub_list.append(np.inf)
+
         A = np.array(A_array)
         lb = np.array(lb_list)
         ub = np.array(ub_list)
@@ -356,12 +363,6 @@ class SymbolSumArithmetic(SymbolCode):
             count = counts[symbol_value]
             symbol = self._value_symbols[symbol_value]
             symbol_str += symbol * count
-
-        if symbol_str == '' and not self._allow_empty:
-            raise SymbolValueNotMapped(
-                f'{value} could not be represented as a sum '
-                f'of the values for which a symbol is registered '
-            )
 
         return symbol_str
 
