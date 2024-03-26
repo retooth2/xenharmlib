@@ -54,8 +54,6 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
     :param tuning: The tuning for which the notation should
         be constructed
-    :param name: A unique name for this notation (used for the
-        the equality test, among other things)
     :param note_cls: The python class that is used to generate
         the note object in the note method.
     :param note_interval_cls: The python class that is used to
@@ -67,12 +65,10 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
     def __init__(self,
                  tuning,
-                 name: str,
                  note_cls: type[NoteT],
                  note_interval_cls: type[IntervalT],
                  note_scale_cls: type[ScaleT]):
 
-        self.name = name
         self._tuning = tuning
         self._note_cls = note_cls
         self._note_interval_cls = note_interval_cls
@@ -83,7 +79,6 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
             return False
         return (
             self.tuning == other.tuning and \
-            self.name == other.name and \
             self._note_cls == other._note_cls and \
             self._note_interval_cls == other._note_interval_cls and \
             self._note_scale_cls == other._note_scale_cls
@@ -160,8 +155,6 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
     counterpart :meth:`interval_number_to_nat_diff`
 
     :param tuning: The tuning this notation refers to
-    :param name: A unique name for this notation (used for the
-        the equality test, among other things)
     :param note_cls: Note class used in the :meth:`note` builder
         method (optional, defaults to the class NatAccNote)
     :param note_interval_cls: Note interval class used in the
@@ -174,7 +167,6 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
 
     def __init__(self, 
         tuning, 
-        name,
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
@@ -182,7 +174,6 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
 
         super().__init__(
             tuning,
-            name,
             note_cls,
             note_interval_cls,
             note_scale_cls

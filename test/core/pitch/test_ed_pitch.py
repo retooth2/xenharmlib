@@ -8,10 +8,10 @@ from xenharmlib.exc import InvalidPitchClassIndex
 from xenharmlib.exc import InvalidBaseIntervalIndex
 from xenharmlib.exc import InvalidGenerator
 
-edo12 = EDTuning('12edo', 12, Frequency(2))
-edo24 = EDTuning('24edo', 24, Frequency(2))
-edo31 = EDTuning('31edo', 31, Frequency(2))
-ed13_3 = EDTuning('13ed3', 13, Frequency(3))
+edo12 = EDTuning(12, Frequency(2))
+edo24 = EDTuning(24, Frequency(2))
+edo31 = EDTuning(31, Frequency(2))
+ed13_3 = EDTuning(13, Frequency(3))
 
 
 def test_pitch_periodic_indices():
@@ -43,19 +43,19 @@ def test_tranpose_bi_index():
     'tuning, pitch_index, diff, new_index',
     [
         (
-            EDTuning('12edo', 12, Frequency(2)), 
+            EDTuning(12, Frequency(2)),
             7, 10, 17
         ),
         (
-            EDTuning('17edo', 17, Frequency(2)), 
+            EDTuning(17, Frequency(2)),
             7, -3, 4
         ),
         (
-            EDTuning('13d3', 17, Frequency(3)), 
+            EDTuning(17, Frequency(3)),
             19, 3, 22
         ),
         (
-            EDTuning('12edo', 12, Frequency(2)),
+            EDTuning(12, Frequency(2)),
             -7, 10, 3
         ),
     ]
@@ -72,19 +72,19 @@ def test_transpose_int(tuning, pitch_index, diff, new_index):
     'tuning, pitch_index, diff, new_index',
     [
         (
-            EDTuning('12edo', 12, Frequency(2)), 
+            EDTuning(12, Frequency(2)),
             7, 10, 17
         ),
         (
-            EDTuning('17edo', 17, Frequency(2)), 
+            EDTuning(17, Frequency(2)),
             7, -3, 4
         ),
         (
-            EDTuning('13d3', 17, Frequency(3)), 
+            EDTuning(17, Frequency(3)),
             19, 3, 22
         ),
         (
-            EDTuning('12edo', 12, Frequency(2)),
+            EDTuning(12, Frequency(2)),
             -9, 13, 4
         ),
     ]

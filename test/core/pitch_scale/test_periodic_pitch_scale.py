@@ -5,10 +5,10 @@ from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch_scale import PeriodicPitchScale
 from xenharmlib.exc import IncompatibleTunings
 
-edo12 = EDTuning('12edo', 12, Frequency(2))
-edo24 = EDTuning('24edo', 24, Frequency(2))
-edo31 = EDTuning('31edo', 31, Frequency(2))
-ed13_3 = EDTuning('13ed3', 13, Frequency(3))
+edo12 = EDTuning(12, Frequency(2))
+edo24 = EDTuning(24, Frequency(2))
+edo31 = EDTuning(31, Frequency(2))
+ed13_3 = EDTuning(13, Frequency(3))
 
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',

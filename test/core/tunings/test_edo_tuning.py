@@ -1,10 +1,10 @@
 import pytest
 from xenharmlib.core.tunings import EDOTuning
 
-edo12 = EDOTuning('12-EDO', 12)
-edo24 = EDOTuning('24-EDO', 24)
-edo57 = EDOTuning('57-EDO', 57)
-edo72 = EDOTuning('72-EDO', 72)
+edo12 = EDOTuning(12)
+edo24 = EDOTuning(24)
+edo57 = EDOTuning(57)
+edo72 = EDOTuning(72)
 
 @pytest.mark.parametrize(
     'tuning, ring_number',
@@ -38,7 +38,7 @@ def test_ring_number_fifth(tuning, ring_number):
     ]
 )
 def test_sharpness(divisions, sharpness):
-    tuning = EDOTuning('X', divisions)
+    tuning = EDOTuning(divisions)
     assert tuning.sharpness == sharpness
 
 
@@ -49,5 +49,5 @@ def test_sharpness(divisions, sharpness):
     ]
 )
 def test_repr(divisions):
-    tuning = EDOTuning(f'{divisions}-EDO', divisions)
+    tuning = EDOTuning(divisions)
     assert repr(tuning) == f'EDOTuning({divisions}-EDO, {divisions})'

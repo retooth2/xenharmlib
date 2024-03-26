@@ -63,8 +63,6 @@ class AbstractTuning:
 
     The constructor arguments are:
 
-    :param name: A unique name for this tuning (used for the
-        the equality test, among other things)
     :param pitch_cls: The python class for the pitch that is
         used to generate a pitch object in the
         :meth:`~.AbstractTuning.pitch` method.
@@ -81,13 +79,11 @@ class AbstractTuning:
     """
 
     def __init__(self,
-                 name: str,
                  pitch_cls: type[Pitch],
                  pitch_interval_cls: type[PitchInterval],
                  pitch_scale_cls: type[PitchScale],
                  ref_frequency: Frequency):
 
-        self.name = name
         self.ref_frequency = ref_frequency
         self._pitch_cls = pitch_cls
         self._pitch_interval_cls = pitch_interval_cls
@@ -215,7 +211,6 @@ class AbstractTuning:
             return False
 
         return (
-            self.name == other.name and \
             self.ref_frequency == other.ref_frequency and \
             self.__class__ == other.__class__
         )
@@ -243,8 +238,6 @@ class PeriodicTuning(AbstractTuning):
 
     The constructor arguments are:
 
-    :param name: A unique name for this tuning (used for the
-        the equality test, among other properties)
     :param period_length: The number of pitches that constitute
         a period (for example 12 in 12EDO)
     :param pitch_cls: The python class for the pitch that is
@@ -262,7 +255,6 @@ class PeriodicTuning(AbstractTuning):
     """
 
     def __init__(self,
-                 name: str,
                  period_length: int,
                  pitch_cls: type[PeriodicPitch],
                  pitch_interval_cls: type[PeriodicPitchInterval],
@@ -270,7 +262,6 @@ class PeriodicTuning(AbstractTuning):
                  ref_frequency: Frequency):
 
         super().__init__(
-            name=name,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
@@ -347,12 +338,10 @@ class EDTuning(PeriodicTuning):
     like this:
 
     >>> BP = EDTuning(
-    >>>     name='Bohlen-Pierce',
     >>>     divisions=13,
     >>>     eq_ratio=Frequency(3)
     >>> )
 
-    :param name: A unique name for this tuning
     :param divisions: The number of divisions of the base
         interval
     :param eq_ratio: The frequency factor defining the base
@@ -377,7 +366,6 @@ class EDTuning(PeriodicTuning):
     """
 
     def __init__(self,
-                 name,
                  divisions,
                  eq_ratio: Frequency,
                  pitch_cls: type[EDPitch] = EDPitch,
@@ -386,7 +374,6 @@ class EDTuning(PeriodicTuning):
                  ref_frequency: Frequency = Frequency(163_516, 10_000)):
 
         super().__init__(
-            name=name,
             period_length=divisions,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
@@ -395,6 +382,10 @@ class EDTuning(PeriodicTuning):
         )
         self.divisions = divisions
         self.eq_ratio = eq_ratio
+
+    @property
+    def name(self) -> str:
+        return f'{self.divisions}ed{self.eq_ratio}'
 
     def __eq__(self, other):
         return (
@@ -430,7 +421,6 @@ class EDOTuning(EDTuning):
     EDOTuning ("equal division of the octave tuning") divides an
     octave into pitches equally spaced from each other.
 
-    :param name: A unique name for this tuning
     :param divisions: The number of divisions of the octave
     :param pitch_cls: (Optional) The python class for the pitch
         that is used to generate a pitch object in the pitch
@@ -452,7 +442,6 @@ class EDOTuning(EDTuning):
     """
 
     def __init__(self,
-                 name,
                  divisions,
                  pitch_cls: type[EDOPitch] = EDOPitch,
                  pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
@@ -460,7 +449,6 @@ class EDOTuning(EDTuning):
                  ref_frequency: Frequency = Frequency(163_516, 10_000)):
 
         super().__init__(
-            name=name,
             divisions=divisions,
             eq_ratio=Frequency(2),
             pitch_cls=pitch_cls,
@@ -468,6 +456,10 @@ class EDOTuning(EDTuning):
             pitch_scale_cls=pitch_scale_cls,
             ref_frequency=ref_frequency
         )
+
+    @property
+    def name(self) -> str:
+        return f'{self.divisions}-EDO'
 
     @property
     def best_fifth(self):
