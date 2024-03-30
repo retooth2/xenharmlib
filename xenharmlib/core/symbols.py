@@ -190,6 +190,11 @@ class SymbolSumArithmetic(SymbolCode):
         Parses a symbol string into a list of symbol literals
         their corresponding integer values and the offset
 
+        >>> from xenharmlib.core.symbols import SymbolSumArithmetic
+        >>> arithmetic = SymbolSumArithmetic()
+        >>> arithmetic.add_symbol('x', 2)
+        >>> arithmetic.add_symbol('#', 1)
+        >>> arithmetic.add_symbol('b', -1)
         >>> literals, values, offset = arithmetic.parse_symbol_str('xbb#')
 
         :raises UnknownSymbolString: If arithmetic did not

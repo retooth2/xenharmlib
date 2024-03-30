@@ -38,10 +38,9 @@ class Frequency(Fraction):
     approximations in the lower ranges for EDOs and even creates
     exact values for just intonation tunings.
 
-    Frequencies can be instantiated exactly like Fractions:
-
-    >>> Frequency(440) # 440 Hz
-    >>> Frequency(3, 2) # The perfect fifth ratio
+    Frequencies can be instantiated exactly like Fractions,
+    e.g. Frequency(440) for 440 Hz or Frequency(3, 2) for
+    the perfect fifth ratio
     """
 
     @classmethod

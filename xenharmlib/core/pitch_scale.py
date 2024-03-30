@@ -48,19 +48,14 @@ class PitchScale(Generic[PitchT]):
     The base class of all pitch scales. Implements list and set
     operations, transposition, retuning, etc.
 
-    PitchScales can be initialized in multiple ways. Either directly
-    through the constructor:
+    PitchScale (or, respectively, its subclasses) are built by
+    the tunings pitch_scale builder method:
 
-    >>> edo31 = EDO31('31-Edo')
-    >>> pitch_scale = PitchScale(
-    >>>     edo31, [edo31.pitch(4), edo31.pitch(6), edo31.pitch(9)]
-    >>> )
-
-    or from the builder method :meth:`from_pitch_indices`:
-
-    >>> pitch_scale = PitchScale.from_pitch_indices(
-    >>>     edo31, [3, 6, 9]
-    >>> )
+    >>> from xenharmlib import EDOTuning
+    >>> edo31 = EDOTuning(31)
+    >>> scale = edo31.pitch_scale(
+    ...     [edo31.pitch(4), edo31.pitch(6), edo31.pitch(9)]
+    ... )
 
     Every pitch will be automatically sorted in its place.
     The order of the scale is ascending (First lower pitch, then
@@ -69,30 +64,33 @@ class PitchScale(Generic[PitchT]):
     PitchScale objects support most of the typical list operations:
 
     >>> for pitch in scale:
-    >>>     print(pitch)
+    ...     print(pitch)
+    EDOPitch(4, 31-EDO)
+    EDOPitch(6, 31-EDO)
+    EDOPitch(9, 31-EDO)
 
-    >>> second_pitch = scale[1]
+    >>> scale[1]
+    EDOPitch(6, 31-EDO)
 
-    >>> subscale = scale[1:-1]
+    >>> scale[1:-1]
+    EDOPitchScale([6], 31-EDO)
 
     The 'in' operator accepts both pitches and pitch invervals
     
-    >>> p = edo31.pitch(3)
+    >>> p = edo31.pitch(4)
     >>> p in scale
-    >>> p.interval(edo31.pitch(5)) in scale
+    True
+    >>> p.interval(edo31.pitch(2)) in scale
+    True
 
     In regards to intervals it even works across tunings
 
-    >>> edo12 = EDO12('12-EDO')
-    >>> edo24 = EDO24('24-EDO')
-    >>> edo31 = EDO31('31-EDO')
+    >>> edo12 = EDOTuning(12)
+    >>> edo24 = EDOTuning(24)
     >>> edo12_fifth = edo12.pitch(0).interval(edo12.pitch(7))
     >>> edo24_scale = edo24.pitch_scale(edo24.pitch_range(24))
-    >>> edo31_scale = edo31.pitch_scale(edo31.pitch_range(31))
     >>> edo12_fifth in edo24_scale
-    >>> True
-    >>> edo12_fifth in edo31_scale
-    >>> False
+    True
 
     In addition similar operations to the native python sets are
     available (with slightly different naming and additional method

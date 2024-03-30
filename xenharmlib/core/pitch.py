@@ -39,12 +39,13 @@ class Pitch:
     (e.g. from lowest frequency to highest frequency). You can
     also compare pitches, even across different tunings:
 
-    >>> edo12 = EDOTuning('12-EDO', 12)
-    >>> edo31 = EDOTuning('31-EDO', 31)
+    >>> from xenharmlib import EDOTuning
+    >>> edo12 = EDOTuning(12)
+    >>> edo31 = EDOTuning(31)
     >>> edo31.pitch(1) < edo12.pitch(1)
-    >>> True
+    True
     >>> edo31.pitch(31) == edo12.pitch(12)
-    >>> True
+    True
 
     :param tuning: The tuning to which this pitch belongs
     :param pitch_index: An integer denoting the pitch (with
@@ -323,13 +324,15 @@ class PitchInterval(Generic[PitchT]):
     Implements conversion functions to frequency ratios
     and a total ordering based on the caclulated ratios:
 
+    >>> from xenharmlib import EDOTuning
+    >>> edo31 = EDOTuning(31)
     >>> pitch_a = edo31.pitch(4)
     >>> pitch_b = edo31.pitch(8)
     >>> pitch_c = edo31.pitch(10)
     >>> i_ab = pitch_a.interval(pitch_b)
     >>> i_ac = pitch_a.interval(pitch_c)
     >>> i_ab < i_ac
-    >>> True
+    True
 
     **A caveat**: Intervals are considered directional in xenharmlib
     so the order of pitches from which the interval is created
@@ -451,9 +454,11 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
         the generator distance can be a good measure for consonance
         of an interval given the right generator pitch.
 
-        >>> MAJOR_THIRD = edo12.pitch(0).interval(edo12.pitch(4))
-        >>> MAJOR_THIRD.get_generator_distance(edo12.pitch(7))
-        >>> 4
+        >>> from xenharmlib import EDOTuning
+        >>> edo12 = EDOTuning(12)
+        >>> M3 = edo12.pitch(0).interval(edo12.pitch(4))
+        >>> M3.get_generator_distance(edo12.pitch(7))
+        4
 
         :param generator_pitch: A generator pitch. Will be normalized
             to the equivalent pitch in the first base interval if its

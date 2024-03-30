@@ -133,9 +133,28 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         tuning similar to pythons range function. The
         method can be called in the familiar ways:
 
-        >>> tuning.pitch_range(31) # first 31 pitches
-        >>> tuning.pitch_range(5, 10) # pitches [5...9]
-        >>> tuning.pitch_range(5, 10, 2) # pitches [5, 7, 9]
+        >>> from xenharmlib import EDOTuning
+        >>> edo12 = EDOTuning(12)
+
+        >>> for pitch in edo12.pitch_range(3):
+        ...    print(pitch)
+        EDOPitch(0, 12-EDO)
+        EDOPitch(1, 12-EDO)
+        EDOPitch(2, 12-EDO)
+
+        >>> for pitch in edo12.pitch_range(5, 10):
+        ...    print(pitch)
+        EDOPitch(5, 12-EDO)
+        EDOPitch(6, 12-EDO)
+        EDOPitch(7, 12-EDO)
+        EDOPitch(8, 12-EDO)
+        EDOPitch(9, 12-EDO)
+
+        >>> for pitch in edo12.pitch_range(5, 10, 2):
+        ...    print(pitch)
+        EDOPitch(5, 12-EDO)
+        EDOPitch(7, 12-EDO)
+        EDOPitch(9, 12-EDO)
         """
 
         if stop is None:
@@ -238,9 +257,10 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
     Periodic tunings implement the len() function that returns
     the period length:
 
-    >>> edo12 = EDOTuning('12-EDO', 12)
+    >>> from xenharmlib import EDOTuning
+    >>> edo12 = EDOTuning(12)
     >>> len(edo12)
-    >>> 12
+    12
 
     The constructor arguments are:
 
@@ -343,10 +363,12 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     For example the Bohlen-Pierce tuning can be created
     like this:
 
+    >>> from xenharmlib import EDTuning
+    >>> from xenharmlib import Frequency
     >>> BP = EDTuning(
-    >>>     divisions=13,
-    >>>     eq_ratio=Frequency(3)
-    >>> )
+    ...     divisions=13,
+    ...     eq_ratio=Frequency(3)
+    ... )
 
     :param divisions: The number of divisions of the base
         interval
