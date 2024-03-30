@@ -395,7 +395,9 @@ class PitchInterval(Generic[PitchT]):
     # methods necessary for total ordering
 
     def __eq__(self, other):
-        return self.frequency_ratio == other.frequency_ratio
+        return abs(
+            self.frequency_ratio - other.frequency_ratio
+        ) < FREQ_EQUALITY_EPSILON
 
     def __lt__(self, other):
         return self.frequency_ratio < other.frequency_ratio
