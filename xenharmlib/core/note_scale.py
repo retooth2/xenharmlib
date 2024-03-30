@@ -49,9 +49,8 @@ class NoteScale(ABC, Generic[NoteT]):
 
     def __init__(self, notation, notes=None):
         self.notation = notation
-        if notes is None:
-            self._sorted_notes = []
-        else:
+        self._sorted_notes = []
+        if notes is not None:
             for note in notes:
                 self.add_note(note)
 
