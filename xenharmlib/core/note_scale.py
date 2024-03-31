@@ -160,6 +160,12 @@ class NoteScale(ABC, Generic[NoteT]):
             notes.pitch_index for notes in self._sorted_notes
         ]
 
+    @property
+    def pitch_scale(self):
+        return self.tuning.pitch_scale(
+            [note.pitch for note in self]
+        )
+
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
         Returns this scale represented as a list of note intervals
