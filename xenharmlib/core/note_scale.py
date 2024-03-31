@@ -413,11 +413,6 @@ class NoteScale(ABC, Generic[NoteT]):
 
         return is_superset and not (self == other)
 
-    @classmethod
-    @abstractmethod
-    def from_notes(cls, notes: List[NoteT]) -> Self:
-        pass
-
 
 class PeriodicNoteScale(NoteScale):
     """

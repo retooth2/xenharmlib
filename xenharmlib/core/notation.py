@@ -253,7 +253,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
                     'originate from this notation'
                 )
 
-        return self._note_scale_cls.from_notes(notes)
+        return self._note_scale_cls(self, notes)
 
     def shorthand_interval(
         self,
