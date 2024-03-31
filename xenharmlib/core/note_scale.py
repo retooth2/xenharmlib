@@ -455,7 +455,7 @@ class PeriodicNoteScale(NoteScale):
 
         for note in self._sorted_notes:
             n_note = note.get_bi_normalized()
-            n_scale.add_pitch(n_note)
+            n_scale.add_note(n_note)
 
         return n_scale
 
@@ -484,7 +484,7 @@ class PeriodicNoteScale(NoteScale):
         highest pitch downwards until it is below the lowest pitch
         """
 
-        inverted_scale = self.tuning.pitch_scale(
+        inverted_scale = self.notation.note_scale(
             self[:-1]
         )
 
