@@ -435,6 +435,9 @@ class PitchInterval(Generic[PitchT]):
             CENTS_PRECISION
         )
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.pitch_diff}, {self.tuning.name})'
+
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
 class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
