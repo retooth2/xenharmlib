@@ -185,7 +185,7 @@ class NoteScale(ABC, Generic[NoteT]):
                 notes.transpose(interval)
             )
         
-        return self.tuning.notes_scale(
+        return self.notation.note_scale(
             transposed
         )
     
@@ -474,7 +474,7 @@ class PeriodicNoteScale(NoteScale):
         if note < inverted_scale[-1]:
             note = note.transpose_bi_index(1)
 
-        inverted_scale.add_pitch(note)
+        inverted_scale.add_note(note)
         return inverted_scale
 
     def inverted_down(self) -> Self:
@@ -493,7 +493,7 @@ class PeriodicNoteScale(NoteScale):
         if note > inverted_scale[0]:
             note = note.transpose_bi_index(-1)
 
-        inverted_scale.add_pitch(note)
+        inverted_scale.add_note(note)
         return inverted_scale
 
     def inversion(self, order: int) -> Self:
