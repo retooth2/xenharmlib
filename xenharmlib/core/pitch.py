@@ -238,6 +238,16 @@ class PeriodicPitch(Pitch):
         """
         return self.tuning.pitch(self.pc_index)
 
+    def is_equivalent(self, other: Self) -> bool:
+        """
+        Returns True if this pitch has the same pitch class
+        index as the other
+
+        :param other: Another pitch of the same tuning
+        """
+
+        return self.pc_index == other.pc_index
+
     def get_generator_index(self, generator_pitch: Self):
         """
         Calculates the number of steps needed to reach this pitch

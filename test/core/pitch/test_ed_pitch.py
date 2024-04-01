@@ -193,6 +193,30 @@ def test_eq(pitch_a, pitch_b):
 
 
 @pytest.mark.parametrize(
+    'pitch_a, pitch_b',
+    [
+        (EDPitch(edo12, 3), EDPitch(edo12, 3)),
+        (EDPitch(edo31, 9), EDPitch(edo31, 40)),
+        (EDPitch(edo24, 3), EDPitch(edo24, 51)),
+    ]
+)
+def test_is_equivalent(pitch_a, pitch_b):
+    assert pitch_a.is_equivalent(pitch_b)
+
+
+@pytest.mark.parametrize(
+    'pitch_a, pitch_b',
+    [
+        (EDPitch(edo12, 3), EDPitch(edo12, 4)),
+        (EDPitch(edo31, 9), EDPitch(edo31, 43)),
+        (EDPitch(edo24, 3), EDPitch(edo24, 59)),
+    ]
+)
+def test_is_not_equivalent(pitch_a, pitch_b):
+    assert not pitch_a.is_equivalent(pitch_b)
+
+
+@pytest.mark.parametrize(
     'pitch_b',
     [
         EDPitch(edo31, 0),
