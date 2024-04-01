@@ -24,7 +24,7 @@ def test_get_bi_normalized(tuning, pi_list, n_pi_list):
         tuning.pitch(pi) for pi in pi_list
     ]
     scale = PeriodicPitchScale(
-        edo12, pitches
+        tuning, pitches
     )
     normalized = scale.get_bi_normalized()
     for i, n_pi in enumerate(n_pi_list):
