@@ -338,11 +338,14 @@ class PitchScale(Generic[PitchT]):
                 'Scales have different tuning'
             )
 
-        a = set(self)
-        b = set(other)
-        return self.tuning.pitch_scale(
-            a.intersection(b)
-        )
+        scale = self.tuning.pitch_scale()
+
+        for pitch_a in self:
+            for pitch_b in other:
+                if pitch_a == pitch_b:
+                    scale.add_pitch(pitch_a)
+
+        return scale
 
     def difference(self,
                    other: Self) -> Self:
@@ -361,11 +364,16 @@ class PitchScale(Generic[PitchT]):
                 'Scales have different tuning'
             )
 
-        a = set(self)
-        b = set(other)
-        return self.tuning.pitch_scale(
-            a.difference(b)
-        )
+        scale = self.tuning.pitch_scale()
+
+        for pitch_a in self:
+            for pitch_b in other:
+                if pitch_a == pitch_b:
+                    break
+            else:
+                scale.add_pitch(pitch_a)
+
+        return scale
 
     def symmetric_difference(self,
                              other: Self) -> Self:
@@ -386,11 +394,9 @@ class PitchScale(Generic[PitchT]):
                 'Scales have different tuning'
             )
 
-        a = set(self)
-        b = set(other)
-        return self.tuning.pitch_scale(
-            a.symmetric_difference(b)
-        )
+        diff_a = self.difference(other)
+        diff_b = other.difference(self)
+        return diff_a.union(diff_b)
 
     def is_disjoint(self,
                     other: Self) -> bool:
@@ -627,35 +633,13 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().intersection(other)
 
-        a_map = defaultdict(set)
-        b_map = defaultdict(set)
-
-        for pitch in self:
-            a_map[pitch.pc_index].add(
-                pitch.pitch_index
-            )
-
-        for pitch in other:
-            b_map[pitch.pc_index].add(
-                pitch.pitch_index
-            )
-
-        a_set = set(a_map.keys())
-        b_set = set(b_map.keys())
-
-        intersection = a_set.intersection(b_set)
-
         scale = self.tuning.pitch_scale()
 
-        for pc_index in intersection:
-            for pitch_index in a_map[pc_index]:
-                scale.add_pitch_index(
-                    pitch_index
-                )
-            for pitch_index in b_map[pc_index]:
-                scale.add_pitch_index(
-                    pitch_index
-                )
+        for pitch_a in self:
+            for pitch_b in other:
+                if pitch_a.is_equivalent(pitch_b):
+                    scale.add_pitch(pitch_a)
+                    scale.add_pitch(pitch_b)
 
         return scale
 
@@ -689,17 +673,11 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         scale = self.tuning.pitch_scale()
 
         for pitch_a in self:
-
             for pitch_b in other:
-                rel_a = pitch_a.pc_index
-                rel_b = pitch_b.pc_index
-                if rel_a == rel_b:
+                if pitch_a.is_equivalent(pitch_b):
                     break
-
             else:
-                scale.add_pitch(
-                    pitch_a
-                )
+                scale.add_pitch(pitch_a)
 
         return scale
 
@@ -732,40 +710,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().symmetric_difference(other)
 
-        a_map = defaultdict(set)
-        b_map = defaultdict(set)
-
-        for pitch in self:
-            a_map[pitch.pc_index].add(
-                pitch.pitch_index
-            )
-
-        for pitch in other:
-            b_map[pitch.pc_index].add(
-                pitch.pitch_index
-            )
-
-        a_set = set(a_map.keys())
-        b_set = set(b_map.keys())
-
-        sym_diff = a_set.symmetric_difference(b_set)
-
-        scale = self.tuning.pitch_scale()
-
-        for pc_index in sym_diff:
-
-            if pc_index in a_set:
-                for pitch_index in a_map[pc_index]:
-                    scale.add_pitch_index(
-                        pitch_index
-                    )
-            else:
-                for pitch_index in b_map[pc_index]:
-                    scale.add_pitch_index(
-                        pitch_index
-                    )
-
-        return scale
+        diff_a = self.difference(other, ignore_bi_index=True)
+        diff_b = other.difference(self, ignore_bi_index=True)
+        return diff_a.union(diff_b)
 
     def is_disjoint(self,
                     other: Self,
