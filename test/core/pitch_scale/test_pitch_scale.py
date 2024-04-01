@@ -431,7 +431,7 @@ def test_transpose_int(tuning):
     )
 
 
-def test_retune():
+def test_retune_edo12_edo31():
 
     edo12_scale = edo12.pitch_scale(
         edo12.pitch_range(12)
@@ -451,6 +451,28 @@ def test_retune():
     assert edo31_scale[9] == edo31.pitch(23)
     assert edo31_scale[10] == edo31.pitch(26)
     assert edo31_scale[11] == edo31.pitch(28)
+
+
+def test_retune_edo12_edo24():
+
+    edo12_scale = edo12.pitch_scale(
+        edo12.pitch_range(12)
+    )
+
+    edo24_scale = edo12_scale.retune(edo24)
+
+    assert edo24_scale[0] == edo24.pitch(0)
+    assert edo24_scale[1] == edo24.pitch(2)
+    assert edo24_scale[2] == edo24.pitch(4)
+    assert edo24_scale[3] == edo24.pitch(6)
+    assert edo24_scale[4] == edo24.pitch(8)
+    assert edo24_scale[5] == edo24.pitch(10)
+    assert edo24_scale[6] == edo24.pitch(12)
+    assert edo24_scale[7] == edo24.pitch(14)
+    assert edo24_scale[8] == edo24.pitch(16)
+    assert edo24_scale[9] == edo24.pitch(18)
+    assert edo24_scale[10] == edo24.pitch(20)
+    assert edo24_scale[11] == edo24.pitch(22)
 
 
 @pytest.mark.parametrize(
