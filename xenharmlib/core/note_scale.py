@@ -58,6 +58,15 @@ class NoteScale(ABC, Generic[NoteT]):
     def tuning(self):
         return self.notation.tuning
 
+    @property
+    @abstractmethod
+    def pitch_scale(self):
+        """
+        Returns the underlying pitch scale equivalent
+        (Must be implemented by subclass)
+        """
+        pass
+
     def add_note(self, note: NoteT):
         """
         Inserts a new note into to the scale at the right
