@@ -677,5 +677,146 @@ class PeriodicNoteScale(NoteScale):
         diff_b = other.difference(self, ignore_bi_index=True)
         return diff_a.union(diff_b)
 
+
 class NatAccNoteScale(PeriodicNoteScale):
-    pass
+    """
+    Basic note scale class for natural/accidental notations.
+    Implements the scale equivalents of properties special to
+    natural/accidental notes.
+    """
+
+    def __repr__(self):
+        note_symbols = []
+        for note in self._sorted_notes:
+            note_symbols.append(
+                note.pc_symbol + str(note.nat_bi_index)
+            )
+        return (
+            f'{self.__class__.__name__}('
+            f'{note_symbols}, '
+            f'{self.notation.name})'
+        )
+
+    # properties on single natural/accidental notes that
+    # should also apply to collections
+
+    @property
+    def nat_indices(self) -> List[int]:
+        """
+        A list of the natural indices of notes in this scale
+
+        The natural index is the number of natural steps needed
+        to reach the natural part of this note, so for example in
+        a notation with naturals C, D, E, F, G, A, B the
+        natural index of C#-0 is 0, D-1 is 8, Eb-3 is 16
+        """
+        indices = []
+        for note in self:
+            indices.append(note.nat_index)
+        return indices
+
+    @property
+    def natc_indices(self) -> List[int]:
+        """
+        A list of natural class indices of notes in this scale.
+
+        The natural class index is the equivalency class
+        of the natural index, so for example in a notation
+        with naturals C, D, E, F, G, A, B the notes C#-3
+        and Cb-0 both have natural class index 0 while F#-2
+        and Fbb-5 have natural class index 3
+        """
+        indices = []
+        for note in self:
+            indices.append(note.natc_index)
+        return indices
+
+    @property
+    def nat_bi_indices(self) -> List[int]:
+        """
+        A list of natural base interval indices represented in this
+        scale. The natural base interval is the base interval index
+        of the natural part of the note, so e.g. 0 for B#-0
+        """
+        indices = []
+        for note in self:
+            indices.append(note.nat_bi_index)
+        return indices
+
+    @property
+    def acc_values(self) -> List[int]:
+        """
+        A list of accidental values for each note in the scale
+        """
+        indices = []
+        for note in self:
+            indices.append(note.acc_value)
+        return indices
+
+    @property
+    def nat_pc_indices(self) -> List[int]:
+        """
+        A list of pitch class indices of the natural part of each note
+        in the scale (e.g. in 12-EDO [0, 2, 4] for [C#0, D1, Eb2])
+        """
+        indices = []
+        for note in self:
+            indices.append(note.nat_pc_index)
+        return indices
+
+    @property
+    def nat_pitch_indices(self) -> List[int]:
+        """
+        A list of pitch indices of the natural part of each note
+        in the scale (e.g. in 12-EDO [0, 14, 18] for [C#0, D1, Eb2])
+        """
+        indices = []
+        for note in self:
+            indices.append(note.nat_pitch_index)
+        return indices
+
+    @property
+    def natc_symbols(self) -> str:
+        """
+        The symbol list for the natural part of each note in the
+        scale (e.g. in 12-EDO ['C', 'G', 'B'] for [C#0, Gb1, B4])
+        """
+        symbols = []
+        for note in self:
+            symbols.append(note.natc_symbol)
+        return symbols
+
+    @property
+    def acc_symbols(self) -> str:
+        """
+        The symbol list for the accidental part of each note in the
+        scale (e.g. in 12-EDO ['#', 'b', ''] for [C#0, Gb1, B4])
+        """
+        symbols = []
+        for note in self:
+            symbols.append(note.acc_symbol)
+        return symbols
+
+    @property
+    def pc_symbols(self) -> str:
+        """
+        The symbol list for the pitch classes represented in the
+        scale (e.g. in 12-EDO ['C#', 'Gb', 'B'] for [C#0, Gb1, B4])
+        """
+        symbols = []
+        for note in self:
+            symbols.append(note.pc_symbol)
+        return symbols
+
+    @property
+    def acc_directions(self) -> str:
+        """
+        The list of accidental directions of notes in the scale
+        (0 if the note is a natural, 1 if the note is a sharp note,
+        -1 if it is a flat note, so for example in 31-EDO [0, 1, -1]
+        for [C0, B^2, Cb0])
+        """
+        directions = []
+        for note in self:
+            directions.append(note.acc_direction)
+        return directions
