@@ -29,7 +29,7 @@ def test_pitch_periodic_indices():
     assert pitch.bi_index == -1
 
 
-def test_tranpose_bi_index():
+def test_transpose_bi_index():
 
     pitch = EDPitch(edo31, 41)
     assert pitch.pc_index == 10
