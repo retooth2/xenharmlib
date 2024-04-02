@@ -159,6 +159,28 @@ class PeriodicNoteABC(NoteABC):
         """
         return self.pitch.bi_index
 
+    def is_equivalent(self, other: Self) -> bool:
+        """
+        Returns True if the note has the same pitch class
+        index as the other
+
+        :param other: Another note to compare
+        """
+
+        return self.pitch.is_equivalent(other.pitch)
+
+    @abstractmethod
+    def is_notated_equivalent(self, other) -> bool:
+        """
+        (Must be implemented by subclasses)
+        Returns True, if this note is notated the same
+        way as the other in regards to its pitch class
+        symbol
+
+        :param other: Another note
+        """
+        pass
+
     @abstractmethod
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
@@ -253,6 +275,19 @@ class NatAccNote(PeriodicNoteABC):
         if isinstance(other, NatAccNote):
             return (self.pc_symbol == other.pc_symbol) and \
                 (self.nat_bi_index == other.nat_bi_index)
+
+        return False
+
+    def is_notated_equivalent(self, other) -> bool:
+        """
+        Returns True, if this note is notated the same
+        way as the other, False otherwise
+
+        :param other: Another note to compare
+        """
+
+        if isinstance(other, NatAccNote):
+            return self.pc_symbol == other.pc_symbol
 
         return False
 

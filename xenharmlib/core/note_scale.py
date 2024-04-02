@@ -255,21 +255,19 @@ class NoteScale(ABC, Generic[NoteT]):
                 'Scales have different notations'
             )
 
+        scale = self.notation.note_scale()
+
         if is_notated_same:
-            intersection = set()
-            for note_a in self:
-                for note_b in other:
-                    if note_a.is_notated_same(note_b):
-                        intersection.add(note_a)
-
+            eq = lambda x, y: x.is_notated_same(y)
         else:
-            a = set(self)
-            b = set(other)
-            intersection = a.intersection(b)
+            eq = lambda x, y: x == y
 
-        return self.notation.note_scale(
-            intersection
-        )
+        for note_a in self:
+            for note_b in other:
+                if eq(note_a, note_b):
+                    scale.add_note(note_a)
+
+        return scale
 
     def difference(self,
                    other: Self,
@@ -296,21 +294,21 @@ class NoteScale(ABC, Generic[NoteT]):
                 'Scales have different notations'
             )
 
+        scale = self.notation.note_scale()
+
         if is_notated_same:
-            difference = set(self)
-            for note_a in self:
-                for note_b in other:
-                    if note_a.is_notated_same(note_b):
-                        difference.remove(note_a)
-
+            eq = lambda x, y: x.is_notated_same(y)
         else:
-            a = set(self)
-            b = set(other)
-            difference = a.difference(b)
+            eq = lambda x, y: x == y
 
-        return self.notation.note_scale(
-            difference
-        )
+        for note_a in self:
+            for note_b in other:
+                if eq(note_a, note_b):
+                    break
+            else:
+                scale.add_note(note_a)
+
+        return scale
 
     def symmetric_difference(self,
                              other: Self) -> Self:
@@ -330,13 +328,9 @@ class NoteScale(ABC, Generic[NoteT]):
                 'Scales have different notations'
             )
 
-        a = set(self)
-        b = set(other)
-        difference = a.symmetric_difference(b)
-
-        return self.notation.note_scale(
-            difference
-        )
+        diff_a = self.difference(other)
+        diff_b = other.difference(self)
+        return diff_a.union(diff_b)
 
     def is_disjoint(self,
                     other: Self,
@@ -576,36 +570,18 @@ class PeriodicNoteScale(NoteScale):
                 is_notated_same=is_notated_same
             )
 
-        a_map = defaultdict(set)
-        b_map = defaultdict(set)
-
-        for note in self:
-            n_note = note.get_bi_normalized()
-            a_map[n_note].add(note)
-
-        for note in other:
-            n_note = note.get_bi_normalized()
-            b_map[n_note].add(note)
-
         if is_notated_same:
-            intersection = set()
-            for n_note_a in a_map:
-                for n_note_b in b_map:
-                    if n_note_a.is_notated_same(n_note_b):
-                        intersection.add(n_note_a)
-        
+            eq = lambda x,y: x.is_notated_equivalent(y)
         else:
-            a_set = set(a_map.keys())
-            b_set = set(b_map.keys())
-            intersection = a_set.intersection(b_set)
+            eq = lambda x,y: x.is_equivalent(y)
 
         scale = self.notation.note_scale()
 
-        for n_note in intersection:
-            for note in a_map[n_note]:
-                scale.add_note(note)
-            for note in b_map[n_note]:
-                scale.add_note(note)
+        for note_a in self:
+            for note_b in other:
+                if eq(note_a, note_b):
+                    scale.add_note(note_a)
+                    scale.add_note(note_b)
 
         return scale
 
@@ -650,34 +626,19 @@ class PeriodicNoteScale(NoteScale):
                 is_notated_same=is_notated_same
             )
 
-        a_map = defaultdict(set)
-        b_map = defaultdict(set)
-
-        for note in self:
-            n_note = note.get_bi_normalized()
-            a_map[n_note].add(note)
-
-        for note in other:
-            n_note = note.get_bi_normalized()
-            b_map[n_note].add(note)
-
         if is_notated_same:
-            difference = set(a_map)
-            for n_note_a in a_map:
-                for n_note_b in b_map:
-                    if n_note_a.is_notated_same(n_note_b):
-                        difference.remove(n_note_a)
-        
+            eq = lambda x,y: x.is_notated_equivalent(y)
         else:
-            a_set = set(a_map.keys())
-            b_set = set(b_map.keys())
-            difference = a_set.difference(b_set)
+            eq = lambda x,y: x.is_equivalent(y)
 
         scale = self.notation.note_scale()
 
-        for n_note in difference:
-            for note in a_map[n_note]:
-                scale.add_note(note)
+        for note_a in self:
+            for note_b in other:
+                if eq(note_a, note_b):
+                    break
+            else:
+                scale.add_note(note_a)
 
         return scale
 
@@ -712,31 +673,9 @@ class PeriodicNoteScale(NoteScale):
                 other
             )
 
-        a_map = defaultdict(set)
-        b_map = defaultdict(set)
-
-        for note in self:
-            n_note = note.get_bi_normalized()
-            a_map[n_note].add(note)
-
-        for note in other:
-            n_note = note.get_bi_normalized()
-            b_map[n_note].add(note)
-
-        a_set = set(a_map.keys())
-        b_set = set(b_map.keys())
-
-        difference = a_set.symmetric_difference(b_set)
-
-        scale = self.notation.note_scale()
-
-        for n_note in difference:
-            for note in a_map[n_note]:
-                scale.add_note(note)
-            for note in b_map[n_note]:
-                scale.add_note(note)
-
-        return scale
+        diff_a = self.difference(other, ignore_bi_index=True)
+        diff_b = other.difference(self, ignore_bi_index=True)
+        return diff_a.union(diff_b)
 
 class NatAccNoteScale(PeriodicNoteScale):
     pass
