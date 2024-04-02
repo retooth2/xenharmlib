@@ -201,6 +201,33 @@ class PeriodicNoteABC(NoteABC):
             -self.bi_index
         )
 
+    def get_generator_index(self, generator_note: Self):
+        """
+        Calculates the number of steps needed to reach this note
+        when iteratively adding the pitch of the given generator
+        note to the zero pitch of this tuning
+
+        :param generator_note: A generator note. Will be normalized
+            to the equivalent note in the first base interval if its
+            pitch index exceeds the period length of the tuning.
+
+        :raises IncompatibleNotations: If notes come
+            from a different notation system
+
+        :raises InvalidGenerator: If pitch of given generator note is
+            not in fact a generator in the underlying tuning
+        """
+
+        if generator_note.notation != self.notation:
+            raise IncompatibleNotations(
+                'Generator notes must come from the same notation'
+            )
+
+        return self.pitch.get_generator_index(
+            generator_note.pitch
+        )
+
+
 class NatAccNote(PeriodicNoteABC):
     """
     A base class for notes which are constructed from a natural and
