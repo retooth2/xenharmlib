@@ -447,10 +447,6 @@ class NatAccNote(PeriodicNoteABC):
         nat_count = self.notation.nat_count
 
         target_nat_index = self.nat_index + nat_diff
-        target_pitch_index = self.pitch_index + interval.pitch_diff
-
-        if target_nat_index < 0 or target_pitch_index < 0:
-            raise InvalidPitchIndex('Pitch index can not be lower than 0')
 
         source_nat_pitch_index = self.notation.nat_index_to_pitch_index(
             self.nat_index

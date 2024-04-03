@@ -336,11 +336,6 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         :param nat_index: A natural index
         """
 
-        if nat_index < 0:
-            raise InvalidNaturalIndex(
-                'Minimum natural index is 0'
-            )
-
         bi_index, natc_index = divmod(nat_index, self.nat_count)
         nat_pc_index = self.nat_pc_indices[natc_index]
         return nat_pc_index + len(self.tuning) * bi_index
@@ -448,12 +443,8 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         :param nat_index: A natural index of this notation
         """
         
-        if nat_index < 0:
-            raise InvalidNaturalIndex(
-                'Natural index can not be lower than 0'
-            )
-
-        nat_pc_index = self.nat_index_to_pitch_index(nat_index)
+        nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
+        nat_pc_index = nat_pitch_index % len(self.tuning)
         return self._nat_symbols[nat_pc_index]
 
     # accidental symbol code processing
