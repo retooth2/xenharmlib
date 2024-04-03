@@ -20,6 +20,7 @@ arguments according to the needed capabilities without
 making complicated inheritance hierarchies.
 """
 
+from __future__ import annotations
 from typing import *
 from .frequencies import Frequency
 
@@ -64,6 +65,12 @@ class PeriodicPitchLike(PitchLike, Protocol):
 
     @property
     def bi_index(self) -> int:
+        ...
+
+    def transpose_bi_index(self) -> PeriodicPitchLike:
+        ...
+
+    def get_bi_normalized(self) -> PeriodicPitchLike:
         ...
 
 @runtime_checkable

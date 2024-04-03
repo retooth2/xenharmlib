@@ -241,13 +241,16 @@ class PeriodicPitch(Pitch):
 
     def is_equivalent(self, other: PeriodicPitchLike) -> bool:
         """
-        Returns True if this pitch has the same pitch class
-        index as the other
+        Returns True if this pitch has the same frequency as the
+        other object when normalized to the first base interval
 
-        :param other: Another pitch of the same tuning
+        :param other: Another periodic pitch or note
         """
 
-        return self.pc_index == other.pc_index
+        n_self = self.get_bi_normalized()
+        n_other = other.get_bi_normalized()
+
+        return n_self == n_other
 
     def get_generator_index(self, generator_pitch: Self):
         """
