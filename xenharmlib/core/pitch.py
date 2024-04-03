@@ -19,6 +19,7 @@ import math
 from functools import total_ordering
 from typing import *
 from .frequencies import Frequency
+from .protocols import PeriodicPitchLike
 from .constants import FREQ_EQUALITY_EPSILON
 from .constants import CENTS_PRECISION
 from ..exc import IncompatibleTunings
@@ -238,7 +239,7 @@ class PeriodicPitch(Pitch):
         """
         return self.tuning.pitch(self.pc_index)
 
-    def is_equivalent(self, other: Self) -> bool:
+    def is_equivalent(self, other: PeriodicPitchLike) -> bool:
         """
         Returns True if this pitch has the same pitch class
         index as the other

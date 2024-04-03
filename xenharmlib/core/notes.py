@@ -25,6 +25,7 @@ from typing import *
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
+from .protocols import PeriodicPitchLike
 from .frequencies import Frequency
 from .pitch import PeriodicPitch
 from .protocols import HasFrequency
@@ -159,7 +160,7 @@ class PeriodicNoteABC(NoteABC):
         """
         return self.pitch.bi_index
 
-    def is_equivalent(self, other: Self) -> bool:
+    def is_equivalent(self, other: PeriodicPitchLike) -> bool:
         """
         Returns True if the note has the same pitch class
         index as the other
@@ -167,7 +168,7 @@ class PeriodicNoteABC(NoteABC):
         :param other: Another note to compare
         """
 
-        return self.pitch.is_equivalent(other.pitch)
+        return self.pc_index == other.pc_index
 
     @abstractmethod
     def is_notated_equivalent(self, other) -> bool:
