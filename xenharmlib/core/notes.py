@@ -79,9 +79,6 @@ class NoteABC(ABC):
             self, other
         )
 
-    def __hash__(self):
-        return hash(repr(self))
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
@@ -432,9 +429,6 @@ class NatAccNote(PeriodicNoteABC):
             f'{self._notation.tuning.name})'
         )
 
-    def __hash__(self):
-        return hash(repr(self))
-
     def transpose(self, interval: NatAccNoteInterval) -> NatAccNote:
         """
         Transposes the note to another one by a natural/accidental
@@ -776,6 +770,3 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         and the interval number
         """
         return (self.symbol, self.number)
-
-    def __hash__(self):
-        return hash(repr(self))

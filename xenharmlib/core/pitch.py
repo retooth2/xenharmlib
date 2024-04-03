@@ -121,12 +121,6 @@ class Pitch:
             f'{self.tuning.name})'
         )
 
-    # Make the pitch hashable so it can be used in
-    # standard python sets
-
-    def __hash__(self):
-        return hash(repr(self))
-
     def transpose(self, diff: Union[int, PitchInterval]) -> Pitch:
         """
         Transposes the pitch to a different one
