@@ -76,7 +76,6 @@ class SymbolCode(ABC):
         :raises UnknownSymbolString: If mapping has no ruleset
             to convert the string into an integer
         """
-        pass
 
     @abstractmethod
     def get_symbol_str(self, value: int) -> str:
@@ -90,7 +89,6 @@ class SymbolCode(ABC):
         :raises SymbolValueNotMapped: If mapping has no ruleset
             to convert the integer into a string
         """
-        pass
 
 
 class SymbolSumArithmetic(SymbolCode):

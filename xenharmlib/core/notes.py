@@ -113,7 +113,6 @@ class NoteABC(ABC):
         (Must be implemented by subclasses)
         Returns the underlying pitch object
         """
-        pass
 
     @abstractmethod
     def transpose(self, interval) -> Self:
@@ -123,7 +122,6 @@ class NoteABC(ABC):
 
         :param interval: A note interval 
         """
-        pass
 
     @abstractmethod
     def is_notated_same(self, other) -> bool:
@@ -135,7 +133,6 @@ class NoteABC(ABC):
         :param other: Another note of the same
             notation or class
         """
-        pass
 
 
 class PeriodicNoteABC(NoteABC):
@@ -186,7 +183,6 @@ class PeriodicNoteABC(NoteABC):
 
         :param other: Another note
         """
-        pass
 
     @abstractmethod
     def transpose_bi_index(self, bi_diff: int) -> Self:
@@ -197,7 +193,6 @@ class PeriodicNoteABC(NoteABC):
         :param bi_diff: The difference in base interval
             between this note and the resulting one
         """
-        pass
 
     def get_bi_normalized(self) -> Self:
         """

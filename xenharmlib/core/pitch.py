@@ -327,7 +327,6 @@ class EDOPitch(EDPitch):
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
-    pass
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 

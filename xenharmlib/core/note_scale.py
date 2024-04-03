@@ -65,7 +65,6 @@ class NoteScale(ABC, Generic[NoteT]):
         Returns the underlying pitch scale equivalent
         (Must be implemented by subclass)
         """
-        pass
 
     def add_note(self, note: NoteT):
         """

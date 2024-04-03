@@ -855,8 +855,6 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
 class EDPitchScale(PeriodicPitchScale[EDPitch]):
     """ Pitch scale class for equal division tunings """
-    pass
 
 class EDOPitchScale(EDPitchScale):
     """ Pitch scale class for 'equal division of the octave' tunings """
-    pass
