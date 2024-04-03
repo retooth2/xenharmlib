@@ -29,6 +29,7 @@ from .notes import NatAccNoteInterval
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
+from .symbols import UnknownSymbolString
 from ..exc import IncompatibleNotations
 from ..exc import InvalidPitchIndex
 from ..exc import InvalidPitchClassIndex
@@ -653,6 +654,12 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             )
 
         acc_tail = symbol[len(best_natc_symbol):]
-        acc_value = self.acc_symbol_code.get_value(acc_tail)
+
+        try:
+            acc_value = self.acc_symbol_code.get_value(acc_tail)
+        except UnknownSymbolString:
+            raise UnknownNoteSymbol(
+                'Could not find a meaning for the accidentals'
+            )
 
         return (best_natc_symbol, acc_tail, best_natc_index, acc_value)
