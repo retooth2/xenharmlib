@@ -32,6 +32,7 @@ from .protocols import HasFrequency
 from .protocols import HasFrequencyRatio
 from ..exc import IncompatibleNotations
 from ..exc import InvalidPitchIndex
+from .constants import FREQ_EQUALITY_EPSILON
 
 
 @total_ordering
@@ -84,7 +85,9 @@ class NoteABC(ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
-        return self.frequency == other.frequency
+        return abs(
+            self.frequency - other.frequency
+        ) < FREQ_EQUALITY_EPSILON
 
     def __lt__(self, other: HasFrequency) -> bool:
         return self.frequency < other.frequency
@@ -580,7 +583,9 @@ class NoteIntervalABC(Generic[NoteT], ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequencyRatio):
             return False
-        return self.frequency_ratio == other.frequency_ratio
+        return abs(
+            self.frequency_ratio - other.frequency_ratio
+        ) < FREQ_EQUALITY_EPSILON
 
     def __lt__(self, other: HasFrequencyRatio) -> bool:
         return self.frequency_ratio < other.frequency_ratio
