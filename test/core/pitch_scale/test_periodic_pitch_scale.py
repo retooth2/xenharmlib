@@ -107,7 +107,7 @@ def test_rotated_down(tuning, original_pi, rotated_pi):
         (edo31, [18, 28, 36], -1, [5, 18, 28]),
         (edo12, [5, 13, 14], -1, [2, 5, 13]),
         (edo12, [14, 19, 28], -1, [4, 14, 19]),
-        (edo12, [24, 29, 38], -2, [17, 22, 24]),
+        (edo12, [24, 29, 38], -2, [5, 14, 24]),
     ]
 )
 def test_rotation(tuning, original_pi, order, rotated_pi):
