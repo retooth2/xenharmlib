@@ -133,7 +133,7 @@ def test_pc_indices(tuning, pitch_indices, pc_indices):
         tuning.pitch(pi) for pi in pitch_indices
     ]
     scale = tuning.pitch_scale(pitches)
-    scale.pc_indices == pc_indices
+    assert scale.pc_indices == pc_indices
 
 
 @pytest.mark.parametrize(
