@@ -53,14 +53,14 @@ def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
 
 
 @pytest.mark.parametrize(
-    'tuning, original_pi, inverted_pi',
+    'tuning, original_pi, rotated_pi',
     [
         (edo12, [2, 5, 9], [5, 9, 14]),
         (edo31, [5, 18, 28], [18, 28, 36]),
         (edo12, [2, 5, 13], [5, 13, 14]),
     ]
 )
-def test_inverted_up(tuning, original_pi, inverted_pi):
+def test_rotated_up(tuning, original_pi, rotated_pi):
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -68,13 +68,13 @@ def test_inverted_up(tuning, original_pi, inverted_pi):
     scale = tuning.pitch_scale(
         pitches
     )
-    inverted = scale.inverted_up()
-    for i, pi in enumerate(inverted_pi):
-        inverted[i] == tuning.pitch(pi)
+    rotated = scale.rotated_up()
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
 
 
 @pytest.mark.parametrize(
-    'tuning, original_pi, inverted_pi',
+    'tuning, original_pi, rotated_pi',
     [
         (edo12, [5, 9, 14], [2, 5, 9]),
         (edo31, [18, 28, 36], [5, 18, 28]),
@@ -82,7 +82,7 @@ def test_inverted_up(tuning, original_pi, inverted_pi):
         (edo12, [14, 19, 28], [4, 14, 19]),
     ]
 )
-def test_inverted_down(tuning, original_pi, inverted_pi):
+def test_rotated_down(tuning, original_pi, rotated_pi):
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -90,13 +90,13 @@ def test_inverted_down(tuning, original_pi, inverted_pi):
     scale = tuning.pitch_scale(
         pitches
     )
-    inverted = scale.inverted_down()
-    for i, pi in enumerate(inverted_pi):
-        inverted[i] == tuning.pitch(pi)
+    rotated = scale.rotated_down()
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
 
 
 @pytest.mark.parametrize(
-    'tuning, original_pi, order, inverted_pi',
+    'tuning, original_pi, order, rotated_pi',
     [
         (edo12, [2, 5, 9], 0, [2, 5, 9]),
         (edo12, [2, 5, 9], 1, [5, 9, 14]),
@@ -110,7 +110,7 @@ def test_inverted_down(tuning, original_pi, inverted_pi):
         (edo12, [24, 29, 38], -2, [17, 22, 24]),
     ]
 )
-def test_inversion(tuning, original_pi, order, inverted_pi):
+def test_rotation(tuning, original_pi, order, rotated_pi):
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -118,9 +118,9 @@ def test_inversion(tuning, original_pi, order, inverted_pi):
     scale = tuning.pitch_scale(
         pitches
     )
-    inverted = scale.inversion(order)
-    for i, pi in enumerate(inverted_pi):
-        inverted[i] == tuning.pitch(pi)
+    rotated = scale.rotation(order)
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
 
 
 @pytest.mark.parametrize(

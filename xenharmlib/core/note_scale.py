@@ -429,7 +429,7 @@ class PeriodicNoteScale(NoteScale):
     equivalent notes the same as equal notes).
     """
 
-    # TODO: implement normalization + inversion
+    # TODO: implement normalization
 
     @property
     def pc_indices(self) -> List[int]:
@@ -461,51 +461,51 @@ class PeriodicNoteScale(NoteScale):
 
         return n_scale
 
-    def inverted_up(self) -> Self:
+    def rotated_up(self) -> Self:
         """
         Create a new scale by transposing the base interval of the
         lowest note upwards until it is above the highest note
         """
 
-        inverted_scale = self.notation.note_scale(
+        rotated_scale = self.notation.note_scale(
             self[1:]
         )
 
         bi_diff = self[-1].bi_index - self[0].bi_index
         note = self[0].transpose_bi_index(bi_diff)
 
-        if note < inverted_scale[-1]:
+        if note < rotated_scale[-1]:
             note = note.transpose_bi_index(1)
 
-        inverted_scale.add_note(note)
-        return inverted_scale
+        rotated_scale.add_note(note)
+        return rotated_scale
 
-    def inverted_down(self) -> Self:
+    def rotated_down(self) -> Self:
         """
         Create a new scale by transposing the base interval of the
         highest pitch downwards until it is below the lowest pitch
         """
 
-        inverted_scale = self.notation.note_scale(
+        rotated_scale = self.notation.note_scale(
             self[:-1]
         )
 
         bi_diff = self[0].bi_index - self[-1].bi_index
         note = self[-1].transpose_bi_index(bi_diff)
 
-        if note > inverted_scale[0]:
+        if note > rotated_scale[0]:
             note = note.transpose_bi_index(-1)
 
-        inverted_scale.add_note(note)
-        return inverted_scale
+        rotated_scale.add_note(note)
+        return rotated_scale
 
-    def inversion(self, order: int) -> Self:
+    def rotation(self, order: int) -> Self:
         """
-        Returns the inversion of the n-th order of this scale.
+        Returns the n-th rotation of this scale.
 
         :param order: The number of times the scale is
-            inverted. If a negative number is given the
-            scale will be inverted downwards. On 0 the
+            rotated. If a negative number is given the
+            scale will be rotated downwards. On 0 the
             scale will return itself
         """
 
@@ -516,11 +516,11 @@ class PeriodicNoteScale(NoteScale):
 
         if order > 0:
             for _ in range(0, order):
-                scale = scale.inverted_up()
+                scale = scale.rotated_up()
 
         if order < 0:
             for _ in range(0, abs(order)):
-                scale = scale.inverted_down()
+                scale = scale.rotated_down()
 
         return scale
 

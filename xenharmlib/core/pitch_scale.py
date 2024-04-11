@@ -475,7 +475,7 @@ PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
     """
     Pitch scale class for periodic tunings. Implements
-    operations like inversion and customized set operations
+    operations like rotation and customized set operations
     (for when you want to treat equivalent pitches the same
     as equal pitches). It also implements normalization methods.
     """
@@ -524,13 +524,13 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
     # typical scale operations in music theory
 
-    def inverted_up(self) -> Self:
+    def rotated_up(self) -> Self:
         """
         Create a new scale by transposing the lowest pitch
         upwards until it is above the highest pitch
         """
 
-        inverted_scale = self.tuning.pitch_scale(
+        rotated_scale = self.tuning.pitch_scale(
             self[1:]
         )
 
@@ -538,19 +538,19 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             self[0].pc_index + self[-1].bi_index * len(self.tuning)
         )
 
-        if pitch < inverted_scale[-1]:
+        if pitch < rotated_scale[-1]:
             pitch = pitch.transpose_bi_index(1)
 
-        inverted_scale.add_pitch(pitch)
-        return inverted_scale
+        rotated_scale.add_pitch(pitch)
+        return rotated_scale
 
-    def inverted_down(self) -> Self:
+    def rotated_down(self) -> Self:
         """
         Create a new scale by transposing the highest pitch
         downwards until it is below the lowest pitch
         """
 
-        inverted_scale = self.tuning.pitch_scale(
+        rotated_scale = self.tuning.pitch_scale(
             self[:-1]
         )
 
@@ -560,19 +560,19 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             self[-1].pitch_index - bi_diff * len(self.tuning)
         )
 
-        if pitch > inverted_scale[0]:
+        if pitch > rotated_scale[0]:
             pitch = pitch.transpose_bi_index(-1)
 
-        inverted_scale.add_pitch(pitch)
-        return inverted_scale
+        rotated_scale.add_pitch(pitch)
+        return rotated_scale
 
-    def inversion(self, order: int) -> Self:
+    def rotation(self, order: int) -> Self:
         """
-        Returns the inversion of the n-th order of this scale.
+        Returns the n-th rotation of this scale.
 
         :param order: The number of times the scale is
-            inverted. If a negative number is given the
-            scale will be inverted downwards. On 0 the
+            rotated. If a negative number is given the
+            scale will be rotated downwards. On 0 the
             scale will return itself
         """
 
@@ -583,11 +583,11 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         if order > 0:
             for _ in range(0, order):
-                scale = scale.inverted_up()
+                scale = scale.rotated_up()
 
         if order < 0:
             for _ in range(0, abs(order)):
-                scale = scale.inverted_down()
+                scale = scale.rotated_down()
 
         return scale
 
