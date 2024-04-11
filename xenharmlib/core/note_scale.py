@@ -690,10 +690,12 @@ class NatAccNoteScale(PeriodicNoteScale):
             note_symbols.append(
                 note.pc_symbol + str(note.nat_bi_index)
             )
+        note_symbols = ', '.join(note_symbols)
+        note_symbols = '[' + note_symbols + ']'
         return (
             f'{self.__class__.__name__}('
             f'{note_symbols}, '
-            f'{self.notation.name})'
+            f'{self.tuning.name})'
         )
 
     # properties on single natural/accidental notes that
