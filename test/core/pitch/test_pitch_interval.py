@@ -49,6 +49,20 @@ def test_eq():
     assert interval_a == interval_b
 
 
+def test_abs():
+
+    interval_a = PitchInterval.from_pitches(
+        EDPitch(edo31, 6),
+        EDPitch(edo31, 35),
+    )
+    interval_b = PitchInterval.from_pitches(
+        EDPitch(edo31, 35),
+        EDPitch(edo31, 6),
+    )
+    assert abs(interval_a) == abs(interval_b)
+    assert abs(interval_b) == interval_a
+
+
 def test_cents():
 
     interval = PitchInterval.from_pitches(

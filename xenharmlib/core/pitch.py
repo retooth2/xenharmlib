@@ -368,6 +368,22 @@ class PitchInterval(Generic[PitchT]):
         self.pitch_diff = pitch_diff
         self.tuning = tuning
 
+    def __abs__(self) -> Self:
+        """
+        Returns the absolute of this pitch interval. On downwards
+        interval it returns an upwards interval of the same absolute
+        size. On upwards intervals it acts as the identity function.
+        """
+
+        if self.pitch_diff >= 0:
+            return self
+
+        target_pitch = self.ref_pitch.transpose(
+            self.pitch_diff
+        )
+
+        return self.tuning.pitch_interval(target_pitch, self.ref_pitch)
+
     @classmethod
     def from_pitches(cls, pitch_a: PitchT, pitch_b: PitchT) -> Self:
         """
@@ -408,12 +424,6 @@ class PitchInterval(Generic[PitchT]):
 
     def __lt__(self, other):
         return self.frequency_ratio < other.frequency_ratio
-
-    # some useful properties
-
-    @property
-    def abs_pitch_diff(self):
-        return abs(self.pitch_diff)
 
     @property
     def frequency_ratio(self) -> Frequency:
@@ -482,7 +492,7 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
 
         zero = self.tuning.pitch(0)
         target = self.tuning.pitch(
-            self.abs_pitch_diff
+            abs(self).pitch_diff
         )
 
         i_zero = zero.get_generator_index(generator_pitch)

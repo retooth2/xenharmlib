@@ -532,6 +532,22 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         Constructs an interval from two notes
         """
 
+    def __abs__(self) -> Self:
+        """
+        Returns the absolute of this note interval. On downwards
+        interval it returns an upwards interval of the same absolute
+        size. On upwards intervals it acts as the identity function.
+        """
+
+        if self.pitch_diff >= 0:
+            return self
+
+        target_note = self.ref_note.transpose(self)
+        return self.notation.note_interval(
+            target_note,
+            self.ref_note
+        )
+
     # read-only properties
 
     @property
