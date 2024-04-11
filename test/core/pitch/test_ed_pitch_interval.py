@@ -63,6 +63,13 @@ def test_init_incompatible_tunings():
             EDPitch(edo31, 1),
             4
         ),
+        (
+            EDPitch(edo31, 0).interval(
+                EDPitch(edo31, 13)
+            ),
+            EDPitch(edo31, 18),
+            1
+        ),
     ]
 )
 def test_get_generator_distance(interval, gen_pitch, distance):

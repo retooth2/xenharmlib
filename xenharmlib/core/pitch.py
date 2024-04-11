@@ -489,7 +489,7 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
         i_target = target.get_generator_index(generator_pitch)
         i_diff = (i_target - i_zero)
 
-        return min(i_diff, 12 - i_diff)
+        return min(i_diff, len(self.tuning) - i_diff)
 
 
 class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
