@@ -298,11 +298,15 @@ class NatAccNote(PeriodicNoteABC):
         :param other: Another note to compare
         """
 
-        if isinstance(other, NatAccNote):
-            return (self.pc_symbol == other.pc_symbol) and \
-                (self.nat_bi_index == other.nat_bi_index)
+        if other.notation is not self.notation:
+            raise IncompatibleNotations(
+                'Notes must originate from the same '
+                'notation context'
+            )
 
-        return False
+        return (self.pc_symbol == other.pc_symbol) and \
+            (self.nat_bi_index == other.nat_bi_index)
+
 
     def is_notated_equivalent(self, other) -> bool:
         """
@@ -312,10 +316,13 @@ class NatAccNote(PeriodicNoteABC):
         :param other: Another note to compare
         """
 
-        if isinstance(other, NatAccNote):
-            return self.pc_symbol == other.pc_symbol
+        if other.notation is not self.notation:
+            raise IncompatibleNotations(
+                'Notes must originate from the same '
+                'notation context'
+            )
 
-        return False
+        return self.pc_symbol == other.pc_symbol
 
     # methods pertaining to the split in natural and
     # accidental part
