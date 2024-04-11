@@ -14,10 +14,9 @@ ed13_3 = EDTuning(13, Frequency(3))
     'tuning, pi_list, n_pi_list',
     [
         (edo12, [7, 13, 19, 24], [0, 1, 7]),
-        (edo31, [13, 39, 48, 65], [3, 8, 11, 13])
+        (edo31, [13, 39, 48, 65], [3, 8, 13, 17])
     ]
 )
-
 def test_get_bi_normalized(tuning, pi_list, n_pi_list):
 
     pitches = [
@@ -28,17 +27,16 @@ def test_get_bi_normalized(tuning, pi_list, n_pi_list):
     )
     normalized = scale.get_bi_normalized()
     for i, n_pi in enumerate(n_pi_list):
-        normalized[i] == tuning.pitch(n_pi)
+        assert normalized[i] == tuning.pitch(n_pi)
 
 
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
         (edo12, [7, 12, 19, 24], [1, 2, 3, 4, 5, 6, 8, 9, 10, 11]),
-        (edo12, [0, 2, 4, 17, 7, 13, 11], [1, 3, 6, 8, 10])
+        (edo12, [0, 2, 4, 17, 7, 13, 11], [3, 6, 8, 9, 10])
     ]
 )
-
 def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
 
     pitches = [
@@ -49,7 +47,7 @@ def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
     )
     normalized = scale.get_bi_normalized_complement()
     for i, n_pi in enumerate(n_pi_list):
-        normalized[i] == tuning.pitch(n_pi)
+        assert normalized[i] == tuning.pitch(n_pi)
 
 
 @pytest.mark.parametrize(
