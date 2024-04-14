@@ -18,8 +18,6 @@ The note scale core module implements basic classes for different
 types of scale notation systems.
 """
 
-from abc import ABC
-from abc import abstractmethod
 from typing import *
 from bisect import insort
 from collections import defaultdict
@@ -30,7 +28,7 @@ from ..exc import IncompatibleNotations
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 
-class NoteScale(ABC, Generic[NoteT]):
+class NoteScale(Generic[NoteT]):
     """
     Abstract base class for all note scales. Implements list and
     set operations, transposition, etc
@@ -59,12 +57,13 @@ class NoteScale(ABC, Generic[NoteT]):
         return self.notation.tuning
 
     @property
-    @abstractmethod
     def pitch_scale(self):
         """
-        Returns the underlying pitch scale equivalent
-        (Must be implemented by subclass)
+        Returns the equivalent pitch scale for this object
         """
+        return self.tuning.pitch_scale(
+            [note.pitch for note in self]
+        )
 
     def add_note(self, note: NoteT):
         """
@@ -167,12 +166,6 @@ class NoteScale(ABC, Generic[NoteT]):
         return [
             notes.pitch_index for notes in self._sorted_notes
         ]
-
-    @property
-    def pitch_scale(self):
-        return self.tuning.pitch_scale(
-            [note.pitch for note in self]
-        )
 
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
