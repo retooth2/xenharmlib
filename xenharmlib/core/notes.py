@@ -217,9 +217,9 @@ class PeriodicNoteABC(NoteABC):
             not in fact a generator in the underlying tuning
         """
 
-        if generator_note.notation != self.notation:
+        if generator_note.notation is not self.notation:
             raise IncompatibleNotations(
-                'Generator notes must come from the same notation'
+                'Generator notes must originate from the same notation'
             )
 
         return self.pitch.get_generator_index(
@@ -663,7 +663,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
             in the tuning attached to this interval's notation
         """
 
-        if generator_note.notation != self.notation:
+        if generator_note.notation is not self.notation:
             raise IncompatibleNotations(
                 'Notes must come from the same '
                 'notation instance'
@@ -754,7 +754,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         :param note_b: The target note
         """
 
-        if note_a.notation != note_b.notation:
+        if note_a.notation is not note_b.notation:
             raise IncompatibleNotations(
                 'Notes do not originate from the same notation'
             )

@@ -77,9 +77,9 @@ class NoteScale(Generic[NoteT]):
         :param note: The new note
         """
 
-        if note.notation != self.notation:
+        if note.notation is not self.notation:
             raise IncompatibleNotations(
-                'The provided note has a different '
+                'The provided note originates from a different '
                 'notation than the scale'
             )
 
@@ -209,9 +209,9 @@ class NoteScale(Generic[NoteT]):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         scale = self.notation.note_scale()
@@ -242,9 +242,9 @@ class NoteScale(Generic[NoteT]):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         scale = self.notation.note_scale()
@@ -281,9 +281,9 @@ class NoteScale(Generic[NoteT]):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         scale = self.notation.note_scale()
@@ -315,9 +315,9 @@ class NoteScale(Generic[NoteT]):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         diff_a = self.difference(other)
@@ -551,9 +551,9 @@ class PeriodicNoteScale(NoteScale):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         if not ignore_bi_index:
@@ -607,9 +607,9 @@ class PeriodicNoteScale(NoteScale):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         if not ignore_bi_index:
@@ -655,9 +655,9 @@ class PeriodicNoteScale(NoteScale):
             different notation
         """
 
-        if self.notation != other.notation:
+        if self.notation is not other.notation:
             raise IncompatibleNotations(
-                'Scales have different notations'
+                'Scales do not originate from the same notation'
             )
 
         if not ignore_bi_index:

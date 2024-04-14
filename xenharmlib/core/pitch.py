@@ -87,18 +87,18 @@ class Pitch:
     # arithmetic
 
     def __add__(self, other):
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Pitches must have the same tuning'
+                'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(
             self.pitch_index + other.pitch_index
         )
 
     def __sub__(self, other):
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Pitches must have the same tuning'
+                'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(
             self.pitch_index - other.pitch_index
@@ -263,9 +263,9 @@ class PeriodicPitch(Pitch):
             fact a generator in the tuning of this pitch
         """
 
-        if generator_pitch.tuning != self.tuning:
+        if generator_pitch.tuning is not self.tuning:
             raise IncompatibleTunings(
-                'Generator pitch must have the same tuning'
+                'Pitches must originate from the same tuning context'
             )
 
         generator_pitch = generator_pitch.get_bi_normalized()
@@ -398,10 +398,9 @@ class PitchInterval(Generic[PitchT]):
         :param pitch_b: The second (or target) pitch
         """
 
-        if pitch_a.tuning != pitch_b.tuning:
+        if pitch_a.tuning is not pitch_b.tuning:
             raise IncompatibleTunings(
-                'Pitches must have the same tuning '
-                'to form an interval'
+                'Pitches must originate from the same tuning context'
             )
 
         tuning = pitch_a.tuning
@@ -522,10 +521,9 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
         :param pitch_b: The second (or target) pitch
         """
 
-        if pitch_a.tuning != pitch_b.tuning:
+        if pitch_a.tuning is not pitch_b.tuning:
             raise IncompatibleTunings(
-                'Pitches must have the same tuning '
-                'to form an interval'
+                'Pitches must originate from the same tuning context'
             )
 
         tuning = pitch_a.tuning

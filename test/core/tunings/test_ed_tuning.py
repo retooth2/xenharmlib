@@ -37,12 +37,12 @@ def test_get_frequency(tuning, pitch_index, freq):
 def test_get_frequency_incompatible_tunings():
 
     edo12 = EDTuning(12, Frequency(2))
-    edo31 = EDTuning(31, Frequency(2))
+    edo12_2 = EDTuning(12, Frequency(2))
 
     edo12_pitch = edo12.pitch(8)
 
     with pytest.raises(IncompatibleTunings):
-        edo31.get_frequency(edo12_pitch)
+        edo12_2.get_frequency(edo12_pitch)
 
 
 @pytest.mark.parametrize(

@@ -123,10 +123,10 @@ class PitchScale(Generic[PitchT]):
         :param pitch: The new pitch
         """
 
-        if pitch.tuning != self.tuning:
+        if pitch.tuning is not self.tuning:
             raise IncompatibleTunings(
-                'The provided pitch has a different '
-                'tuning than the scale'
+                'Pitch must originate from the same tuning '
+                'context as the scale'
             )
 
         if pitch not in self._sorted_pitches:
@@ -306,9 +306,9 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         scale = self.tuning.pitch_scale()
@@ -333,9 +333,9 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         scale = self.tuning.pitch_scale()
@@ -359,9 +359,9 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         scale = self.tuning.pitch_scale()
@@ -389,9 +389,9 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         diff_a = self.difference(other)
@@ -625,9 +625,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         if not ignore_bi_index:
@@ -662,9 +662,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         if not ignore_bi_index:
@@ -702,9 +702,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         if not ignore_bi_index:
@@ -751,9 +751,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        if self.tuning != other.tuning:
+        if self.tuning is not other.tuning:
             raise IncompatibleTunings(
-                'Scales have different tuning'
+                'Scales must originate from the same tuning context'
             )
 
         a_set = set()

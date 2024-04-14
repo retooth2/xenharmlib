@@ -431,7 +431,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
             tuning
         """
 
-        if pitch.tuning != self:
+        if pitch.tuning is not self:
             raise IncompatibleTunings(
                 'Given pitch has a different tuning'
             )

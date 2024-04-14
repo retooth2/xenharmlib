@@ -12,10 +12,12 @@ ed13_3 = EDTuning(13, Frequency(3))
 
 def test_init_incompatible_tunings():
 
+    edo12_2 = EDTuning(12, Frequency(2))
+
     with pytest.raises(IncompatibleTunings):
         EDPitchInterval.from_pitches(
             EDPitch(edo12, 0),
-            EDPitch(edo31, 0),
+            EDPitch(edo12_2, 0),
         )
 
 @pytest.mark.parametrize(

@@ -74,8 +74,10 @@ def test_cents():
 
 def test_init_incompatible_tunings():
 
+    edo12_2 = EDTuning(12, Frequency(2))
+
     with pytest.raises(IncompatibleTunings):
         PitchInterval.from_pitches(
             EDPitch(edo12, 0),
-            EDPitch(edo31, 0),
+            EDPitch(edo12_2, 0),
         )

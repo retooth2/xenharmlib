@@ -85,7 +85,8 @@ def test_add_pitch(tuning):
 
 def test_add_pitch_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -515,7 +516,8 @@ def test_union(tuning):
 
 def test_union_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -570,7 +572,8 @@ def test_intersection(tuning):
 
 def test_intersection_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -624,7 +627,8 @@ def test_difference(tuning):
 
 def test_difference_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -679,7 +683,8 @@ def test_symmetric_difference(tuning):
 
 def test_symmetric_difference_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -739,7 +744,8 @@ def test_is_disjoint(tuning):
 
 def test_is_disjoint_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -789,7 +795,8 @@ def test_is_subset(tuning):
 
 def test_is_subset_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 
@@ -839,7 +846,8 @@ def test_is_superset(tuning):
 
 def test_is_superset_incompatible_tunings():
 
-    tunings = edo12, edo24, edo31, ed13_3
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
 

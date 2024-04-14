@@ -222,7 +222,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         :param note_b: The target note
         """
 
-        if note_a.notation != self or note_b.notation != self:
+        if note_a.notation is not self or note_b.notation is not self:
             raise IncompatibleNotations(
                 'At least one of the given notes does not '
                 'originate from this notation'
@@ -248,7 +248,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             notes = []
 
         for note in notes:
-            if note.notation != self:
+            if note.notation is not self:
                 raise IncompatibleNotations(
                     'At least one of the given notes does not '
                     'originate from this notation'

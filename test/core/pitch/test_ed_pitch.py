@@ -224,7 +224,9 @@ def test_is_not_equivalent(pitch_a, pitch_b):
     ]
 )
 def test_incompatible_tunings(pitch_b):
-    pitch_a = EDPitch(edo12, 0)
+
+    edo12_2 = EDTuning(12, Frequency(2))
+    pitch_a = EDPitch(edo12_2, 0)
 
     with pytest.raises(IncompatibleTunings):
         pitch_a.get_generator_index(pitch_b)
@@ -276,8 +278,9 @@ def test_arithmetic(index_a, index_b):
 )
 def test_arithmetic_incompatible_tunings(index_a, index_b):
 
+    edo12_2 = EDTuning(12, Frequency(2))
     pitch_a = EDPitch(edo12, index_a)
-    pitch_b = EDPitch(edo31, index_b)
+    pitch_b = EDPitch(edo12_2, index_b)
 
     with pytest.raises(IncompatibleTunings):
         pitch_a - pitch_b
