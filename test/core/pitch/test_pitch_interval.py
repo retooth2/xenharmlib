@@ -11,68 +11,154 @@ edo31 = EDTuning(31, Frequency(2))
 ed13_3 = EDTuning(13, Frequency(3))
 
 
-def test_init():
+@pytest.mark.parametrize(
+    'tuning, pitch_index_a, pitch_index_b, pitch_diff',
+    [
+        (edo31, 2, 8, 6),
+        (edo31, 2, -8, -10),
+        (edo12, -8, -2, 6),
+        (edo24, -1, 26, 27),
+    ]
+)
+def test_init_pitch_diff(tuning,
+                         pitch_index_a,
+                         pitch_index_b,
+                         pitch_diff):
+    """
+    Test if pitch diff and ref pitch is calculated
+    correctly when initializing an interval
+    """
 
     interval = PitchInterval.from_pitches(
-        EDPitch(edo31, 2),
-        EDPitch(edo31, 8),
+        EDPitch(tuning, pitch_index_a),
+        EDPitch(tuning, pitch_index_b),
     )
 
-    interval.ref_pitch == edo31.pitch(2)
-    interval.pitch_diff == 6
+    interval.ref_pitch == tuning.pitch(pitch_index_a)
+    interval.pitch_diff == pitch_diff
 
 
-def test_lt_gt():
+@pytest.mark.parametrize(
+    'tuning_ab, pitch_index_a, pitch_index_b, '
+    'tuning_cd, pitch_index_c, pitch_index_d, ',
+    [
+        (edo31,  2,  8, edo31,  1,  9),
+        (edo31,  2,  8, edo12,  1,  4),
+        (edo12,  2, -9, edo12,  2, -8),
+    ]
+)
+def test_lt_gt(tuning_ab,
+               pitch_index_a,
+               pitch_index_b,
+               tuning_cd,
+               pitch_index_c,
+               pitch_index_d):
+    """
+    Test if pitch intervals can be compared with lesser-than
+    and greater-than relations and if lesser-than and
+    greater-than also implies inequality
+    """
+
+    interval_ab = PitchInterval.from_pitches(
+        EDPitch(tuning_ab, pitch_index_a),
+        EDPitch(tuning_ab, pitch_index_b),
+    )
+    interval_cd = PitchInterval.from_pitches(
+        EDPitch(tuning_cd, pitch_index_c),
+        EDPitch(tuning_cd, pitch_index_d),
+    )
+    assert interval_ab < interval_cd
+    assert interval_cd > interval_ab
+    assert interval_ab != interval_cd
+    assert interval_cd != interval_ab
+
+
+@pytest.mark.parametrize(
+    'tuning_ab, pitch_index_a, pitch_index_b, '
+    'tuning_cd, pitch_index_c, pitch_index_d, ',
+    [
+        (edo31,  2,  8, edo31,  2,   8),
+        (edo12, -1, -4, edo12, -1,  -4),
+        (edo12,  2, -9, edo24,  4, -18),
+    ]
+)
+def test_eq(tuning_ab,
+            pitch_index_a,
+            pitch_index_b,
+            tuning_cd,
+            pitch_index_c,
+            pitch_index_d):
+    """
+    Test if two intervals are correctly recognized as
+    equal if they have the same frequency ratio
+    """
+
+    interval_ab = PitchInterval.from_pitches(
+        EDPitch(tuning_ab, pitch_index_a),
+        EDPitch(tuning_ab, pitch_index_b),
+    )
+    interval_cd = PitchInterval.from_pitches(
+        EDPitch(tuning_cd, pitch_index_c),
+        EDPitch(tuning_cd, pitch_index_d),
+    )
+    assert interval_ab == interval_cd
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_index_a, pitch_index_b',
+    [
+        (edo31,  2,  52),
+        (edo12,  1,  9),
+        (edo24,  2,  25),
+    ]
+)
+def test_abs(tuning,
+             pitch_index_a,
+             pitch_index_b):
+    """
+    Test if abs() value of interval is implemented correctly
+    """
 
     interval_a = PitchInterval.from_pitches(
-        EDPitch(edo31, 2),
-        EDPitch(edo31, 8),
+        EDPitch(tuning, pitch_index_a),
+        EDPitch(tuning, pitch_index_b),
     )
     interval_b = PitchInterval.from_pitches(
-        EDPitch(edo31, 1),
-        EDPitch(edo31, 9),
-    )
-    assert interval_a < interval_b
-    assert interval_b > interval_a
-
-
-def test_eq():
-
-    interval_a = PitchInterval.from_pitches(
-        EDPitch(edo31, 6),
-        EDPitch(edo31, 7),
-    )
-    interval_b = PitchInterval.from_pitches(
-        EDPitch(edo31, 6),
-        EDPitch(edo31, 7),
-    )
-    assert interval_a == interval_b
-
-
-def test_abs():
-
-    interval_a = PitchInterval.from_pitches(
-        EDPitch(edo31, 6),
-        EDPitch(edo31, 35),
-    )
-    interval_b = PitchInterval.from_pitches(
-        EDPitch(edo31, 35),
-        EDPitch(edo31, 6),
+        EDPitch(tuning, pitch_index_b),
+        EDPitch(tuning, pitch_index_a),
     )
     assert abs(interval_a) == abs(interval_b)
     assert abs(interval_b) == interval_a
 
 
-def test_cents():
+@pytest.mark.parametrize(
+    'tuning, pitch_index_a, pitch_index_b, cents',
+    [
+        (edo12, 6, 8, 200),
+        (edo12, 1, 9, 800),
+        (edo24, 2, 3, 50),
+    ]
+)
+def test_cents(tuning,
+               pitch_index_a,
+               pitch_index_b,
+               cents):
+    """
+    Test if cent calculation works correctly
+    """
 
     interval = PitchInterval.from_pitches(
-        EDPitch(edo12, 6),
-        EDPitch(edo12, 8),
+        EDPitch(tuning, pitch_index_a),
+        EDPitch(tuning, pitch_index_b),
     )
-    assert interval.cents == 200
+    assert interval.cents == cents
 
 
 def test_init_incompatible_tunings():
+    """
+    Test if IncompatibleTunings is raised when trying to form an
+    interval from two pitches that originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
 

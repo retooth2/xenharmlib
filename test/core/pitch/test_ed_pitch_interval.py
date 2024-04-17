@@ -11,9 +11,12 @@ edo31 = EDTuning(31, Frequency(2))
 ed13_3 = EDTuning(13, Frequency(3))
 
 def test_init_incompatible_tunings():
+    """
+    Test if interval cannot be initialized from two pitches
+    that originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
-
     with pytest.raises(IncompatibleTunings):
         EDPitchInterval.from_pitches(
             EDPitch(edo12, 0),
@@ -75,5 +78,10 @@ def test_init_incompatible_tunings():
     ]
 )
 def test_get_generator_distance(interval, gen_pitch, distance):
+    """
+    Test if get_generator_distance calculates the
+    correct distance for the interval
+    """
+
     result = interval.get_generator_distance(gen_pitch)
     assert result == distance
