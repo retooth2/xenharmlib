@@ -2,7 +2,11 @@ import pytest
 from xenharmlib.core.frequencies import Frequency
 
 
-def test_get_harmonics():
+def test_get_harmonic():
+    """
+    Test if harmonic series gets calculated correctly
+    when calling get_harmonic (sans s) method
+    """
 
     series = [
         Frequency(400),
@@ -18,6 +22,11 @@ def test_get_harmonics():
 
 
 def test_get_harmonics():
+    """
+    Test if harmonic series gets calculated correctly
+    when calling get_harmonics method with default
+    limit parameter of 20k Herz
+    """
 
     series = [
         Frequency(2000),
@@ -36,6 +45,11 @@ def test_get_harmonics():
 
 
 def test_get_harmonics_limit():
+    """
+    Test if harmonic series gets calculated correctly
+    when calling get_harmonics method with a custom
+    limit parameter
+    """
 
     series = [
         Frequency(2000),
@@ -53,16 +67,21 @@ def test_get_harmonics_limit():
 
 
 @pytest.mark.parametrize(
-    'monzo',
+    'monzo, expected_freq',
     [
-        [1, -2, 3, 0, 0, 1],
-        [-4, 2, 3],
-        [2, 2, -3, 0, 0, 6, -6],
-        [9, 2, -3, 0, 0, -6, -6],
+        ([1, -2, 3, 0, 0, 1], Frequency(2*(5**3)*13, 3**2)),
+        ([-4, 2, 3], Frequency((3**2)*(5**3), 2**4)),
+        ([2, 2, -3, 0, 0, 6, -6], Frequency((2**2)*(3**2)*(13**6), (5**3)*(17**6))),
+        ([9, 2, -3, 0, 0, -6, -6], Frequency((2**9)*(3**2), (5**3)*(13**6)*(17**6))),
     ]
 )
-def test_monzo_identity(monzo):
+def test_monzo_identity(monzo, expected_freq):
+    """
+    Test if frequency generation from mondo and mondo
+    factorization works correctly
+    """
     freq = Frequency.from_monzo(monzo)
+    assert freq == expected_freq
     assert freq.to_monzo() == monzo
 
 
@@ -75,4 +94,8 @@ def test_monzo_identity(monzo):
     ]
 )
 def test_cents(frequency, cents):
+    """
+    Test if cents value of frequency is calculated correctly
+    """
+
     assert frequency.cents == cents
