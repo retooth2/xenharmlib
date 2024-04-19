@@ -691,6 +691,137 @@ class PeriodicNoteScale(NoteScale):
         diff_b = other.difference(self, ignore_bi_index=True)
         return diff_a.union(diff_b)
 
+    def is_disjoint(self,
+                    other: Self,
+                    is_notated_same: bool = False,
+                    ignore_bi_index: bool = False) -> bool:
+        """
+        Determines if this scale has any common notes
+        with another scale of the same notation
+
+        :param other: Another scale of the same notation
+        :param is_notated_same: (optional, default False).
+            If set to True enharmonically equivalent but
+            differently notated notes will be treated as
+            distinct
+        :param ignore_bi_index: (Optional, default False)
+            When set to True notes of the same pitch class
+            will be treated the same. For example if one
+            scale includes C-0 and another C-1 the scales
+            will not be considered disjoint
+
+        :raises IncompatibleNotations: If other scale originates
+            from a different notation
+        """
+
+        intersection = self.intersection(
+            other,
+            is_notated_same=is_notated_same,
+            ignore_bi_index=ignore_bi_index
+        )
+
+        return len(intersection) == 0
+
+    def is_subset(self,
+                  other: Self,
+                  proper: bool = False,
+                  is_notated_same: bool = False,
+                  ignore_bi_index: bool = False) -> bool:
+        """
+        Determines if all notes in this scale also exist
+        in the other scale.
+
+        :param other: Another scale of the same notation
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+        :param is_notated_same: (optional, default False).
+            If set to True enharmonically equivalent but
+            differently notated notes will be treated as
+            distinct
+        :param ignore_bi_index: (Optional, default False)
+            When set to True notes of the same pitch class
+            will be treated the same.
+
+        :raises IncompatibleNotations: If other scale originates
+            from a different notation
+        """
+
+        if not ignore_bi_index:
+            return super().is_subset(
+                other,
+                proper=proper,
+                is_notated_same=is_notated_same
+            )
+
+        intersection = self.intersection(
+            other,
+            is_notated_same=is_notated_same,
+            ignore_bi_index=True
+        )
+
+        if is_notated_same:
+            eq = lambda x,y: x.is_notated_equivalent(y)
+        else:
+            eq = lambda x,y: x.is_equivalent(y)
+
+        is_subset = eq(self, intersection)
+
+        if not proper:
+            return is_subset
+
+        return is_subset and not eq(self, other)
+
+    def is_superset(self,
+                    other: Self,
+                    proper: bool = False,
+                    is_notated_same: bool = False,
+                    ignore_bi_index: bool = False) -> bool:
+        """
+        Determines if all pitches in the other scale also exist
+        in this scale.
+
+        :param other: Another scale of the same notation
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+        :param is_notated_same: (optional, default False).
+            If set to True enharmonically equivalent but
+            differently notated notes will be treated as
+            distinct
+        :param ignore_bi_index: (Optional, default False)
+            When set to True notes of the same pitch class
+            will be treated the same.
+
+        :raises IncompatibleNotations: If other scale originates
+            from a different notation
+        """
+
+        if not ignore_bi_index:
+            return super().is_superset(
+                other,
+                proper=proper,
+                is_notated_same=is_notated_same
+            )
+
+        intersection = self.intersection(
+            other,
+            is_notated_same=is_notated_same,
+            ignore_bi_index=True
+        )
+
+        if is_notated_same:
+            eq = lambda x,y: x.is_notated_equivalent(y)
+        else:
+            eq = lambda x,y: x.is_equivalent(y)
+
+        is_superset = eq(other, intersection)
+
+        if not proper:
+            return is_superset
+
+        return is_superset and not eq(self, other)
+
 
 class NatAccNoteScale(PeriodicNoteScale):
     """
