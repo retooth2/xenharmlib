@@ -517,6 +517,28 @@ class PeriodicNoteScale(NoteScale):
 
         return scale
 
+    def equivalents(self, other: Self, is_notated_same=False) -> bool:
+        """
+        Returns a scale including all notes whose pitch class
+        resides in both of the scales.
+
+        This is a shortcut for calling intersection with the ignore
+        base interval flag and subsequent base interval normalization
+
+        :param other: The other scale
+        :param is_notated_same: (Optional, default False)
+            When set to True the intersection will include
+            only notes, that are notated the same and
+            exclude those which are enharmonically equal,
+            but notated differently.
+        """
+
+        return self.intersection(
+            other,
+            ignore_bi_index=True,
+            is_notated_same=is_notated_same
+        ).get_bi_normalized()
+
     # some variations on the set operations
     # of the parent class
 
