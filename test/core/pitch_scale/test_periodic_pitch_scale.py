@@ -18,6 +18,9 @@ ed13_3 = EDTuning(13, Frequency(3))
     ]
 )
 def test_get_bi_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if get_bi_normalized method works correctly
+    """
 
     pitches = [
         tuning.pitch(pi) for pi in pi_list
@@ -38,6 +41,9 @@ def test_get_bi_normalized(tuning, pi_list, n_pi_list):
     ]
 )
 def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
+    """
+    Test if get_bi_normalized_complement method works correctly
+    """
 
     pitches = [
         tuning.pitch(pi) for pi in pi_list
@@ -59,6 +65,9 @@ def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
     ]
 )
 def test_rotated_up(tuning, original_pi, rotated_pi):
+    """
+    Test if rotated_up method works correctly
+    """
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -81,6 +90,9 @@ def test_rotated_up(tuning, original_pi, rotated_pi):
     ]
 )
 def test_rotated_down(tuning, original_pi, rotated_pi):
+    """
+    Test if rotated_down method works correctly
+    """
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -109,6 +121,9 @@ def test_rotated_down(tuning, original_pi, rotated_pi):
     ]
 )
 def test_rotation(tuning, original_pi, order, rotated_pi):
+    """
+    Test if rotation method works correctly
+    """
 
     pitches = [
         tuning.pitch(pi) for pi in original_pi
@@ -129,6 +144,10 @@ def test_rotation(tuning, original_pi, order, rotated_pi):
     ]
 )
 def test_pc_indices(tuning, pitch_indices, pc_indices):
+    """
+    Test if pc_indices property works correctly
+    """
+
     pitches = [
         tuning.pitch(pi) for pi in pitch_indices
     ]
@@ -137,44 +156,41 @@ def test_pc_indices(tuning, pitch_indices, pc_indices):
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 8], [3, 5, 7, 8]),
+        (edo24, [1, 11, 12], [1, 11, 12], [1, 11, 12]),
+        (edo31, [3, 11, 64], [1, 9, 12], [1, 3, 9, 11, 12, 64]),
+        (ed13_3, [3, 11, 20], [], [3, 11, 20]),
     ]
 )
-def test_union(tuning):
+def test_union(tuning, input_pi_a, input_pi_b, result_pi):
+    """
+    Test if union operation works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.union(scale_b)
 
-    assert len(scale_c) == 4
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(3),
-        tuning.pitch(5),
-        tuning.pitch(7),
-        tuning.pitch(8),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 def test_union_incompatible_tunings():
+    """
+    Test if union operation fails if scales originate from
+    different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -195,81 +211,78 @@ def test_union_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 8], [7, 8]),
+        (edo24, [1, 11, 12], [1, 11, 12], [1, 11, 12]),
+        (edo31, [3, 11, 64], [1, 9, 12], []),
+        (ed13_3, [3, 11, 20], [], []),
     ]
 )
-def test_intersection(tuning):
+def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
+    """
+    Test if intersection operation works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.intersection(scale_b)
 
-    assert len(scale_c) == 2
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(7),
-        tuning.pitch(8),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 19], [5, 7, 8], [7, 8, 19]),
+        (edo24, [1, 11, 12], [1, 11, 36], [1, 11, 12, 36]),
+        (edo31, [3, 11, 64], [1, 9, 12], []),
+        (ed13_3, [3, 11, 20], [], []),
     ]
 )
-def test_intersection_ignore_bi_index(tuning):
+def test_intersection_ignore_bi_index(tuning,
+                                      input_pi_a,
+                                      input_pi_b,
+                                      result_pi):
+    """
+    Test if intersection operation works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.intersection(
         scale_b, ignore_bi_index=True
     )
 
-    assert len(scale_c) == 3
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(7),
-        tuning.pitch(8),
-        tuning.pitch(7+len(tuning)),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 def test_intersection_incompatible_tunings():
+    """
+    Test if intersection operation fails if scales originate from
+    different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -290,78 +303,78 @@ def test_intersection_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 8], [3]),
+        (edo24, [1, 11, 12], [1, 11, 12], []),
+        (edo31, [3, 11, 64], [1, 9, 12], [3, 11, 64]),
+        (ed13_3, [3, 11, 20], [], [3, 11, 20]),
     ]
 )
-def test_difference(tuning):
+def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
+    """
+    Test if difference operation works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.difference(scale_b)
 
-    assert len(scale_c) == 1
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(3),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 19, 8], [3]),
+        (edo24, [1, 11, 12], [25, 35, 36], []),
+        (edo31, [3, 11, 64], [32, 40, 43], [3, 11, 64]),
+        (ed13_3, [3, 11, 20], [], [3, 11, 20]),
     ]
 )
-def test_difference_ignore_bi_index(tuning):
+def test_difference_ignore_bi_index(tuning,
+                                    input_pi_a,
+                                    input_pi_b,
+                                    result_pi):
+    """
+    Test if difference operation works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8+len(tuning)),
-            tuning.pitch(5),
-            tuning.pitch(7+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.difference(
         scale_b, ignore_bi_index=True
     )
 
-    assert len(scale_c) == 1
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(3),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 def test_difference_incompatible_tunings():
+    """
+    Test if difference operation fails if scales originate from
+    different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -382,82 +395,79 @@ def test_difference_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 8], [3, 5]),
+        (edo24, [1, 11, 12], [1, 11, 12], []),
+        (edo31, [3, 11, 64], [1, 9, 12], [1, 3, 9, 11, 12, 64]),
+        (ed13_3, [3, 11, 20], [], [3, 11, 20]),
     ]
 )
-def test_symmetric_difference(tuning):
+def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
+    """
+    Test if symmetric difference operation works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.symmetric_difference(scale_b)
 
-    assert len(scale_c) == 2
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(3),
-        tuning.pitch(5),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, result_pi',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 20], [3, 5]),
+        (edo24, [1, 11, 12], [1, 11, 12], []),
+        (edo31, [3, 11, 8, 64], [1, 9, 12, 39], [1, 3, 9, 11, 12, 64]),
+        (ed13_3, [3, 11, 20], [], [3, 11, 20]),
     ]
 )
-def test_symmetric_difference_ignore_bi_index(tuning):
+def test_symmetric_difference_ignore_bi_index(tuning,
+                                              input_pi_a,
+                                              input_pi_b,
+                                              result_pi):
+    """
+    Test if symmetric difference operation works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(4),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-            tuning.pitch(3+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     scale_c = scale_a.symmetric_difference(
-        scale_b, ignore_bi_index=True
+        scale_b,
+        ignore_bi_index=True
     )
 
-    assert len(scale_c) == 2
+    assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
-    assert pitches == [
-        tuning.pitch(4),
-        tuning.pitch(5),
-    ]
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
 def test_symmetric_difference_incompatible_tunings():
+    """
+    Test if symmetric difference operation fails if scales
+    originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -478,117 +488,70 @@ def test_symmetric_difference_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 8, 7], [5, 7, 8], False),
+        (edo24, [1, 11, 12], [1, 11, 12], False),
+        (edo31, [3, 11, 64], [1, 9, 12], True),
+        (ed13_3, [3, 11, 20], [], True),
     ]
 )
-def test_is_disjoint(tuning):
+def test_is_disjoint(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_disjoint set test works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
-    scale_c = PeriodicPitchScale(
-        tuning, 
-        [
-            tuning.pitch(1),
-            tuning.pitch(5),
-            tuning.pitch(9),
-        ]
-    )
-
-    assert scale_a.is_disjoint(scale_c)
-    assert scale_c.is_disjoint(scale_a)
-    assert not scale_a.is_disjoint(scale_b)
-    assert not scale_b.is_disjoint(scale_a)
+    assert scale_a.is_disjoint(scale_b) == expected
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [3, 20, 19], [5, 7, 8], False),
+        (edo24, [1, 11, 12], [25, 35, 36], False),
+        (edo31, [3, 11, 64], [32, 9, 12], True),
+        (ed13_3, [3, 11, 20], [], True),
     ]
 )
-def test_is_disjoint_ignore_bi_index(tuning):
+def test_is_disjoint_ignore_bi_index(tuning,
+                                     input_pi_a,
+                                     input_pi_b,
+                                     expected):
+    """
+    Test if is_disjoint set test works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(3),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
-    )
-
-    scale_c = PeriodicPitchScale(
-        tuning, 
-        [
-            tuning.pitch(1),
-            tuning.pitch(5),
-            tuning.pitch(9),
-        ]
-    )
-
-    scale_d = PeriodicPitchScale(
-        tuning, 
-        [
-            tuning.pitch(8+2*len(tuning)),
-            tuning.pitch(9),
-            tuning.pitch(7+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     assert scale_a.is_disjoint(
-        scale_c,
-        ignore_bi_index=True
-    )
-    assert scale_c.is_disjoint(
-        scale_a,
-        ignore_bi_index=True
-    )
-    assert not scale_a.is_disjoint(
-        scale_b,
-        ignore_bi_index=True
-    )
-    assert not scale_b.is_disjoint(
-        scale_a,
-        ignore_bi_index=True
-    )
-    assert not scale_a.is_disjoint(
-        scale_d,
-        ignore_bi_index=True
-    )
-    assert not scale_d.is_disjoint(
-        scale_a,
-        ignore_bi_index=True
-    )
+        scale_b, ignore_bi_index=True
+    ) == expected
 
 
 def test_is_disjoint_incompatible_tunings():
+    """
+    Test if is_disjoint set test fails if scales
+    originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -609,49 +572,39 @@ def test_is_disjoint_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [5, 8, 7], [5, 8, 19], True),
+        (edo12, [8, 7], [5, 8, 19], False),
+        (edo12, [5, 8, 7], [5, 8], False),
+        (edo24, [1, 11, 12], [25, 35, 36], True),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], False),
     ]
 )
-def test_is_equivalent(tuning):
+def test_is_equivalent(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_equivalent method works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5+len(tuning)),
-            tuning.pitch(7+2*len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
-
-    scale_c = PeriodicPitchScale(
-        tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5+len(tuning)),
-            tuning.pitch(8+2*len(tuning)),
-        ]
-    )
-
-    assert scale_a.is_equivalent(scale_b)
-    assert scale_b.is_equivalent(scale_a)
-    assert not scale_a.is_equivalent(scale_c)
-    assert not scale_b.is_equivalent(scale_c)
-    assert not scale_c.is_equivalent(scale_a)
-    assert not scale_c.is_equivalent(scale_b)
+    assert scale_a.is_equivalent(scale_b) == expected
 
 
 def test_is_equivalent_incompatible_tunings():
+    """
+    Test if is_equivalent fails if scales originate from
+    different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -672,78 +625,138 @@ def test_is_equivalent_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [8, 7], [5, 7, 8], True),
+        (edo24, [1, 11, 12], [1, 11, 12], True),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], True),
     ]
 )
-def test_is_subset(tuning):
+def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_subset test works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
-    assert scale_a.is_subset(scale_b)
-    assert not scale_b.is_subset(scale_a)
-    assert scale_a.is_subset(scale_a)
-    assert not scale_a.is_subset(scale_a, proper=True)
+    assert scale_a.is_subset(scale_b) == expected
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [8, 7], [5, 7, 20], True),
+        (edo24, [1, 11, 12], [11, 12, 25], True),
+        (edo31, [3, 11, 64], [1, 9, 43], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], True),
     ]
 )
-def test_is_subset_ignore_bi_index(tuning):
+def test_is_subset_ignore_bi_index(tuning, 
+                                   input_pi_a,
+                                   input_pi_b, 
+                                   expected):
+    """
+    Test if is_subset test works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     assert scale_a.is_subset(
-        scale_b, ignore_bi_index=True
+        scale_b,
+        ignore_bi_index=True
+    ) == expected
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, expected',
+    [
+        (edo12, [8, 7], [5, 7, 8], True),
+        (edo24, [1, 11, 12], [1, 11, 12], False),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], True),
+    ]
+)
+def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_subset test works correctly
+    with proper=True
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
-    assert not scale_b.is_subset(
-        scale_a, ignore_bi_index=True
+
+    scale_b = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
+
+    assert scale_a.is_subset(scale_b, proper=True) == expected
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, expected',
+    [
+        (edo12, [8, 7], [5, 7, 20], True),
+        (edo24, [1, 11, 12], [1, 11, 12, 25], False),
+        (edo31, [3, 11, 64], [1, 9, 43], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], True),
+    ]
+)
+def test_is_subset_proper_ignore_bi_index(tuning, 
+                                          input_pi_a,
+                                          input_pi_b, 
+                                          expected):
+    """
+    Test if is_subset test works correctly
+    on ignore_bi_index=True and proper=True
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_a]
+    )
+
+    scale_b = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_b]
+    )
+
     assert scale_a.is_subset(
-        scale_a, ignore_bi_index=True
-    )
-    assert not scale_a.is_subset(
-        scale_a, 
+        scale_b, 
         ignore_bi_index=True,
         proper=True
-    )
+    ) == expected
 
 
 def test_is_subset_incompatible_tunings():
+    """
+    Test if is_subset test fails if scales
+    originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
@@ -764,78 +777,143 @@ def test_is_subset_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [5, 8, 7], [7, 8], True),
+        (edo24, [1, 11, 12], [1, 11, 12], True),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], True),
+        (ed13_3, [], [3, 11, 20], False),
     ]
 )
-def test_is_superset(tuning):
+def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_superset test works correctly
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
-    assert scale_a.is_superset(scale_b)
-    assert not scale_b.is_superset(scale_a)
-    assert scale_a.is_superset(scale_a)
-    assert not scale_a.is_superset(scale_a, proper=True)
+    assert scale_a.is_superset(scale_b) == expected
 
 
 @pytest.mark.parametrize(
-    'tuning',
+    'tuning, input_pi_a, input_pi_b, expected',
     [
-        edo12, edo24, edo31, ed13_3
+        (edo12, [5, 8, 19], [7, 8], True),
+        (edo24, [25, 35, 36], [1, 11, 12], True),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], True),
+        (ed13_3, [], [3, 11, 20], False),
     ]
 )
-def test_is_superset_ignore_bi_index(tuning):
+def test_is_superset_ignore_bi_index(tuning,
+                                     input_pi_a,
+                                     input_pi_b,
+                                     expected):
+    """
+    Test if is_superset test works correctly
+    on ignore_bi_index=True
+    """
 
     scale_a = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(5),
-            tuning.pitch(7+len(tuning)),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
         tuning, 
-        [
-            tuning.pitch(8),
-            tuning.pitch(7),
-        ]
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
 
     assert scale_a.is_superset(
-        scale_b, ignore_bi_index=True
+        scale_b,
+        ignore_bi_index=True
+    ) == expected
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, expected',
+    [
+        (edo12, [5, 8, 7], [7, 8], True),
+        (edo24, [1, 11, 12], [1, 11, 12], False),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], True),
+        (ed13_3, [], [3, 11, 20], False),
+    ]
+)
+def test_is_superset_proper(tuning,
+                            input_pi_a,
+                            input_pi_b,
+                            expected):
+    """
+    Test if is_superset test works correctly
+    on proper=True
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
-    assert not scale_b.is_superset(
-        scale_a, ignore_bi_index=True
+
+    scale_b = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
+
     assert scale_a.is_superset(
-        scale_a, ignore_bi_index=True
+        scale_b, proper=True
+    ) == expected
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, expected',
+    [
+        (edo12, [5, 8, 19], [7, 8], True),
+        (edo24, [25, 35, 36], [1, 11, 12], False),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (ed13_3, [3, 11, 20], [], True),
+        (ed13_3, [], [3, 11, 20], False),
+    ]
+)
+def test_is_superset_proper_ignore_bi_index(tuning,
+                                            input_pi_a,
+                                            input_pi_b,
+                                            expected):
+    """
+    Test if is_superset test works correctly
+    on proper=True and ignore_bi_index=True
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_a]
     )
-    assert not scale_a.is_superset(
-        scale_a, 
-        ignore_bi_index=True,
-        proper=True
+
+    scale_b = PeriodicPitchScale(
+        tuning, 
+        [tuning.pitch(pi) for pi in input_pi_b]
     )
+
+    assert scale_a.is_superset(
+        scale_b,
+        proper=True,
+        ignore_bi_index=True
+    ) == expected
 
 
 def test_is_superset_incompatible_tunings():
+    """
+    Test if is_superset test fails if scales
+    originate from different tunings
+    """
 
     edo12_2 = EDTuning(12, Frequency(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
