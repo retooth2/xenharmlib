@@ -782,7 +782,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     def __repr__(self) -> str:
         return (
             f'{self.__class__.__name__}('
-            f'{self.shorthand_name}'
+            f'{self.symbol}, {self.number}, '
             f'{self.notation.tuning.name})'
         )
 
