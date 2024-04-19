@@ -603,6 +603,22 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             pitch.pc_index for pitch in self._sorted_pitches
         ]
 
+    def equivalents(self, other: Self) -> bool:
+        """
+        Returns a scale including all pitches whose pitch class
+        resides in both of the scales.
+
+        This is a shortcut for calling intersection with the ignore
+        base interval flag and subsequent base interval normalization
+
+        :param other: The other scale
+        """
+
+        return self.intersection(
+            other,
+            ignore_bi_index=True
+        ).get_bi_normalized()
+
     # some variations on the set operations
     # of the parent class
 

@@ -488,6 +488,64 @@ def test_symmetric_difference_incompatible_tunings():
 
 
 @pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, result_pi',
+    [
+        (edo12, [3, 8, 7], [5, 7, 20], [7, 8]),
+        (edo24, [1, 11, 26], [1, 11, 26], [1, 2, 11]),
+        (edo31, [3, 11, 8, 64], [1, 9, 12, 40], []),
+        (ed13_3, [3, 11, 20], [], []),
+    ]
+)
+def test_equivalents(tuning,
+                     input_pi_a,
+                     input_pi_b,
+                     result_pi):
+    """
+    Test if equivalents method works correctly
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi_a]
+    )
+
+    scale_b = PeriodicPitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi_b]
+    )
+
+    scale_c = scale_a.equivalents(scale_b)
+
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+
+def test_equivalents_incompatible_tunings():
+    """
+    Test if equivalents method fails if scales originate from
+    different tunings
+    """
+
+    edo12_2 = EDTuning(12, Frequency(2))
+    tunings = edo12, edo24, edo31, ed13_3, edo12_2
+
+    for i, tuning_a in enumerate(tunings):
+
+        for tuning_b in tunings[i+1:]:
+
+            scale_a = PeriodicPitchScale(
+                tuning_a
+            )
+            scale_b = PeriodicPitchScale(
+                tuning_b
+            )
+
+            with pytest.raises(IncompatibleTunings):
+                scale_a.equivalents(scale_b)
+
+
+@pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, expected',
     [
         (edo12, [3, 8, 7], [5, 7, 8], False),
