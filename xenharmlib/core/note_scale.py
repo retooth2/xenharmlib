@@ -141,10 +141,15 @@ class NoteScale(Generic[NoteT]):
     # the obligatory __repr__
 
     def __repr__(self):
+        note_symbols = []
+        for note in self._sorted_notes:
+            note_symbols.append(note.short_repr)
+        note_symbols = ', '.join(note_symbols)
+        note_symbols = '[' + note_symbols + ']'
         return (
             f'{self.__class__.__name__}('
-            f'{self._sorted_notes}, '
-            f'{self.notation.name})'
+            f'{note_symbols}, '
+            f'{self.tuning.name})'
         )
 
     # operations that are possible on single notes
@@ -829,20 +834,6 @@ class NatAccNoteScale(PeriodicNoteScale):
     Implements the scale equivalents of properties special to
     natural/accidental notes.
     """
-
-    def __repr__(self):
-        note_symbols = []
-        for note in self._sorted_notes:
-            note_symbols.append(
-                note.pc_symbol + str(note.nat_bi_index)
-            )
-        note_symbols = ', '.join(note_symbols)
-        note_symbols = '[' + note_symbols + ']'
-        return (
-            f'{self.__class__.__name__}('
-            f'{note_symbols}, '
-            f'{self.tuning.name})'
-        )
 
     # properties on single natural/accidental notes that
     # should also apply to collections

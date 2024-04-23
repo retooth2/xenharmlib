@@ -131,6 +131,15 @@ class NoteABC(ABC):
             notation or class
         """
 
+    @property
+    @abstractmethod
+    def short_repr(self) -> str:
+        """
+        (Must be implemented by subclasses)
+        A shortened representation of this note
+        (to be used in collection objects like scales)
+        """
+
 
 class PeriodicNoteABC(NoteABC):
     """
@@ -435,6 +444,10 @@ class NatAccNote(PeriodicNoteABC):
             f'{self.nat_bi_index}, '
             f'{self._notation.tuning.name})'
         )
+
+    @property
+    def short_repr(self):
+        return f'{self.pc_symbol}{self.nat_bi_index}'
 
     def transpose(self, interval: NatAccNoteInterval) -> NatAccNote:
         """
