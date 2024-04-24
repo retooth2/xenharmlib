@@ -40,6 +40,8 @@ from .pitch import EDPitch
 from .pitch import PitchInterval
 from .frequencies import Frequency
 from ..exc import IncompatibleTunings
+from .protocols import HasFrequency
+from .protocols import HasFrequencyRatio
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 
@@ -195,21 +197,23 @@ class PitchScale(Generic[PitchT]):
 
     def __contains__(self, object: object) -> bool:
 
-        if isinstance(object, Pitch):
+        if isinstance(object, HasFrequency):
             return object in self._sorted_pitches
 
-        elif isinstance(object, PitchInterval):
-
+        elif isinstance(object, HasFrequencyRatio):
             for pitch_a in self._sorted_pitches:
                 for pitch_b in self._sorted_pitches:
-                    interval = pitch_a.interval(pitch_b)
-                    if interval == object:
+                    interval_u = pitch_a.interval(pitch_b)
+                    if interval_u == object:
+                        return True
+                    interval_d = pitch_b.interval(pitch_a)
+                    if interval_d == object:
                         return True
 
-            return False
-        
-        else:
-            return False
+        # TODO: should Frequencies and FrequencyRatios also
+        # allowed to be checked with in operator?
+
+        return False
 
     # the obligatory __repr__
 

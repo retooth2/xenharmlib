@@ -396,7 +396,6 @@ def test_not_in_operator_interval(tuning, input_pi, excl_interval_pi):
 def test_in_operator_bogus(tuning):
     """
     Test if 'in' operator returns False on non-supported types
-    and on pitches and intervals from different tunings
     """
 
     scale = PitchScale(
@@ -411,8 +410,6 @@ def test_in_operator_bogus(tuning):
     assert 'XYZ' not in scale
     assert 8 not in scale
     assert False not in scale
-    assert edo24.pitch(8) not in scale
-    assert edo24.pitch(3).interval(edo24.pitch(8)) not in scale
 
 
 @pytest.mark.parametrize(

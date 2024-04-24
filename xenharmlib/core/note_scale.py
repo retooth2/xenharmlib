@@ -24,6 +24,9 @@ from collections import defaultdict
 from .notes import NoteABC
 from .notes import NatAccNote
 from .notes import NoteIntervalABC
+from .protocols import HasFrequency
+from .protocols import HasFrequencyRatio
+from .protocols import PeriodicPitchScaleLike
 from ..exc import IncompatibleNotations
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
@@ -127,16 +130,20 @@ class NoteScale(Generic[NoteT]):
 
     def __contains__(self, object: object) -> bool:
 
-        if isinstance(object, NoteIntervalABC):
-            # FIXME: should negative intervals also be
-            # considered?
+        if isinstance(object, HasFrequency):
+            return object in self._sorted_notes
+
+        elif isinstance(object, HasFrequencyRatio):
             for note_a in self._sorted_notes:
                 for note_b in self._sorted_notes:
-                    interval = note_a.interval(note_b)
-                    if interval == object:
+                    interval_u = note_a.interval(note_b)
+                    if interval_u == object:
+                        return True
+                    interval_d = note_b.interval(note_a)
+                    if interval_d == object:
                         return True
 
-        return object in self._sorted_notes
+        return False
 
     # the obligatory __repr__
 
