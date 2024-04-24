@@ -569,7 +569,7 @@ class PeriodicNoteScale(NoteScale):
 
         return n_self == n_other
 
-    def equivalents(self, other: Self, is_notated_same=False) -> bool:
+    def equivalents(self, other: Self, is_notated_same=False) -> Self:
         """
         Returns a scale including all notes whose pitch class
         resides in both of the scales.

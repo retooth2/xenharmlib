@@ -607,7 +607,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             pitch.pc_index for pitch in self._sorted_pitches
         ]
 
-    def equivalents(self, other: Self) -> bool:
+    def equivalents(self, other: Self) -> Self:
         """
         Returns a scale including all pitches whose pitch class
         resides in both of the scales.
