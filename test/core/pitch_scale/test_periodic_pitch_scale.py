@@ -496,12 +496,12 @@ def test_symmetric_difference_incompatible_tunings():
         (ed13_3, [3, 11, 20], [], []),
     ]
 )
-def test_equivalents(tuning,
-                     input_pi_a,
-                     input_pi_b,
-                     result_pi):
+def test_pcs_intersection(tuning,
+                          input_pi_a,
+                          input_pi_b,
+                          result_pi):
     """
-    Test if equivalents method works correctly
+    Test if pcs_intersection method works correctly
     """
 
     scale_a = PeriodicPitchScale(
@@ -514,16 +514,16 @@ def test_equivalents(tuning,
         [tuning.pitch(pi) for pi in input_pi_b]
     )
 
-    scale_c = scale_a.equivalents(scale_b)
+    scale_c = scale_a.pcs_intersection(scale_b)
 
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_equivalents_incompatible_tunings():
+def test_pcs_intersection_incompatible_tunings():
     """
-    Test if equivalents method fails if scales originate from
+    Test if pcs_intersection method fails if scales originate from
     different tunings
     """
 
@@ -542,7 +542,7 @@ def test_equivalents_incompatible_tunings():
             )
 
             with pytest.raises(IncompatibleTunings):
-                scale_a.equivalents(scale_b)
+                scale_a.pcs_intersection(scale_b)
 
 
 @pytest.mark.parametrize(
