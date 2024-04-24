@@ -462,7 +462,7 @@ class PeriodicNoteScale(NoteScale):
             note.pc_index for note in self
         ]
 
-    def get_bi_normalized(self) -> Self:
+    def pcs_normalized(self) -> Self:
         """
         Returns a normalized version of this scale where
         all the notes of the scale are put into the first
@@ -475,7 +475,7 @@ class PeriodicNoteScale(NoteScale):
         n_scale = self.notation.note_scale()
 
         for note in self._sorted_notes:
-            n_note = note.get_bi_normalized()
+            n_note = note.pcs_normalized()
             n_scale.add_note(n_note)
 
         return n_scale
@@ -552,8 +552,8 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another periodic note or pitch scale
         """
 
-        n_self = self.get_bi_normalized()
-        n_other = other.get_bi_normalized()
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
 
         return n_self == n_other
 
@@ -564,8 +564,8 @@ class PeriodicNoteScale(NoteScale):
         ignoring possible enharmonic equivalence.
         """
 
-        n_self = self.get_bi_normalized()
-        n_other = other.get_bi_normalized()
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
 
         return n_self.is_notated_same(n_other)
 
@@ -589,7 +589,7 @@ class PeriodicNoteScale(NoteScale):
             other,
             ignore_bi_index=True,
             is_notated_same=is_notated_same
-        ).get_bi_normalized()
+        ).pcs_normalized()
 
     # some variations on the set operations
     # of the parent class

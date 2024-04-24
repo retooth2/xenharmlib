@@ -486,7 +486,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
     # normalization methods
 
-    def get_bi_normalized(self) -> Self:
+    def pcs_normalized(self) -> Self:
         """
         Returns a normalized version of this scale where
         all the pitches of the scale are put into the first
@@ -504,7 +504,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         return n_scale
 
-    def get_bi_normalized_complement(self) -> Self:
+    def pcs_normalized_complement(self) -> Self:
         """
         Normalizes this scale to the first base interval
         and returns the complement (that is: a scale of
@@ -512,7 +512,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         scale
         """
 
-        n_scale = self.get_bi_normalized()
+        n_scale = self.pcs_normalized()
 
         complement = self.tuning.pitch_scale()
 
@@ -621,7 +621,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         return self.intersection(
             other,
             ignore_bi_index=True
-        ).get_bi_normalized()
+        ).pcs_normalized()
 
     # some variations on the set operations
     # of the parent class

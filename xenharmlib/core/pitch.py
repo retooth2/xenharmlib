@@ -227,7 +227,7 @@ class PeriodicPitch(Pitch):
         )
         return self.tuning.pitch(pitch_index)
 
-    def get_bi_normalized(self) -> Self:
+    def pcs_normalized(self) -> Self:
         """
         Returns the equivalent of this pitch in the first base interval
         """
@@ -241,8 +241,8 @@ class PeriodicPitch(Pitch):
         :param other: Another periodic pitch or note
         """
 
-        n_self = self.get_bi_normalized()
-        n_other = other.get_bi_normalized()
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
 
         return n_self == n_other
 
@@ -268,7 +268,7 @@ class PeriodicPitch(Pitch):
                 'Pitches must originate from the same tuning context'
             )
 
-        generator_pitch = generator_pitch.get_bi_normalized()
+        generator_pitch = generator_pitch.pcs_normalized()
 
         if (generator_pitch not in self.tuning.generator_pitches):
             raise InvalidGenerator(

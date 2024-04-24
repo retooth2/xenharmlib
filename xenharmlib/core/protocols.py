@@ -70,7 +70,7 @@ class PeriodicPitchLike(PitchLike, Protocol):
     def transpose_bi_index(self) -> PeriodicPitchLike:
         ...
 
-    def get_bi_normalized(self) -> PeriodicPitchLike:
+    def pcs_normalized(self) -> PeriodicPitchLike:
         ...
 
 @runtime_checkable

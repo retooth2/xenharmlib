@@ -149,13 +149,13 @@ def test_get_generator_index_invalid_generator():
         EDPitch(edo31, -9),
     ]
 )
-def test_get_bi_normalized(pitch):
+def test_pcs_normalized(pitch):
     """
-    Test if get_bi_normalized method works correctly
+    Test if pcs_normalized method works correctly
     """
 
     expected = EDPitch(pitch.tuning, pitch.pc_index)
-    assert pitch.get_bi_normalized() == expected
+    assert pitch.pcs_normalized() == expected
 
 
 @pytest.mark.parametrize(

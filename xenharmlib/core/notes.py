@@ -174,8 +174,8 @@ class PeriodicNoteABC(NoteABC):
         :param other: Another periodic pitch or note
         """
 
-        n_self = self.get_bi_normalized()
-        n_other = other.get_bi_normalized()
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
 
         return n_self == n_other
 
@@ -200,7 +200,7 @@ class PeriodicNoteABC(NoteABC):
             between this note and the resulting one
         """
 
-    def get_bi_normalized(self) -> Self:
+    def pcs_normalized(self) -> Self:
         """
         Returns the equivalent of this note in the first
         base interval

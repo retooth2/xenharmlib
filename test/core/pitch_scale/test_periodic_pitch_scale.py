@@ -17,9 +17,9 @@ ed13_3 = EDTuning(13, Frequency(3))
         (edo31, [13, 39, 48, 65], [3, 8, 13, 17])
     ]
 )
-def test_get_bi_normalized(tuning, pi_list, n_pi_list):
+def test_pcs_normalized(tuning, pi_list, n_pi_list):
     """
-    Test if get_bi_normalized method works correctly
+    Test if pcs_normalized method works correctly
     """
 
     pitches = [
@@ -28,7 +28,7 @@ def test_get_bi_normalized(tuning, pi_list, n_pi_list):
     scale = PeriodicPitchScale(
         tuning, pitches
     )
-    normalized = scale.get_bi_normalized()
+    normalized = scale.pcs_normalized()
     for i, n_pi in enumerate(n_pi_list):
         assert normalized[i] == tuning.pitch(n_pi)
 
@@ -40,9 +40,9 @@ def test_get_bi_normalized(tuning, pi_list, n_pi_list):
         (edo12, [0, 2, 4, 17, 7, 13, 11], [3, 6, 8, 9, 10])
     ]
 )
-def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
+def test_pcs_normalized_complement(tuning, pi_list, n_pi_list):
     """
-    Test if get_bi_normalized_complement method works correctly
+    Test if pcs_normalized_complement method works correctly
     """
 
     pitches = [
@@ -51,7 +51,7 @@ def test_get_bi_normalized_complement(tuning, pi_list, n_pi_list):
     scale = PeriodicPitchScale(
         edo12, pitches
     )
-    normalized = scale.get_bi_normalized_complement()
+    normalized = scale.pcs_normalized_complement()
     for i, n_pi in enumerate(n_pi_list):
         assert normalized[i] == tuning.pitch(n_pi)
 
