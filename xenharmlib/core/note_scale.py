@@ -110,6 +110,18 @@ class NoteScale(Generic[NoteT]):
 
         return True
 
+    def is_notated_equivalent(self, other: Self) -> bool:
+        """
+        Returns True if this scale has, apart from the base
+        interval, the exact same notes as the other while
+        ignoring possible enharmonic equivalence.
+        """
+
+        n_self = self.get_bi_normalized()
+        n_other = other.get_bi_normalized()
+
+        return n_self.is_notated_same(n_other)
+
     # in this section we implement all the magic methods
     # so the scale behaves similar to a list
 
@@ -207,6 +219,20 @@ class NoteScale(Generic[NoteT]):
         return self.notation.note_scale(
             transposed
         )
+
+    def transpose_bi_index(self, bi_diff: int) -> Self:
+        """
+        Returns a note scale with the same pitch class indices
+        and symbols, but with a transposed base interval
+
+        :param bi_diff: The difference in base interval
+            between this note scale and the resulting one
+        """
+
+        scale = self.notation.note_scale()
+        for note in self:
+            scale.add_note(note.transpose_bi_index(bi_diff))
+        return scale
     
     # set operations
 
@@ -528,6 +554,20 @@ class PeriodicNoteScale(NoteScale):
                 scale = scale.rotated_down()
 
         return scale
+
+    def is_equivalent(self, other: PeriodicPitchScaleLike) -> bool:
+        """
+        Returns True if every note in this scale corresponds to another
+        one in the other scale that has the same pitch class index.
+        (and vice versa)
+
+        :param other: Another periodic note or pitch scale
+        """
+
+        n_self = self.get_bi_normalized()
+        n_other = other.get_bi_normalized()
+
+        return n_self == n_other
 
     def equivalents(self, other: Self, is_notated_same=False) -> bool:
         """
