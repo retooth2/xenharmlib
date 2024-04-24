@@ -504,7 +504,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         return n_scale
 
-    def pcs_normalized_complement(self) -> Self:
+    def pcs_complement(self) -> Self:
         """
         Normalizes this scale to the first base interval
         and returns the complement (that is: a scale of

@@ -40,9 +40,9 @@ def test_pcs_normalized(tuning, pi_list, n_pi_list):
         (edo12, [0, 2, 4, 17, 7, 13, 11], [3, 6, 8, 9, 10])
     ]
 )
-def test_pcs_normalized_complement(tuning, pi_list, n_pi_list):
+def test_pcs_complement(tuning, pi_list, n_pi_list):
     """
-    Test if pcs_normalized_complement method works correctly
+    Test if pcs_complement method works correctly
     """
 
     pitches = [
@@ -51,7 +51,7 @@ def test_pcs_normalized_complement(tuning, pi_list, n_pi_list):
     scale = PeriodicPitchScale(
         edo12, pitches
     )
-    normalized = scale.pcs_normalized_complement()
+    normalized = scale.pcs_complement()
     for i, n_pi in enumerate(n_pi_list):
         assert normalized[i] == tuning.pitch(n_pi)
 
