@@ -109,7 +109,7 @@ class PitchScale(Generic[PitchT]):
 
     def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
         self.tuning = tuning
-        self._sorted_pitches = []
+        self._sorted_pitches: List[PitchT] = []
         if pitches is not None:
             for pitch in pitches:
                 self.add_pitch(pitch)
