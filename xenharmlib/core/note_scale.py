@@ -101,11 +101,11 @@ class NoteScale(Generic[NoteT]):
         if len(self) != len(other):
             return False
 
-        intersection = self.intersection(
-            other,
-            is_notated_same=True
-        )
-        return len(intersection) == len(self)
+        for i, note in enumerate(self):
+            if not other[i].is_notated_same(note):
+                return False
+
+        return True
 
     # in this section we implement all the magic methods
     # so the scale behaves similar to a list
