@@ -110,18 +110,6 @@ class NoteScale(Generic[NoteT]):
 
         return True
 
-    def is_notated_equivalent(self, other: Self) -> bool:
-        """
-        Returns True if this scale has, apart from the base
-        interval, the exact same notes as the other while
-        ignoring possible enharmonic equivalence.
-        """
-
-        n_self = self.get_bi_normalized()
-        n_other = other.get_bi_normalized()
-
-        return n_self.is_notated_same(n_other)
-
     # in this section we implement all the magic methods
     # so the scale behaves similar to a list
 
@@ -568,6 +556,18 @@ class PeriodicNoteScale(NoteScale):
         n_other = other.get_bi_normalized()
 
         return n_self == n_other
+
+    def is_notated_equivalent(self, other: Self) -> bool:
+        """
+        Returns True if this scale has, apart from the base
+        interval, the exact same notes as the other while
+        ignoring possible enharmonic equivalence.
+        """
+
+        n_self = self.get_bi_normalized()
+        n_other = other.get_bi_normalized()
+
+        return n_self.is_notated_same(n_other)
 
     def equivalents(self, other: Self, is_notated_same=False) -> Self:
         """
