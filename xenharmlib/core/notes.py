@@ -796,7 +796,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         return (
             f'{self.__class__.__name__}('
             f'{self.symbol}, {self.number}, '
-            f'{self.notation.tuning.name})'
+            f'{self.tuning.name})'
         )
 
     @property
