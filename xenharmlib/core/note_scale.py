@@ -921,7 +921,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return indices
 
     @property
-    def natc_symbols(self) -> str:
+    def natc_symbols(self) -> List[str]:
         """
         The symbol list for the natural part of each note in the
         scale (e.g. in 12-EDO ['C', 'G', 'B'] for [C#0, Gb1, B4])
@@ -932,7 +932,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return symbols
 
     @property
-    def acc_symbols(self) -> str:
+    def acc_symbols(self) -> List[str]:
         """
         The symbol list for the accidental part of each note in the
         scale (e.g. in 12-EDO ['#', 'b', ''] for [C#0, Gb1, B4])
@@ -943,7 +943,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return symbols
 
     @property
-    def pc_symbols(self) -> str:
+    def pc_symbols(self) -> List[str]:
         """
         The symbol list for the pitch classes represented in the
         scale (e.g. in 12-EDO ['C#', 'Gb', 'B'] for [C#0, Gb1, B4])
@@ -954,7 +954,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return symbols
 
     @property
-    def acc_directions(self) -> str:
+    def acc_directions(self) -> List[int]:
         """
         The list of accidental directions of notes in the scale
         (0 if the note is a natural, 1 if the note is a sharp note,
