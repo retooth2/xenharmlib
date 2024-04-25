@@ -7,3 +7,5 @@ from .core.pitch import EDPitchInterval
 from .core.pitch import EDOPitchInterval
 from .core.pitch_scale import EDPitchScale
 from .core.pitch_scale import EDOPitchScale
+
+from .play import play
