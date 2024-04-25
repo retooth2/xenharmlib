@@ -18,3 +18,4 @@ This package includes export functions for various formats
 """
 
 from .audio import export_wav
+from .scl import export_scl
