@@ -187,6 +187,7 @@ features.
 
    quickstart
    core_api
+   export_api
 
 Contributor Guide
 ---------------------
