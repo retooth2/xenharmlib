@@ -1,0 +1,10 @@
+@font-face {
+    font-family: "Bravura Text";
+    src: url(../fonts/BravuraText.woff2);
+}
+
+.smufl {
+  font-family: "Bravura Text";
+  font-size: 20pt !important;
+  line-height: 1.5;
+}
