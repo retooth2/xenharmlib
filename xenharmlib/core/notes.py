@@ -253,6 +253,10 @@ class NatAccNote(PeriodicNoteABC):
     :param acc_value: The deviations (positive or negative) in steps
         that was introduced through an accidental (for example in
         12-EDO the accidental value of C#-0 is 1, Eb-2 is -1)
+    :param pc_symbol: The chosen symbol for the pitch class
+        (in most notations this is equal to natc_symbol + acc_symbol,
+        however there are notations - like UpDownNotation - that put
+        some of the accidentals before the natural)
     :param natc_symbol: The chosen symbol for the natural class 
         (e.g. 'C' for C#)
     :param acc_symbol: The chosen symbol for the accidental
@@ -264,6 +268,7 @@ class NatAccNote(PeriodicNoteABC):
                  natc_index: int,
                  nat_bi_index: int,
                  acc_value: int,
+                 pc_symbol: str,
                  natc_symbol: str,
                  acc_symbol: str):
 
@@ -271,6 +276,7 @@ class NatAccNote(PeriodicNoteABC):
         self._natc_index = natc_index
         self._nat_bi_index = nat_bi_index
         self._acc_value = acc_value
+        self._pc_symbol = pc_symbol
         self._natc_symbol = natc_symbol
         self._acc_symbol = acc_symbol
 
@@ -403,8 +409,8 @@ class NatAccNote(PeriodicNoteABC):
 
     @property
     def pc_symbol(self) -> str:
-        """ The combined symbol (natural + accidental) of this note """
-        return self.natc_symbol + self.acc_symbol
+        """ The pitch class symbol of this note """
+        return self._pc_symbol
 
     @property
     def acc_direction(self) -> int:
@@ -499,14 +505,21 @@ class NatAccNote(PeriodicNoteABC):
         target_natc_index = target_nat_index % nat_count
         target_nat_bi_index = target_nat_index // nat_count
 
-        target_natc_symbol = self.notation.get_natc_symbol(target_natc_index)
-        target_acc_symbol = self.notation.get_acc_symbol(target_acc)
+        result = self.notation.gen_pc_symbol(
+            target_natc_index,
+            target_acc
+        )
+
+        target_pc_symbol = result[0]
+        target_natc_symbol = result[1]
+        target_acc_symbol = result[2]
 
         return self.__class__(
             self.notation,
             target_natc_index,
             target_nat_bi_index,
             target_acc,
+            target_pc_symbol,
             target_natc_symbol,
             target_acc_symbol
         )

@@ -204,6 +204,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             natc_index=natc_index,
             nat_bi_index=nat_bi_index,
             acc_value=acc_value,
+            pc_symbol=pc_symbol,
             natc_symbol=natc_symbol,
             acc_symbol=acc_symbol
         )
@@ -654,3 +655,31 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             )
 
         return (best_natc_symbol, acc_tail, best_natc_index, acc_value)
+
+    def gen_pc_symbol(self, natc_index: int, acc_value: int) -> Tuple[str, str, str]:
+        """
+        Creates a pitch class symbol from a natural class index and an
+        accidental value. This defaults to calculating the first natural
+        symbol found for natc_index and concatenating it with the minimal
+        accidental symbol configuration for the value.
+
+        The method will return a tuple of 3 with the following semantics:
+        * First element will be the pitch class symbol
+        * Second element will be the natural class symbol
+        * Third element will be the accidental symbol string
+
+        (Subclasses can overwrite this method if they e.g wish to generate
+        pc_symbols that have post-fix or in-fix naturals)
+
+        :param natc_index: A natural class index of a note
+        :param acc_value: An accidental value
+        """
+
+        natc_symbol = self.get_natc_symbol(natc_index)
+        acc_symbol = self.get_acc_symbol(acc_value)
+
+        return (
+            natc_symbol + acc_symbol,
+            natc_symbol,
+            acc_symbol
+        )
