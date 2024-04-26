@@ -26,7 +26,7 @@ def make_nat_acc_test_notation(tuning):
 
     for nat_pc_index in range(0, len(tuning), 2):
         symbol = ALPHABET.pop(0)
-        notation.add_natc_symbol(nat_pc_index, symbol)
+        notation.set_natc_symbol(nat_pc_index, symbol)
 
     acc_arith = SymbolSumArithmetic(allow_empty=True)
     acc_arith.add_symbol('+', 1)

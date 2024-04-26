@@ -180,7 +180,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
             note_scale_cls
         )
 
-        self._natc_symbols_map: Dict[int, List[str]] = {}
+        self._nat_symbols: Dict[int, str] = {}
         self._acc_symbol_code: Optional[SymbolCode] = None
         self._interval_symbol_codes: Dict[int, SymbolCode] = {}
 
@@ -319,10 +319,8 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         """
 
         scale = self.note_scale()
-
-        for natc_symbols in self._natc_symbols_map.values():
-            natc_symbol = symbols[0]
-            note = self.note(natc_symbol, bi_index)
+        for symbol in self._nat_symbols.values():
+            note = self.note(symbol, bi_index)
             scale.add_note(note)
         return scale
 
@@ -375,7 +373,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         :param pitch_index: The pitch index to consider
         """
         pc_index = pitch_index % len(self.tuning)
-        return pc_index in self._natc_symbols_map
+        return pc_index in self._nat_symbols
 
     @property
     def nat_count(self) -> int:
@@ -384,7 +382,7 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         for this notation (typically 7 for western-style
         notations)
         """
-        return len(self._natc_symbols_map)
+        return len(self._nat_symbols)
 
     @property
     def nat_pc_indices(self) -> List[int]:
@@ -392,20 +390,14 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         A sorted list of natural pitch class indices
         that are present in this notation
         """
-        return sorted(self._natc_symbols_map)
+        return sorted(self._nat_symbols)
 
     # natural symbol processing
 
-    def add_natc_symbol(self, nat_pc_index: int, symbol: str):
+    def set_natc_symbol(self, nat_pc_index: int, symbol: str):
         """
-        Sets a string symbol for a natural pitch class, for example
-        (2, 'D') in 12-EDO
-
-        The method allows setting multiple symbols for one natural
-        pitch class (for example in 5-EDO 'F' and 'E' point to the
-        same natural pitch class). If for a function of this
-        notation a natural symbol has to be chosen it chooses
-        the first natural symbol that was added by this method.
+        Sets a string symbol for a natural pitch class,
+        for example (2, 'D') in 12-EDO
 
         :raises InvalidPitchClassIndex: If pitch class index
             is outside the base interval width of the tuning
@@ -427,26 +419,34 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
                 f'Must be between 0 and {len(self.tuning) - 1}'
             )
 
-        for natc_symbols in self._natc_symbols_map.items():
-            for natc_symbol in natc_symbols:
-                if symbol == natc_symbol:
-                    raise AmbiguousSymbol(
-                        f'Symbol {symbol} was already registered'
-                    )
+        if nat_pc_index in self._nat_symbols:
+            raise AmbiguousSymbol(
+                f'Natural pitch class index {nat_pc_index} already '
+                f'has symbol {self._nat_symbols[nat_pc_index]}'
+            )
 
-        self._natc_symbols_map.setdefault(nat_pc_index, []).append(symbol)
+        if symbol in self._nat_symbols.values():
+            raise AmbiguousSymbol(
+                f'Natural symbol {symbol} is already used by another '
+                f'pitch class index in this notation'
+            )
+
+        self._nat_symbols[nat_pc_index] = symbol
 
     def get_natc_symbol(self, nat_index: int) -> str:
         """
         Returns a string symbol for a natural index like
         0 -> 'C' or 8 -> 'D' in 12-EDO
 
+        :raises InvalidNaturalIndex: If natural index is
+            smaller than 0
+
         :param nat_index: A natural index of this notation
         """
         
         nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
         nat_pc_index = nat_pitch_index % len(self.tuning)
-        return self._natc_symbols_map[nat_pc_index][0]
+        return self._nat_symbols[nat_pc_index]
 
     # accidental symbol code processing
 
@@ -630,18 +630,19 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
 
         for natc_index, nat_pc_index in enumerate(self.nat_pc_indices):
 
-            natc_symbols = self._natc_symbols_map[nat_pc_index]
+            nat_symbol = self._nat_symbols[nat_pc_index]
 
-            for natc_symbol in natc_symbols:
-                if symbol.startswith(natc_symbol):
-                    if len(natc_symbol) > len(best_natc_symbol):
-                        best_natc_symbol = natc_symbol
-                        best_natc_index = natc_index
+            if symbol.startswith(nat_symbol):
+                if len(nat_symbol) > len(best_natc_symbol):
+                    best_natc_symbol = nat_symbol
+                    best_natc_index = natc_index
 
         if best_natc_index is None:
             raise UnknownNoteSymbol(
                 f'Could not find a natural that would '                
-                f'fit to {symbol}.'
+                f'fit to {symbol}. Available symbols '
+                f'are {self._nat_symbols.values()} and '
+                f'none of them was a prefix.'
             )
 
         acc_tail = symbol[len(best_natc_symbol):]
