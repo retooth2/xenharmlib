@@ -287,7 +287,7 @@ class NatAccNote(PeriodicNoteABC):
         """
         tuning = self._notation.tuning
         pitch_index = (
-            self.nat_pc_index + len(tuning) * self.nat_bi_index
+            self.natc_pitch_index + len(tuning) * self.nat_bi_index
         ) + self.acc_value
         return tuning.pitch(pitch_index)
 
@@ -386,13 +386,20 @@ class NatAccNote(PeriodicNoteABC):
     @property
     def nat_pc_index(self) -> int:
         """ The pitch class index of the natural of this note """
-        return self._notation.nat_index_to_pitch_index(self.natc_index)
+        return self._notation.nat_index_to_pc_index(self.natc_index)
 
     @property
     def nat_pitch_index(self) -> int:
         """ The pitch index of the natural of this note """
         return self._notation.nat_index_to_pitch_index(
             self.nat_index
+        )
+
+    @property
+    def natc_pitch_index(self) -> int:
+        """ The pitch index of the natural class of this note """
+        return self._notation.nat_index_to_pitch_index(
+            self.natc_index
         )
 
     # symbols / symbol fragments of the note
