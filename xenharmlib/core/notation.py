@@ -212,10 +212,11 @@ class NatAccNotation(NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale
         """
 
         natc_symbol, acc_symbol, natc_index, acc_value = self.parse_pc_symbol(pc_symbol)
+        nat_index = natc_index + (nat_bi_index * self.nat_count)
+
         chosen_note = self._note_cls(
             self,
-            natc_index=natc_index,
-            nat_bi_index=nat_bi_index,
+            nat_index=nat_index,
             acc_value=acc_value,
             pc_symbol=pc_symbol,
             natc_symbol=natc_symbol,

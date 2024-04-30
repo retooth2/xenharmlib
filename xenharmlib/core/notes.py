@@ -239,17 +239,13 @@ class PeriodicNoteABC(NoteABC):
 class NatAccNote(PeriodicNoteABC):
     """
     A base class for notes which are constructed from a natural and
-    an accidental (the appropriate base class for notes of notations
+    accidentals (the appropriate base class for notes of notations
     subclassing from :class:`~xenharmlib.core.notation.NatAccNotation`)
 
     :param notation: The notation object this note belongs to
-    :param natc_index: The natural class index of this note, which is
-        the equivalency class index of the natural index of this note
-        (so for example in a notation with naturals C, D, E, F, G, A, B
-        the natc_index for C#-0 and Cb-2 is 0, while the natc_index for
-        F-2 and F#-4 is 3)
-    :param nat_bi_index: The base interval index of the natural of this
-        note (e.g. for C#-0 this will be 0, for A#-2 it will be 2, etc)
+    :param nat_index: The natural index of this note, which is an index
+        counting the naturals starting with 0 (e.g. in western notation
+        C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
     :param acc_value: The deviations (positive or negative) in steps
         that was introduced through an accidental (for example in
         12-EDO the accidental value of C#-0 is 1, Eb-2 is -1)
@@ -265,16 +261,16 @@ class NatAccNote(PeriodicNoteABC):
 
     def __init__(self,
                  notation,
-                 natc_index: int,
-                 nat_bi_index: int,
+                 nat_index: int,
                  acc_value: int,
                  pc_symbol: str,
                  natc_symbol: str,
                  acc_symbol: str):
 
         super().__init__(notation)
-        self._natc_index = natc_index
-        self._nat_bi_index = nat_bi_index
+        self._nat_index = nat_index
+        self._natc_index = nat_index % notation.nat_count
+        self._nat_bi_index = nat_index // notation.nat_count
         self._acc_value = acc_value
         self._pc_symbol = pc_symbol
         self._natc_symbol = natc_symbol
@@ -363,9 +359,7 @@ class NatAccNote(PeriodicNoteABC):
         notation with naturals C, D, E, F, G, A, B the
         natural index of C#-0 is 0, D-1 is 8, Eb-3 is 16
         """
-        return self.natc_index + (
-            self.nat_bi_index * self.notation.nat_count
-        )
+        return self._nat_index
 
     @property
     def nat_bi_index(self) -> int:
@@ -523,8 +517,7 @@ class NatAccNote(PeriodicNoteABC):
 
         return self.__class__(
             self.notation,
-            target_natc_index,
-            target_nat_bi_index,
+            target_nat_index,
             target_acc,
             target_pc_symbol,
             target_natc_symbol,
