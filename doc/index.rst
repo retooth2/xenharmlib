@@ -134,10 +134,8 @@ original object.
 Features
 ---------------
 
-Xenharmlib is an ongoing project with the goal to bundle the many
-different single-purpose applications around microtonality that
-are scattered around the web into a single library. New features
-will come in by time and feature requests are welcome.
+Xenharmlib is an ongoing project. New features will come in by time and
+feature requests are welcome.
 
 So far it supports the following:
 
