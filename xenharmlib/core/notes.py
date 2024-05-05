@@ -21,7 +21,10 @@ based pitch and pitch interval classes.
 
 from __future__ import annotations
 
-from typing import *
+from typing import Tuple
+from typing import Self
+from typing import TypeVar
+from typing import Generic
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod

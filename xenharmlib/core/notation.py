@@ -20,7 +20,12 @@ tuning that provides a human-friendly string interface to all the
 lower level objects (pitch, pitch interval, pitch scale)
 """
 
-from typing import *
+from typing import Tuple
+from typing import Dict
+from typing import Optional
+from typing import TypeVar
+from typing import Generic
+from typing import List
 from abc import ABC
 from abc import abstractmethod
 from ..exc import UnknownNoteSymbol

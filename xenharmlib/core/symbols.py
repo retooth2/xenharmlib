@@ -21,7 +21,11 @@ in notations. A typical symbol code for 12-EDO would be a mapping
 of accidentals 'b' to -1, 'bb' to -2, '#' to 1, 'x' to 2, etc.
 """
 
-from typing import *
+from typing import Tuple
+from typing import List
+from typing import Dict
+from typing import Callable
+from typing import Optional
 from abc import ABC, abstractmethod
 
 import numpy as np
