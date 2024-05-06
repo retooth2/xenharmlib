@@ -28,13 +28,13 @@ from typing import Generic
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
+import numpy as np
 from .protocols import PeriodicPitchLike
 from .frequencies import Frequency
 from .pitch import PeriodicPitch
 from .protocols import HasFrequency
 from .protocols import HasFrequencyRatio
 from ..exc import IncompatibleNotations
-from ..exc import InvalidPitchIndex
 from .constants import FREQ_EQUALITY_EPSILON
 
 
@@ -249,14 +249,13 @@ class NatAccNote(PeriodicNoteABC):
     :param nat_index: The natural index of this note, which is an index
         counting the naturals starting with 0 (e.g. in western notation
         C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
-    :param acc_value: The deviations (positive or negative) in steps
-        that was introduced through an accidental (for example in
-        12-EDO the accidental value of C#-0 is 1, Eb-2 is -1)
+    :param acc_vector: A vector detailing the different deviations in
+        steps that were introduced through accidentals
     :param pc_symbol: The chosen symbol for the pitch class
         (in most notations this is equal to natc_symbol + acc_symbol,
         however there are notations - like UpDownNotation - that put
         some of the accidentals before the natural)
-    :param natc_symbol: The chosen symbol for the natural class 
+    :param natc_symbol: The chosen symbol for the natural class
         (e.g. 'C' for C#)
     :param acc_symbol: The chosen symbol for the accidental
         (e.g. '#' for C#)
@@ -265,7 +264,7 @@ class NatAccNote(PeriodicNoteABC):
     def __init__(self,
                  notation,
                  nat_index: int,
-                 acc_value: int,
+                 acc_vector: Tuple[int],
                  pc_symbol: str,
                  natc_symbol: str,
                  acc_symbol: str):
@@ -274,7 +273,7 @@ class NatAccNote(PeriodicNoteABC):
         self._nat_index = nat_index
         self._natc_index = nat_index % notation.nat_count
         self._nat_bi_index = nat_index // notation.nat_count
-        self._acc_value = acc_value
+        self._acc_vector = acc_vector
         self._pc_symbol = pc_symbol
         self._natc_symbol = natc_symbol
         self._acc_symbol = acc_symbol
@@ -320,7 +319,6 @@ class NatAccNote(PeriodicNoteABC):
 
         return (self.pc_symbol == other.pc_symbol) and \
             (self.nat_bi_index == other.nat_bi_index)
-
 
     def is_notated_equivalent(self, other) -> bool:
         """
@@ -375,7 +373,14 @@ class NatAccNote(PeriodicNoteABC):
         The accidental value of this note
         (e.g. in 31edo 2 for #, -2 for b, 0 for natural)
         """
-        return self._acc_value
+        return sum(self._acc_vector)
+
+    @property
+    def acc_vector(self) -> int:
+        """
+        The accidental vector of this note
+        """
+        return self._acc_vector
 
     # methods for mapping the natural index into
     # a pitch index or pitch class index
@@ -423,9 +428,9 @@ class NatAccNote(PeriodicNoteABC):
         is a natural, 1 if the note is a sharp note, -1 if
         it is a flat note)
         """
-        if self._acc_value == 0:
+        if self.acc_value == 0:
             return 0
-        return self._acc_value // abs(self._acc_value)
+        return self.acc_value // abs(self.acc_value)
 
     @property
     def is_notated_natural(self) -> bool:
@@ -435,7 +440,7 @@ class NatAccNote(PeriodicNoteABC):
         however it is notated with an accidental, thus the
         property will be False here)
         """
-        return self._acc_value == 0
+        return self.acc_value == 0
 
     @property
     def is_enharmonic_natural(self) -> bool:
@@ -444,7 +449,7 @@ class NatAccNote(PeriodicNoteABC):
         that is a natural
         """
         return self.notation.is_natural(
-            self.nat_pc_index + self._acc_value
+            self.nat_pc_index + self.acc_value
         )
 
     def __repr__(self):
@@ -467,67 +472,47 @@ class NatAccNote(PeriodicNoteABC):
         :param interval: A natural/accidental note interval object
         """
 
-        nat_diff = interval.nat_diff
-        nat_count = self.notation.nat_count
+        if interval.notation is not self.notation:
+            raise IncompatibleNotations(
+                'Interval must originate from same notation '
+                'as the note that should be transposed'
+            )
 
-        target_nat_index = self.nat_index + nat_diff
-
-        source_nat_pitch_index = self.notation.nat_index_to_pitch_index(
-            self.nat_index
+        notation = self.notation
+        nat_index = self.nat_index + interval.nat_diff
+        nat_pitch_diff = notation.std_pitch_diff(
+                interval.nat_diff
         )
-        target_nat_pitch_index = self.notation.nat_index_to_pitch_index(
-            target_nat_index
-        )
-
-        target_nat_pitch_diff = (
-            target_nat_pitch_index - source_nat_pitch_index
-        )
-
-        # the target accidental can be calculated as follows:
-        # let N_0 be the pitch diff norm for the natural difference
-        # (e.g. in 12-EDO 7 for 4 ^= P5). We now calculate the
-        # actual pitch difference N between the two naturals, for
-        # example 6 for B-F and receive the numbers of accidentals
-        # (N_0 - N) needed to reach the norm (in case of B-F, F
-        # needs to become F# so the interval is a P5). In a second
-        # step we get the actual pitch difference D denoted by the
-        # interval and substract the norm from it so we get the
-        # number of 'extra accidentals' that deviate from the
-        # norm. at the end we also need to add the accidental
-        # deviation D_0 of the source note, so for example an A5
-        # of Bb becomes F#. The full formula is:
-
-        # (N_0 - N) + (D - N_0) + D_0
-        
-        # which is:
-        # (D - N) + D_0
-
-        target_acc = (
-            interval.pitch_diff - target_nat_pitch_diff + self.acc_value
+        unbalanced_nat_pitch_index = self.nat_pitch_index + nat_pitch_diff
+        unbalanced_acc_vector = tuple(
+            np.add(self.acc_vector, interval.acc_vector)
         )
 
-        target_natc_index = target_nat_index % nat_count
-        target_nat_bi_index = target_nat_index // nat_count
-
-        result = self.notation.gen_pc_symbol(
-            target_natc_index,
-            target_acc
+        notation = self.notation
+        acc_vector = notation.balance_note_acc_vector(
+            nat_index,
+            unbalanced_nat_pitch_index,
+            unbalanced_acc_vector
         )
 
-        target_pc_symbol = result[0]
-        target_natc_symbol = result[1]
-        target_acc_symbol = result[2]
+        result = self.notation.gen_pc_symbol(nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
 
         return self.__class__(
             self.notation,
-            target_nat_index,
-            target_acc,
-            target_pc_symbol,
-            target_natc_symbol,
-            target_acc_symbol
+            nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol
         )
 
+
 NoteT = TypeVar('NoteT', bound=NoteABC)
+
 
 @total_ordering
 class NoteIntervalABC(Generic[NoteT], ABC):
@@ -666,7 +651,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
     """
     Abstract base class for intervals refering to notations
     of periodic tunings.
-    
+
     Implements the method :meth:`get_generator_distance`
     """
 
@@ -703,6 +688,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
             generator_pitch
         )
 
+
 class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     """
     Note interval class for intervals with natural/accidental notes.
@@ -730,10 +716,13 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     def __init__(self,
                  notation,
                  ref_note: NatAccNote,
-                 pitch_diff: int,
                  nat_diff: int,
+                 acc_vector: Tuple[int],
                  symbol: str,
                  number: int):
+
+        std_pitch_diff = notation.std_pitch_diff(nat_diff)
+        pitch_diff = std_pitch_diff + sum(acc_vector)
 
         super().__init__(
             notation,
@@ -741,9 +730,18 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
             pitch_diff
         )
 
+        self._acc_vector = acc_vector
         self._nat_diff = nat_diff
         self._symbol = symbol
         self._number = number
+
+    @property
+    def acc_vector(self) -> int:
+        """
+        The accidental vector of this interval (signifying the different
+        pitch deviations from the standard natural pitch difference)
+        """
+        return self._acc_vector
 
     @property
     def nat_diff(self) -> int:
@@ -790,10 +788,21 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
 
         notation = note_a.notation
         nat_diff = note_b.nat_index - note_a.nat_index
-        pitch_diff = note_b.pitch_index - note_a.pitch_index
+        unbalanced_nat_pitch_diff = (
+            note_b.nat_pitch_index - note_a.nat_pitch_index
+        )
+        unbalanced_acc_vector = tuple(
+            np.subtract(note_b.acc_vector, note_a.acc_vector)
+        )
+
+        acc_vector = notation.balance_interval_acc(
+            nat_diff,
+            unbalanced_nat_pitch_diff,
+            unbalanced_acc_vector
+        )
 
         symbol = notation.get_interval_symbol(
-            nat_diff, pitch_diff
+            nat_diff, acc_vector
         )
         number = notation.nat_diff_to_interval_number(
             nat_diff
@@ -802,8 +811,8 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         return cls(
             notation,
             note_a,
-            pitch_diff,
             nat_diff,
+            acc_vector,
             symbol,
             number
         )

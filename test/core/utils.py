@@ -29,28 +29,40 @@ def make_nat_acc_test_notation(tuning):
         notation.append_natural(natc_symbol, nat_pc_index)
 
     acc_arith = SymbolSumArithmetic(allow_empty=True)
-    acc_arith.add_symbol('+', 1)
-    acc_arith.add_symbol('x', 2)
-    acc_arith.add_symbol('-', -1)
-    acc_arith.add_symbol('.', -2)
+    acc_arith.add_symbol('+', (1,))
+    acc_arith.add_symbol('x', (2,))
+    acc_arith.add_symbol('-', (-1,))
+    acc_arith.add_symbol('.', (-2,))
 
     notation.acc_symbol_code = acc_arith
 
     funky_upper = SymbolSumArithmetic()
-    funky_upper.add_symbol('F', 0, min_occurence=1, max_occurence=1)
-    funky_upper.add_symbol('+', 1)
+    funky_upper.add_symbol(
+        'F', (0,), min_occurence=1, max_occurence=1, position=1
+    )
+    funky_upper.add_symbol('+', (1,), position=0)
     funky_lower = SymbolSumArithmetic()
-    funky_lower.add_symbol('F', 0, min_occurence=1, max_occurence=1)
-    funky_lower.add_symbol('-', -1)
-    funky = SymbolSumArithmeticSet([funky_upper, funky_lower])
+    funky_lower.add_symbol(
+        'F', (0,), min_occurence=1, max_occurence=1, position=1
+    )
+    funky_lower.add_symbol('-', (-1,), position=0)
+    funky = SymbolSumArithmeticSet()
+    funky.add_arithmetic(funky_upper)
+    funky.add_arithmetic(funky_lower)
 
     cringe_upper = SymbolSumArithmetic()
-    cringe_upper.add_symbol('C', 0, min_occurence=1, max_occurence=1)
-    cringe_upper.add_symbol('+', 1)
+    cringe_upper.add_symbol(
+        'C', (0,), min_occurence=1, max_occurence=1, position=1
+    )
+    cringe_upper.add_symbol('+', (1,), position=0)
     cringe_lower = SymbolSumArithmetic()
-    cringe_lower.add_symbol('C', 0, min_occurence=1, max_occurence=1)
-    cringe_lower.add_symbol('-', -1)
-    cringe = SymbolSumArithmeticSet([cringe_upper, cringe_lower])
+    cringe_lower.add_symbol(
+        'C', (0,), min_occurence=1, max_occurence=1, position=1
+    )
+    cringe_lower.add_symbol('-', (-1,), position=0)
+    cringe = SymbolSumArithmeticSet()
+    cringe.add_arithmetic(cringe_upper)
+    cringe.add_arithmetic(cringe_lower)
 
     for nat_diffc in range(0, len(tuning) // 2):
         if nat_diffc % 2 == 0:

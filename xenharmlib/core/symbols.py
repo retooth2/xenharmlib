@@ -14,11 +14,9 @@
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
 """
-The symbol module implements primitives to parse languages
-in which each literal and each word represents an integer value.
-These languages are called 'symbol codes' and are used as utils
-in notations. A typical symbol code for 12-EDO would be a mapping
-of accidentals 'b' to -1, 'bb' to -2, '#' to 1, 'x' to 2, etc.
+The symbol module implements primitives to parse languages in which each
+literal and each word represents an integer vector. These languages are
+called 'symbol codes' and are used as utils in notations.
 """
 
 from typing import Tuple
@@ -55,13 +53,17 @@ class AmbiguousSymbol(Exception):
     """
 
 
+class UnfittingDimensions(Exception):
+    """
+    Gets raised whenever a vector does not fit to the dimension
+    configuration of the symbol code
+    """
+
+
 class SymbolCode(ABC):
     """
-    SymbolCode defines a general interface for different
-    strategies to turn symbol strings into integer values
-    and vice versa. A typical usecase for this is to map
-    strings of accidentals (like 'bbb#') to values which
-    signify step differences.
+    SymbolCode defines a general interface for different strategies
+    to turn symbol strings into integer vectors and vice versa.
 
     The interface consists of two abstract methods
     * :meth:`SymbolCode.get_value`
@@ -69,93 +71,141 @@ class SymbolCode(ABC):
     """
 
     @abstractmethod
-    def get_value(self, symbol_str: str) -> int:
+    def get_vector(self, symbol_str: str) -> Tuple[int]:
         """
         Abstract method placeholder for a specific implementation
         to convert a string of one or more symbols into an integer
-        value
+        vector
 
         :param string: A string consisting of one or more symbols
 
         :raises UnknownSymbolString: If mapping has no ruleset
-            to convert the string into an integer
+            to convert the string into an integer vector
         """
 
     @abstractmethod
-    def get_symbol_str(self, value: int) -> str:
+    def get_symbol_str(self, vector: Tuple[int]) -> str:
         """
         Abstract method placeholder for a specific implementation
-        to convert an integer value into a symbol or sequence of
+        to convert an integer vector into a symbol or sequence of
         symbols
 
-        :param value: An integer value
+        :param vector: An integer vector
 
         :raises SymbolValueNotMapped: If mapping has no ruleset
-            to convert the integer into a string
+            to convert the vector into a string
         """
 
 
 class SymbolSumArithmetic(SymbolCode):
     """
     A symbol sum arithmetic is a mapping between string symbol sequences
-    and integer sums. It parses expressions like 'b##x' into a list
-    of known symbols (like 'b', '#', '#', 'x') and translates it into
-    an equivalent list of integers (like -1, 1, 1, 2) from which it
-    creates a sum.
+    and integer vector sums.
 
-    Vice-versa for a given integer value it can create an equivalent
-    minimal sequence of symbols (for example 3 -> 'x#').
+    A simple use case is to parse and generate accidentals, for example
+    parsing the standard western accidental string 'x#b' into a list of
+    one-dimensional integer vectors that signify the pitch index
+    alterations of each accidental (like (2,), (1,), (-1,)), resulting
+    in the sum (2,) denoting the total pitch index alteration of an
+    accidental string.
 
-    SymbolArithmetic parses in a greedy way, so if 'bb', 'b' and
-    '#' are registered as symbols, it will parse 'bb#' into the
-    list 'bb', '#' (NOT 'b', 'b', '#')
+    Higher dimensional arithmetics can be useful if there are multiple
+    classes of accidentals (like sharp/flat on the one hand and up/down
+    on the other). Given a value dimensionality of 2 it can e.g. parse
+    an expression like '^b##x' into a list of integer vectors (here:
+    (0, 1), (-1, 0), (1, 0), (1, 0), (2, 0)) from which it creates a
+    sum vector (3, 1)
 
-    Symbols and values build a bijective mapping, meaning that each
-    value has exactly one symbol pointing to it. If you want to have
-    ambigouity in this regard, you should use SymbolArithmeticSet.
+    Vice-versa for a given integer or integer vector it can create an
+    equivalent minimal sequence of symbols (e.g. (-1, 1) -> 'b^').
+
+    SymbolArithmetic parses in a greedy way, so if 'bb', 'b' and '#'
+    are registered as symbols, it will parse 'bb#' into the list 'bb',
+    '#' (NOT 'b', 'b', '#')
+
+    The class can also be used to design accidental systems for dense
+    tunings (like prime limit tunings), that don't have an enumerable
+    pitch index sequence. For example given a 3-limit tuning one can
+    define accidentals as their monzo, defining '#' as the value
+    vector (-11, 7), 'b' as the vector (11, -7) and so forth. The
+    addition of the monzo vectors is then equal to the product in
+    |R+: (e.g. 'b#' = (11, -7) + (-11, 7) = (0, 0), which is the
+    same as (2^11)/(3^7) * (3^7)/(2^11) = (2^0) * (3^0) = 1.
 
     On initialization of an arithmetic an offset can be set, which
-    adds a fixed value on all symbol values. This can come in handy
-    when defining partial arithmetics in a SymbolArithmeticSet, e.g.
-    if one wants to parse 'A' into '4', 'AA' into 5, 'AAA' into 6,
-    etc. In a case like this one can define the value of 'A' to be
-    1 and the offset to be 3.
+    adds a fixed integer vector to all symbol value vectors. This
+    is especially powerful when defining partial arithmetics in a
+    SymbolArithmeticSet, e.g. if one wants to parse '^A' into (4, 1),
+    'AA' into (5, 0), '^AAA' into (6, 1), etc. In a case like this
+    one can define the value of 'A' to be (1, 0), the value of '^'
+    to be (0, 1) and the offset to be (3, 0).
 
-    :param offset: (optional, default 0). A fixed value that will
-        be added to the integer sum
+    :param dimensions: Dimensions of the value vector (optional,
+        defaults to 1)
+    :param offset: (optional, defaults to the 0-vector). A fixed
+        value vector that will be added to the sum
     :param allow_empty: (optional, default False). If True, empty
         strings are part of this arithmetic (with value of the
-        offset, or 0 if offset is not given). If False exceptions
-        will be raised on empty strings 
+        offset, or the 0 vector if offset is not given). If False
+        exceptions will be raised on empty strings
     """
 
     def __init__(self,
-                 offset: int = 0,
+                 dimensions: int = 1,
+                 offset: Optional[Tuple[int]] = None,
                  allow_empty: bool = False):
 
-        self._symbol_values: Dict[str, int] = {}
-        self._value_symbols: Dict[int, str] = {}
+        if offset is None:
+            offset = (0,) * dimensions
+
+        if len(offset) != dimensions:
+            raise UnfittingDimensions(
+                'Offset dimensions must match the value '
+                'given in dimensions argument'
+            )
+
+        self._dimensions = dimensions
+
+        self._symbol_vectors: Dict[str, Tuple[int]] = {}
+        self._vector_symbols: Dict[Tuple[int], str] = {}
+        self._symbol_position: Dict[str, int] = {}
         self._symbol_min_occurence: Dict[str, int] = {}
         self._symbol_max_occurence: Dict[str, int] = {}
         self._offset = offset
         self._allow_empty = allow_empty
 
+    @property
+    def dimensions(self) -> int:
+        return self._dimensions
+
+    @property
+    def offset(self) -> Tuple[int]:
+        return self._offset
+
     def add_symbol(self,
                    symbol: str,
-                   value: int,
+                   vector: Tuple[int],
+                   position: int = None,
                    min_occurence: Optional[int] = None,
                    max_occurence: Optional[int] = None):
         """
-        Adds a string symbol with their corresponding
-        value to this arithmetic.
+        Adds a string symbol with its corresponding integer
+        vector to this arithmetic
 
         :raises AmbiguousSymbol: If symbol already exists in
-            the arithmetic or if value is already represented
+            the arithmetic or if vector is already represented
             by another symbol
 
         :param symbol: A string (can be multi-character)
-        :param value: An integer that denotes the value
-            of the string symbol in the arithmetic
+        :param vector: An integer tuple defining the
+            value vector of the symbol (dimensions must
+            match the dimensions with which the the arithmetic
+            was initialized)
+        :param position: The desired positional value of the
+            symbol in the sorting process of get_symbol_str
+            (optional, if no parameter is given the position
+            of the symbol will be analoguous to the order
+            in which symbols were added to the arithmetic)
         :param min_occurence: (optional) The minimum number of
             times this symbol must occur in the arithmetic
             symbol string in order for the string to be
@@ -166,20 +216,35 @@ class SymbolSumArithmetic(SymbolCode):
             considered valid
         """
 
-        if symbol in self._symbol_values:
+        if len(vector) != self.dimensions:
+            raise UnfittingDimensions(
+                f'Value dimensions did not match the dimensions '
+                f'of this arithmetic ({self.dimensions})'
+            )
+
+        if position is None:
+            # if no position was given simply take the biggest
+            # already existing position and increment by one:
+            biggest_pos = 0
+            for position in self._symbol_position.values():
+                biggest_pos = max(position, biggest_pos)
+            position = biggest_pos + 1
+
+        if symbol in self._symbol_vectors:
             raise AmbiguousSymbol(
                 f'Symbol {symbol} already exists in this '
                 f'arithmetic'
             )
 
-        if value in self._value_symbols:
+        if vector in self._vector_symbols:
             raise AmbiguousSymbol(
-                f'Value {value} is already represented by '
-                f'symbol {self._value_symbols[value]}'
+                f'Vector {vector} is already represented by '
+                f'symbol {self._vector_symbols[vector]}'
             )
 
-        self._symbol_values[symbol] = value
-        self._value_symbols[value] = symbol
+        self._symbol_vectors[symbol] = vector
+        self._vector_symbols[vector] = symbol
+        self._symbol_position[symbol] = position
 
         if min_occurence is not None:
             self._symbol_min_occurence[symbol] = min_occurence
@@ -187,45 +252,76 @@ class SymbolSumArithmetic(SymbolCode):
         if max_occurence is not None:
             self._symbol_max_occurence[symbol] = max_occurence
 
-    def parse_symbol_str(self, symbol_str: str) -> Tuple[List[str], List[int], int]:
+    def get_vector(self, symbol_str: str) -> Tuple[int]:
         """
-        Parses a symbol string into a list of symbol literals
-        their corresponding integer values and the offset
-
-        >>> from xenharmlib.core.symbols import SymbolSumArithmetic
-        >>> arithmetic = SymbolSumArithmetic()
-        >>> arithmetic.add_symbol('x', 2)
-        >>> arithmetic.add_symbol('#', 1)
-        >>> arithmetic.add_symbol('b', -1)
-        >>> literals, values, offset = arithmetic.parse_symbol_str('xbb#')
+        Returns the vector integer sum (adjusted for offset,
+        if set) for a given symbol string.
 
         :raises UnknownSymbolString: If arithmetic did not
             match the string
-        
+
+        :param symbol_str: A string consisting of symbols
+            defined in this arithmetic
+        """
+
+        symbols = self.parse(symbol_str)
+        return self.get_vector_from_symbols(symbols)
+
+    def get_vector_from_symbols(self, symbols: Tuple[str]) -> Tuple[int]:
+        """
+        Returns the vector integer sum (adjusted for offset,
+        if set) for a given tuple of parsed symbol literals
+
+        :param symbols: A tuple with each element being a
+            symbol literal in this arithmetic
+        """
+
+        result = self._offset
+
+        for symbol in symbols:
+            value = self._symbol_vectors[symbol]
+            result = np.add(result, value)
+
+        return tuple(result)
+
+    def parse(self, symbol_str: str) -> Tuple[str]:
+        """
+        Parses a symbol string into a list of symbols
+
+        >>> from xenharmlib.core.symbols import SymbolSumArithmetic
+        >>> arithmetic = SymbolSumArithmetic(dimensions=2)
+        >>> arithmetic.add_symbol('x', (2, 0))
+        >>> arithmetic.add_symbol('#', (1, 0))
+        >>> arithmetic.add_symbol('b', (-1, 0))
+        >>> arithmetic.add_symbol('^', (0, 1))
+        >>> symbols = arithmetic.parse_symbol_str('xbb#')
+        >>> symbols
+        ('x', 'b', 'b', '#')
+
+        :raises UnknownSymbolString: If arithmetic did not
+            match the string
+
         :param symbol_str: A symbol string consisting of symbols
             defined in this arithmetic
         """
 
         symbols = []
-        values = []
+        def_symbols = list(self._symbol_vectors)
 
         if not self._allow_empty and symbol_str == '':
             raise UnknownSymbolString(
                 'Symbol strings in this arithmetic must '
-                'have at least one valued symbol'
+                'have at least one symbol'
             )
 
         while symbol_str != '':
 
             best_symbol = ''
-            best_value = 0
 
-            for value, symbol in self._value_symbols.items():
-
+            for symbol in def_symbols:
                 if symbol_str.startswith(symbol):
                     if len(symbol) > len(best_symbol):
                         best_symbol = symbol
-                        best_value = value
 
             if best_symbol == '':
                 raise UnknownSymbolString(
@@ -235,9 +331,8 @@ class SymbolSumArithmetic(SymbolCode):
 
             symbol_str = symbol_str[len(best_symbol):]
             symbols.append(best_symbol)
-            values.append(best_value)
 
-        for symbol in self._symbol_values.keys():
+        for symbol in def_symbols:
 
             count = symbols.count(symbol)
 
@@ -257,69 +352,86 @@ class SymbolSumArithmetic(SymbolCode):
                     f'occurences were counted'
                 )
 
-        return (symbols, values, self._offset)
+        return symbols
 
-    def get_value(self, symbol_str: str) -> int:
+    def get_symbol_str(self, vector: Tuple[int]) -> str:
         """
-        Returns the integer sum value for a given symbol string
+        Partitions the given vector into vector summands that are
+        represented by symbols and returns those symbols sorted
+        according to the positional value of each symbol and
+        joined as a single string.
 
-        :raises UnknownSymbolString: If arithmetic did not
-            match the string
-
-        :param symbol_str: A string consisting of symbols
-            defined in this arithmetic
+        :param vector: The sum vector that should be resolved
+            into a symbol term
         """
 
-        _, values, offset = self.parse_symbol_str(symbol_str)
-        return sum(values) + offset
+        if len(vector) != self.dimensions:
+            raise UnfittingDimensions(
+                f'Vector dimensions did not match the dimensions '
+                f'of this arithmetic ({self.dimensions})'
+            )
 
-    def get_symbol_str(self, value: int) -> str:
+        return ''.join(self.get_symbols(vector))
+
+    def get_symbols(self, vector: Tuple[int]) -> Tuple[str]:
         """
-        Returns a minimal symbol string for a given value
+        Returns a sorted, minimal tuple of symbols whose combined
+        value together with the offset result in the given sum.
 
         :raises SymbolValueNotMapped: If value can not be
             represented by any combination of symbols
             in the arithmetic
 
-        :param value: A positive or negative integer
+        :param vector: The sum vector that should be resolved
+            into a symbol term
         """
 
-        # the problem of finding a minimal symbol sequence is
-        # surprisingly complicated. i first researched variants
-        # of the knapsack problem but did not find something
-        # that takes negative capacities into account.
+        if len(vector) != self.dimensions:
+            raise UnfittingDimensions(
+                f'Value vector must have exactly'
+                f'{self.dimensions} dimensions'
+            )
 
-        # in the end i just used integer linear programming
-        # stating the problem as:
+        symbol_count = len(self._symbol_vectors)
+        adj_vector = list(np.subtract(vector, self.offset))
+
+        if symbol_count == 0:
+            raise SymbolValueNotMapped(
+                f'{vector} could not be represented as a sum '
+                f'of the values for which a symbol is registered '
+            )
 
         # minimimize sum(x)
         # subject to
-        # v_1 * x_1 + ... + v_n * x_n = value + offset
+
+        # v_1,1 * x_1 + ... + v_n,1 * x_n = value_1 + offset_1
+        # v_1,2 * x_1 + ... + v_n,2 * x_n = value_2 + offset_2
+        # ...
+        # v_1,n * x_1 + ... + v_n,n * x_n = value_n + offset_n
+
         # x_i > min_i
         # x_i < max_i
         # v_i in Z, x_i in N
 
-        symbol_count = len(self._symbol_values)
-        adj_value = value - self._offset
-
-        if symbol_count == 0:
-            raise SymbolValueNotMapped(
-                f'{value} could not be represented as a sum '
-                f'of the values for which a symbol is registered '
-            )
-
         c = np.array([1] * symbol_count)
         integrality = np.array([1] * symbol_count)
 
-        sorted_values = sorted(self._value_symbols)
-        A_array = [sorted_values]
-        lb_list = [adj_value]
-        ub_list = [adj_value]
-        
-        for i, c_value in enumerate(sorted_values):
-            symbol = self._value_symbols[c_value]
-            lb = self._symbol_min_occurence.get(symbol, 0)
-            ub = self._symbol_max_occurence.get(symbol, np.inf)
+        A_array = []
+        sorted_symbols = sorted(self._symbol_vectors)
+
+        for i in range(0, self.dimensions):
+            row = []
+            for symbol in sorted_symbols:
+                value = self._symbol_vectors[symbol]
+                row.append(value[i])
+            A_array.append(row)
+
+        lb_list = adj_vector[:]
+        ub_list = adj_vector[:]
+
+        for i, c_symbol in enumerate(sorted_symbols):
+            lb = self._symbol_min_occurence.get(c_symbol, 0)
+            ub = self._symbol_max_occurence.get(c_symbol, np.inf)
             A_frag = [0] * i + [1] + [0] * (symbol_count - 1 - i)
             A_array.append(A_frag)
             lb_list.append(lb)
@@ -337,67 +449,92 @@ class SymbolSumArithmetic(SymbolCode):
         ub = np.array(ub_list)
 
         result = milp(
-            c, 
-            integrality=integrality, 
+            c,
+            integrality=integrality,
             constraints=LinearConstraint(A, lb, ub)
         )
 
         if not result.success:
             raise SymbolValueNotMapped(
-                f'{value} could not be represented as a sum '
-                f'of the values for which a symbol is registered '
+                f'{vector} could not be represented as a sum '
+                f'of the vectors for which a symbol is registered '
             )
 
         counts = {}
 
         for i in range(symbol_count):
             count = int(result.x[i])
-            symbol_value = sorted_values[i]
-            counts[symbol_value] = count
+            symbol = sorted_symbols[i]
+            counts[symbol] = count
 
-        # put all the big symbols (both positive and
-        # negative) before the small symbols
+        # sort symbols in regards to their
+        # positional value
 
-        abs_sorted = sorted(
-            sorted_values,
-            key=lambda x: abs(x),
-            reverse=True
+        position_sorted = sorted(
+            self._symbol_vectors,
+            key=lambda x: self._symbol_position[x],
         )
 
-        symbol_str = ''
+        symbols = []
 
-        for symbol_value in abs_sorted:
-            count = counts[symbol_value]
-            symbol = self._value_symbols[symbol_value]
-            symbol_str += symbol * count
+        for symbol in position_sorted:
+            count = counts[symbol]
+            symbols += [symbol] * count
 
-        return symbol_str
+        return symbols
 
 
 class SymbolSumArithmeticSet(SymbolCode):
     """
     SymbolSumArithmeticSets combine different SymbolSumArithmetics
-    allowing to use multiple symbols for the same value and 
-    to segment the space of whole numbers into multiple
+    allowing to use multiple symbols for the same integer vector
+    and to segment the space of integer vectors into multiple
     arithmetics with different offsets.
 
     You can for example combine four arithmetics to represent
     traditional interval naming of imperfect intervals:
 
-    * 'M'  represents value 0
-    * 'M^' represents one step over 0
-    * 'A'  represents one sharpness values over 0
-    * 'm'  represents one sharpness values less than 0
-    * 'd'  represents two sharpness values less than 0
-    * 'dv' represents two sharpness values less than 0 and
-           an additional step downwards.
+    * 'M'  represents vector (0, 0)
+    * '^M' represents vector (0, 1)
+    * 'A'  represents vector (2, 0)
+    * 'm'  represents vector (-1, 0)
+    * 'd'  represents vector (-2, 0)
+    * 'vd' represents vector (-2, -1)
 
-    :param arithmetics: A list of symbol arithmetics that
-        define the set
+    :param dimensions: The dimensions of the arithmetics
+        in the set (optional, defaults to 1)
+    :param pref_func: (optional) A preference function that
+        returns a definite parsing result from a list of
+        possibles ones. The function should accept a list
+        of tuples (arithmetic, parsed_str) with parsed_str
+        being a tuple of single symbols. It should return
+        one element of the list that should be prefered.
+        If no preference function is given, then the class
+        will choose the result with the shortest length.
     """
 
-    def __init__(self, arithmetics: List[SymbolSumArithmetic]):
-        self._arithmetics = arithmetics
+    def __init__(
+        self,
+        dimensions: int = 1,
+        pref_func: Callable[
+            [List[Tuple[SymbolSumArithmetic, Tuple[str]]]],
+            Tuple[SymbolSumArithmetic, Tuple[str]]
+        ] | None = None
+    ):
+        self._dimensions = dimensions
+        self._arithmetics: List[SymbolSumArithmetic] = []
+
+        if pref_func is None:
+            pref_func = self._default_pref_func
+
+        self._pref_func = pref_func
+
+    @property
+    def dimensions(self) -> int:
+        """
+        The vector dimensions of arithmetics in this set
+        """
+        return self._dimensions
 
     def add_arithmetic(self, arithmetic: SymbolSumArithmetic):
         """
@@ -406,20 +543,47 @@ class SymbolSumArithmeticSet(SymbolCode):
         :param arithmetic: The arithmetic to add
         """
 
+        if arithmetic.dimensions != self.dimensions:
+            raise UnfittingDimensions(
+                'The vector dimension number of the arithmetic'
+                'is different to the one of the set.'
+            )
+
         self._arithmetics.append(arithmetic)
 
-    def parse_symbol_str(self, symbol_str: str) -> Tuple[List[str], List[int], int]:
+    @staticmethod
+    def _default_pref_func(
+        results: List[Tuple[SymbolSumArithmetic, Tuple[str]]]
+    ):
         """
-        Parses a symbol string into a list of symbol literals,
-        their corresponding integer values and the offset which
-        should be applied to them.
+        The default preference function. Simply chooses the
+        parsing result with the minimum number of symbols
+        """
 
-        >>> literals, values, offset = arithmetic.parse_symbol_str('xbb#')
+        best = results[0]
 
-        Under the hood the method tries to parse the string with
-        all available arithmetics in the set, ignoring the ones
-        that raise UnknownSymbolString and selecting the one
-        with the smallest number of symbols.
+        for result in results[1:]:
+            _, parsed_str = result
+            _, best_parsed_str = best
+            if len(parsed_str) < len(best_parsed_str):
+                best = result
+
+        return best
+
+    def parse(
+        self,
+        symbol_str: str
+    ) -> Tuple[SymbolSumArithmetic, List[str]]:
+        """
+        Tries to parse a symbol string by each arithmetic in the
+        set. If an arithmetic returns a result it is added to the
+        list of possible results from which then subsequently one
+        result is selected using the preference function given
+        during set initialization.
+
+        The function returns a tuple (arithmetic, symbols) with
+        the first element being the chosen arithmetic and the
+        second being the parsing result from that arithmetic.
 
         :raises UnknownSymbolString: If no arithmetic in the set
             matched the string
@@ -429,10 +593,8 @@ class SymbolSumArithmeticSet(SymbolCode):
 
         for a in self._arithmetics:
             try:
-                literals, values, offset = a.parse_symbol_str(symbol_str)
-                matches.append(
-                    (literals, values, offset)
-                )
+                symbols = a.parse(symbol_str)
+                matches.append((a, symbols))
             except UnknownSymbolString:
                 continue
 
@@ -442,14 +604,9 @@ class SymbolSumArithmeticSet(SymbolCode):
                 'arithmetic in the set'
             )
 
-        matches = sorted(
-            matches,
-            key=lambda x: len(x[1])
-        )
+        return self._pref_func(matches)
 
-        return matches[0]
-
-    def get_value(self, symbol_str: str) -> int:
+    def get_vector(self, symbol_str: str) -> int:
         """
         Returns the integer sum value for a given string
 
@@ -459,8 +616,8 @@ class SymbolSumArithmeticSet(SymbolCode):
         :param symbol_str: A symbol string consisting of symbols
             defined by at least one arithmetic in the set.
         """
-        _, values, offset = self.parse_symbol_str(symbol_str)
-        return sum(values) + offset
+        arithmetic, symbols = self.parse(symbol_str)
+        return arithmetic.get_vector_from_symbols(symbols)
 
     def get_symbol_str(self, value: int) -> str:
         """
@@ -477,8 +634,8 @@ class SymbolSumArithmeticSet(SymbolCode):
 
         for a in self._arithmetics:
             try:
-                symbol_str = a.get_symbol_str(value)
-                matches.append(symbol_str)
+                symbols = a.get_symbols(value)
+                matches.append((a, symbols))
             except SymbolValueNotMapped:
                 continue
 
@@ -488,9 +645,6 @@ class SymbolSumArithmeticSet(SymbolCode):
                 f'by any symbol arithmetic in the set'
             )
 
-        matches = sorted(
-            matches,
-            key=lambda x: len(x)
-        )
+        _, symbols = self._pref_func(matches)
 
-        return matches[0]
+        return ''.join(symbols)
