@@ -11,7 +11,7 @@ It is easy to use, extendable and tries to be intuitive. Have a peak:
 
    from xenharmlib import EDOTuning
    from xenharmlib import play
-   from xenharmlib.notation import UpDownNotation
+   from xenharmlib import UpDownNotation
 
    # create a supermajor 7 chord on vD for an
    # equal temperament with 31 notes per octave
@@ -65,7 +65,7 @@ It is easy to use, extendable and tries to be intuitive. Have a peak:
 .. testcode::
 
    from xenharmlib import EDOTuning
-   from xenharmlib.notation import UpDownNotation
+   from xenharmlib import UpDownNotation
 
    # do plain old western scale analysis
 

@@ -9,3 +9,4 @@ from .core.pitch_scale import EDPitchScale
 from .core.pitch_scale import EDOPitchScale
 
 from .play import play
+from .notation.updown import UpDownNotation

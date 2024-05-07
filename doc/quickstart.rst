@@ -760,7 +760,7 @@ Let's create our first notation with it:
 .. testcode::
 
     from xenharmlib import EDOTuning
-    from xenharmlib.notation import UpDownNotation
+    from xenharmlib import UpDownNotation
 
     edo31 = EDOTuning(31)
     n_edo31 = UpDownNotation(edo31)
@@ -2011,7 +2011,7 @@ as a chord:
 .. testcode::
 
     from xenharmlib import EDOTuning
-    from xenharmlib.notation import UpDownNotation
+    from xenharmlib import UpDownNotation
     from xenharmlib.play import play
 
     edo12 = EDOTuning(12)
