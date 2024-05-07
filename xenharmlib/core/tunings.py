@@ -26,8 +26,10 @@ that need a couple of methods implemented by a subclass.
 """
 
 from __future__ import annotations
+import sympy as sp
 from abc import ABC
 from abc import abstractmethod
+from fractions import Fraction
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -353,6 +355,11 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
         return generators
 
 
+Hz440C0 = Frequency(
+    sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4)
+)
+
+
 class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
     """
@@ -390,7 +397,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     :param ref_frequency: (Optional) A reference frequency on
         which this tuning is built. For EDTunings this is the
         lowest pitch (pitch index 0). Defaults to the frequency
-        of 16.35 Hz (The equivalent of A4 = 440Hz)
+        for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
     """
 
     def __init__(self,
@@ -399,7 +406,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
                  pitch_cls: type[EDPitch] = EDPitch,
                  pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
                  pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
-                 ref_frequency: Frequency = Frequency(163_516, 10_000)):
+                 ref_frequency: Frequency = Hz440C0):
 
         super().__init__(
             period_length=divisions,
@@ -438,9 +445,9 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
         scale_size = len(self)
         index = pitch.pitch_index
+        exp = sp.Rational(1, scale_size)
         return Frequency(
-            self.ref_frequency * \
-                (self.eq_ratio**(Frequency(1/scale_size)))**index
+            self.ref_frequency * (self.eq_ratio**exp)**index
         )
 
 
@@ -466,7 +473,7 @@ class EDOTuning(EDTuning):
     :param ref_frequency: (Optional) A reference frequency on
         which this tuning is built. For EDOTunings this is the
         lowest pitch (pitch index 0). Defaults to the frequency
-        of 16.35 Hz (The equivalent of A4 = 440Hz)
+        for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
     """
 
     def __init__(self,
@@ -474,7 +481,7 @@ class EDOTuning(EDTuning):
                  pitch_cls: type[EDOPitch] = EDOPitch,
                  pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
                  pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
-                 ref_frequency: Frequency = Frequency(163_516, 10_000)):
+                 ref_frequency: Frequency = Hz440C0):
 
         super().__init__(
             divisions=divisions,
@@ -496,7 +503,7 @@ class EDOTuning(EDTuning):
         (frequency ratio 3/2) in this tuning.
         """
         return self.get_approx_pitch(
-            self.ref_frequency * Frequency(3, 2)
+            self.ref_frequency * Frequency(Fraction(3, 2))
         )
 
     @property

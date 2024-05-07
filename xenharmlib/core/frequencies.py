@@ -22,26 +22,189 @@ useful representations for frequencies and frequency ratios.
 
 from __future__ import annotations
 
-import math
-from typing import *
-from numbers import Number
+import sympy as sp
+from typing import Self
+from typing import TypeAlias
+from typing import List
+from typing import Optional
+from functools import total_ordering
 from fractions import Fraction
 from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
 
-class Frequency(Fraction):
+FreqNumber: TypeAlias = Self | int | Fraction | float | sp.Expr
+
+
+def _to_sp_expr(number: FreqNumber):
+    """
+    Takes any python builtin number type and converts to
+    an equivalent sympy expression
+    """
+
+    if isinstance(number, int):
+        return sp.Integer(number)
+
+    if isinstance(number, Fraction):
+        return sp.Rational(number.numerator, number.denominator)
+
+    if isinstance(number, float):
+        return sp.Float(number)
+
+    if isinstance(number, sp.Expr):
+
+        if not number.is_number:
+            raise ValueError(
+                'SymPy expression can not have any free '
+                'variables or undefined functions'
+            )
+
+        return number
+
+    if isinstance(number, Frequency):
+        return number.sp_expr
+
+    raise ValueError(
+        f'Unsupported inner type for frequency type: {type(number)}'
+    )
+
+
+@total_ordering
+class Frequency:
 
     """
-    In xenharmlib frequencies are build as python Fraction types. 
-    This might be a bit slower than floats but it makes better
-    approximations in the lower ranges for EDOs and even creates
-    exact values for just intonation tunings.
+    Frequency is the class to which all pitch definitions ultimately
+    come down to. Frequencies represent the physical layer of sound,
+    stripped from all other abstractions.
 
-    Frequencies can be instantiated exactly like Fractions,
-    e.g. Frequency(440) for 440 Hz or Frequency(3, 2) for
-    the perfect fifth ratio
+    Frequency is a wrapper around symbolic mathematical expressions,
+    which are provided by the sympy package. Using those expressions
+    instead of floats allows us to do exact precision calculations
+    which is especially useful in regards to equal division tunings
+    where pitches have irrational frequencies.
+
+    Frequency objects can be constructed by providing an integer,
+    float, Fraction or a sympy expression. For example
+
+    >>> from xenharmlib import Frequency
+    >>> from fractions import Fraction
+    >>> Frequency(440)
+    Frequency(440)
+    >>> Frequency(1.5)
+    Frequency(1.50000000000000)
+    >>> Frequency(Fraction(3, 2))
+    Frequency(3/2)
+
+    >>> import sympy as sp
+    >>> Frequency(sp.Integer(2)**sp.Rational(1, 12))
+    Frequency(2**(1/12))
+
+    Frequency objects seemlessly interact with all kinds of numbers
+
+    >>> 3 * Frequency(440)
+    Frequency(1320)
+    >>> Frequency(3) / 2
+    Frequency(3/2)
+    >>> Frequency(2) - 2
+    Frequency(0)
+    >>> from fractions import Fraction
+    >>> Frequency(2) ** Fraction(1, 3)
+    Frequency(2**(1/3))
     """
+
+    def __init__(self, number: FreqNumber):
+        sp_expr = _to_sp_expr(number)
+        self.sp_expr = sp_expr
+
+    def __add__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr + other_sp_expr)
+
+    def __sub__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr - other_sp_expr)
+
+    def __mul__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr * other_sp_expr)
+
+    def __truediv__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr / other_sp_expr)
+
+    def __floordiv__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr // other_sp_expr)
+
+    def __mod__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr % other_sp_expr)
+
+    def __pow__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(self.sp_expr ** other_sp_expr)
+
+    def __radd__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr + self.sp_expr)
+
+    def __rsub__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr - self.sp_expr)
+
+    def __rmul__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr * self.sp_expr)
+
+    def __rtruediv__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr / self.sp_expr)
+
+    def __rfloordiv__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr // self.sp_expr)
+
+    def __rmod__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr % self.sp_expr)
+
+    def __rpow__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return Frequency(other_sp_expr ** self.sp_expr)
+
+    def __abs__(self):
+        return Frequency(abs(self.sp_expr))
+
+    def __eq__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return self.sp_expr == other_sp_expr
+
+    def __lt__(self, other: FreqNumber):
+        other_sp_expr = _to_sp_expr(other)
+        return self.sp_expr < other_sp_expr
+
+    def __float__(self) -> float:
+        return float(self.sp_expr.evalf())
+
+    def __round__(self, ndigits=0) -> float:
+        return float(self.sp_expr.round(ndigits))
+
+    def log(self, base: FreqNumber):
+        base = _to_sp_expr(base)
+        return Frequency(sp.log(self.sp_expr, base))
+
+    @property
+    def numerator(self) -> Self:
+        n, _ = sp.fraction(self.sp_expr)
+        return Fraction(n)
+
+    @property
+    def denominator(self) -> Self:
+        _, d = sp.fraction(self.sp_expr)
+        return Fraction(d)
+
+    def __repr__(self) -> str:
+        return f'Frequency({repr(self.sp_expr)})'
 
     @classmethod
     def from_monzo(cls, monzo: List[int]):
@@ -67,7 +230,7 @@ class Frequency(Fraction):
             if exp >= 0:
                 numerator *= primes[prime_i]**(exp)
 
-        return cls(numerator, denominator)
+        return cls(Fraction(numerator, denominator))
 
     def to_monzo(self):
         """
@@ -124,7 +287,7 @@ class Frequency(Fraction):
 
         :param index: Index of the harmonic.
             0 is the original frequency, 1 the
-            first harmonic, etc    
+            first harmonic, etc
         """
 
         return Frequency(
@@ -142,7 +305,7 @@ class Frequency(Fraction):
         :param limit: (optional) upper frequency limit
             of the list in Hz, defaults to the average
             audible maximum of the human ear of
-            20KHz 
+            20KHz
         """
 
         if limit is None:
@@ -168,6 +331,6 @@ class Frequency(Fraction):
         """
 
         return round(
-            1200 * math.log(self, 2),
+            1200 * self.log(2),
             CENTS_PRECISION
         )

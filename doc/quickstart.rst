@@ -111,12 +111,37 @@ property:
 
 .. testcode::
 
-    edo24.pitch(3).frequency
+    print(edo24.pitch(3).frequency)
 
 .. testoutput::
-    :hide:
 
-Pitches also allow addition, substraction and scalar multiplication:
+    Frequency(55*2**(3/8)/4)
+
+You might be wondering why you are not seeing a simple number but an
+expression. This is because pitches in equal division tunings have
+irrational frequencies. Xxenharmlib does not round them to floats
+but keeps them in a symbolic format to achieve perfect precision
+results when doing mathematical operations. The above frequency
+is equal to this expression:
+
+.. math::
+
+   55\frac{2^{\frac{3}{8}}}{4}
+
+If you are fine with less precision you can always convert a frequency
+to a float. (Just keep in mind that errors add up when doing floating
+point math)
+
+.. testcode::
+
+    print(float(edo24.pitch(3).frequency))
+
+.. testoutput::
+
+    17.831543876451384
+
+Speaking of math: Pitches also allow addition, substraction and scalar
+multiplication:
 
 .. testcode::
 
@@ -228,9 +253,11 @@ perfect fifth in a tuning you can do something like this:
 
 .. testcode::
 
+    from fractions import Fraction
+
     def get_fifth_pc_index(tuning):
         zero_freq = tuning.pitch(0).frequency
-        perfect_fifth_freq = zero_freq * Frequency(3, 2)
+        perfect_fifth_freq = zero_freq * Frequency(Fraction(3, 2))
         fifth = tuning.get_approx_pitch(
             perfect_fifth_freq
         )

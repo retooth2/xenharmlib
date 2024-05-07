@@ -1,4 +1,6 @@
 import pytest
+import sympy as sp
+from fractions import Fraction
 
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.frequencies import Frequency
@@ -13,25 +15,25 @@ FREQ_EPSILON = 0.1
     [
         (
             EDTuning(12, Frequency(2)),
-            9+12*4, 
+            9+12*4,
             440
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
+            EDTuning(13, Frequency(3), ref_frequency=Frequency(20)),
             17,
-            68.6
+            sp.Integer(60) * sp.Integer(3) ** sp.Rational(4, 13)
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
+            EDTuning(13, Frequency(3), ref_frequency=Frequency(50)),
             27,
-            159.6
+            sp.Integer(450) * sp.Integer(3) ** sp.Rational(1, 13)
         )
     ]
 )
 def test_get_frequency(tuning, pitch_index, freq):
     pitch = tuning.pitch(pitch_index)
-    assert (float(pitch.frequency) - freq) < FREQ_EPSILON
-    assert (float(tuning.get_frequency(pitch) - freq)) < FREQ_EPSILON
+    assert pitch.frequency == freq
+    assert tuning.get_frequency(pitch) == freq
 
 
 def test_get_frequency_incompatible_tunings():
@@ -50,7 +52,7 @@ def test_get_frequency_incompatible_tunings():
     [
         (
             EDTuning(12, Frequency(2)),
-            9+12*4, 
+            9+12*4,
             440
         ),
         (
@@ -61,7 +63,7 @@ def test_get_frequency_incompatible_tunings():
         (
             EDTuning(12, Frequency(2)),
             6,
-            Frequency(16.3) * Frequency(3**6, 2**9)
+            Frequency(16.3) * Frequency(Fraction(3**6, 2**9))
         ),
         (
             EDTuning(12, Frequency(2)),
@@ -83,7 +85,7 @@ def test_get_frequency_incompatible_tunings():
 def test_get_approx_pitch(tuning, pitch_index, freq):
     pitch = tuning.get_approx_pitch(freq)
     assert pitch.pitch_index == pitch_index
-    assert (float(pitch.frequency) - freq) < FREQ_EPSILON
+    assert (pitch.frequency - freq) < FREQ_EPSILON
 
 
 @pytest.mark.parametrize(
@@ -91,26 +93,7 @@ def test_get_approx_pitch(tuning, pitch_index, freq):
     [
         (
             EDTuning(12, Frequency(2)),
-            [1, 5, 7, 11] 
-        ),
-        (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
-            list(range(1, 13)),
-        )
-    ]
-)
-def test_generator_pitches(tuning, generator_pitch_indices):
-    gen_pitches = tuning.generator_pitches
-    assert generator_pitch_indices == [
-        pitch.pitch_index for pitch in gen_pitches
-    ]
-
-@pytest.mark.parametrize(
-    'tuning, generator_pitch_indices',
-    [
-        (
-            EDTuning(12, Frequency(2)),
-            [1, 5, 7, 11] 
+            [1, 5, 7, 11]
         ),
         (
             EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),

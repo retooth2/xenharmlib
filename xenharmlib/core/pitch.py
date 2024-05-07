@@ -20,7 +20,6 @@ from functools import total_ordering
 from typing import *
 from .frequencies import Frequency
 from .protocols import PeriodicPitchLike
-from .constants import FREQ_EQUALITY_EPSILON
 from .constants import CENTS_PRECISION
 from ..exc import IncompatibleTunings
 from ..exc import InvalidPitchIndex
@@ -77,9 +76,7 @@ class Pitch:
         )
 
     def __eq__(self, other):
-        return abs(
-            self.frequency - other.frequency
-        ) < FREQ_EQUALITY_EPSILON
+        return self.frequency == other.frequency
 
     def __lt__(self, other):
         return self.frequency < other.frequency
@@ -417,9 +414,7 @@ class PitchInterval(Generic[PitchT]):
     # methods necessary for total ordering
 
     def __eq__(self, other):
-        return abs(
-            self.frequency_ratio - other.frequency_ratio
-        ) < FREQ_EQUALITY_EPSILON
+        return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other):
         return self.frequency_ratio < other.frequency_ratio
@@ -447,7 +442,7 @@ class PitchInterval(Generic[PitchT]):
         """
 
         return round(
-            1200 * math.log(self.frequency_ratio, 2),
+            1200 * self.frequency_ratio.log(2),
             CENTS_PRECISION
         )
 

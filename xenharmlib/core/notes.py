@@ -35,7 +35,6 @@ from .pitch import PeriodicPitch
 from .protocols import HasFrequency
 from .protocols import HasFrequencyRatio
 from ..exc import IncompatibleNotations
-from .constants import FREQ_EQUALITY_EPSILON
 
 
 @total_ordering
@@ -85,9 +84,7 @@ class NoteABC(ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
-        return abs(
-            self.frequency - other.frequency
-        ) < FREQ_EQUALITY_EPSILON
+        return self.frequency == other.frequency
 
     def __lt__(self, other: HasFrequency) -> bool:
         return self.frequency < other.frequency
@@ -373,7 +370,7 @@ class NatAccNote(PeriodicNoteABC):
         The accidental value of this note
         (e.g. in 31edo 2 for #, -2 for b, 0 for natural)
         """
-        return sum(self._acc_vector)
+        return int(sum(self._acc_vector))
 
     @property
     def acc_vector(self) -> int:
@@ -608,9 +605,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequencyRatio):
             return False
-        return abs(
-            self.frequency_ratio - other.frequency_ratio
-        ) < FREQ_EQUALITY_EPSILON
+        return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other: HasFrequencyRatio) -> bool:
         return self.frequency_ratio < other.frequency_ratio

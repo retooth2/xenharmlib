@@ -1,4 +1,5 @@
 import pytest
+from fractions import Fraction
 from xenharmlib.core.frequencies import Frequency
 
 
@@ -69,10 +70,22 @@ def test_get_harmonics_limit():
 @pytest.mark.parametrize(
     'monzo, expected_freq',
     [
-        ([1, -2, 3, 0, 0, 1], Frequency(2*(5**3)*13, 3**2)),
-        ([-4, 2, 3], Frequency((3**2)*(5**3), 2**4)),
-        ([2, 2, -3, 0, 0, 6, -6], Frequency((2**2)*(3**2)*(13**6), (5**3)*(17**6))),
-        ([9, 2, -3, 0, 0, -6, -6], Frequency((2**9)*(3**2), (5**3)*(13**6)*(17**6))),
+        (
+            [1, -2, 3, 0, 0, 1],
+            Frequency(Fraction(2*(5**3)*13, 3**2))
+        ),
+        (
+            [-4, 2, 3],
+            Frequency(Fraction((3**2)*(5**3), 2**4))
+        ),
+        (
+            [2, 2, -3, 0, 0, 6, -6],
+            Frequency(Fraction((2**2)*(3**2)*(13**6), (5**3)*(17**6)))
+        ),
+        (
+            [9, 2, -3, 0, 0, -6, -6],
+            Frequency(Fraction((2**9)*(3**2), (5**3)*(13**6)*(17**6))),
+        )
     ]
 )
 def test_monzo_identity(monzo, expected_freq):
@@ -88,9 +101,9 @@ def test_monzo_identity(monzo, expected_freq):
 @pytest.mark.parametrize(
     'frequency, cents',
     [
-        (Frequency(3, 2), 701.9550008654),
-        (Frequency(2, 1), 1200),
-        (Frequency(4, 1), 2400)
+        (Frequency(Fraction(3, 2)), 701.9550008653969),
+        (Frequency(Fraction(2, 1)), 1200),
+        (Frequency(Fraction(4, 1)), 2400)
     ]
 )
 def test_cents(frequency, cents):

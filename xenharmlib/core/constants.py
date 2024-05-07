@@ -13,7 +13,4 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
-from fractions import Fraction
-
-FREQ_EQUALITY_EPSILON = Fraction(1, 10**10)
 CENTS_PRECISION = 10

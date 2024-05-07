@@ -112,7 +112,7 @@ It is easy to use, extendable and tries to be intuitive. Have a peak:
 
    4
    5
-   12262692404473114/3756323133719799
+   Frequency(3*3**(1/13))
    2
 
 Audience & Design philosophy
