@@ -33,10 +33,10 @@ from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
 
-FreqNumber: TypeAlias = Self | int | Fraction | float | sp.Expr
+FreqNumber: TypeAlias = int | Fraction | float | sp.Expr
 
 
-def _to_sp_expr(number: FreqNumber):
+def _to_sp_expr(number: object):
     """
     Takes any python builtin number type and converts to
     an equivalent sympy expression
@@ -112,74 +112,74 @@ class Frequency:
     Frequency(2**(1/3))
     """
 
-    def __init__(self, number: FreqNumber):
+    def __init__(self, number: Self | FreqNumber):
         sp_expr = _to_sp_expr(number)
         self.sp_expr = sp_expr
 
-    def __add__(self, other: FreqNumber):
+    def __add__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr + other_sp_expr)
 
-    def __sub__(self, other: FreqNumber):
+    def __sub__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr - other_sp_expr)
 
-    def __mul__(self, other: FreqNumber):
+    def __mul__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr * other_sp_expr)
 
-    def __truediv__(self, other: FreqNumber):
+    def __truediv__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr / other_sp_expr)
 
-    def __floordiv__(self, other: FreqNumber):
+    def __floordiv__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr // other_sp_expr)
 
-    def __mod__(self, other: FreqNumber):
+    def __mod__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr % other_sp_expr)
 
-    def __pow__(self, other: FreqNumber):
+    def __pow__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(self.sp_expr ** other_sp_expr)
 
-    def __radd__(self, other: FreqNumber):
+    def __radd__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr + self.sp_expr)
 
-    def __rsub__(self, other: FreqNumber):
+    def __rsub__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr - self.sp_expr)
 
-    def __rmul__(self, other: FreqNumber):
+    def __rmul__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr * self.sp_expr)
 
-    def __rtruediv__(self, other: FreqNumber):
+    def __rtruediv__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr / self.sp_expr)
 
-    def __rfloordiv__(self, other: FreqNumber):
+    def __rfloordiv__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr // self.sp_expr)
 
-    def __rmod__(self, other: FreqNumber):
+    def __rmod__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr % self.sp_expr)
 
-    def __rpow__(self, other: FreqNumber):
+    def __rpow__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return Frequency(other_sp_expr ** self.sp_expr)
 
     def __abs__(self):
         return Frequency(abs(self.sp_expr))
 
-    def __eq__(self, other: FreqNumber):
+    def __eq__(self, other: object):
         other_sp_expr = _to_sp_expr(other)
         return self.sp_expr == other_sp_expr
 
-    def __lt__(self, other: FreqNumber):
+    def __lt__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
         return self.sp_expr < other_sp_expr
 
@@ -189,19 +189,19 @@ class Frequency:
     def __round__(self, ndigits=0) -> float:
         return float(self.sp_expr.round(ndigits))
 
-    def log(self, base: FreqNumber):
+    def log(self, base: Self | FreqNumber):
         base = _to_sp_expr(base)
         return Frequency(sp.log(self.sp_expr, base))
 
     @property
-    def numerator(self) -> Self:
+    def numerator(self) -> Frequency:
         n, _ = sp.fraction(self.sp_expr)
-        return Fraction(n)
+        return Frequency(n)
 
     @property
-    def denominator(self) -> Self:
+    def denominator(self) -> Frequency:
         _, d = sp.fraction(self.sp_expr)
-        return Fraction(d)
+        return Frequency(d)
 
     def __repr__(self) -> str:
         return f'Frequency({repr(self.sp_expr)})'

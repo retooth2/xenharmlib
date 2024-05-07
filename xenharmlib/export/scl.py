@@ -18,12 +18,13 @@ This module includes functions to export scales into the Scala .scl
 file format, see https://www.huygens-fokker.org/scala/scl_format.html
 """
 
+from typing import Optional
 from ..core.protocols import PeriodicPitchScaleLike
 
 
 def export_scl(filename: str,
                scale: PeriodicPitchScaleLike,
-               title: str = None,
+               title: Optional[str] = None,
                ensure_period: bool = False):
     """
     This function exports a pitch/note scale to a .scl file

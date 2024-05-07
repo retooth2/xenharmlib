@@ -185,7 +185,7 @@ class SymbolSumArithmetic(SymbolCode):
     def add_symbol(self,
                    symbol: str,
                    vector: Tuple[int],
-                   position: int = None,
+                   position: Optional[int] = None,
                    min_occurence: Optional[int] = None,
                    max_occurence: Optional[int] = None):
         """
@@ -352,7 +352,7 @@ class SymbolSumArithmetic(SymbolCode):
                     f'occurences were counted'
                 )
 
-        return symbols
+        return tuple(symbols)
 
     def get_symbol_str(self, vector: Tuple[int]) -> str:
         """
@@ -481,7 +481,7 @@ class SymbolSumArithmetic(SymbolCode):
             count = counts[symbol]
             symbols += [symbol] * count
 
-        return symbols
+        return tuple(symbols)
 
 
 class SymbolSumArithmeticSet(SymbolCode):
@@ -554,7 +554,7 @@ class SymbolSumArithmeticSet(SymbolCode):
     @staticmethod
     def _default_pref_func(
         results: List[Tuple[SymbolSumArithmetic, Tuple[str]]]
-    ):
+    ) -> Tuple[SymbolSumArithmetic, Tuple[str]]:
         """
         The default preference function. Simply chooses the
         parsing result with the minimum number of symbols
@@ -606,7 +606,7 @@ class SymbolSumArithmeticSet(SymbolCode):
 
         return self._pref_func(matches)
 
-    def get_vector(self, symbol_str: str) -> int:
+    def get_vector(self, symbol_str: str) -> Tuple[int]:
         """
         Returns the integer sum value for a given string
 
@@ -619,7 +619,7 @@ class SymbolSumArithmeticSet(SymbolCode):
         arithmetic, symbols = self.parse(symbol_str)
         return arithmetic.get_vector_from_symbols(symbols)
 
-    def get_symbol_str(self, value: int) -> str:
+    def get_symbol_str(self, vector: Tuple[int]) -> str:
         """
         Returns a minimal symbol string for a given value
 
@@ -634,14 +634,14 @@ class SymbolSumArithmeticSet(SymbolCode):
 
         for a in self._arithmetics:
             try:
-                symbols = a.get_symbols(value)
+                symbols = a.get_symbols(vector)
                 matches.append((a, symbols))
             except SymbolValueNotMapped:
                 continue
 
         if not matches:
             raise SymbolValueNotMapped(
-                f'Symbol value {value} could not be represented '
+                f'Vector {vector} could not be represented '
                 f'by any symbol arithmetic in the set'
             )
 

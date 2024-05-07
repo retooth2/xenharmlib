@@ -183,6 +183,9 @@ class UpDownNotation(NatAccNotation):
         if minor2_size < major2_size:
             return 'diatonic'
 
+        # this is just to make mypy happy
+        return 'unknown'
+
     def _init_naturals(self):
         """
         This method initializes the naturals of this notation
@@ -536,7 +539,10 @@ class UpDownNotation(NatAccNotation):
         for nat_index_diff in [1, 2, 5, 6]:
             self.set_interval_symbol_code(nat_index_diff, imp_arith)
 
-    def parse_pc_symbol(self, pc_symbol: str) -> Tuple[str, str, int, int]:
+    def parse_pc_symbol(
+        self,
+        pc_symbol: str
+    ) -> Tuple[str, str, int, Tuple[int]]:
         """
         Parses a pitch class symbol into its natural class symbol
         part and its accidental symbol part. Returns a 4-tuple

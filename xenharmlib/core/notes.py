@@ -373,7 +373,7 @@ class NatAccNote(PeriodicNoteABC):
         return int(sum(self._acc_vector))
 
     @property
-    def acc_vector(self) -> int:
+    def acc_vector(self) -> Tuple[int]:
         """
         The accidental vector of this note
         """
@@ -731,7 +731,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         self._number = number
 
     @property
-    def acc_vector(self) -> int:
+    def acc_vector(self) -> Tuple[int]:
         """
         The accidental vector of this interval (signifying the different
         pitch deviations from the standard natural pitch difference)
