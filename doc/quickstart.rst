@@ -2068,9 +2068,10 @@ the same arguments as the play function:
 Scala Scale Format (.scl)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Xenharmlib also export to `Scala <https://www.huygens-fokker.org/scala/>`_'s .scl
-format with :func:`~xenharmlib.export.scl.export_scl`. SCL files are supported by a
-lot of audio synthesis software (e.g. Ableton Live's Microtuner plugin)
+Xenharmlib also export to `Scala <https://www.huygens-fokker.org/scala/>`_'s
+.scl format with :func:`~xenharmlib.export.scl.export_scl`. SCL files are
+supported by a lot of audio synthesis software (e.g. Ableton Live's Microtuner
+plugin)
 
 .. code-block:: python
 
@@ -2083,3 +2084,10 @@ lot of audio synthesis software (e.g. Ableton Live's Microtuner plugin)
     )
 
     export_scl('./edo31.scl', scale, '31-EDO', ensure_period=True)
+
+The third parameter gives a title to the SCL file. The :code:`ensure_period`
+flag will make sure that the scale ends with a pitch equivalent to the first
+pitch. (SCL works by iteratively stacking the scale definition on the last
+pitch, so having a scale not ending with an equivalent pitch would cause the
+last pitch being declared as the new 0 for the second iteration and make the
+scale "move around").
