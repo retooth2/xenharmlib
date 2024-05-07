@@ -4,9 +4,14 @@ Quickstart
 Installation
 ------------------------
 
+Xenharmlib works with python 3.11 and beyond. We recommend using xenharmlib
+in a `virtual environment <https://docs.python.org/3/library/venv.html>`_.
+Xenharmlib can be installed with pip:
+
 .. code-block:: console
 
    (.venv) $ pip install xenharmlib
+
 
 Tunings and Pitches
 ------------------------
