@@ -164,6 +164,14 @@ Xenharmlib is released under the `GNU Public Licence v3
 You can find the source code hosted on `Gitlab.com
 <https://www.gitlab.com/retooth/xenharmlib>`_
 
+Acknowledgments
+---------------
+
+Thanks to `Kite Giedraitis <https://www.tallkite.com/>`_ and
+`Lumi Pakkanen <https://lumipakkanen.com/>`_ and everyone else on the
+Xenharmonic Alliance Discord who was patient with me when I was
+struggling to implement UpDownNotation.
+
 Support and Contact
 ------------------------
 
