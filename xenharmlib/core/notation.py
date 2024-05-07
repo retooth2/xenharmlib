@@ -951,9 +951,9 @@ class NatAccNotation(
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an
-        accidental value. This defaults to calculating the first natural
+        accidental vector. This defaults to calculating the first natural
         symbol found for natc_index and concatenating it with the minimal
-        accidental symbol configuration for the value.
+        accidental symbol configuration for the vector.
 
         The method will return a tuple of 3 with the following semantics:
         * First element will be the pitch class symbol
