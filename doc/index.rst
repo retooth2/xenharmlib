@@ -36,7 +36,7 @@ It is easy to use, extendable and tries to be intuitive. Have a peak:
 
 .. testoutput::
 
-   UpDownNoteScale([vD0, F#0, vC1], 31-EDO)
+   UpDownNoteScale([vD4, F#4, vA4, vC5], 31-EDO)
 
 .. code-block:: python
 

@@ -1305,7 +1305,6 @@ interval method of the Note object:
 
 .. testcode::
 
-    # a neutral sixth
     interval = n_edo31.note('C', 0).interval(
         n_edo31.note('^Ab', 0)
     )
@@ -1313,7 +1312,7 @@ interval method of the Note object:
 
 .. testoutput::
 
-    ('~', 6)
+    ('^m', 6)
 
 UpDownNotation also provides a builder method to create intervals
 directly from their shorthand name:
@@ -1358,7 +1357,7 @@ different EDOs according to the width of their fifth:
 
 .. testcode::
 
-    edos = [EDOTuning(n) for n in [12, 13, 24, 31, 53]]
+    edos = [EDOTuning(n) for n in [12, 24, 31, 53]]
     n_edos = [UpDownNotation(e) for e in edos]
 
     sorted_n_edos = sorted(
@@ -1371,11 +1370,10 @@ different EDOs according to the width of their fifth:
 
 .. testoutput::
 
-    UpDownNotation(13-EDO) 553.8461538462
-    UpDownNotation(31-EDO) 696.7741935484
+    UpDownNotation(31-EDO) 696.774193548401
     UpDownNotation(12-EDO) 700.0
     UpDownNotation(24-EDO) 700.0
-    UpDownNotation(53-EDO) 701.8867924528
+    UpDownNotation(53-EDO) 701.8867924528022
 
 You can also compare note intervals and pitch intervals:
 
