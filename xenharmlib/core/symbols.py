@@ -294,7 +294,7 @@ class SymbolSumArithmetic(SymbolCode):
         >>> arithmetic.add_symbol('#', (1, 0))
         >>> arithmetic.add_symbol('b', (-1, 0))
         >>> arithmetic.add_symbol('^', (0, 1))
-        >>> symbols = arithmetic.parse_symbol_str('xbb#')
+        >>> symbols = arithmetic.parse('xbb#')
         >>> symbols
         ('x', 'b', 'b', '#')
 
