@@ -97,9 +97,9 @@ class SymbolCode(ABC):
         """
 
 
-class SymbolSumArithmetic(SymbolCode):
+class SymbolArithmetic(SymbolCode):
     """
-    A symbol sum arithmetic is a mapping between string symbol sequences
+    A symbol arithmetic is a mapping between string symbol sequences
     and integer vector sums.
 
     A simple use case is to parse and generate accidentals, for example
@@ -288,8 +288,8 @@ class SymbolSumArithmetic(SymbolCode):
         """
         Parses a symbol string into a list of symbols
 
-        >>> from xenharmlib.core.symbols import SymbolSumArithmetic
-        >>> arithmetic = SymbolSumArithmetic(dimensions=2)
+        >>> from xenharmlib.core.symbols import SymbolArithmetic
+        >>> arithmetic = SymbolArithmetic(dimensions=2)
         >>> arithmetic.add_symbol('x', (2, 0))
         >>> arithmetic.add_symbol('#', (1, 0))
         >>> arithmetic.add_symbol('b', (-1, 0))
@@ -398,7 +398,7 @@ class SymbolSumArithmetic(SymbolCode):
         if symbol_count == 0:
             raise SymbolValueNotMapped(
                 f'{vector} could not be represented as a sum '
-                f'of the values for which a symbol is registered '
+                f'of the vectors for which a symbol is registered '
             )
 
         # minimimize sum(x)
@@ -484,9 +484,9 @@ class SymbolSumArithmetic(SymbolCode):
         return tuple(symbols)
 
 
-class SymbolSumArithmeticSet(SymbolCode):
+class SymbolArithmeticSet(SymbolCode):
     """
-    SymbolSumArithmeticSets combine different SymbolSumArithmetics
+    SymbolArithmeticSets combine different SymbolArithmetics
     allowing to use multiple symbols for the same integer vector
     and to segment the space of integer vectors into multiple
     arithmetics with different offsets.
@@ -517,12 +517,12 @@ class SymbolSumArithmeticSet(SymbolCode):
         self,
         dimensions: int = 1,
         pref_func: Callable[
-            [List[Tuple[SymbolSumArithmetic, Tuple[str]]]],
-            Tuple[SymbolSumArithmetic, Tuple[str]]
+            [List[Tuple[SymbolArithmetic, Tuple[str]]]],
+            Tuple[SymbolArithmetic, Tuple[str]]
         ] | None = None
     ):
         self._dimensions = dimensions
-        self._arithmetics: List[SymbolSumArithmetic] = []
+        self._arithmetics: List[SymbolArithmetic] = []
 
         if pref_func is None:
             pref_func = self._default_pref_func
@@ -536,7 +536,7 @@ class SymbolSumArithmeticSet(SymbolCode):
         """
         return self._dimensions
 
-    def add_arithmetic(self, arithmetic: SymbolSumArithmetic):
+    def add_arithmetic(self, arithmetic: SymbolArithmetic):
         """
         Adds another symbol arithmetic to this set
 
@@ -553,8 +553,8 @@ class SymbolSumArithmeticSet(SymbolCode):
 
     @staticmethod
     def _default_pref_func(
-        results: List[Tuple[SymbolSumArithmetic, Tuple[str]]]
-    ) -> Tuple[SymbolSumArithmetic, Tuple[str]]:
+        results: List[Tuple[SymbolArithmetic, Tuple[str]]]
+    ) -> Tuple[SymbolArithmetic, Tuple[str]]:
         """
         The default preference function. Simply chooses the
         parsing result with the minimum number of symbols
@@ -573,7 +573,7 @@ class SymbolSumArithmeticSet(SymbolCode):
     def parse(
         self,
         symbol_str: str
-    ) -> Tuple[SymbolSumArithmetic, List[str]]:
+    ) -> Tuple[SymbolArithmetic, List[str]]:
         """
         Tries to parse a symbol string by each arithmetic in the
         set. If an arithmetic returns a result it is added to the
@@ -608,7 +608,7 @@ class SymbolSumArithmeticSet(SymbolCode):
 
     def get_vector(self, symbol_str: str) -> Tuple[int]:
         """
-        Returns the integer sum value for a given string
+        Returns the vector sum value for a given string
 
         :raises UnknownSymbolString: If no arithmetic in the set
             matched the string

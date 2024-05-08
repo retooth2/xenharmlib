@@ -1,6 +1,6 @@
 from xenharmlib.core.notation import NatAccNotation
-from xenharmlib.core.symbols import SymbolSumArithmetic
-from xenharmlib.core.symbols import SymbolSumArithmeticSet
+from xenharmlib.core.symbols import SymbolArithmetic
+from xenharmlib.core.symbols import SymbolArithmeticSet
 
 def make_nat_acc_test_notation(tuning):
     """
@@ -28,7 +28,7 @@ def make_nat_acc_test_notation(tuning):
         natc_symbol = ALPHABET.pop(0)
         notation.append_natural(natc_symbol, nat_pc_index)
 
-    acc_arith = SymbolSumArithmetic(allow_empty=True)
+    acc_arith = SymbolArithmetic(allow_empty=True)
     acc_arith.add_symbol('+', (1,))
     acc_arith.add_symbol('x', (2,))
     acc_arith.add_symbol('-', (-1,))
@@ -36,31 +36,31 @@ def make_nat_acc_test_notation(tuning):
 
     notation.acc_symbol_code = acc_arith
 
-    funky_upper = SymbolSumArithmetic()
+    funky_upper = SymbolArithmetic()
     funky_upper.add_symbol(
         'F', (0,), min_occurence=1, max_occurence=1, position=1
     )
     funky_upper.add_symbol('+', (1,), position=0)
-    funky_lower = SymbolSumArithmetic()
+    funky_lower = SymbolArithmetic()
     funky_lower.add_symbol(
         'F', (0,), min_occurence=1, max_occurence=1, position=1
     )
     funky_lower.add_symbol('-', (-1,), position=0)
-    funky = SymbolSumArithmeticSet()
+    funky = SymbolArithmeticSet()
     funky.add_arithmetic(funky_upper)
     funky.add_arithmetic(funky_lower)
 
-    cringe_upper = SymbolSumArithmetic()
+    cringe_upper = SymbolArithmetic()
     cringe_upper.add_symbol(
         'C', (0,), min_occurence=1, max_occurence=1, position=1
     )
     cringe_upper.add_symbol('+', (1,), position=0)
-    cringe_lower = SymbolSumArithmetic()
+    cringe_lower = SymbolArithmetic()
     cringe_lower.add_symbol(
         'C', (0,), min_occurence=1, max_occurence=1, position=1
     )
     cringe_lower.add_symbol('-', (-1,), position=0)
-    cringe = SymbolSumArithmeticSet()
+    cringe = SymbolArithmeticSet()
     cringe.add_arithmetic(cringe_upper)
     cringe.add_arithmetic(cringe_lower)
 

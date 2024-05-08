@@ -17,8 +17,8 @@ import numpy as np
 from typing import Tuple
 from ..core.tunings import EDOTuning
 from ..core.notation import NatAccNotation
-from ..core.symbols import SymbolSumArithmetic
-from ..core.symbols import SymbolSumArithmeticSet
+from ..core.symbols import SymbolArithmetic
+from ..core.symbols import SymbolArithmeticSet
 from ..core.notes import NatAccNote
 from ..core.notes import NatAccNoteInterval
 from ..core.note_scale import NatAccNoteScale
@@ -260,7 +260,7 @@ class UpDownNotation(NatAccNotation):
         flats do not exist
         """
 
-        acc_arith = SymbolSumArithmetic(
+        acc_arith = SymbolArithmetic(
             allow_empty=True
         )
 
@@ -276,7 +276,7 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
-        acc_arith = SymbolSumArithmetic(
+        acc_arith = SymbolArithmetic(
             dimensions=2,
             allow_empty=True
         )
@@ -298,15 +298,15 @@ class UpDownNotation(NatAccNotation):
         exist
         """
 
-        p_arith = SymbolSumArithmeticSet()
+        p_arith = SymbolArithmeticSet()
 
-        p_sub_arith_zero = SymbolSumArithmetic()
+        p_sub_arith_zero = SymbolArithmetic()
         p_sub_arith_zero.add_symbol(
             'P', (0,), min_occurence=1, max_occurence=1
         )
         p_arith.add_arithmetic(p_sub_arith_zero)
 
-        p_sub_arith_ud = SymbolSumArithmetic()
+        p_sub_arith_ud = SymbolArithmetic()
         p_sub_arith_ud.add_symbol("^", (1,))
         p_sub_arith_ud.add_symbol("v", (-1,))
         p_arith.add_arithmetic(p_sub_arith_ud)
@@ -345,9 +345,9 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #                             P
 
-        p_arith = SymbolSumArithmeticSet(dimensions=2)
+        p_arith = SymbolArithmeticSet(dimensions=2)
 
-        p_sub_arith_zero = SymbolSumArithmetic(dimensions=2)
+        p_sub_arith_zero = SymbolArithmetic(dimensions=2)
         p_sub_arith_zero.add_symbol(
             'P', (0, 0), min_occurence=1, max_occurence=1
         )
@@ -364,7 +364,7 @@ class UpDownNotation(NatAccNotation):
             #  --------------------------------------------------------
             #       vv          v                    ^          ^^
 
-            p_sub_arith_ud = SymbolSumArithmetic(dimensions=2)
+            p_sub_arith_ud = SymbolArithmetic(dimensions=2)
             p_sub_arith_ud.add_symbol("v", (0, -1))
             p_sub_arith_ud.add_symbol("^", (0, 1))
             p_arith.add_arithmetic(p_sub_arith_ud)
@@ -384,7 +384,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         A^         A^^
 
-        p_sub_arith_aug = SymbolSumArithmetic(dimensions=2)
+        p_sub_arith_aug = SymbolArithmetic(dimensions=2)
         p_sub_arith_aug.add_symbol(
             "A", (sharpness, 0), min_occurence=1, position=1
         )
@@ -401,7 +401,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvd        vd          d          ^d         ^^d
 
-        p_sub_arith_dim = SymbolSumArithmetic(dimensions=2)
+        p_sub_arith_dim = SymbolArithmetic(dimensions=2)
         p_sub_arith_dim.add_symbol(
             "d", ((-1) * sharpness, 0), min_occurence=1, position=1
         )
@@ -432,7 +432,7 @@ class UpDownNotation(NatAccNotation):
         #   * an augmented arithmetic with symbols A, ^, v
         #   * a diminished arithmetic with symbols d, ^, v
 
-        imp_arith = SymbolSumArithmeticSet(dimensions=2)
+        imp_arith = SymbolArithmeticSet(dimensions=2)
 
         # Major arithmetic
 
@@ -442,7 +442,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvM        vM          M         ^M         ^^M
 
-        imp_maj_arith = SymbolSumArithmetic(dimensions=2)
+        imp_maj_arith = SymbolArithmetic(dimensions=2)
         imp_maj_arith.add_symbol(
             'M', (0, 0), min_occurence=1, max_occurence=1, position=1
         )
@@ -461,7 +461,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvm        vm          m         ^m          ^m
 
-        imp_min_arith = SymbolSumArithmetic(
+        imp_min_arith = SymbolArithmetic(
             dimensions=2,
             offset=((-1) * sharpness, 0)
         )
@@ -488,7 +488,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         ^A         ^^A
 
-        imp_aug_arith = SymbolSumArithmetic(
+        imp_aug_arith = SymbolArithmetic(
             dimensions=2
         )
         imp_aug_arith.add_symbol(
@@ -514,7 +514,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvd        vd          d         ^d         ^^d
 
-        imp_dim_arith = SymbolSumArithmetic(
+        imp_dim_arith = SymbolArithmetic(
             dimensions=2,
             offset=((-1) * sharpness, 0)
         )

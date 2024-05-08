@@ -1,5 +1,5 @@
 import pytest
-from xenharmlib.core.symbols import SymbolSumArithmetic
+from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import UnknownSymbolString
 from xenharmlib.core.symbols import AmbiguousSymbol
 from xenharmlib.core.symbols import SymbolValueNotMapped
@@ -7,7 +7,7 @@ from xenharmlib.core.symbols import SymbolValueNotMapped
 
 def test_add_symbol_ambiguous():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('&', (5,))
 
     with pytest.raises(AmbiguousSymbol):
@@ -19,17 +19,17 @@ def test_add_symbol_ambiguous():
 
 def test_parse():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('/^', (3,))
     arith.add_symbol('*!', (-1,))
 
     literals = arith.parse('/^*!*!')
-    assert literals == ['/^', '*!', '*!']
+    assert literals == ('/^', '*!', '*!')
 
 
 def test_parse_empty_disallowed():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('/^', (3,))
     arith.add_symbol('*!', (-1,))
 
@@ -39,30 +39,30 @@ def test_parse_empty_disallowed():
 
 def test_parse_empty_allowed():
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         allow_empty=True
     )
     arith.add_symbol('/^', (3,))
     arith.add_symbol('*!', (-1,))
 
     literals = arith.parse('')
-    assert literals == []
+    assert literals == tuple()
 
 
 def test_parse_offset():
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(3,)
     )
     arith.add_symbol('*!', (-1,))
 
     literals = arith.parse('*!')
-    assert literals == ['*!']
+    assert literals == ('*!',)
 
 
 def test_parse_unknown():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('*!', (-1,))
 
     with pytest.raises(UnknownSymbolString):
@@ -71,12 +71,12 @@ def test_parse_unknown():
 
 def test_parse_min_violation():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('++', (1,), min_occurence=1)
     arith.add_symbol('*!', (-1,))
 
     literals = arith.parse('*!++*!')
-    assert literals == ['*!', '++', '*!']
+    assert literals == ('*!', '++', '*!')
 
     with pytest.raises(UnknownSymbolString):
         arith.parse('*!*!')
@@ -84,12 +84,12 @@ def test_parse_min_violation():
 
 def test_parse_max_violation():
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('++', (1,), max_occurence=2)
     arith.add_symbol('*!', (-1,))
 
     literals = arith.parse('*!++++')
-    assert literals == ['*!', '++', '++']
+    assert literals == ('*!', '++', '++')
 
     with pytest.raises(UnknownSymbolString):
         arith.parse('*!++*!++*!++')
@@ -107,7 +107,7 @@ def test_parse_max_violation():
 )
 def test_get_vector(symbol_str, value):
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('&', (1,))
     arith.add_symbol('++', (-1,))
     arith.add_symbol('./', (9,))
@@ -128,7 +128,7 @@ def test_get_vector(symbol_str, value):
 )
 def test_get_vector_offset(symbol_str, value):
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(4,)
     )
     arith.add_symbol('&', (1,))
@@ -151,7 +151,7 @@ def test_get_vector_offset(symbol_str, value):
 )
 def test_get_vector_offset_neg(symbol_str, value):
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(-2,)
     )
     arith.add_symbol('&', (1,))
@@ -164,7 +164,7 @@ def test_get_vector_offset_neg(symbol_str, value):
 
 def test_get_vector_unknown():
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(-2,)
     )
     arith.add_symbol('&', (1,), min_occurence=1)
@@ -194,7 +194,7 @@ def test_get_vector_unknown():
 )
 def test_get_symbol_str(symbol_str, value):
 
-    arith = SymbolSumArithmetic()
+    arith = SymbolArithmetic()
     arith.add_symbol('++', (-1,))
     arith.add_symbol('./', (9,))
     arith.add_symbol('.', (2,))
@@ -215,7 +215,7 @@ def test_get_symbol_str(symbol_str, value):
 )
 def test_get_symbol_str_offset(symbol_str, value):
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(4,)
     )
     arith.add_symbol('++', (-1,))
@@ -238,7 +238,7 @@ def test_get_symbol_str_offset(symbol_str, value):
 )
 def test_get_symbol_str_offset_neg(symbol_str, value):
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(-2,)
     )
     arith.add_symbol('++', (-1,))
@@ -251,7 +251,7 @@ def test_get_symbol_str_offset_neg(symbol_str, value):
 
 def test_get_symbol_str_allow_empty():
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         allow_empty=True
     )
     arith.add_symbol('&', (1,))
@@ -262,7 +262,7 @@ def test_get_symbol_str_allow_empty():
 
 def test_get_symbol_str_not_mapped():
 
-    arith = SymbolSumArithmetic(
+    arith = SymbolArithmetic(
         offset=(-2,)
     )
     arith.add_symbol('./', (9,))
@@ -277,7 +277,7 @@ def test_get_symbol_str_not_mapped():
     # TODO: should we allow empty arithmetics
     # that map to 0 if allow_empty=True?
 
-    empty = SymbolSumArithmetic()
+    empty = SymbolArithmetic()
 
     with pytest.raises(SymbolValueNotMapped):
         assert empty.get_symbol_str((0,))
