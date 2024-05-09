@@ -343,6 +343,7 @@ def test_not_in_operator_pitch(tuning, input_pi, excl_pi):
         (edo12, [8, 3, 7], [(0, 4), (0, 1), (0, 0)]),
         (edo31, [4, 8, 10, 22, 13], [(4, 16), (8, 12), (0, 9)]),
         (ed13_3, [0, 8, 15, 9, 66], [(1, 67), (8, 15), (7, 65)]),
+        (ed13_3, [0, 8, 15, 9, 66], [(67, 1), (15, 8), (65, 7)]),
     ]
 )
 def test_in_operator_interval(tuning, input_pi, interval_pi):
