@@ -325,10 +325,6 @@ function:
     assert interval_u.pitch_diff != interval_d.pitch_diff
     assert abs(interval_u).pitch_diff == abs(interval_d).pitch_diff
 
-.. testoutput::
-    :hide:
-
-
 Similar to pitches intervals are comparable and sortable, also across
 different tunings. Intervals with a smaller frequency ratio are
 considered smaller, and vice versa. For example the fifth interval of
@@ -345,9 +341,6 @@ considered smaller, and vice versa. For example the fifth interval of
 
     assert interval_fifth_edo31 < interval_fifth_edo12
 
-.. testoutput::
-    :hide:
-
 You can also directly get the frequency ratio and the corresponding
 cents value:
 
@@ -355,9 +348,6 @@ cents value:
 
     interval_fifth_edo31.frequency_ratio
     interval_fifth_edo31.cents
-
-.. testoutput::
-    :hide:
 
 There is a bit of a caveat when handling negative / downward intervals:
 The :code:`<` operator does compare frequency ratios, *not* absolute
@@ -505,9 +495,6 @@ interval is given xenharmlib checks if *any* two pairs of notes
     assert p in scale
     assert p.interval(edo31.pitch(9)) in scale
 
-.. testoutput::
-    :hide:
-
 The in operator is even more broad: It generally accepts every object
 that has a :attr:`frequency` or a :attr:`frequency_ratio` attribute,
 meaning that pitch and interval containment can be tested across
@@ -524,9 +511,6 @@ tunings:
         edo12.pitch(7)
     )
     assert edo12_fifth in edo24_scale
-
-.. testoutput::
-    :hide:
 
 In general all the operations that are possible on single pitches are
 also possible on scales, for example you can transpose a scale the
@@ -1013,18 +997,12 @@ pitches:
     assert n_edo12.note('G', 0) != n_edo31.note('G', 0)
     assert n_edo12.note('G', 0) > n_edo31.note('G', 0)
 
-.. testoutput::
-    :hide:
-
 Notes and pitches can also be compared:
 
 .. testcode::
 
     assert n_edo31.note('vG', 0) < edo31.pitch(18)
     assert n_edo31.note('G', 0) == edo31.pitch(18)
-
-.. testoutput::
-    :hide:
 
 The reason for this is that notes and pitches implement a common
 interface. Notes have convenient 'proxies' to the properties of the
@@ -1041,9 +1019,6 @@ and periodic notes:
     assert gsharp1.pitch_index == gsharp1.pitch.pitch_index
     assert gsharp1.pc_index == gsharp1.pitch.pc_index
     assert gsharp1.bi_index == gsharp1.pitch.bi_index
-
-.. testoutput::
-    :hide:
 
 Because the equality sign tests on frequency it does *not* care for
 enharmonic differences. If you want to be stricter and only consider
@@ -1066,9 +1041,6 @@ Notes have an interval method returning a note interval:
     gsharp1 = n_edo31.note('G#', 1)
     gsharp1.interval(gsharp1)
 
-.. testoutput::
-    :hide:
-
 Notes in UpDownNotation do **not** define addition, multiplication and
 scalar multiplication, because the result is not well defined in
 notation systems that have enharmonic ambigouity. (Other notations
@@ -1084,9 +1056,6 @@ notation:
 
     assert g0 == c0.transpose(c0.interval(g0))
     assert g0 == c0.transpose(P5)
-
-.. testoutput::
-    :hide:
 
 Notes of UpDownNotation have additional properties which they share
 with all Notes from natural/accidental notations that pertain to
@@ -1122,9 +1091,6 @@ that are based on the same natural but have different accidentals
     edo31_gflat = n_edo31.note('Gb', 3)
 
     assert edo31_gsharp.nat_pc_index == edo31_gflat.nat_pc_index
- 
-.. testoutput::
-    :hide:
 
 You can see a similar effect when looking at the base interval index.
 On natural/accidental notes it too comes in two flavors: One for the
@@ -1354,9 +1320,6 @@ Note intervals are comparable and sortable by their frequency ratio:
     
     assert P5_31 < P5_12
 
-.. testoutput::
-    :hide:
-
 Interval sortability can come in handy, for example if you want to sort
 different EDOs according to the width of their fifth:
 
@@ -1390,9 +1353,6 @@ You can also compare note intervals and pitch intervals:
         edo12.pitch(0), edo12.pitch(7)
     )
 
-.. testoutput::
-    :hide:
-
 Note intervals and pitch intervals expose the same basic properties,
 so the object types can be used interchangeably in many cases. Here
 is a short overview:
@@ -1404,9 +1364,6 @@ is a short overview:
     assert m3.cents == m3.pitch_interval.cents
     assert m3.pitch_diff == m3.pitch_interval.pitch_diff
 
-.. testoutput::
-    :hide:
-
 Like pitch intervals xenharmlib's implementation of intervals in
 UpDownNotation have *directions*. This is necessary so the transpose
 method of the Note object is well defined:
@@ -1417,9 +1374,6 @@ method of the Note object is well defined:
     c = n_edo31.note('C', 1)
     interval = a.interval(c)
     assert a.transpose(interval) == c
-
-.. testoutput::
-    :hide:
 
 If intervals have downwards direction their naming changes accordingly.
 The constructed interval above is a downward major 6:
@@ -1476,9 +1430,6 @@ a subsection below. But first, let's create our first note scale:
     Cm7 = n_edo12.note_scale(
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
-    
-.. testoutput::
-    :hide:
 
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
@@ -1513,9 +1464,6 @@ equal sign will ignore enharmonic notation differences:
     )
 
     assert Cm == Cm_weird
-    
-.. testoutput::
-    :hide:
 
 If you want to test on equality *on the notation level* (ignoring
 enharmonic equivalencies) you have to use the
@@ -1526,9 +1474,6 @@ method:
 
     assert Cm.is_notated_same(Cm)
     assert not Cm.is_notated_same(Cm_weird)
-
-.. testoutput::
-    :hide:
 
 You may be familiar with the method from the Note section. In fact a
 lot of operations on single notes work on scales as well. This is
@@ -1594,9 +1539,6 @@ possible to compare scales on the level of tonal equivalencies:
     norm_c_maj = c_maj.pcs_normalized()
     norm_a_min = a_min.pcs_normalized()
     assert norm_c_maj == norm_a_min
-
-.. testoutput::
-    :hide:
 
 Note scales can be treated as sets. They support union, intersection,
 difference and symmetric difference operations as well as subset,
@@ -1795,10 +1737,6 @@ pitch scale object:
     ]
     assert pitch_intervals == pitch_union.to_pitch_intervals()
 
-.. testoutput::
-    :hide:
-
-
 This choice also allows to implement the scale's :code:`==` operator
 as a consistent logical extension of the note's :code:`==` operator,
 creating a closed set algebra for scales under :code:`==` with all
@@ -1829,9 +1767,6 @@ encounter:
     )
     assert len(scale) == 1
     assert scale[0].pc_symbol == 'D#'
-
-.. testoutput::
-    :hide:
 
 When using set operations xenharmlib always prefers the representation
 of the scale that executed the operation:
@@ -1870,9 +1805,6 @@ of the scale that executed the operation:
         n_edo12.note_scale([d_sharp])
     )
 
-.. testoutput::
-    :hide:
-
 Using the :code:`==` operator we see that even though the results
 are different in terms of representation, commutativity in regards
 to union and intersection is still preserved:
@@ -1882,9 +1814,6 @@ to union and intersection is still preserved:
     assert union_a_b == union_b_a
     assert intersection_a_b == intersection_b_a
 
-.. testoutput::
-    :hide:
-
 In contrast using the :code:`is_notated_same` equivalency relation
 on the two result pairs does *not* preserve commutativity:
 
@@ -1892,9 +1821,6 @@ on the two result pairs does *not* preserve commutativity:
 
     assert not union_a_b.is_notated_same(union_b_a)
     assert not intersection_a_b.is_notated_same(intersection_b_a)
-
-.. testoutput::
-    :hide:
 
 Since we chose the :code:`==` operator as a basis for scale uniqueness,
 there is no way to define a closed set algebra for the 
@@ -1930,9 +1856,6 @@ The way this works is through the method flag :code:`is_notated_same`:
         scale_b, is_notated_same=True
     )
     assert len(diff_a_b) == 2
-
-.. testoutput::
-    :hide:
 
 In combination with the :code:`ignore_bi_index` flag we can for
 example build a function that returns the pitch class symbols of
