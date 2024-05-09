@@ -1,6 +1,7 @@
 import pytest
 from xenharmlib.core.frequencies import Frequency
 from xenharmlib.core.tunings import EDTuning
+from xenharmlib.core.tunings import EDOTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch import PitchInterval
 from xenharmlib.exc import IncompatibleTunings
@@ -167,3 +168,26 @@ def test_init_incompatible_tunings():
             EDPitch(edo12, 0),
             EDPitch(edo12_2, 0),
         )
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_index_a, pitch_index_b, repr_result',
+    [
+        (EDOTuning(31), 2, 8, 'PitchInterval(6, 31-EDO)'),
+        (EDOTuning(12), 2, -8, 'PitchInterval(-10, 12-EDO)'),
+    ]
+)
+def test_repr(tuning,
+              pitch_index_a,
+              pitch_index_b,
+              repr_result):
+    """
+    Test if pitch interval is represented correctly
+    """
+
+    interval = PitchInterval.from_pitches(
+        EDPitch(tuning, pitch_index_a),
+        EDPitch(tuning, pitch_index_b),
+    )
+
+    assert repr(interval) == repr_result
