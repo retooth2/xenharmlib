@@ -29,7 +29,7 @@ standard contemporary Western tuning.
    edo12 = EDOTuning(12)
 
 EDO tunings are constructed by the number of divisions that exist in one
-octave. A modern arabic scale can for example be constructed like this:
+octave. A modern Arabic scale can for example be constructed like this:
 
 .. testcode::
 
@@ -52,7 +52,7 @@ Xenharmlib is designed in a way that you can use different levels of
 abstractions for individual tuning sounds. Some prefer the customary
 world of notes (like D, F#) while others want to look at tunings in a
 more mathematical way, exploring pitches and pitch classes as integers
-without the burdens of enharmonic ambigouity.
+without the burdens of enharmonic ambiguity.
 
 In the first part of this tutorial we want to look at this lower
 conceptual level of individual sounds, the pitch:
@@ -65,8 +65,8 @@ conceptual level of individual sounds, the pitch:
    edo12_g0 = edo12.pitch(7)
    edo31_g0 = edo31.pitch(18)
 
-A pitch is firstmost defined by its pitch index. The pitch index defines
-the number of steps from the base pitch, which is given the pitch
+A pitch is first and foremost defined by its pitch index. The pitch index
+defines the number of steps from the base pitch, which is given the pitch
 index 0. To visualize pitch indices, best think of a piano: The pitch
 index is the number of successive key presses needed to reach a tone
 starting from the lowest C:
@@ -124,7 +124,7 @@ property:
 
 You might be wondering why you are not seeing a simple number but an
 expression. This is because pitches in equal division tunings have
-irrational frequencies. Xxenharmlib does not round them to floats
+irrational frequencies. Xenharmlib does not round them to floats
 but keeps them in a symbolic format to achieve perfect precision
 results when doing mathematical operations. The above frequency
 is equal to this expression:
@@ -145,7 +145,7 @@ point math)
 
     17.831543876451384
 
-Speaking of math: Pitches also allow addition, substraction and scalar
+Speaking of math: Pitches also allow addition, subtraction and scalar
 multiplication:
 
 .. testcode::
@@ -160,7 +160,7 @@ multiplication:
     EDOPitch(8, 24-EDO)
     EDOPitch(10, 24-EDO)
 
-As an alternative for addition and substraction you can also use the
+As an alternative for addition and sustraction you can also use the
 :meth:`~xenharmlib.core.pitch.Pitch.transpose` method for transposition,
 which expects a positive or negative integer. The following snippets
 defines a function that transposes the pitch n octaves up regardless of
@@ -217,7 +217,7 @@ one tuning to another by the :meth:`~xenharmlib.core.pitch.Pitch.retune`
 method. This takes the frequency of the pitch and finds the pitch with
 the closest frequency in another tuning. For example if you are
 accustomed to a standard western tuning and just started your journey
-into micronality you might be interested in finding the 12 pitches of a
+into microtonality you might be interested in finding the 12 pitches of a
 western octave that you are already familiar with:
 
 .. testcode::
@@ -328,7 +328,7 @@ function:
 Similar to pitches intervals are comparable and sortable, also across
 different tunings. Intervals with a smaller frequency ratio are
 considered smaller, and vice versa. For example the fifth interval of
-31edo is a bit smaller than the fifth interval of 12edo:
+31-EDO is a bit smaller than the fifth interval of 12-EDO:
 
 .. testcode::
 
@@ -564,7 +564,7 @@ Let's look at it in the context of triads:
 
     c_triad = edo12.pitch_scale([c0, e0, g0])
 
-We can use the :meth:`rotated_up` method to recieve the first inversion
+We can use the :meth:`rotated_up` method to receive the first inversion
 of the triad:
 
 .. testcode::
@@ -722,7 +722,7 @@ available:
     EDOPitchScale([0, 2, 4, 7, 9, 11], 12-EDO)
 
 Pitch scale objects have many features, too many to list them all in the
-quickstart. If you want to know more about scale features head over to
+Quickstart. If you want to know more about scale features head over to
 the API documentation on the :mod:`~xenharmlib.core.pitch_scale` module.
 
 Notation
@@ -733,7 +733,7 @@ are more novel and don't come with an established cultural tradition.
 Not every notation system makes sense for every tuning. Some systems
 produce very counter-intuitive results when combined with unfitting
 tunings (for example in standard western notation 'E' and 'F' are the
-same note in 5-EDO). In this quickstart we will focus on a notation
+same note in 5-EDO). In this Quickstart we will focus on a notation
 called "up/down notation" which is a superset of the standard western
 notation. Apart from a couple of outliers (like 5-EDO) the system works
 pretty well on a large number of periodic tunings that rely on division
@@ -809,7 +809,7 @@ counter-part:
 Notes
 -----------------------------------
 
-The type of notes in a notation is heavily dependend on the attributes
+The type of notes in a notation is heavily dependent on the attributes
 of the tuning it encloses. Tunings with many divisions of the octave
 need more notes than tunings with less divisions. In certain notations
 'C#' and 'Db' refer to the same pitch, in others the pitches are
@@ -826,7 +826,7 @@ pitches the more accidentals are needed.
 
 In xenharmlib's implementation of UpDownNotation, enharmonic equivalents
 are theoretically infinite due to its comprehensive accidental
-arithmetic. Though rarely utilized practically, this feature allows for
+arithmetic. Though rarely used in composition, this feature allows for
 the creation of notes with any number of accidentals:
 
 .. testcode::
@@ -1043,7 +1043,7 @@ Notes have an interval method returning a note interval:
 
 Notes in UpDownNotation do **not** define addition, multiplication and
 scalar multiplication, because the result is not well defined in
-notation systems that have enharmonic ambigouity. (Other notations
+notation systems that have enharmonic ambiguity. (Other notations
 without this problem might implement them). Notes can be transposed
 through the transpose method by giving a note interval of the same
 notation:
@@ -1422,7 +1422,7 @@ Note Scales
 
 A set of unique, ordered notes is called a note scale. Note scales
 work similar to pitch scales, however there are special considerations
-necessary in light of enharmonic ambigouity. We will address these in
+necessary in light of enharmonic ambiguity. We will address these in
 a subsection below. But first, let's create our first note scale:
 
 .. testcode::
@@ -1506,7 +1506,7 @@ In the context of natural/accidental notations you can use the
 to generate a scale consisting of only the naturals in a base interval.
 (In UpDownNotation this is simply the C-Major Scale). Together with the
 :meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.rotation` method
-you can then generate the gregorian modes:
+you can then generate the Gregorian Modes:
 
 .. testcode::
 
@@ -1635,7 +1635,7 @@ operation to filter them out.
 
 We aim to determine if the improvisation scales have any notes in
 common, indicating if there are notes we can play safely across two
-consecutive sections. To test this, we're utilizing the
+consecutive sections. To test this, we're using the
 :meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.is_disjoint`
 method with the :code:`ignore_bi_index` flag set to True, treating notes
 that differ only by base interval as the same:
@@ -1678,7 +1678,7 @@ The set of improvisation notes over all sections is simply the full
 chromatic scale, meaning that the three improvisation scales cut the
 chromatic scale in 3 disjoint sets, each with 4 notes.
 
-Enharmonic ambigouity and set operations
+Enharmonic ambiguity and set operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When we speak of enharmonic equivalence we mean that two notes refer
@@ -1900,8 +1900,8 @@ Sound synthesis and score composition are out of xenharmlib's scope,
 however there are ways of hearing the things that you are building. 
 
 You can export xenharmlib objects into various formats and even play
-a sinewave audio from the console to get a feeling for the sound of
-scales, chords and single notes. Sinewave sounds can be played on Mac,
+a sine wave audio from the console to get a feeling for the sound of
+scales, chords and single notes. Sine wave sounds can be played on Mac,
 Linux and Windows using the :func:`~xenharmlib.play.play` function:
 
 .. testcode::
@@ -1972,7 +1972,7 @@ as a chord:
          Your browser does not support the <code>audio</code> element. 
    </audio>
 
-Sinewave audio can also be exported as a wav file with the
+Sine wave audio can also be exported as a wav file with the
 :func:`~xenharmlib.export.audio.export_wav` function, which supports
 the same arguments as the play function:
 
