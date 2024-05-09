@@ -233,6 +233,45 @@ def test_eq():
 
 
 @pytest.mark.parametrize(
+    'notation, note_pairs_a, note_pairs_b, result',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            True
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('A', 0), ('C-', 0), ('B+', 1)],
+            False
+        ),
+        (
+            n_edo31,
+            [('A', 0), ('C+', 0), ('B-', 1)],
+            [('A', 0), ('C+', 0)],
+            False
+        )
+    ]
+)
+def test_is_notated_same(notation, note_pairs_a, note_pairs_b, result):
+    """
+    Test if is_notated_same works correctly
+    """
+
+    scale_a = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in note_pairs_a]
+    )
+    scale_b = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in note_pairs_b]
+    )
+    assert scale_a.is_notated_same(scale_b) == result
+
+
+@pytest.mark.parametrize(
     'notation, input_pairs, result_pairs',
     [
         (
