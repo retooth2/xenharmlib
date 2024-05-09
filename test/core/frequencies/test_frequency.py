@@ -102,7 +102,7 @@ def test_monzo_identity(monzo, expected_freq):
 @pytest.mark.parametrize(
     'frequency, cents',
     [
-        (Frequency(Fraction(3, 2)), 701.9550008653969),
+        (Frequency(Fraction(3, 2)), 701.9550008654),
         (Frequency(Fraction(2, 1)), 1200),
         (Frequency(Fraction(4, 1)), 2400)
     ]
@@ -113,6 +113,267 @@ def test_cents(frequency, cents):
     """
 
     assert frequency.cents == cents
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(5)),
+        (Frequency(3), 2, Frequency(5)),
+        (Frequency(3), 2.0, Frequency(5)),
+        (Frequency(3), Fraction(3, 2), Frequency(Fraction(9, 2))),
+    ]
+)
+def test_add(freq, x, result):
+    assert freq + x == result
+    assert x + freq == result
+
+
+def test_add_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(x + 3)
+    assert freq + x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(1)),
+        (Frequency(3), 2, Frequency(1)),
+        (Frequency(3), 2.0, Frequency(1)),
+        (Frequency(3), Fraction(3, 2), Frequency(Fraction(3, 2))),
+        (3, Frequency(Fraction(3, 2)), Frequency(Fraction(3, 2))),
+    ]
+)
+def test_sub(freq, x, result):
+    assert freq - x == result
+
+
+def test_sub_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(3 - x)
+    assert freq - x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(6)),
+        (Frequency(3), 2, Frequency(6)),
+        (Frequency(3), 2.0, Frequency(6)),
+        (Frequency(3), Fraction(3, 2), Frequency(Fraction(9, 2))),
+    ]
+)
+def test_mul(freq, x, result):
+    assert freq * x == result
+    assert x * freq == result
+
+
+def test_mul_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(x * 3)
+    assert freq * x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(Fraction(3, 2))),
+        (Frequency(3), 2, Frequency(Fraction(3, 2))),
+        (Frequency(3), 2.0, Frequency(Fraction(3, 2))),
+        (Frequency(3), Fraction(3, 2), Frequency(2)),
+        (3, Frequency(Fraction(3, 2)), Frequency(2)),
+    ]
+)
+def test_truediv(freq, x, result):
+    assert freq / x == result
+
+
+def test_truediv_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(3 / x)
+    assert freq / x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(1)),
+        (Frequency(3), 2, Frequency(1)),
+        (Frequency(3), 2.0, Frequency(1)),
+        (3, Frequency(2), Frequency(1)),
+    ]
+)
+def test_floordiv(freq, x, result):
+    assert freq // x == result
+
+
+def test_floordiv_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(3 // x)
+    assert freq // x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(1)),
+        (Frequency(3), 2, Frequency(1)),
+        (Frequency(3), 2.0, Frequency(1)),
+        (3, Frequency(2), Frequency(1)),
+    ]
+)
+def test_mod(freq, x, result):
+    assert freq % x == result
+
+
+def test_mod_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(3 % x)
+    assert freq % x == result
+
+
+@pytest.mark.parametrize(
+    'freq, x, result',
+    [
+        (Frequency(3), Frequency(2), Frequency(9)),
+        (Frequency(3), 2, Frequency(9)),
+        (Frequency(3), 2.0, Frequency(9)),
+        (Frequency(3), Fraction(3, 2),
+         Frequency(sp.Integer(3)**Fraction(3, 2))),
+        (3, Frequency(2), Frequency(9)),
+    ]
+)
+def test_pow(freq, x, result):
+    assert freq ** x == result
+
+
+def test_pow_sp():
+    freq = Frequency(3)
+    x = sp.Integer(2) ** sp.Rational(1, 3)
+    result = Frequency(3 ** x)
+    assert freq ** x == result
+
+
+@pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), Frequency(3)),
+        (Frequency(-2), Frequency(2)),
+        (Frequency(-sp.Integer(3)**Fraction(3, 2)),
+         Frequency(sp.Integer(3)**Fraction(3, 2))),
+    ]
+)
+def test_abs(freq, result):
+    assert abs(freq) == result
+
+
+@pytest.mark.parametrize(
+    'freq_a, freq_b',
+    [
+        (Frequency(3), 3),
+        (Frequency(-6), Frequency(-6)),
+        (Frequency(sp.Integer(3)*Fraction(3, 2)),
+         Frequency(Fraction(9, 2))),
+    ]
+)
+def test_eq(freq_a, freq_b):
+    assert freq_a == freq_b
+    assert freq_b == freq_a
+
+
+@pytest.mark.parametrize(
+    'freq_a, freq_b',
+    [
+        (Frequency(2), Frequency(3)),
+        (Frequency(2), 3),
+        (Frequency(2), Fraction(5, 2)),
+        (Frequency(3), 6.4),
+        (Frequency(3), sp.Integer(3)**Fraction(10, 3)),
+    ]
+)
+def test_lt_gt(freq_a, freq_b):
+    assert freq_a < freq_b
+    assert freq_b > freq_a
+
+
+@pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), 3.0),
+        (Frequency(sp.Integer(3)**Fraction(10, 3)), 38.94073839830003),
+        (Frequency(Fraction(3, 2)), 1.5),
+    ]
+)
+def test_float(freq, result):
+    assert float(freq) == result
+
+
+@pytest.mark.parametrize(
+    'freq, ndigits, result',
+    [
+        (Frequency(Fraction(1, 3)), 4, 0.3333),
+        (Frequency(sp.Integer(3)**Fraction(10, 3)), 3, 38.941),
+        (Frequency(Fraction(3, 2)), 0, 2.0),
+    ]
+)
+def test_round(freq, ndigits, result):
+    assert round(freq, ndigits) == result
+
+
+@pytest.mark.parametrize(
+    'freq, base, result',
+    [
+        (Frequency(4), 2, Frequency(2)),
+        (Frequency(9), 3, Frequency(2)),
+        (Frequency(125), 5, Frequency(3)),
+    ]
+)
+def test_log(freq, base, result):
+    assert freq.log(base) == result
+
+
+@pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), Frequency(3)),
+        (Frequency(Fraction(3, 2)), Frequency(3)),
+        (Frequency(Fraction(2.5)), Frequency(5)),
+    ]
+)
+def test_numerator(freq, result):
+    assert freq.numerator == result
+
+
+@pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), Frequency(1)),
+        (Frequency(Fraction(3, 2)), Frequency(2)),
+        (Frequency(Fraction(2.5)), Frequency(2)),
+    ]
+)
+def test_denominator(freq, result):
+    assert freq.denominator == result
+
+
+@pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), 'Frequency(3)'),
+        (Frequency(Fraction(3, 2)), 'Frequency(3/2)'),
+        (Frequency(sp.Integer(2) ** sp.Rational(3, 2)),
+         'Frequency(2*sqrt(2))'),
+    ]
+)
+def test_repr(freq, result):
+    assert repr(freq) == result
 
 
 @pytest.mark.parametrize(
