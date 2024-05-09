@@ -228,16 +228,6 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
 
         return higher_pitch
 
-    def __eq__(self, other: object) -> bool:
-
-        if not isinstance(other, TuningABC):
-            return False
-
-        return (
-            self.ref_frequency == other.ref_frequency and \
-            self.__class__ == other.__class__
-        )
-
     def __repr__(self):
         return (
             f'{self.__class__.__name__}({self.name})'
@@ -300,13 +290,6 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
 
     def __len__(self):
         return self._period_length
-
-    def __eq__(self, other):
-        return (
-            super().__eq__(other) and \
-            self.divisions == getattr(other, 'divisions', None) and \
-            self.eq_ratio == getattr(other, 'eq_ratio', None)
-        )
 
     def get_ring_number(self, pitch: PeriodicPitchT) -> int:
         """
@@ -421,13 +404,6 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     @property
     def name(self) -> str:
         return f'{self.divisions}ed{self.eq_ratio}'
-
-    def __eq__(self, other):
-        return (
-            super().__eq__(other) and \
-            self.divisions == getattr(other, 'divisions', None) and \
-            self.eq_ratio == getattr(other, 'eq_ratio', None)
-        )
 
     def get_frequency(self, pitch: EDPitch) -> Frequency:
         """
