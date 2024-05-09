@@ -345,3 +345,84 @@ def test_up_down_interval_names_imperfect_edos(
 
     interval = n_edo.shorthand_interval(ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
+
+
+TESTCASE_LIST_PERFECT_C = [
+    ('C',     1, 'C',     1, 'P',      1),
+    ('C',     1, 'D',     1, 'P',      2),
+    ('C',     1, 'E',     1, 'P',      3),
+    ('C',     1, 'F',     1, 'P',      4),
+    ('C',     1, 'G',     1, 'P',      5),
+    ('C',     1, 'A',     1, 'P',      6),
+    ('C',     1, 'B',     1, 'P',      7),
+    ('C',     1, 'C',     2, 'P',      8),
+    ('C',     1, 'D',     2, 'P',      9),
+    ('C',     1, 'E',     2, 'P',     10),
+    ('C',     1, 'F',     2, 'P',     11),
+    ('C',     1, 'G',     2, 'P',     12),
+]
+
+
+TESTCASE_LIST_PERFECT_C_NEG = [
+    ('D',     1, 'C',     1, 'P',     -2),
+    ('E',     1, 'C',     1, 'P',     -3),
+    ('F',     1, 'C',     1, 'P',     -4),
+    ('G',     1, 'C',     1, 'P',     -5),
+    ('A',     1, 'C',     1, 'P',     -6),
+    ('B',     1, 'C',     1, 'P',     -7),
+    ('C',     2, 'C',     1, 'P',     -8),
+    ('D',     2, 'C',     1, 'P',     -9),
+    ('E',     2, 'C',     1, 'P',    -10),
+    ('F',     2, 'C',     1, 'P',    -11),
+    ('G',     2, 'C',     1, 'P',    -12),
+]
+
+
+@pytest.mark.parametrize(
+    'pc_symbol_a, bi_index_a, pc_symbol_b, bi_index_b, ic_symbol, numeral',
+    TESTCASE_LIST_PERFECT_C +
+    invariant_updown(TESTCASE_LIST_PERFECT_C, 'vvv') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C, 'vv') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C, 'v') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C, '^') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C, '^^') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, '^^^') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, 'vvv') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, 'vv') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, 'v') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, '^') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, '^^') +
+    invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, '^^^')
+)
+@pytest.mark.parametrize(
+    'edo_divisions',
+    PERFECT_EDOS
+)
+def test_interval_names_perfect_edos(
+    edo_divisions,
+    pc_symbol_a,
+    bi_index_a,
+    pc_symbol_b,
+    bi_index_b,
+    ic_symbol,
+    numeral
+):
+    """
+    Test if ups and downs are applied correctly
+    to perfect EDOs (those without sharps and flats)
+    """
+
+    edo = EDOTuning(edo_divisions)
+
+    n_edo = UpDownNotation(edo)
+
+    note_a = n_edo.note(pc_symbol_a, bi_index_a)
+    note_b = n_edo.note(pc_symbol_b, bi_index_b)
+
+    interval = n_edo.note_interval(note_a, note_b)
+
+    assert interval.shorthand_name == (ic_symbol, numeral)
+    assert note_a.transpose(interval) == note_b
+
+    interval = n_edo.shorthand_interval(ic_symbol, numeral)
+    assert note_a.transpose(interval) == note_b
