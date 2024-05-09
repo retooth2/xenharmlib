@@ -926,14 +926,24 @@ class NatAccNoteScale(PeriodicNoteScale):
         return indices
 
     @property
+    def acc_vectors(self) -> List[int]:
+        """
+        A list of accidental vectors for each note in the scale
+        """
+        vectors = []
+        for note in self:
+            vectors.append(note.acc_vector)
+        return vectors
+
+    @property
     def acc_values(self) -> List[int]:
         """
         A list of accidental values for each note in the scale
         """
-        indices = []
+        values = []
         for note in self:
-            indices.append(note.acc_value)
-        return indices
+            values.append(note.acc_value)
+        return values
 
     @property
     def nat_pc_indices(self) -> List[int]:
