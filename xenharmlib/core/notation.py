@@ -82,16 +82,6 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         self._note_interval_cls = note_interval_cls
         self._note_scale_cls = note_scale_cls
 
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, self.__class__):
-            return False
-        return (
-            self.tuning == other.tuning and \
-            self._note_cls == other._note_cls and \
-            self._note_interval_cls == other._note_interval_cls and \
-            self._note_scale_cls == other._note_scale_cls
-        )
-
     @property
     def tuning(self):
         """
