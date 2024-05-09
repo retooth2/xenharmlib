@@ -198,10 +198,29 @@ features.
 Contributor Guide
 ---------------------
 
-.. toctree::
-   :maxdepth: 2
+You are always welcome to open a pull request, however there are some
+prerequisites for a pull request to be accepted that you should know:
 
-   contributing
+* For formatting your commit messages please use
+  `conventional commits <https://www.conventionalcommits.org/>`_
+* To format your code please use the
+  `black code formatter <https://black.readthedocs.io/en/stable/>`_
+  with string normalization turned off. In regards to strings xemharmlib
+  follows the principle single quotes (') for data, double quotes (") for
+  information meant to be read only by humans (like exception descriptions)
+  and triple-double quotes (""") for docstrings.
+* Your code should come with tests that cover everything you have done.
+  (This includes branch coverage). Xenharmlib's test framework is
+  `pytest <https://docs.pytest.org/>`_
+* Your code should come with type annotations. There are a few
+  exceptions: Sometimes python's typing system is not mature enough to
+  do proper static-like typing (for example it doesn't support
+  higher-kinded types). Sometimes there are design reasons to use
+  python's dynamism. Just snoop around the existing code to get a
+  feeling for this balance.
+* Xenharmlib is designed around functional programming principles.
+  Objects should not alter their own state when calling methods (except
+  on initialization methods)
 
 Indices and tables
 ==================
