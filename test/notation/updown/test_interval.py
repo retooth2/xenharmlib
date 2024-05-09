@@ -2,8 +2,12 @@ import pytest
 from xenharmlib import EDOTuning
 from xenharmlib.notation.updown import UpDownNotation
 
-PERFECT_EDOS = [7, 14, 21, 28, 35]
-IMPERFECT_EDOS = list(set(range(5, 73)).difference(set(PERFECT_EDOS)))
+ALL_EDOS = set(range(5, 73))
+PERFECT_EDOS = {7, 14, 21, 28, 35}
+ABS_SHARP_1_EDOS = {5, 9, 12, 16, 19, 23, 26, 33, 40, 47}
+IMPERFECT_EDOS = ALL_EDOS.difference(PERFECT_EDOS)
+IMPERFECT_UPDOWN_EDOS = IMPERFECT_EDOS.difference(ABS_SHARP_1_EDOS)
+
 
 TESTCASE_LIST_STD_C = [
     ('C',     1, 'Cbb',   1, 'dd',     1),
@@ -175,8 +179,9 @@ def invariant_source_target_note(testcase_list, acc_symbol):
 def invariant_updown(testcase_list, acc_symbol):
     """
     Modifies the target note and the interval name in a test
-    case list with the same up/down accidentals to check that
-    the result is still valid.
+    case list with the same up/down accidentals (or reverted
+    accidentals in a downwards interval) to check that the
+    result is still valid.
     """
 
     new_testcase_list = []
@@ -185,6 +190,8 @@ def invariant_updown(testcase_list, acc_symbol):
 
         pc_s_a, bi_i_a, pc_s_b, bi_i_b, ic_s, n = testcase
 
+        # P interval logic does not work as '^P' or 'vP'
+        # but simply '^' and 'v'
         if ic_s == 'P':
             ic_s = ''
 
@@ -198,6 +205,8 @@ def invariant_updown(testcase_list, acc_symbol):
                 if letter == 'v':
                     int_acc_symbol += '^'
         else:
+            # on positive intervals ups/downs get added in the
+            # same way to note names and interval names
             int_acc_symbol = acc_symbol
 
         new_testcase_list.append(
@@ -306,7 +315,7 @@ def test_flat_sharp_interval_names_imperfect_edos(edo_divisions,
 )
 @pytest.mark.parametrize(
     'edo_divisions',
-    IMPERFECT_EDOS
+    IMPERFECT_UPDOWN_EDOS
 )
 def test_up_down_interval_names_imperfect_edos(
     edo_divisions,
@@ -319,12 +328,10 @@ def test_up_down_interval_names_imperfect_edos(
 ):
     """
     Test if ups and downs are applied correctly
+    to imperfect EDOs that have abs(sharpness) != 1
     """
 
     edo = EDOTuning(edo_divisions)
-
-    if abs(edo.sharpness) == 1:
-        return
 
     n_edo = UpDownNotation(edo)
 
