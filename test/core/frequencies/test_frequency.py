@@ -1,4 +1,5 @@
 import pytest
+import sympy as sp
 from fractions import Fraction
 from xenharmlib.core.frequencies import Frequency
 
@@ -112,3 +113,232 @@ def test_cents(frequency, cents):
     """
 
     assert frequency.cents == cents
+
+
+@pytest.mark.parametrize(
+    'inconvertible',
+    [
+        True,
+        complex(2, 3)
+    ]
+)
+def test_inconvertible_bool_complex(inconvertible):
+    """
+    Test if correct error is raised when __init__ or
+    arithmetic functions receive a bool or complex number
+    """
+
+    with pytest.raises(ValueError):
+        Frequency(inconvertible)
+
+    with pytest.raises(ValueError):
+        Frequency(3) + inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible + Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) - inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible - Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) * inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible * Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) / inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible / Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) // inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible // Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) % inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible % Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) ** inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible ** Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) < inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible < Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) > inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible > Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) <= inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible <= Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) >= inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible >= Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) == inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible == Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3).log(inconvertible)
+
+
+def test_inconvertible_string():
+    """
+    Test if correct error is raised when __init__ or
+    arithmetic functions receive a string
+    """
+
+    inconvertible = 'abcdef'
+
+    with pytest.raises(ValueError):
+        Frequency(inconvertible)
+
+    with pytest.raises(ValueError):
+        Frequency(3) + inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible + Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) - inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible - Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) * inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible * Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) / inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible / Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) // inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible // Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) % inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) ** inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible ** Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) < inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible < Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) > inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible > Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) <= inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible <= Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) >= inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible >= Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3) == inconvertible
+
+    with pytest.raises(ValueError):
+        inconvertible == Frequency(3)
+
+    with pytest.raises(ValueError):
+        Frequency(3).log(inconvertible)
+
+
+def test_inconvertible_sp_expr():
+    """
+    Test if correct error is raised when __init__ or
+    arithmetic functions receive a sympy expression
+    that is not a number
+    """
+
+    x, y = sp.symbols('x y')
+    inconvertible = x**2*2*y
+
+    with pytest.raises(ValueError):
+        Frequency(inconvertible)
+
+    with pytest.raises(ValueError):
+        Frequency(3) + inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) - inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) * inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) / inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) // inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) % inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) ** inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) < inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) > inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) <= inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) >= inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3) == inconvertible
+
+    with pytest.raises(ValueError):
+        Frequency(3).log(inconvertible)

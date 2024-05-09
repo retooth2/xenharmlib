@@ -42,7 +42,8 @@ def _to_sp_expr(number: object):
     an equivalent sympy expression
     """
 
-    if isinstance(number, int):
+    # bools are ints for some reason :/
+    if isinstance(number, int) and not isinstance(number, bool):
         return sp.Integer(number)
 
     if isinstance(number, Fraction):
@@ -186,7 +187,7 @@ class Frequency:
     def __float__(self) -> float:
         return float(self.sp_expr.evalf())
 
-    def __round__(self, ndigits=0) -> float:
+    def __round__(self, ndigits: int = 0) -> float:
         return float(self.sp_expr.round(ndigits))
 
     def log(self, base: Self | FreqNumber):
