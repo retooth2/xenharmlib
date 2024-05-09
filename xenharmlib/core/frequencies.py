@@ -188,7 +188,7 @@ class Frequency:
         return float(self.sp_expr.evalf())
 
     def __round__(self, ndigits: int = 0) -> float:
-        return float(self.sp_expr.round(ndigits))
+        return round(float(self.sp_expr), ndigits)
 
     def log(self, base: Self | FreqNumber):
         base = _to_sp_expr(base)
