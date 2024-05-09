@@ -2,6 +2,7 @@ import pytest
 from xenharmlib import EDOTuning
 from xenharmlib.exc import IncompatibleNotations
 from xenharmlib.exc import InvalidGenerator
+from xenharmlib.core.notes import NatAccNoteInterval
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -534,3 +535,16 @@ def test_note_repr(
     interval = note_a.interval(note_b)
 
     assert repr(interval) == expected
+
+
+def test_from_notes_incompatible_notations():
+    """
+    Test if from_notes method raises correct error
+    when notes are from different notations
+    """
+
+    note_a = n_edo12.note('A', 0)
+    note_b = n_edo24.note('B', 1)
+
+    with pytest.raises(IncompatibleNotations):
+        NatAccNoteInterval.from_notes(note_a, note_b)

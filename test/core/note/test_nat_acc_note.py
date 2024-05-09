@@ -14,6 +14,24 @@ n_edo12 = make_nat_acc_test_notation(edo12)
 n_edo24 = make_nat_acc_test_notation(edo24)
 n_edo31 = make_nat_acc_test_notation(edo31)
 
+
+@pytest.mark.parametrize(
+    'notation, tuning',
+    [
+        (n_edo12, edo12),
+        (n_edo24, edo24),
+        (n_edo31, edo31),
+    ]
+)
+def test_note_tuning(notation, tuning):
+    """
+    Test if tuning property of note works correctly
+    """
+
+    note = notation.note('A', 0)
+    assert note.tuning is tuning
+
+
 @pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index, pitch_index',
     [
@@ -908,3 +926,18 @@ def test_note_is_notated_equivalent_neg(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
     assert not note_a.is_notated_equivalent(note_b)
+
+
+def test_note_transpose_incompatible_notations():
+    """
+    Test if correct error gets raised when interval is from
+    a different notation when calling transpose
+    """
+
+    note_a = n_edo12.note('A', 0)
+    note_b = n_edo12.note('B+', 0)
+    interval = n_edo12.note_interval(note_a, note_b)
+    note_c = n_edo24.note('B+', 0)
+
+    with pytest.raises(IncompatibleNotations):
+        note_c.transpose(interval)
