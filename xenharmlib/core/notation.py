@@ -38,9 +38,7 @@ from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
 from ..exc import IncompatibleNotations
-from ..exc import InvalidPitchIndex
-from ..exc import InvalidPitchClassIndex
-from ..exc import InvalidNaturalIndex
+from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
 from .symbols import AmbiguousSymbol
@@ -894,7 +892,9 @@ class NatAccNotation(
         elif interval_number < 0:
             return interval_number + 1
         else:
-            raise Exception('Invalid interval number')  # TODO
+            raise InvalidIntervalNumber(
+                "Interval number must be strictly positive or negative"
+            )
 
     def parse_pc_symbol(
         self,

@@ -18,6 +18,7 @@ This module includes all exceptions that must be handled
 by the user of the library
 """
 
+
 class IncompatibleTunings(Exception):
     """
     Gets raised whenever two or more objects are not
@@ -25,6 +26,7 @@ class IncompatibleTunings(Exception):
     tunings
     """
     pass
+
 
 class IncompatibleNotations(Exception):
     """
@@ -34,6 +36,7 @@ class IncompatibleNotations(Exception):
     """
     pass
 
+
 class UnfittingNotation(Exception):
     """
     Gets raised on construction of notations when a
@@ -42,11 +45,13 @@ class UnfittingNotation(Exception):
     """
     pass
 
+
 class UnknownNoteSymbol(Exception):
     """
     Gets raised on construction of notes if a provided
     symbol was not recognized by the notation
     """
+
 
 class InvalidFrequency(Exception):
     """
@@ -55,12 +60,14 @@ class InvalidFrequency(Exception):
     it is out of bounds of a predefined limit
     """
 
+
 class InvalidPitchIndex(Exception):
     """
     Gets raised when a pitch index does not adhere
     to a certain restriction, for example if it is
     out of bounds of a predefined limit
     """
+
 
 class InvalidPitchClassIndex(Exception):
     """
@@ -69,12 +76,14 @@ class InvalidPitchClassIndex(Exception):
     it is out of bounds of a predefined limit
     """
 
+
 class InvalidBaseIntervalIndex(Exception):
     """
     Gets raised when a base interval index does not
     adhere to a certain restriction, for example if
     it is out of bounds of a predefined limit
     """
+
 
 class InvalidGenerator(Exception):
     """
@@ -83,6 +92,7 @@ class InvalidGenerator(Exception):
     tuning
     """
 
+
 class InvalidNaturalIndex(Exception):
     """
     Gets raised when a natural index does not adhere
@@ -90,15 +100,23 @@ class InvalidNaturalIndex(Exception):
     out of bounds of a predefined limit
     """
 
+
 class InvalidAccidentalValue(Exception):
     """
     Gets raised when an accidental value is not
     allowed in a notation
     """
 
+
 class InvalidNaturalDiffClassIndex(Exception):
     """
     Gets raised when a natural diff class index does not
     adhere to a certain restriction, for example if it is
     out of bounds of a predefined limit
+    """
+
+
+class InvalidIntervalNumber(Exception):
+    """
+    Gets raised when an interval number is not valid
     """
