@@ -17,9 +17,9 @@ Tunings and Pitches
 ------------------------
 
 Xenharmlib offers a few basic components that serve as the building
-blocks for deriving common tunings. One of the most widespread are
-tunings with equal divisions of the octave
-(:class:`~xenharmlib.core.tunings.EDOTuning`), which includes the
+blocks for deriving common tunings. The most widespread are tunings
+with equal divisions of the octave
+(:class:`~xenharmlib.core.tunings.EDOTuning`), which include the
 standard contemporary Western tuning.
 
 .. testcode::
@@ -49,9 +49,9 @@ yourself:
    bohlen_pierce = EDTuning(13, Frequency(3))
 
 Xenharmlib is designed in a way that you can use different levels of
-abstractions for individual tuning sounds. Some prefer the customary
-world of notes (like D, F#) while others want to look at tunings in a
-more mathematical way, exploring pitches and pitch classes as integers
+abstraction for individual tuning sounds. Some prefer the customary
+world of notes (like D, F#) while others want to look at tunings more
+mathematically, exploring pitches and pitch classes as integers
 without the burdens of enharmonic ambiguity.
 
 In the first part of this tutorial we want to look at this lower
@@ -67,7 +67,7 @@ conceptual level of individual sounds, the pitch:
 
 A pitch is first and foremost defined by its pitch index. The pitch index
 defines the number of steps from the base pitch, which is given the pitch
-index 0. To visualize pitch indices, best think of a piano: The pitch
+index of 0. To visualize pitch indices, best think of a piano: The pitch
 index is the number of successive key presses needed to reach a tone
 starting from the lowest C:
 
@@ -145,7 +145,7 @@ point math)
 
     17.831543876451384
 
-Speaking of math: Pitches also allow addition, subtraction and scalar
+Speaking of math: Pitches also allow addition, subtraction, and scalar
 multiplication:
 
 .. testcode::
@@ -160,7 +160,7 @@ multiplication:
     EDOPitch(8, 24-EDO)
     EDOPitch(10, 24-EDO)
 
-As an alternative for addition and sustraction you can also use the
+As an alternative for addition and subtraction, you can also use the
 :meth:`~xenharmlib.core.pitch.Pitch.transpose` method for transposition,
 which expects a positive or negative integer. The following snippets
 defines a function that transposes the pitch n octaves up regardless of
@@ -182,9 +182,9 @@ tuning:
 
 Pitches of periodic tunings (for example the various equal temperaments)
 form pitch classes (or in mathematical terms: equivalency classes in a
-finite group). As a musician you are already familiar with this in the
-standard western notation, since pitches of the same class get assigned
-the same letter. For pitches of periodic tunings the property
+finite group). As a musician, you are already familiar with this in the
+standard Western notation, since pitches of the same class get assigned
+the same letter. For pitches of periodic tunings, the property
 :attr:`~xenharmlib.core.pitch.PeriodicPitch.pc_index` can be used to
 retrieve the pitch class, while the property
 :attr:`~xenharmlib.core.pitch.PeriodicPitch.bi_index` returns the index
@@ -253,7 +253,7 @@ Tunings also allow pitch approximations directly from frequencies
 with the :meth:`~xenharmlib.core.tunings.TuningABC.get_approx_pitch`
 method.
 
-For example if you want the pitch class that best approximates the
+For example, if you want the pitch class that best approximates the
 perfect fifth in a tuning you can do something like this:
 
 .. testcode::
@@ -327,7 +327,7 @@ function:
 
 Similar to pitches intervals are comparable and sortable, also across
 different tunings. Intervals with a smaller frequency ratio are
-considered smaller, and vice versa. For example the fifth interval of
+considered smaller, and vice versa. For example, the fifth interval of
 31-EDO is a bit smaller than the fifth interval of 12-EDO:
 
 .. testcode::
@@ -351,7 +351,7 @@ cents value:
 
 There is a bit of a caveat when handling negative / downward intervals:
 The :code:`<` operator does compare frequency ratios, *not* absolute
-sizes, so - maybe surprising to some - the following holds true:
+sizes, so - maybe surprising to some - the following holds:
 
 .. testcode::
 
@@ -370,7 +370,7 @@ function.
 
     assert abs(fifth_d) > abs(second_d)
 
-For periodic tunings you can calculate the generator distance, which is
+For periodic tunings, you can calculate the generator distance, which is
 the minimum number of steps from one pitch to the other when iteratively
 adding a generator pitch. A typical example is the minimum distance on
 the circle of fifths. If you e.g. want to sort intervals according to
@@ -439,7 +439,7 @@ something like this:
 Pitch Scales
 ------------------------
 
-Pitch scales are sorted lists of unique pitches. Like pitches they
+Pitch scales are sorted lists of unique pitches. Like pitches, they
 can be constructed through a builder method in the tuning object.
 
 .. testcode::
@@ -512,8 +512,8 @@ tunings:
     )
     assert edo12_fifth in edo24_scale
 
-In general all the operations that are possible on single pitches are
-also possible on scales, for example you can transpose a scale the
+In general, all the operations that are possible on single pitches are
+also possible on scales, for example, you can transpose a scale the
 same way you can transpose pitches:
 
 .. testcode::
@@ -544,7 +544,7 @@ tuning:
     EDOPitchScale([0, 2, 4], 24-EDO)
 
 Scales in periodic tunings can be rotated upwards and downwards. On
-upwards rotation the lowest pitch will get transposed by the tuning's
+upward rotation the lowest pitch will get transposed by the tuning's
 equivalency interval until it surpasses the highest pitch of the scale.
 On downwards rotation vice versa: The highest pitch is transposed
 downwards until it is below the lowest pitch.
@@ -583,8 +583,8 @@ opposite, making us return to where we started:
 
     assert c_first_inversion.rotated_down() == c_triad
 
-There is also the more general method :meth:`rotation` to your disposal,
-which can be used as a shortcut if you want more than one upwards or
+There is also the more general method :meth:`rotation` at your disposal,
+which can be used as a shortcut if you want more than one upward or
 downward rotation:
 
 .. testcode::
@@ -608,7 +608,7 @@ different names):
 * :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.is_superset`
 * :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.is_disjoint`
 
-As an illustration for the usefulness of set operations we calculate
+As an illustration of the usefulness of set operations we calculate
 pitches safe for improvisation according to the 'avoid notes' concept in
 jazz for 12-EDO. There are various approaches (and a lot of dispute) to
 this, but one rule-of-thumb is that for any chord and a selected scale,
@@ -732,9 +732,9 @@ Notation can be a murky thing, especially when it comes to tunings that
 are more novel and don't come with an established cultural tradition.
 Not every notation system makes sense for every tuning. Some systems
 produce very counter-intuitive results when combined with unfitting
-tunings (for example in standard western notation 'E' and 'F' are the
+tunings (for example in standard Western notation 'E' and 'F' are the
 same note in 5-EDO). In this Quickstart we will focus on a notation
-called "up/down notation" which is a superset of the standard western
+called "up/down notation" which is a superset of the standard Western
 notation. Apart from a couple of outliers (like 5-EDO) the system works
 pretty well on a large number of periodic tunings that rely on division
 of the octave.
@@ -755,7 +755,7 @@ pitches of different tunings visible that are sometimes hard to see
 when only represented as integers.
 
 Like the tuning object on the lower level, the notation object provides
-us with builder methods to create notes, intervals and scales.
+us with builder methods to create notes, intervals, and scales.
 
 Individual notes can be created by using the note method which expects
 a pitch class symbol and the base interval index (the octave number in
@@ -790,9 +790,9 @@ Please note that other notations might use different builder arguments
 to create these objects, however the above combination are the most
 common practice.
 
-All notational objects are bound to their lower level equivalent.
+All notational objects are bound to their lower-level equivalent.
 Given a notational object you can always retrieve their lower level
-counter-part:
+counterpart:
 
 .. testcode::
 
@@ -811,13 +811,13 @@ Notes
 
 The type of notes in a notation is heavily dependent on the attributes
 of the tuning it encloses. Tunings with many divisions of the octave
-need more notes than tunings with less divisions. In certain notations
+need more notes than tunings with fewer divisions. In certain notations
 'C#' and 'Db' refer to the same pitch, in others the pitches are
 distinct.
 
 UpDownNotation is a natural/accidental notation. It first approximates
 the naturals (C, D, E, F, G, A, B), mapping C to the zero pitch and
-generating the other naturals by stacking fifths. After that it
+generating the other naturals by stacking fifths. After that, it
 approximates sharp and flat accidentals and fills the gaps with
 multiples of sharps and flats or up and down arrows. The note object
 created by UpDownNotation consists of a natural (like 'C') and an
@@ -851,7 +851,7 @@ with the matching symbols in the Standard Music Layout Font.
 
 If a certain accidental is available depends on the underlying tuning.
 For 12-EDO e.g. the 'bv' accidental is not available, however for 31-EDO
-it is. In general there exists exactly one accidental symbol for each
+it is. In general, there exists exactly one accidental symbol for each
 accidental value (hence 'v' does not exist in 12-EDO because it would be
 the same as 'b')
 
@@ -1041,7 +1041,7 @@ Notes have an interval method returning a note interval:
     gsharp1 = n_edo31.note('G#', 1)
     gsharp1.interval(gsharp1)
 
-Notes in UpDownNotation do **not** define addition, multiplication and
+Notes in UpDownNotation do **not** define addition, subtraction and
 scalar multiplication, because the result is not well defined in
 notation systems that have enharmonic ambiguity. (Other notations
 without this problem might implement them). Notes can be transposed
@@ -1057,12 +1057,12 @@ notation:
     assert g0 == c0.transpose(c0.interval(g0))
     assert g0 == c0.transpose(P5)
 
-Notes of UpDownNotation have additional properties which they share
+Notes of UpDownNotation have additional properties that they share
 with all Notes from natural/accidental notations that pertain to
-their 'split' definition. For example each note can be inspected in
-regards to its natural and accidental fragments.
+their 'split' definition. For example, each note can be inspected
+regarding its natural and accidental fragments.
 
-For example observe the difference in using the
+For example, observe the difference in using the
 :attr:`~xenharmlib.core.notes.PeriodicNoteABC.pc_index`
 property and the
 :attr:`~xenharmlib.core.notes.NatAccNote.nat_pc_index`
@@ -1079,7 +1079,7 @@ property and the
     0
     11
 
-The pitch class index of the note is 0, because the note refers to the
+The pitch class index of the note is 0 because the note refers to the
 pitch index 12, which has pitch class 0 (the pitch class of 'C').
 In the notation context however it is seen as a 'B' with an accidental
 and 'B' has pitch class 11. You can use this to lump notes together
@@ -1118,7 +1118,7 @@ until now.
 Let's look at the accidentals: In general they signify a deviation
 from a natural pitch, in UpDownNotation they signify a deviation
 *in steps* from the natural pitch. You are probably familiar with
-this from the traditional western system:
+this from the traditional Western system:
 
 .. testcode::
 
@@ -1174,9 +1174,9 @@ sharpness of 2. To move to the next pitch (upwards or downwards) in
     -1
 
 Sometimes you also want to examine notes in regards to their symbols.
-For this purpose natural/accidental notations like UpDownNotation have
+For this purpose, natural/accidental notations like UpDownNotation have
 three properties: One for the pitch class symbol, one for the natural
-class symbol and one for the accidental:
+class symbol, and one for the accidental:
 
 .. testcode::
 
@@ -1191,7 +1191,7 @@ class symbol and one for the accidental:
     ^#
 
 Naturals have their own index system that is closely related
-to the 'roman numeral system' but starting from 0 instead of 1.
+to the 'Roman numeral system' but starting from 0 instead of 1.
 In western piano terms: The natural index of a note is the number
 of successive *white* key presses from the first natural to the
 note while ignoring the accidental of the note:
@@ -1228,7 +1228,7 @@ base intervals and just look at the equivalency of naturals:
     1
     4
 
-It follows from definition that notes with the same natural symbol
+It follows from the definition that notes with the same natural symbol
 also have the same natural class index (as you can see with D-0, D#-1)
 Natural class indices are especially useful when you are examining
 compound intervals since they characterize the remainder in terms
@@ -1238,11 +1238,11 @@ of natural indices: An augmented *ninth* is only an augmented
 Note Intervals
 -----------------------------------
 
-Today's common western interval notation is shaped by pretty old ideas
+Today's common Western interval notation is shaped by pretty old ideas
 and has been handed down as a tradition for centuries without impactful
 revisitation from a modern eye. Even though every new generation of
 musicians struggles to understand the minute differences of perfect and
-imperfect intervals the system is so deeply ingrained in western
+imperfect intervals the system is so deeply ingrained in Western
 harmonic analysis and composition that it is likely to stay for the
 foreseeable future.
 
@@ -1271,7 +1271,7 @@ appropriate shorthand interval name:
     ('A', 5)
 
 
-As an alternative to the notation builder method you can also use the
+As an alternative to the notation builder method, you can also use the
 interval method of the Note object:
 
 .. testcode::
@@ -1320,7 +1320,7 @@ Note intervals are comparable and sortable by their frequency ratio:
     
     assert P5_31 < P5_12
 
-Interval sortability can come in handy, for example if you want to sort
+Interval sortability can come in handy, for example, if you want to sort
 different EDOs according to the width of their fifth:
 
 .. testcode::
@@ -1364,9 +1364,8 @@ is a short overview:
     assert m3.cents == m3.pitch_interval.cents
     assert m3.pitch_diff == m3.pitch_interval.pitch_diff
 
-Like pitch intervals xenharmlib's implementation of intervals in
-UpDownNotation have *directions*. This is necessary so the transpose
-method of the Note object is well defined:
+Like pitch with intervals xenharmlib's note intervals have *directions*.
+This is necessary so the transpose method of the Note object is well defined:
 
 .. testcode::
 
@@ -1375,7 +1374,7 @@ method of the Note object is well defined:
     interval = a.interval(c)
     assert a.transpose(interval) == c
 
-If intervals have downwards direction their naming changes accordingly.
+If intervals have a downward direction their naming changes accordingly.
 The constructed interval above is a downward major 6:
 
 .. testcode::
@@ -1421,7 +1420,7 @@ Note Scales
 -----------------------------------
 
 A set of unique, ordered notes is called a note scale. Note scales
-work similar to pitch scales, however there are special considerations
+work similarly to pitch scales, however there are special considerations
 necessary in light of enharmonic ambiguity. We will address these in
 a subsection below. But first, let's create our first note scale:
 
@@ -1434,7 +1433,7 @@ a subsection below. But first, let's create our first note scale:
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
 scale object was a python builtin list. The in operator works likewise
-both with pitches, pitch intervals, notes and note intervals.
+both with pitches, pitch intervals, notes, and note intervals.
 
 .. testcode::
 
@@ -1451,7 +1450,7 @@ both with pitches, pitch intervals, notes and note intervals.
     UpDownNote(Eb, 0, 12-EDO)
     UpDownNoteScale([C0, Eb0, G0], 12-EDO)
 
-Scale comparisons work on the basis of note frequencies, so using the
+Scale comparisons work based on note frequencies, so using the
 equal sign will ignore enharmonic notation differences:
 
 .. testcode::
@@ -1465,7 +1464,7 @@ equal sign will ignore enharmonic notation differences:
 
     assert Cm == Cm_weird
 
-If you want to test on equality *on the notation level* (ignoring
+If you want to test equality *on the notation level* (ignoring
 enharmonic equivalencies) you have to use the
 :meth:`~xenharmlib.core.note_scale.NoteScale.is_notated_same`
 method:
@@ -1475,7 +1474,7 @@ method:
     assert Cm.is_notated_same(Cm)
     assert not Cm.is_notated_same(Cm_weird)
 
-You may be familiar with the method from the Note section. In fact a
+You may be familiar with the method from the Note section. In fact, a
 lot of operations on single notes work on scales as well. This is
 especially powerful when you want to transpose scales:
 
@@ -1540,17 +1539,17 @@ possible to compare scales on the level of tonal equivalencies:
     norm_a_min = a_min.pcs_normalized()
     assert norm_c_maj == norm_a_min
 
-Note scales can be treated as sets. They support union, intersection,
+Note scales can be treated as sets. They support the union, intersection,
 difference and symmetric difference operations as well as subset,
-superset and is_disjoint relationship tests.
+superset, and is_disjoint relationship tests.
 
-As an illustration for set operations we want to make a deep dive into
+As an illustration for set operations, we want to make a deep dive into
 John Coltrane's *Giant Steps* and find out why it is regarded as one
-of the most difficult jazz work for improvisation.
+of the most difficult jazz works for improvisation.
 
 Coltrane's composition is based on fast harmonic changes between the
 scales B major (on chords B7, F#7, C#m7), G major (on chords G7, D7,
-Am7) and Eb major (on chords Eb7, Bb7, Fm7). We want to know the notes
+Am7), and Eb major (on chords Eb7, Bb7, Fm7). We want to know the notes
 playable for improvisation in each of the three sections.
 
 Initially, we'll construct the three major scales. To do this, we'll
@@ -1638,7 +1637,7 @@ common, indicating if there are notes we can play safely across two
 consecutive sections. To test this, we're using the
 :meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.is_disjoint`
 method with the :code:`ignore_bi_index` flag set to True, treating notes
-that differ only by base interval as the same:
+that differ only by the base interval as the same:
 
 .. testcode::
 
@@ -1708,9 +1707,9 @@ we want them to be considered equal.
 
 Xenharmlib defines the uniqueness restriction of the scale as "unique in
 *pitch*", meaning that no two notes :code:`e_flat` and :code:`d_sharp` with
-:code:`e_flat == d_sharp` can exist in the scale at the same time. However
+:code:`e_flat == d_sharp` can exist in the scale at the same time. However,
 it provides special variants for some set operations that honor notational
-difference (More on that later).
+differences (More on that later).
 
 The reason for choosing the :code:`==` equivalency as the base for the
 uniqueness property is to provide consistency with the underlying pitch
@@ -1738,7 +1737,7 @@ scale object:
     ]
     assert pitch_intervals == pitch_union.to_pitch_intervals()
 
-This choice also allows to implement the scale's :code:`==` operator
+This choice also allows implementing the scale's :code:`==` operator
 as a consistent logical extension of the note's :code:`==` operator,
 creating a closed set algebra for scales under :code:`==` with all
 basic set operations. Think of it this way: Notes are variable names
@@ -1828,15 +1827,15 @@ there is no way to define a closed set algebra for the :code:`is_notated_same`
 relation at the same time, because the union operation would not be well
 defined.
 
-However on *certain* set operations we can define the option to use
-the :code:`is_notated_same` relation. For :code:`intersection` we
+However, on *certain* set operations, we can define the option to use
+the :code:`is_notated_same` relation. For :code:`intersection`, we
 can define that same-sounding, but differently notated notes should
 not be part of the intersection. For :code:`difference` we can define
 that such notes will not be removed from the first scale. In the
-same way we can define the relationships :code:`is_disjoint`,
-:code:`is_subset` and :code:`is_superset`.
+same way, we can define the relationships :code:`is_disjoint`,
+:code:`is_subset`, and :code:`is_superset`.
 
-These more stricter variants of the set operations are called:
+These stricter variants of the set operations are called:
 
 * :meth:`~xenharmlib.core.note_scale.NoteScale.note_intersection`
 * :meth:`~xenharmlib.core.note_scale.NoteScale.note_difference`
@@ -1860,7 +1859,7 @@ These more stricter variants of the set operations are called:
     diff_a_b = scale_a.note_difference(scale_b)
     assert len(diff_a_b) == 2
 
-In combination with the :code:`ignore_bi_index` flag we can for
+In combination with the :code:`ignore_bi_index` flag, we can for
 example build a function that returns the pitch class symbols of
 the common notes of two scales while being aware of the key:
 
@@ -1899,7 +1898,7 @@ Playing and Exporting
 -----------------------------------
 
 Sound synthesis and score composition are out of xenharmlib's scope,
-however there are ways of hearing the things that you are building. 
+however there are ways of hearing the things that you are building.
 
 You can export xenharmlib objects into various formats and even play
 a sine wave audio from the console to get a feeling for the sound of
@@ -1929,7 +1928,7 @@ Linux and Windows using the :func:`~xenharmlib.play.play` function:
    </audio>
 
 The play function generally accepts every playable object (which are:
-frequencies, pitches, notes, lists of the aforementioned and scales)
+frequencies, pitches, notes, lists of the aforementioned, and scales)
 You can also change the duration a pitch is played and play scales
 as a chord:
 
@@ -2014,5 +2013,5 @@ The third parameter gives a title to the SCL file. The :code:`ensure_period`
 flag will make sure that the scale ends with a pitch equivalent to the first
 pitch. (SCL works by iteratively stacking the scale definition on the last
 pitch, so having a scale not ending with an equivalent pitch would cause the
-last pitch being declared as the new 0 for the second iteration and make the
+last pitch to be declared as the new 0 for the second iteration and make the
 scale "move around").

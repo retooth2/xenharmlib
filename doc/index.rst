@@ -1,11 +1,11 @@
 Welcome to xenharmlib's documentation!
 ======================================
 
-Xenharmlib is a music theory library for exploration and research of
-microtonality, diatonic set theory, non-standard notations and many
+Xenharmlib is a music theory library for the exploration and research of
+microtonality, diatonic set theory, non-standard notations, and many
 more.
 
-It is easy to use, extendable and tries to be intuitive. Have a peak:
+It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
 .. testcode::
 
@@ -115,18 +115,18 @@ It is easy to use, extendable and tries to be intuitive. Have a peak:
    Frequency(3*3**(1/13))
    2
 
-Audience & Design philosophy
+Audience & Design Philosophy
 -----------------------------
 
 Xenharmlib is targeted at composers and researchers who already have
 basic knowledge in python programming.
 
-Xenharmlib does **not** aim to be a score composition tool, sequencer
+Xenharmlib does **not** aim to be a score composition tool, sequencer,
 or synthesizer (however it is possible to build such things on top of
 it). Rather it wants to provide a toolset for exploring different
 concepts of harmonic relations with a scientific focus.
 
-Xenharmlib is object oriented but mostly designed around functional
+Xenharmlib is object-oriented but mostly designed around functional
 programming principles: Objects are considered immutable and methods
 do not alter internal states but return modified versions of the
 original object.
@@ -134,13 +134,13 @@ original object.
 Features
 ---------------
 
-Xenharmlib is an ongoing project. New features will come in by time and
+Xenharmlib is an ongoing project. New features will come in over time and
 feature requests are welcome.
 
 So far it supports the following:
 
 * Equal division tunings (e.g. Western, Modern Arabic, Bohlen-Pierce)
-* Analysis of intervals, scales and their relations to one another
+* Analysis of intervals, scales, and their relations to one another
 * Group theoretical analysis (integer pitches, pitch classes, etc)
 * Up/Down Notation (a superset of Western accidental notation)
 * Building blocks for custom notations
@@ -155,10 +155,10 @@ Coming soon:
 * Odd Limit Tunings
 * Extended Helmholtz-Ellis JI Pitch Notation
 
-Licence
+License
 ---------------
 
-Xenharmlib is released under the `GNU Public Licence v3
+Xenharmlib is released under the `GNU Public License v3
 <https://www.gnu.org/licenses/gpl-3.0.en.html>`_.
 
 You can find the source code hosted on `Gitlab.com
@@ -176,7 +176,7 @@ Support and Contact
 ------------------------
 
 If you want to ask for a new feature or report a bug, take it to the
-`gitlab issue page <https://gitlab.com/retooth/xenharmlib/-/issues>`_.
+`Gitlab issue page <https://gitlab.com/retooth/xenharmlib/-/issues>`_.
 In case you just wanna chat with the maintainer: I often hang around on
 the `Xenharmonic Alliance Discord <https://discord.com/invite/FSF5JFT>`_
 under the name :code:`@retooth`
@@ -184,7 +184,7 @@ under the name :code:`@retooth`
 User Guide
 -------------
 
-In the following you will find a guide to most of xenharmlib's
+In the following, you will find a guide to most of xenharmlib's
 features.
 
 .. toctree::
@@ -198,14 +198,14 @@ features.
 Contributor Guide
 ---------------------
 
-You are always welcome to open a pull request, however there are some
+You are always welcome to open a pull request, however, there are some
 prerequisites for a pull request to be accepted that you should know:
 
 * For formatting your commit messages please use
   `conventional commits <https://www.conventionalcommits.org/>`_
 * To format your code please use the
   `black code formatter <https://black.readthedocs.io/en/stable/>`_
-  with string normalization turned off. In regards to strings xemharmlib
+  with string normalization turned off. In regards to strings, xemharmlib
   follows the principle single quotes (') for data, double quotes (") for
   information meant to be read only by humans (like exception descriptions)
   and triple-double quotes (""") for docstrings.
@@ -219,7 +219,7 @@ prerequisites for a pull request to be accepted that you should know:
   python's dynamism. Just snoop around the existing code to get a
   feeling for this balance.
 * Xenharmlib is designed around functional programming principles.
-  Objects should not alter their own state when calling methods (except
+  Objects should not alter their state when calling methods (except
   on initialization methods)
 
 Indices and tables
