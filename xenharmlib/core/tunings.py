@@ -15,11 +15,9 @@
 
 """
 A tuning is the middle piece between the continuous world of frequencies
-and the discrete world of pitch. In xenharmlib tunings are understood
-to be open-ended only in one direction starting from a base pitch that
-serves as reference point with pitch index 0.
+and the discrete world of pitch.
 
-In this module you will find a collection of tuning classes, each with
+In this module, you will find a collection of tuning classes, each with
 a certain set of assumptions built into them. Some tuning classes can
 be used as they are to create tuning objects, some are abstract classes
 that need a couple of methods implemented by a subclass.
@@ -61,7 +59,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
     other tunings. AbstractTuning makes next to no assumptions
     about the tuning, only that it has a reference frequency
     to 'center' the tuning and python classes that define the
-    type of pitch, pitch interval and pitch scale adjacent to
+    type of pitch, pitch interval, and pitch scale adjacent to
     this tuning.
 
     A simple tuning can be derived from this simply by
@@ -82,7 +80,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         scale that is used to generate a pitch scale object
         in the :meth:`~AbstractTuning.pitch_scale` method.
     :param ref_frequency: A reference frequency on which this
-        tuning is build.
+        tuning is built.
     """
 
     def __init__(self,
@@ -310,7 +308,7 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
     @property
     def generator_pitches(self) -> List[PeriodicPitchT]:
         """
-        Returns a list of pitch objects which can be used
+        Returns a list of pitch objects that can be used
         to generate the complete set of pitches in this
         tuning by subsequent interval additions with
         themselves.
@@ -350,7 +348,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     given as a frequency ratio and divides this base interval
     into pitches equally spaced from one another.
 
-    For example the Bohlen-Pierce tuning can be created
+    For example, the Bohlen-Pierce tuning can be created
     like this:
 
     >>> from xenharmlib import EDTuning
@@ -444,7 +442,7 @@ class EDOTuning(EDTuning):
         to :class:`~xenharmlib.core.pitch.EDOPitchInterval`
     :param pitch_scale_cls: (Optional) The python class for
         the pitch scale that is used to generate a pitch scale
-        object in the pitch scale method. Defauls to
+        object in the pitch scale method. Defaults to
         :class:`~xenharmlib.core.pitch_scale.EDOPitchScale`
     :param ref_frequency: (Optional) A reference frequency on
         which this tuning is built. For EDOTunings this is the
@@ -486,8 +484,8 @@ class EDOTuning(EDTuning):
     def fifth(self):
         """
         Returns the pitch that represents the fifth of
-        this tuning. In the default implementation this
-        is the best fifth, however subclasses can also
+        this tuning. In the default implementation, this
+        is the best fifth, however, subclasses can also
         overwrite this behavior, so e.g. the second-best
         fifth is returned.
         """
@@ -517,7 +515,7 @@ class EDOTuning(EDTuning):
 
         The sharpness of an EDO is defined by 7 times the
         pitch difference between the base pitch and the
-        the perfect fifth approximation minus 4 times
+        perfect fifth approximation minus 4 times
         the pitch difference in an octave.
         """
 

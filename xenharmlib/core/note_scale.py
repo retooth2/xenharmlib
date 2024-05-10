@@ -46,7 +46,7 @@ class NoteScale(Generic[NoteT]):
 
     :param notation: The notation this scale refers to
     :param notes: (optional) A list of notes from the notation.
-        If parameter is omitted an empty scale will be
+        If the parameter is omitted an empty scale will be
         initialized
     """
 
@@ -76,9 +76,9 @@ class NoteScale(Generic[NoteT]):
         position. If the note already exists in the scale
         the method will do nothing.
 
-        :raises IncompatibleNotations: If note has a different 
+        :raises IncompatibleNotations: If the note has a different
             notation than this scale.
-        
+
         :param note: The new note
         """
 
@@ -233,7 +233,7 @@ class NoteScale(Generic[NoteT]):
 
         :param other: Another note of the same notation
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -260,7 +260,7 @@ class NoteScale(Generic[NoteT]):
 
         :param other: Another scale of the same notation
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -286,7 +286,7 @@ class NoteScale(Generic[NoteT]):
 
         :param other: Another scale of the same notation
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -315,7 +315,7 @@ class NoteScale(Generic[NoteT]):
 
         :param other: Another scale of the same notation
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -336,7 +336,7 @@ class NoteScale(Generic[NoteT]):
 
         :param other: Another scale of the same notation
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -356,7 +356,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different tuning
         """
 
@@ -381,7 +381,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different tuning
         """
 
@@ -403,7 +403,7 @@ class NoteScale(Generic[NoteT]):
         sets if they are notated the same and excluded otherwise,
         even if they are enharmonically equivalent
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -429,10 +429,10 @@ class NoteScale(Generic[NoteT]):
         the difference method notes will only be considered
         shared notes of the sets if they are notated the same.
         If a note is in the second set that is enharmonically
-        equivalent to a note in this set, but notated in a
+        equivalent to a note in this set but notated in a
         different way, the latter will stay in the result set.
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -460,7 +460,7 @@ class NoteScale(Generic[NoteT]):
         enharmonically equivalent but differently notated notes
         will be treated as distinct
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -482,7 +482,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different tuning
         """
 
@@ -509,7 +509,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different tuning
         """
 
@@ -679,12 +679,12 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             intersection of two scales including C-0 and
             C-1 respectively is calculated, both pitches
             will be added to the result
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -716,12 +716,12 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             difference of two scales including C-0 and C-1
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -756,12 +756,12 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             difference of two scales including C-0 and C-1
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -789,11 +789,11 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if one
+            will be treated the same. For example, if one
             scale includes C-0 and another C-1 the scales
             will not be considered disjoint
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 
@@ -820,7 +820,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 
@@ -858,7 +858,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 
@@ -892,12 +892,12 @@ class PeriodicNoteScale(NoteScale):
 
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             intersection of two scales including C-0 and
             C-1 respectively is calculated, both pitches
             will be added to the result
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -934,12 +934,12 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             difference of two scales including C-0 and C-1
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleNotations: If other scale has a
+        :raises IncompatibleNotations: If the other scale has a
             different notation
         """
 
@@ -974,11 +974,11 @@ class PeriodicNoteScale(NoteScale):
         :param other: Another scale of the same notation
         :param ignore_bi_index: (Optional, default False)
             When set to True notes of the same pitch class
-            will be treated the same. For example if one
+            will be treated the same. For example, if one
             scale includes C-0 and another C-1 the scales
             will not be considered disjoint
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 
@@ -1007,7 +1007,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 
@@ -1047,7 +1047,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If other scale originates
+        :raises IncompatibleNotations: If the other scale originates
             from a different notation
         """
 

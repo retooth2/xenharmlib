@@ -15,16 +15,16 @@
 
 """
 A pitch scale is an ordered set of unique pitches in a given tuning.
-The uniqueness property means that there is no duplicate pitches.
-However other than in a popular use of the word 'scale' the pitch
+The uniqueness property means that there are no duplicate pitches.
+However other than in the popular use of the word 'scale' the pitch
 scale object in xenharmlib is not limited to one base interval in
 periodic tunings. (e.g. C-0 and C-1 are considered distinct)
 This has a couple of advantages, e.g. that the scale object can be
-used more generally, for example to analyze chords.
+used more generally.
 
 Pitch scales have both a list and a set quality to them.
 Similar to lists they have an item order, support iteration,
-positional item retrieval and slicing. At the same time scales
+positional item retrieval, and slicing. At the same time scales
 support set operations like intersection, union, symmetric
 difference, etc.
 """
@@ -77,7 +77,7 @@ class PitchScale(Generic[PitchT]):
     >>> scale[1:-1]
     EDOPitchScale([6], 31-EDO)
 
-    The 'in' operator accepts both pitches and pitch invervals
+    The 'in' operator accepts both pitches and pitch intervals
     
     >>> p = edo31.pitch(4)
     >>> p in scale
@@ -85,7 +85,7 @@ class PitchScale(Generic[PitchT]):
     >>> p.interval(edo31.pitch(2)) in scale
     True
 
-    In regards to intervals it even works across tunings
+    In regards to intervals, it even works across tunings
 
     >>> edo12 = EDOTuning(12)
     >>> edo24 = EDOTuning(24)
@@ -116,10 +116,10 @@ class PitchScale(Generic[PitchT]):
 
     def add_pitch(self, pitch: PitchT):
         """
-        Inserts a new pitch into to the scale at
+        Inserts a new pitch into the scale at
         the right position
 
-        :raises IncompatibleTunings: If pitch has a different 
+        :raises IncompatibleTunings: If the pitch has a different
             tuning than this scale.
         
         :param pitch: The new pitch
@@ -259,8 +259,8 @@ class PitchScale(Generic[PitchT]):
         Transposes the scale upwards or downwards
 
         :param diff: The difference from this pitch. Can be
-            either an integer (positive for upwards movement,
-            negative for downwards movement) or a pitch
+            either an integer (positive for upward movement,
+            negative for downward movement) or a pitch
             interval
         """
 
@@ -281,10 +281,9 @@ class PitchScale(Generic[PitchT]):
         from the target tuning.
 
         **A caveat**: Since pitch scales are a structure of sorted unique
-        pitches it is possible that this method produces a scale
-        with a smaller size than the original because two pitches
-        in this tuning can be approximated to the same pitch in
-        the target tuning.
+        pitches this method may produce a scale with a smaller size than
+        the original because two pitches in this tuning can be approximated
+        to the same pitch in the target tuning.
 
         :param tuning: The target tuning
         """
@@ -306,7 +305,7 @@ class PitchScale(Generic[PitchT]):
 
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -333,7 +332,7 @@ class PitchScale(Generic[PitchT]):
 
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -359,7 +358,7 @@ class PitchScale(Generic[PitchT]):
         
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -389,7 +388,7 @@ class PitchScale(Generic[PitchT]):
         
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -410,7 +409,7 @@ class PitchScale(Generic[PitchT]):
         
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -432,7 +431,7 @@ class PitchScale(Generic[PitchT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -459,7 +458,7 @@ class PitchScale(Generic[PitchT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -637,12 +636,12 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             intersection of two scales including C-0 and
             C-1 respectively is calculated, both pitches
             will be added to the result
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -674,12 +673,12 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
-            will be treated the same. For example if the
-            difference of two scales including C-0 and C-1
+            will be treated the same. For example, if the
+            difference between two scales including C-0 and C-1
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -714,12 +713,12 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
-            will be treated the same. For example if the
+            will be treated the same. For example, if the
             difference of two scales including C-0 and C-1
             respectively is calculated, both C-0 and C-1
             will not be inserted into the new scale
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -745,11 +744,11 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
-            will be treated the same. For example if one
+            will be treated the same. For example, if one
             scale includes C-0 and the other includes C-1
             the scales will not be considered disjoint
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -768,7 +767,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         
         :param other: Another scale of the same tuning
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -809,7 +808,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             When set to True pitches of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
@@ -849,7 +848,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             When set to True pitches of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleTunings: If other scale has a
+        :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 

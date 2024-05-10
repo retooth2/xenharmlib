@@ -30,7 +30,7 @@ from ..exc import InvalidGenerator
 @total_ordering
 class Pitch:
     """
-    In its most basic form a Pitch is a tuple of a pitch index
+    In its most basic form, a Pitch is a tuple of a pitch index
     (an integer value) and a tuning that interprets this index
     as a frequency.
 
@@ -123,8 +123,8 @@ class Pitch:
         Transposes the pitch to a different one
 
         :param diff: The difference from this pitch. Can be
-            either an integer (positive for upwards movement,
-            negative for downwards movement) or a pitch
+            either an integer (positive for upward movement,
+            negative for downward movement) or a pitch
             interval
         """
 
@@ -256,7 +256,7 @@ class PeriodicPitch(Pitch):
         :raises IncompatibleTunings: If pitches come
             from different tuning systems
 
-        :raises InvalidGenerator: If given generator pitch is not in
+        :raises InvalidGenerator: If the given generator pitch is not in
             fact a generator in the tuning of this pitch
         """
 
@@ -326,7 +326,7 @@ class PitchInterval(Generic[PitchT]):
     """
     The most abstract form of an interval of two pitches.
     Implements conversion functions to frequency ratios
-    and a total ordering based on the caclulated ratios:
+    and a total ordering based on the calculated ratios:
 
     >>> from xenharmlib import EDOTuning
     >>> edo31 = EDOTuning(31)
@@ -345,11 +345,11 @@ class PitchInterval(Generic[PitchT]):
     :param ref_pitch: A reference pitch for the pitch
         difference. This is necessary for tunings that
         are not equal step. In just intonation tunings
-        frequency ratios may vary depending of the
+        frequency ratios may vary depending on the
         original pitches used to construct the interval,
         even if their pitch index difference is the same
     :param pitch_diff: An integer that defines the
-        number of steps this interval encompases
+        number of steps this interval encompasses
         (a positive integer means 'upward steps',
         while a negative one means 'downward steps')
     :param tuning: The tuning associated with this
@@ -462,7 +462,7 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
     ) -> int:
         """
         Calculates the minimum number of steps needed to reach
-        the one pitch from the other when iteratively adding a
+        one pitch from the other when iteratively adding a
         generator pitch.
 
         A typical application in 12EDO is to calculate the minimum

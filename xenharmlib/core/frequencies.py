@@ -16,7 +16,7 @@
 """
 Frequencies are the prime substance of pitches. Everything in xenharmlib
 (and in music, for that matter) ultimately boils down to frequencies and
-their relations to one another. In this module we implement a couple of
+their relations to one another. In this module, we implement a couple of
 useful representations for frequencies and frequency ratios.
 """
 
@@ -100,7 +100,7 @@ class Frequency:
     >>> Frequency(sp.Integer(2)**sp.Rational(1, 12))
     Frequency(2**(1/12))
 
-    Frequency objects seemlessly interact with all kinds of numbers
+    Frequency objects seamlessly interact with all kinds of numbers
 
     >>> 3 * Frequency(440)
     Frequency(1320)
@@ -211,7 +211,7 @@ class Frequency:
     def from_monzo(cls, monzo: List[int]):
         """
         Creates a frequency from a monzo. A monzo is a list of
-        exponents for the prime numbers, for example the
+        exponents for the prime numbers, for example, the
         argument [-1, 1] creates the frequency :math:`2^{-1} * 3^1`
         """
 
@@ -303,7 +303,7 @@ class Frequency:
         Returns a list of overtone frequencies for
         this note
 
-        :param limit: (optional) upper frequency limit
+        :param limit: (optional) upper-frequency limit
             of the list in Hz, defaults to the average
             audible maximum of the human ear of
             20KHz

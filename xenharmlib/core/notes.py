@@ -15,8 +15,8 @@
 
 """
 The note core module implements primitives to handle different types
-of notes and note intervals. Notes and note intervals wrap the integer
-based pitch and pitch interval classes.
+of notes and note intervals. Notes and note intervals wrap the
+integer-based pitch and pitch interval classes.
 """
 
 from __future__ import annotations
@@ -222,7 +222,7 @@ class PeriodicNoteABC(NoteABC):
         :raises IncompatibleNotations: If notes come
             from a different notation system
 
-        :raises InvalidGenerator: If pitch of given generator note is
+        :raises InvalidGenerator: If the pitch of given generator note is
             not in fact a generator in the underlying tuning
         """
 
@@ -238,19 +238,19 @@ class PeriodicNoteABC(NoteABC):
 
 class NatAccNote(PeriodicNoteABC):
     """
-    A base class for notes which are constructed from a natural and
+    A base class for notes that are constructed from a natural and
     accidentals (the appropriate base class for notes of notations
     subclassing from :class:`~xenharmlib.core.notation.NatAccNotation`)
 
     :param notation: The notation object this note belongs to
     :param nat_index: The natural index of this note, which is an index
-        counting the naturals starting with 0 (e.g. in western notation
+        counting the naturals starting with 0 (e.g. in Western notation
         C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
     :param acc_vector: A vector detailing the different deviations in
         steps that were introduced through accidentals
     :param pc_symbol: The chosen symbol for the pitch class
         (in most notations this is equal to natc_symbol + acc_symbol,
-        however there are notations - like UpDownNotation - that put
+        however, there are notations - like UpDownNotation - that put
         some of the accidentals before the natural)
     :param natc_symbol: The chosen symbol for the natural class
         (e.g. 'C' for C#)
@@ -434,7 +434,7 @@ class NatAccNote(PeriodicNoteABC):
         """
         Returns True if this note is notated(!) as a natural,
         False otherwise (e.g. the note E# refers to a natural,
-        however it is notated with an accidental, thus the
+        however, it is notated with an accidental, thus the
         property will be False here)
         """
         return self.acc_value == 0
@@ -644,7 +644,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
 
 class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
     """
-    Abstract base class for intervals refering to notations
+    Abstract base class for intervals referring to notations
     of periodic tunings.
 
     Implements the method :meth:`get_generator_distance`
@@ -656,7 +656,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
     ) -> int:
         """
         Calculates the minimum number of steps needed to reach
-        the one note from the other when iteratively adding a
+        one note from the other when iteratively adding a
         generator note.
 
         A typical application in 12EDO is to calculate the minimum
@@ -690,12 +690,12 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     The class assumes that the interval is value-representable by
     the difference in natural indices and the difference in pitch.
     It is meant as a solid basis for interval notations that are
-    similar to the traditional western interval notation having
+    similar to the traditional Western interval notation having
     a interval symbol (like 'M') and an interval number (like 2)
 
     The concrete way an interval symbol and number are chosen is
-    dependend on the underlying notation from which a symbol and
-    a number is received in the :meth:`from_notes` builder method.
+    dependent on the underlying notation from which a symbol and
+    a number are received in the :meth:`from_notes` builder method.
 
     :param notation: The notation this interval refers to
     :param ref_note: A reference note (needed for non-equal
@@ -749,7 +749,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     @property
     def symbol(self) -> str:
         """
-        A symbol classifying this interval in regards
+        A symbol classifying this interval in regard
         to size and quality
         """
         return self._symbol

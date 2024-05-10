@@ -47,8 +47,8 @@ class SymbolValueNotMapped(Exception):
 
 class AmbiguousSymbol(Exception):
     """
-    Gets raised whenever a symbol was added to a symbol
-    code that already existed or if the associated value
+    Gets raised whenever a symbol is added to a symbol
+    code that already exists or if the associated value
     is already represented by another symbol
     """
 
@@ -111,7 +111,7 @@ class SymbolArithmetic(SymbolCode):
 
     Higher dimensional arithmetics can be useful if there are multiple
     classes of accidentals (like sharp/flat on the one hand and up/down
-    on the other). Given a value dimensionality of 2 it can e.g. parse
+    on the other). Given a value dimensionality of 2, it can e.g. parse
     an expression like '^b##x' into a list of integer vectors (here:
     (0, 1), (-1, 0), (1, 0), (1, 0), (2, 0)) from which it creates a
     sum vector (3, 1)
@@ -125,14 +125,14 @@ class SymbolArithmetic(SymbolCode):
 
     The class can also be used to design accidental systems for dense
     tunings (like prime limit tunings), that don't have an enumerable
-    pitch index sequence. For example given a 3-limit tuning one can
+    pitch index sequence. For example, given a 3-limit tuning one can
     define accidentals as their monzo, defining '#' as the value
-    vector (-11, 7), 'b' as the vector (11, -7) and so forth. The
+    vector (-11, 7), 'b' as the vector (11, -7), and so forth. The
     addition of the monzo vectors is then equal to the product in
     |R+: (e.g. 'b#' = (11, -7) + (-11, 7) = (0, 0), which is the
     same as (2^11)/(3^7) * (3^7)/(2^11) = (2^0) * (3^0) = 1.
 
-    On initialization of an arithmetic an offset can be set, which
+    On initialization of an arithmetic, an offset can be set, which
     adds a fixed integer vector to all symbol value vectors. This
     is especially powerful when defining partial arithmetics in a
     SymbolArithmeticSet, e.g. if one wants to parse '^A' into (4, 1),
@@ -145,7 +145,7 @@ class SymbolArithmetic(SymbolCode):
     :param offset: (optional, defaults to the 0-vector). A fixed
         value vector that will be added to the sum
     :param allow_empty: (optional, default False). If True, empty
-        strings are part of this arithmetic (with value of the
+        strings are part of this arithmetic (with the value of the
         offset, or the 0 vector if offset is not given). If False
         exceptions will be raised on empty strings
     """
@@ -199,12 +199,12 @@ class SymbolArithmetic(SymbolCode):
         :param symbol: A string (can be multi-character)
         :param vector: An integer tuple defining the
             value vector of the symbol (dimensions must
-            match the dimensions with which the the arithmetic
+            match the dimensions with which the arithmetic
             was initialized)
         :param position: The desired positional value of the
             symbol in the sorting process of get_symbol_str
             (optional, if no parameter is given the position
-            of the symbol will be analoguous to the order
+            of the symbol will be analogous to the order
             in which symbols were added to the arithmetic)
         :param min_occurence: (optional) The minimum number of
             times this symbol must occur in the arithmetic
@@ -378,7 +378,7 @@ class SymbolArithmetic(SymbolCode):
         Returns a sorted, minimal tuple of symbols whose combined
         value together with the offset result in the given sum.
 
-        :raises SymbolValueNotMapped: If value can not be
+        :raises SymbolValueNotMapped: If the value can not be
             represented by any combination of symbols
             in the arithmetic
 
@@ -505,10 +505,10 @@ class SymbolArithmeticSet(SymbolCode):
         in the set (optional, defaults to 1)
     :param pref_func: (optional) A preference function that
         returns a definite parsing result from a list of
-        possibles ones. The function should accept a list
+        possible ones. The function should accept a list
         of tuples (arithmetic, parsed_str) with parsed_str
         being a tuple of single symbols. It should return
-        one element of the list that should be prefered.
+        one element of the list that should be preferred.
         If no preference function is given, then the class
         will choose the result with the shortest length.
     """
@@ -623,7 +623,7 @@ class SymbolArithmeticSet(SymbolCode):
         """
         Returns a minimal symbol string for a given value
 
-        :raises SymbolValueNotMapped: If value can not be
+        :raises SymbolValueNotMapped: If the value can not be
             represented by any combination of symbols
             in any arithmetic
 

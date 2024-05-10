@@ -17,7 +17,7 @@
 The notation core module includes primitives to build notation systems.
 A notation in xenharmlib is defined as a wrapper around a specific
 tuning that provides a human-friendly string interface to all the
-lower level objects (pitch, pitch interval, pitch scale)
+lower-level objects (pitch, pitch interval, pitch scale)
 """
 
 import numpy as np
@@ -56,7 +56,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
     Notations in the core package are defined as generics
     with three type variables: One for the note class,
-    one for the interval class and one for the scale class.
+    one for the interval class, and one for the scale class.
 
     :param tuning: The tuning for which the notation should
         be constructed
@@ -117,7 +117,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
 class IncompleteNotation(Exception):
     """
-    Gets raised when a notation was not initialized correctly
+    Gets raised when a notation is not initialized correctly
     """
 
 # We will give a formal definition of natural/accidental systems for sparse
@@ -127,7 +127,7 @@ class IncompleteNotation(Exception):
 # Formally notes in NatAccNotation are defined as elements in a vector space
 # (n, p(n), a_1, ..., a_l), with the following semantics:
 #
-#   * n is the natural index of the note (e.g. in western notations C0 ^= 0,
+#   * n is the natural index of the note (e.g. in Western notations C0 ^= 0,
 #     D0 ^=1, C0 ^=7). Natural indices are elements of the whole numbers,
 #     with negative elements behaving like in the group Z_k with the number
 #     of naturals per octave k. (e.g. B(-1) ^= -1, A(-1) ^= -2, etc)
@@ -298,13 +298,13 @@ class NatAccNotation(
     letters) and adds special symbols called accidentals, which signify
     step deviations from the natural pitch classes.
 
-    The standard western notation for example is a such a notation,
+    The standard Western notation for example is a such a notation,
     defining 7 naturals (C, D, E, G, A, B) and 2 accidentals (#, b)
     that signify a step deviation of +1 and -1 respectively.
 
     The class supports different 'categories' of accidentals that do not
-    interact with one another, for example a category for sharps/flats
-    and one category for ups/downs. Consequently accidental values are
+    interact with one another, for example, a category for sharps/flats
+    and one category for ups/downs. Consequently, accidental values are
     given in the form of a vector.
 
     It further assumes that intervals are uniquely defined by their
@@ -408,7 +408,7 @@ class NatAccNotation(
         """
         Returns a modified accidental vector that balances the
         deviation of a pitch index from the natural pitch index
-        as defined in this notation. By default deviations get
+        as defined in this notation. By default, deviations get
         balanced by adding / subtracting the deviation from the
         first dimension of the accidental vector.
 
@@ -442,7 +442,7 @@ class NatAccNotation(
         """
         Returns a modified accidental vector that balances the
         deviation of a pitch diff from the natural pitch diff
-        as defined in this notation. By default deviations get
+        as defined in this notation. By default, deviations get
         balanced by adding / subtracting the deviation from the
         first dimension of the accidental vector.
 
@@ -477,7 +477,7 @@ class NatAccNotation(
         Creates a note in line with this notation
 
         :param pc_symbol: A symbol denoting the pitch class
-            (typically someting like 'C#', 'Ab', 'F', etc)
+            (typically something like 'C#', 'Ab', 'F', etc)
         :param nat_bi_index: The base interval index of the
             natural (for example a B#-0 in 12-EDO has the natural base
             interval index of 0, even though the pitch is in base
@@ -562,7 +562,7 @@ class NatAccNotation(
         :param symbol: An interval symbol of this notation
             (for example P, A, M, m)
         :param number: An interval number indicating the interval
-            step width according to the convention layed out by
+            step width according to the convention laid out by
             this notation
         """
 
@@ -598,7 +598,7 @@ class NatAccNotation(
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
         """
         Creates a scale with all the naturals in this notation
-        in a specific base interval (in western notations this
+        in a specific base interval (in Western notations this
         is typically the C major scale)
 
         :param bi_index: (optional, defaults to 0). The
@@ -619,7 +619,7 @@ class NatAccNotation(
         """
         Returns the pitch class index a natural index refers to
 
-        :raises InvalidNaturalIndex: If natural index is
+        :raises InvalidNaturalIndex: If the natural index is
             smaller than 0
 
         :param nat_index: A natural index
@@ -643,7 +643,7 @@ class NatAccNotation(
     def nat_count(self) -> int:
         """
         Returns the number of registered natural symbols
-        for this notation (typically 7 for western-style
+        for this notation (typically 7 for Western-style
         notations)
         """
         return len(self._naturals)
@@ -675,18 +675,18 @@ class NatAccNotation(
         Appends a new natural to this notation. The order in which
         naturals are added determines their natural class index,
         so the first added natural will get natural class index 0,
-        the second 1 and so forth.
+        the second 1, and so forth.
 
-        :raises AmbiguousSymbol: If given natural symbol already
+        :raises AmbiguousSymbol: If the given natural symbol already
             denotes a previously appended natural index
 
         :param natc_symbol: A string denoting the natural (typically
             a single letter)
         :param natc_pitch_index: The pitch index of the natural class
-            that is added. For most tunings this pitch index is equal
-            to the pitch class index, because for most tunings there
+            that is added. For most tunings, this pitch index is equal
+            to the pitch class index because for most tunings there
             exists no note tuple (natc_symbol, 0) that is not in the
-            first base interval. However there are outliers like
+            first base interval. However, there are outliers like
             5-EDO in which (B, 0) = (C, 1) and (B, 0) has a pitch
             index in the second base interval
         """
@@ -708,7 +708,7 @@ class NatAccNotation(
         Returns a string symbol for a natural index like
         0 -> 'C' or 8 -> 'D' in 12-EDO
 
-        :raises InvalidNaturalIndex: If natural index is
+        :raises InvalidNaturalIndex: If the natural index is
             smaller than 0
 
         :param nat_index: A natural index of this notation
@@ -768,26 +768,26 @@ class NatAccNotation(
         Sets an interval class symbol for a natural index difference
         class. The natural index difference class is a number between
         0 and the number of naturals in the notation (exclusive), so
-        e.g. [0, ..., 6] in a traditional western systems that has 7
+        e.g. [0, ..., 6] in a traditional Western system that has 7
         naturals. It is calculated by taking the absolute distance
         of two natural indices modulo the number of naturals in the
         notation, so e.g. 2 for intervals (C0, E#0), (C0, E1) and
         (E#2, C0).
 
         The natural index difference class is closely related to the
-        roman numeral index of intervals, for example a difference of
-        2 is the same as III, a difference of 0 the same as I, etc.
+        Roman numeral index of intervals, for example, a difference of
+        2 is the same as III, a difference of 0 is the same as I, etc.
 
         Associating a natural index difference class with a specific
         symbol code allows setting different interval naming schemes
         for different interval numbers, e.g. making a difference
         between perfect and imperfect interval naming schemes. In
-        the western system differences 0 (unison), 3 (fourth) and 4
+        the Western system differences 0 (unison), 3 (fourth) and 4
         (fifth) use the P/A/d interval symbols while for differences
         1 (second), 2 (third), 5 (sixth), 6 (sevenths) the system
         M/m/A/d is used.
 
-        :raises InvalidNaturalDiffClassIndex: If natural diff class
+        :raises InvalidNaturalDiffClassIndex: If the natural diff class
             index is out of bounds
 
         :param nat_diffc: The difference of the natural indices
@@ -865,7 +865,7 @@ class NatAccNotation(
     def nat_diff_to_interval_number(self, nat_diff: int) -> int:
         """
         Returns an interval number for a natural index
-        difference. By default it returns a 1-based ordinal number.
+        difference. By default, it returns a 1-based ordinal number.
         Subclasses can change this behavior by overwriting this
         method.
 
@@ -880,8 +880,8 @@ class NatAccNotation(
 
     def interval_number_to_nat_diff(self, interval_number: int) -> int:
         """
-        Returns a natural index difference for a interval number.
-        By default it assumes that the interval number is given
+        Returns a natural index difference for an interval number.
+        By default, it assumes that the interval number is given
         in 1-based ordinal notation. Subclasses can change this
         behavior by overwriting this method.
 
@@ -946,9 +946,9 @@ class NatAccNotation(
         accidental symbol configuration for the vector.
 
         The method will return a tuple of 3 with the following semantics:
-        * First element will be the pitch class symbol
-        * Second element will be the natural class symbol
-        * Third element will be the accidental symbol string
+        * The first element will be the pitch class symbol
+        * The second element will be the natural class symbol
+        * The third element will be the accidental symbol string
 
         (Subclasses can overwrite this method if they e.g wish to generate
         pc_symbols that have post-fix or in-fix naturals)
