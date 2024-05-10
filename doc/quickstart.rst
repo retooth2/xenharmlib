@@ -1684,8 +1684,8 @@ Enharmonic ambiguity and set operations
 When we speak of enharmonic equivalence we mean that two notes refer
 to the same pitch, but are notated differently, that is: we
 differentiate between the sound of a note and its function.
-The question if Eb and D# are *the same* can only be answered if
-we further specify: Same in regards to what?
+The question if Eb and D# in 12-EDO are *the same* can only be
+answered if we further specify: Same in regards to what?
 
 In regards to notation Eb and D# are distinct, however in regards
 to sound they are the same. Spoken in mathematical terms:
@@ -1706,14 +1706,15 @@ are interested in the functional relationship of scales, we
 would want to treat D# and Eb as distinct, while in other cases
 we want them to be considered equal.
 
-Xenharmlib tries to go a middle way. In regards to the uniqueness
-restriction of the scale it refers to the :code:`==` equivalency,
-while for some set operations it allows switching the equivalency
-relation to :code:`is_notated_same`.
+Xenharmlib defines the uniqueness restriction of the scale as "unique in
+*pitch*", meaning that no two notes :code:`e_flat` and :code:`d_sharp` with
+:code:`e_flat == d_sharp` can exist in the scale at the same time. However
+it provides special variants for some set operations that honor notational
+difference (More on that later).
 
-The reason for choosing the :code:`==` equivalency as the base for
-the uniqueness property is to provide consistency with the underlying
-pitch scale object:
+The reason for choosing the :code:`==` equivalency as the base for the
+uniqueness property is to provide consistency with the underlying pitch
+scale object:
 
 .. testcode::
 
@@ -1823,9 +1824,9 @@ on the two result pairs does *not* preserve commutativity:
     assert not intersection_a_b.is_notated_same(intersection_b_a)
 
 Since we chose the :code:`==` operator as a basis for scale uniqueness,
-there is no way to define a closed set algebra for the 
-:code:`is_notated_same` relation at the same time, because the union
-operation would not be well defined.
+there is no way to define a closed set algebra for the :code:`is_notated_same`
+relation at the same time, because the union operation would not be well
+defined.
 
 However on *certain* set operations we can define the option to use
 the :code:`is_notated_same` relation. For :code:`intersection` we
@@ -1835,7 +1836,13 @@ that such notes will not be removed from the first scale. In the
 same way we can define the relationships :code:`is_disjoint`,
 :code:`is_subset` and :code:`is_superset`.
 
-The way this works is through the method flag :code:`is_notated_same`:
+These more stricter variants of the set operations are called:
+
+* :meth:`~xenharmlib.core.note_scale.NoteScale.note_intersection`
+* :meth:`~xenharmlib.core.note_scale.NoteScale.note_difference`
+* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_subset`
+* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_superset`
+* :meth:`~xenharmlib.core.note_scale.NoteScale.is_notated_disjoint`
 
 .. testcode::
 
@@ -1847,14 +1854,10 @@ The way this works is through the method flag :code:`is_notated_same`:
     scale_a = n_edo12.note_scale([c, e_flat])
     scale_b = n_edo12.note_scale([d_sharp, g])
 
-    intersection_a_b = scale_a.intersection(
-        scale_b, is_notated_same=True
-    )
+    intersection_a_b = scale_a.note_intersection(scale_b)
     assert len(intersection_a_b) == 0
 
-    diff_a_b = scale_a.difference(
-        scale_b, is_notated_same=True
-    )
+    diff_a_b = scale_a.note_difference(scale_b)
     assert len(diff_a_b) == 2
 
 In combination with the :code:`ignore_bi_index` flag we can for
@@ -1864,9 +1867,8 @@ the common notes of two scales while being aware of the key:
 .. testcode::
 
     def common_notes_key_aware(scale_a, scale_b):
-        scale_i = scale_a.intersection(
+        scale_i = scale_a.note_intersection(
             scale_b,
-            is_notated_same=True,
             ignore_bi_index=True
         ).pcs_normalized()
         return scale_i

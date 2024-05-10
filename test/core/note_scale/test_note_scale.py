@@ -1206,10 +1206,14 @@ def test_intersection(notation, input_pairs_a, input_pairs_b, result_pairs):
         ),
     ]
 )
-def test_intersection_is_notated_same(notation, input_pairs_a, input_pairs_b, result_pairs):
+def test_note_intersection(
+    notation,
+    input_pairs_a,
+    input_pairs_b,
+    result_pairs
+):
     """
-    Test if intersection operation works correctly
-    on is_notated_same=True
+    Test if note_intersection operation works correctly
     """
 
     scale_a = NoteScale(
@@ -1222,7 +1226,7 @@ def test_intersection_is_notated_same(notation, input_pairs_a, input_pairs_b, re
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    scale_c = scale_a.intersection(scale_b, is_notated_same=True)
+    scale_c = scale_a.note_intersection(scale_b)
 
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
@@ -1251,6 +1255,30 @@ def test_intersection_incompatible_notations():
 
             with pytest.raises(IncompatibleNotations):
                 scale_a.intersection(scale_b)
+
+
+def test_note_intersection_incompatible_notations():
+    """
+    Test if note_intersection operation fails if scales originate from
+    different notations
+    """
+
+    n_edo12_2 = make_nat_acc_test_notation(edo12)
+    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+
+    for i, notation_a in enumerate(notations):
+
+        for notation_b in notations[i+1:]:
+
+            scale_a = NoteScale(
+                notation_a
+            )
+            scale_b = NoteScale(
+                notation_b
+            )
+
+            with pytest.raises(IncompatibleNotations):
+                scale_a.note_intersection(scale_b)
 
 
 @pytest.mark.parametrize(
@@ -1345,10 +1373,14 @@ def test_difference(notation, input_pairs_a, input_pairs_b, result_pairs):
         ),
     ]
 )
-def test_difference_is_notated_same(notation, input_pairs_a, input_pairs_b, result_pairs):
+def test_note_difference(
+    notation,
+    input_pairs_a,
+    input_pairs_b,
+    result_pairs
+):
     """
-    Test if difference operation works correctly
-    on is_notated_same=True
+    Test if note_difference operation works correctly
     """
 
     scale_a = NoteScale(
@@ -1361,7 +1393,7 @@ def test_difference_is_notated_same(notation, input_pairs_a, input_pairs_b, resu
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    scale_c = scale_a.difference(scale_b, is_notated_same=True)
+    scale_c = scale_a.note_difference(scale_b)
 
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
@@ -1390,6 +1422,30 @@ def test_difference_incompatible_notations():
 
             with pytest.raises(IncompatibleNotations):
                 scale_a.difference(scale_b)
+
+
+def test_note_difference_incompatible_notations():
+    """
+    Test if note_difference operation fails if scales originate from
+    different notations
+    """
+
+    n_edo12_2 = make_nat_acc_test_notation(edo12)
+    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+
+    for i, notation_a in enumerate(notations):
+
+        for notation_b in notations[i+1:]:
+
+            scale_a = NoteScale(
+                notation_a
+            )
+            scale_b = NoteScale(
+                notation_b
+            )
+
+            with pytest.raises(IncompatibleNotations):
+                scale_a.note_difference(scale_b)
 
 
 @pytest.mark.parametrize(
@@ -1555,10 +1611,9 @@ def test_is_disjoint(notation, input_pairs_a, input_pairs_b, expected):
         ),
     ]
 )
-def test_is_disjoint_is_notated_same(notation, input_pairs_a, input_pairs_b, expected):
+def test_is_notated_disjoint(notation, input_pairs_a, input_pairs_b, expected):
     """
-    Test if is_disjoint operation works correctly
-    on is_notated_same=True
+    Test if is_notated_disjoint operation works correctly
     """
 
     scale_a = NoteScale(
@@ -1571,7 +1626,7 @@ def test_is_disjoint_is_notated_same(notation, input_pairs_a, input_pairs_b, exp
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    assert scale_a.is_disjoint(scale_b, is_notated_same=True) == expected
+    assert scale_a.is_notated_disjoint(scale_b) == expected
 
 
 def test_is_disjoint_incompatible_notations():
@@ -1596,6 +1651,30 @@ def test_is_disjoint_incompatible_notations():
 
             with pytest.raises(IncompatibleNotations):
                 scale_a.is_disjoint(scale_b)
+
+
+def test_is_notated_disjoint_incompatible_notations():
+    """
+    Test if is_notated_disjoint operation fails if scales originate from
+    different notations
+    """
+
+    n_edo12_2 = make_nat_acc_test_notation(edo12)
+    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+
+    for i, notation_a in enumerate(notations):
+
+        for notation_b in notations[i+1:]:
+
+            scale_a = NoteScale(
+                notation_a
+            )
+            scale_b = NoteScale(
+                notation_b
+            )
+
+            with pytest.raises(IncompatibleNotations):
+                scale_a.is_notated_disjoint(scale_b)
 
 
 @pytest.mark.parametrize(
@@ -1764,10 +1843,9 @@ def test_is_subset_proper(notation, input_pairs_a, input_pairs_b, expected):
         ),
     ]
 )
-def test_is_subset_is_notated_same(notation, input_pairs_a, input_pairs_b, expected):
+def test_is_note_subset(notation, input_pairs_a, input_pairs_b, expected):
     """
-    Test if is_subset operation works correctly
-    on is_notated_same=True
+    Test if is_note_subset operation works correctly
     """
 
     scale_a = NoteScale(
@@ -1780,7 +1858,7 @@ def test_is_subset_is_notated_same(notation, input_pairs_a, input_pairs_b, expec
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    assert scale_a.is_subset(scale_b, is_notated_same=True) == expected
+    assert scale_a.is_note_subset(scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1830,10 +1908,15 @@ def test_is_subset_is_notated_same(notation, input_pairs_a, input_pairs_b, expec
         ),
     ]
 )
-def test_is_subset_proper_is_notated_same(notation, input_pairs_a, input_pairs_b, expected):
+def test_is_note_subset_proper(
+    notation,
+    input_pairs_a,
+    input_pairs_b,
+    expected
+):
     """
-    Test if is_subset operation works correctly
-    on proper=True and is_notated_same=True
+    Test if is_note_subset operation works correctly
+    on proper=True
     """
 
     scale_a = NoteScale(
@@ -1846,10 +1929,9 @@ def test_is_subset_proper_is_notated_same(notation, input_pairs_a, input_pairs_b
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    assert scale_a.is_subset(
+    assert scale_a.is_note_subset(
         scale_b,
-        proper=True,
-        is_notated_same=True
+        proper=True
     ) == expected
 
 
@@ -1875,6 +1957,30 @@ def test_is_subset_incompatible_notations():
 
             with pytest.raises(IncompatibleNotations):
                 scale_a.is_subset(scale_b)
+
+
+def test_is_note_subset_incompatible_notations():
+    """
+    Test if is_note_subset operation fails if scales originate from
+    different notations
+    """
+
+    n_edo12_2 = make_nat_acc_test_notation(edo12)
+    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+
+    for i, notation_a in enumerate(notations):
+
+        for notation_b in notations[i+1:]:
+
+            scale_a = NoteScale(
+                notation_a
+            )
+            scale_b = NoteScale(
+                notation_b
+            )
+
+            with pytest.raises(IncompatibleNotations):
+                scale_a.is_note_subset(scale_b)
 
 
 @pytest.mark.parametrize(
@@ -2043,10 +2149,9 @@ def test_is_superset_proper(notation, input_pairs_a, input_pairs_b, expected):
         ),
     ]
 )
-def test_is_superset_is_notated_same(notation, input_pairs_a, input_pairs_b, expected):
+def test_is_note_superset(notation, input_pairs_a, input_pairs_b, expected):
     """
-    Test if is_superset operation works correctly
-    on is_notated_same=True
+    Test if is_note_superset operation works correctly
     """
 
     scale_a = NoteScale(
@@ -2059,7 +2164,7 @@ def test_is_superset_is_notated_same(notation, input_pairs_a, input_pairs_b, exp
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    assert scale_a.is_superset(scale_b, is_notated_same=True) == expected
+    assert scale_a.is_note_superset(scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2109,10 +2214,15 @@ def test_is_superset_is_notated_same(notation, input_pairs_a, input_pairs_b, exp
         ),
     ]
 )
-def test_is_superset_proper_is_notated_same(notation, input_pairs_a, input_pairs_b, expected):
+def test_is_note_superset_proper(
+    notation,
+    input_pairs_a,
+    input_pairs_b,
+    expected
+):
     """
-    Test if is_superset operation works correctly
-    on proper=True and is_notated_same=True
+    Test if is_note_superset operation works correctly
+    on proper=True
     """
 
     scale_a = NoteScale(
@@ -2125,10 +2235,9 @@ def test_is_superset_proper_is_notated_same(notation, input_pairs_a, input_pairs
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
-    assert scale_a.is_superset(
+    assert scale_a.is_note_superset(
         scale_b,
-        proper=True,
-        is_notated_same=True
+        proper=True
     ) == expected
 
 
@@ -2154,3 +2263,27 @@ def test_is_superset_incompatible_notations():
 
             with pytest.raises(IncompatibleNotations):
                 scale_a.is_superset(scale_b)
+
+
+def test_is_note_superset_incompatible_notations():
+    """
+    Test if is_note_superset operation fails if scales originate from
+    different notations
+    """
+
+    n_edo12_2 = make_nat_acc_test_notation(edo12)
+    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+
+    for i, notation_a in enumerate(notations):
+
+        for notation_b in notations[i+1:]:
+
+            scale_a = NoteScale(
+                notation_a
+            )
+            scale_b = NoteScale(
+                notation_b
+            )
+
+            with pytest.raises(IncompatibleNotations):
+                scale_a.is_note_superset(scale_b)
