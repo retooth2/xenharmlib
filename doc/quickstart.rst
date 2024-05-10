@@ -1338,10 +1338,10 @@ different EDOs according to the width of their fifth:
 
 .. testoutput::
 
-    UpDownNotation(31-EDO) 696.774193548401
+    UpDownNotation(31-EDO) 696.7741935484
     UpDownNotation(12-EDO) 700.0
     UpDownNotation(24-EDO) 700.0
-    UpDownNotation(53-EDO) 701.8867924528022
+    UpDownNotation(53-EDO) 701.8867924528
 
 You can also compare note intervals and pitch intervals:
 
