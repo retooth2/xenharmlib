@@ -99,6 +99,17 @@ def test_monzo_identity(monzo, expected_freq):
     assert freq.to_monzo() == monzo
 
 
+def test_to_monzo_irrational():
+    """
+    Test if ValueError is raised when trying to factorize
+    an irrational frequency
+    """
+    freq = Frequency(sp.Integer(3)**sp.Rational(3, 12))
+
+    with pytest.raises(ValueError):
+        freq.to_monzo()
+
+
 @pytest.mark.parametrize(
     'frequency, cents',
     [

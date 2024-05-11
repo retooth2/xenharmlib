@@ -238,6 +238,12 @@ class Frequency:
         Factorizes the frequency into a monzo.
         """
 
+        if not self.sp_expr.is_rational:
+            raise ValueError(
+                "Frequency is not rational and can not be "
+                "represented as a monzo"
+            )
+
         numerator = self.numerator
         denominator = self.denominator
 
