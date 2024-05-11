@@ -1,7 +1,9 @@
 import os
 import sys
+from unittest import mock
+
 sys.path.insert(
-    0, 
+    0,
     os.path.abspath(
         os.path.join('..'))
     )
@@ -29,10 +31,24 @@ static_path = ['_static']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_logo = "_static/images/sidebar-logo.png"
 
-
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+
+# fake modules with requirements written in C for readthedocs
+# RTD does not install dependencies that have bindings to C
+# code so we need to mock these for generating API docs
+
+MOCK_MODULES = [
+    'numpy',
+    'scipy',
+    'scipy.optimize',
+    'scipy.io',
+    'scipy.io.wavfile',
+    'sympy',
+    'sounddevice',
+]
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()

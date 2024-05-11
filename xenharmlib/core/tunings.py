@@ -32,6 +32,7 @@ from typing import TypeVar
 from typing import Generic
 from typing import List
 from typing import Optional
+from unittest import mock
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -337,7 +338,11 @@ class PeriodicTuning(
         return generators
 
 
-Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
+# hack for RTD (see doc/conf.py for more info)
+if isinstance(sp, mock.Mock):
+    Hz440C0 = Frequency(55 / 2 ** Fraction(7, 4))
+else:
+    Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
 
 
 class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):

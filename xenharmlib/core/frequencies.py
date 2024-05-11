@@ -29,11 +29,16 @@ from typing import List
 from typing import Optional
 from functools import total_ordering
 from fractions import Fraction
+from unittest import mock
 from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
 
-FreqNumber: TypeAlias = int | Fraction | float | sp.Expr
+# hack for RTD (see doc/conf.py for more info)
+if isinstance(sp.Expr, mock.Mock):
+    FreqNumber: TypeAlias = int | Fraction | float
+else:
+    FreqNumber: TypeAlias = int | Fraction | float | sp.Expr
 
 
 def _to_sp_expr(number: object):
