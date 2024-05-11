@@ -751,7 +751,9 @@ class PeriodicNoteScale(NoteScale):
             from a different notation
         """
 
-        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
+        intersection = self.intersection(
+            other, ignore_bi_index=ignore_bi_index
+        )
 
         return len(intersection) == 0
 

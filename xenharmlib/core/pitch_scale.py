@@ -186,7 +186,9 @@ class PitchScale(Generic[PitchT]):
     def __getitem__(self, index_or_slice: Union[int, slice]):
 
         if type(index_or_slice) is slice:
-            return self.tuning.pitch_scale(self._sorted_pitches[index_or_slice])
+            return self.tuning.pitch_scale(
+                self._sorted_pitches[index_or_slice]
+            )
 
         return self._sorted_pitches[index_or_slice]
 
@@ -721,7 +723,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
+        intersection = self.intersection(
+            other, ignore_bi_index=ignore_bi_index
+        )
 
         return len(intersection) == 0
 

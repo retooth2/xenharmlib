@@ -294,7 +294,9 @@ class UpDownNotation(NatAccNotation):
         p_arith = SymbolArithmeticSet()
 
         p_sub_arith_zero = SymbolArithmetic()
-        p_sub_arith_zero.add_symbol('P', (0,), min_occurence=1, max_occurence=1)
+        p_sub_arith_zero.add_symbol(
+            'P', (0,), min_occurence=1, max_occurence=1
+        )
         p_arith.add_arithmetic(p_sub_arith_zero)
 
         p_sub_arith_ud = SymbolArithmetic()

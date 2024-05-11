@@ -748,7 +748,9 @@ class NatAccNotation(
 
     # interval symbol processing
 
-    def set_interval_symbol_code(self, nat_diffc: int, symbol_code: SymbolCode):
+    def set_interval_symbol_code(
+        self, nat_diffc: int, symbol_code: SymbolCode
+    ):
         """
         Sets an interval class symbol for a natural index difference
         class. The natural index difference class is a number between
@@ -790,7 +792,9 @@ class NatAccNotation(
 
         self._interval_symbol_codes[nat_diffc] = symbol_code
 
-    def get_interval_symbol(self, nat_diff: int, acc_vector: Tuple[int]) -> str:
+    def get_interval_symbol(
+        self, nat_diff: int, acc_vector: Tuple[int]
+    ) -> str:
         """
         Returns the interval symbol for a natural/accidental note
         interval. Interval symbols depend on the natural index
