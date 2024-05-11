@@ -2,7 +2,22 @@ import pytest
 from xenharmlib import EDOTuning
 from xenharmlib.notation.updown import UpDownNotation
 
-ALL_EDOS = set(range(5, 73))
+# Technically we should really test all EDOs 5-72, but it
+# takes a long, long time, so instead we put a couple of
+# each sharpness
+# ALL_EDOS = set(range(5, 73))
+ALL_EDOS = {
+    6, 7, 8, 13, 14, 18, 21, 28, 35,
+    5, 9, 12, 33,
+    10, 11, 38,
+    20, 34, 62,
+    25, 53, 60,
+    30, 37, 44, 72,
+    49, 56, 63,
+    61,
+    66,
+    71
+}
 PERFECT_EDOS = {7, 14, 21, 28, 35}
 ABS_SHARP_1_EDOS = {5, 9, 12, 16, 19, 23, 26, 33, 40, 47}
 IMPERFECT_EDOS = ALL_EDOS.difference(PERFECT_EDOS)
