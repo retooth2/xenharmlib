@@ -1,4 +1,5 @@
-# Xenharmlib
+Xenharmlib
+==========
 
 Xenharmlib is a music theory library for the exploration and research of
 microtonality, diatonic set theory, non-standard notations, and many
