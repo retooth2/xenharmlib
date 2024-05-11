@@ -25,6 +25,7 @@ class IncompatibleTunings(Exception):
     compatible because they are based on different
     tunings
     """
+
     pass
 
 
@@ -34,6 +35,7 @@ class IncompatibleNotations(Exception):
     compatible because they are based on different
     notations
     """
+
     pass
 
 
@@ -43,6 +45,7 @@ class UnfittingNotation(Exception):
     property of the tuning prohibits the use of the
     specific notation
     """
+
     pass
 
 

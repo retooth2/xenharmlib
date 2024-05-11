@@ -22,10 +22,12 @@ from typing import Optional
 from ..core.protocols import PeriodicPitchScaleLike
 
 
-def export_scl(filename: str,
-               scale: PeriodicPitchScaleLike,
-               title: Optional[str] = None,
-               ensure_period: bool = False):
+def export_scl(
+    filename: str,
+    scale: PeriodicPitchScaleLike,
+    title: Optional[str] = None,
+    ensure_period: bool = False,
+):
     """
     This function exports a pitch/note scale to a .scl file
 

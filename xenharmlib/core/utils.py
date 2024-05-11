@@ -15,6 +15,7 @@
 
 from typing import Generator
 
+
 def get_primes(n: int) -> Generator:
     """
     Generates a finite list of primes
@@ -26,6 +27,7 @@ def get_primes(n: int) -> Generator:
         yield prime
         if i == n:
             break
+
 
 def get_all_primes() -> Generator:
     """

@@ -72,7 +72,6 @@ def _to_sp_expr(number: object):
 
 @total_ordering
 class Frequency:
-
     """
     Frequency is the class to which all pitch definitions ultimately
     come down to. Frequencies represent the physical layer of sound,
@@ -143,7 +142,7 @@ class Frequency:
 
     def __pow__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr ** other_sp_expr)
+        return Frequency(self.sp_expr**other_sp_expr)
 
     def __radd__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
@@ -171,7 +170,7 @@ class Frequency:
 
     def __rpow__(self, other: Self | FreqNumber):
         other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr ** self.sp_expr)
+        return Frequency(other_sp_expr**self.sp_expr)
 
     def __abs__(self):
         return Frequency(abs(self.sp_expr))
@@ -217,9 +216,7 @@ class Frequency:
 
         # generate prime numbers
 
-        primes = list(
-            get_primes(len(monzo))
-        )
+        primes = list(get_primes(len(monzo)))
 
         numerator = 1
         denominator = 1
@@ -227,9 +224,9 @@ class Frequency:
         for prime_i, exp in enumerate(monzo):
 
             if exp < 0:
-                denominator *= primes[prime_i]**abs(exp)
+                denominator *= primes[prime_i] ** abs(exp)
             if exp >= 0:
-                numerator *= primes[prime_i]**(exp)
+                numerator *= primes[prime_i] ** (exp)
 
         return cls(Fraction(numerator, denominator))
 
@@ -260,9 +257,7 @@ class Frequency:
 
             if index >= monzo_len:
                 diff = index - monzo_len + 1
-                monzo.extend(
-                    [0 for _ in range(diff)]
-                )
+                monzo.extend([0 for _ in range(diff)])
             monzo[index] += value
 
         for i, prime in enumerate(get_all_primes()):
@@ -284,10 +279,7 @@ class Frequency:
 
         return monzo
 
-    def get_harmonic(
-        self,
-        index: int
-    ) -> Frequency:
+    def get_harmonic(self, index: int) -> Frequency:
         """
         Returns the k-th overtone frequency for
         this frequency.
@@ -297,13 +289,10 @@ class Frequency:
             first harmonic, etc
         """
 
-        return Frequency(
-            self + (index * self)
-        )
+        return Frequency(self + (index * self))
 
     def get_harmonics(
-        self,
-        limit: Optional[Frequency] = None
+        self, limit: Optional[Frequency] = None
     ) -> List['Frequency']:
         """
         Returns a list of overtone frequencies for
@@ -337,7 +326,4 @@ class Frequency:
         The cents equivalent of this frequency
         """
 
-        return round(
-            1200 * self.log(2),
-            CENTS_PRECISION
-        )
+        return round(1200 * self.log(2), CENTS_PRECISION)

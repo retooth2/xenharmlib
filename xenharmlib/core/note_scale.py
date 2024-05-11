@@ -64,9 +64,7 @@ class NoteScale(Generic[NoteT]):
         """
         Returns the equivalent pitch scale for this object
         """
-        return self.tuning.pitch_scale(
-            [note.pitch for note in self]
-        )
+        return self.tuning.pitch_scale([note.pitch for note in self])
 
     def add_note(self, note: NoteT):
         """
@@ -122,9 +120,7 @@ class NoteScale(Generic[NoteT]):
     def __getitem__(self, index_or_slice: Union[int, slice]):
 
         if type(index_or_slice) is slice:
-            return self.notation.note_scale(
-                self._sorted_notes[index_or_slice]
-            )
+            return self.notation.note_scale(self._sorted_notes[index_or_slice])
 
         return self._sorted_notes[index_or_slice]
 
@@ -175,9 +171,7 @@ class NoteScale(Generic[NoteT]):
         """
         An ordered list of pitch indices present in this scale
         """
-        return [
-            notes.pitch_index for notes in self._sorted_notes
-        ]
+        return [notes.pitch_index for notes in self._sorted_notes]
 
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
@@ -186,9 +180,7 @@ class NoteScale(Generic[NoteT]):
 
         intervals = []
         for i in range(0, len(self) - 1):
-            intervals.append(
-                self[i].interval(self[i+1])
-            )
+            intervals.append(self[i].interval(self[i + 1]))
         return intervals
 
     def transpose(self, interval: NoteIntervalABC) -> Self:
@@ -200,13 +192,9 @@ class NoteScale(Generic[NoteT]):
 
         transposed = []
         for notes in self._sorted_notes:
-            transposed.append(
-                notes.transpose(interval)
-            )
+            transposed.append(notes.transpose(interval))
 
-        return self.notation.note_scale(
-            transposed
-        )
+        return self.notation.note_scale(transposed)
 
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
@@ -221,7 +209,7 @@ class NoteScale(Generic[NoteT]):
         for note in self:
             scale.add_note(note.transpose_bi_index(bi_diff))
         return scale
-    
+
     # set operations
 
     def union(self, other: Self) -> Self:
@@ -250,8 +238,7 @@ class NoteScale(Generic[NoteT]):
 
         return scale
 
-    def intersection(self,
-                     other: Self) -> Self:
+    def intersection(self, other: Self) -> Self:
         """
         Returns a new scale including all notes that are
         included in both scales.
@@ -276,8 +263,7 @@ class NoteScale(Generic[NoteT]):
 
         return scale
 
-    def difference(self,
-                   other: Self) -> Self:
+    def difference(self, other: Self) -> Self:
         """
         Returns a scale containing only notes from this
         scale that are NOT present in the other scale
@@ -304,8 +290,7 @@ class NoteScale(Generic[NoteT]):
 
         return scale
 
-    def symmetric_difference(self,
-                             other: Self) -> Self:
+    def symmetric_difference(self, other: Self) -> Self:
         """
         Returns a scale that includes all the notes from both
         scales that exist in either of them but NOT BOTH. This
@@ -326,8 +311,7 @@ class NoteScale(Generic[NoteT]):
         diff_b = other.difference(self)
         return diff_a.union(diff_b)
 
-    def is_disjoint(self,
-                    other: Self) -> bool:
+    def is_disjoint(self, other: Self) -> bool:
         """
         Determines if this scale has any common notes
         with another scale of the same notation.
@@ -342,9 +326,7 @@ class NoteScale(Generic[NoteT]):
 
         return len(intersection) == 0
 
-    def is_subset(self,
-                  other: Self,
-                  proper: bool = False) -> bool:
+    def is_subset(self, other: Self, proper: bool = False) -> bool:
         """
         Determines if all notes in this scale also exist
         in the other scale.
@@ -360,16 +342,14 @@ class NoteScale(Generic[NoteT]):
 
         intersection = self.intersection(other)
 
-        is_subset = (self == intersection)
+        is_subset = self == intersection
 
         if not proper:
             return is_subset
 
         return is_subset and not (self == other)
 
-    def is_superset(self,
-                    other: Self,
-                    proper: bool = False) -> bool:
+    def is_superset(self, other: Self, proper: bool = False) -> bool:
         """
         Determines if all notes in the other scale also exist
         in this scale.
@@ -385,15 +365,14 @@ class NoteScale(Generic[NoteT]):
 
         intersection = self.intersection(other)
 
-        is_superset = (other == intersection)
+        is_superset = other == intersection
 
         if not proper:
             return is_superset
 
         return is_superset and not (self == other)
 
-    def note_intersection(self,
-                          other: Self) -> Self:
+    def note_intersection(self, other: Self) -> Self:
         """
         Returns a new scale including all notes that are
         included in both scales. In contrast to the intersection
@@ -419,8 +398,7 @@ class NoteScale(Generic[NoteT]):
 
         return scale
 
-    def note_difference(self,
-                        other: Self) -> Self:
+    def note_difference(self, other: Self) -> Self:
         """
         Returns a new scale containing only notes from this scale
         that are NOT present in the other scale. In contrast to
@@ -450,8 +428,7 @@ class NoteScale(Generic[NoteT]):
 
         return scale
 
-    def is_notated_disjoint(self,
-                            other: Self) -> bool:
+    def is_notated_disjoint(self, other: Self) -> bool:
         """
         Determines if this scale has any common notes with another
         scale of the same notation. In contrast to is_disjoint
@@ -466,9 +443,7 @@ class NoteScale(Generic[NoteT]):
 
         return len(intersection) == 0
 
-    def is_note_subset(self,
-                       other: Self,
-                       proper: bool = False) -> bool:
+    def is_note_subset(self, other: Self, proper: bool = False) -> bool:
         """
         Determines if all notes in this scale also exist in the
         other scale. In contrast to is_subset enharmonically
@@ -493,9 +468,7 @@ class NoteScale(Generic[NoteT]):
 
         return is_subset and not self.is_notated_same(other)
 
-    def is_note_superset(self,
-                         other: Self,
-                         proper: bool = False) -> bool:
+    def is_note_superset(self, other: Self, proper: bool = False) -> bool:
         """
         Determines if all notes in the other scale also exist
         in this scale. In contrast to is_superset enharmonically
@@ -536,9 +509,7 @@ class PeriodicNoteScale(NoteScale):
         include duplicate items if the scale has two
         notes of the same pitch class
         """
-        return [
-            note.pc_index for note in self
-        ]
+        return [note.pc_index for note in self]
 
     def pcs_normalized(self) -> Self:
         """
@@ -564,9 +535,7 @@ class PeriodicNoteScale(NoteScale):
         lowest note upwards until it is above the highest note
         """
 
-        rotated_scale = self.notation.note_scale(
-            self[1:]
-        )
+        rotated_scale = self.notation.note_scale(self[1:])
 
         bi_diff = self[-1].bi_index - self[0].bi_index
         note = self[0].transpose_bi_index(bi_diff)
@@ -583,9 +552,7 @@ class PeriodicNoteScale(NoteScale):
         highest note downwards until it is below the lowest note
         """
 
-        rotated_scale = self.notation.note_scale(
-            self[:-1]
-        )
+        rotated_scale = self.notation.note_scale(self[:-1])
 
         bi_diff = self[0].bi_index - self[-1].bi_index
         note = self[-1].transpose_bi_index(bi_diff)
@@ -664,9 +631,7 @@ class PeriodicNoteScale(NoteScale):
     # some variations on the set operations
     # of the parent class
 
-    def intersection(self,
-                     other: Self,
-                     ignore_bi_index: bool = False) -> Self:
+    def intersection(self, other: Self, ignore_bi_index: bool = False) -> Self:
         """
         Returns a new scale including all notes that are included
         in both scales.
@@ -701,9 +666,7 @@ class PeriodicNoteScale(NoteScale):
 
         return scale
 
-    def difference(self,
-                   other: Self,
-                   ignore_bi_index: bool = False) -> Self:
+    def difference(self, other: Self, ignore_bi_index: bool = False) -> Self:
         """
         Returns a scale containing only notes from this
         scale that are NOT present in the other scale
@@ -739,9 +702,9 @@ class PeriodicNoteScale(NoteScale):
 
         return scale
 
-    def symmetric_difference(self,
-                             other: Self,
-                             ignore_bi_index: bool = False) -> Self:
+    def symmetric_difference(
+        self, other: Self, ignore_bi_index: bool = False
+    ) -> Self:
         """
         Returns a scale that includes all the notes
         from both scales that exist in either of them
@@ -766,17 +729,13 @@ class PeriodicNoteScale(NoteScale):
             )
 
         if not ignore_bi_index:
-            return super().symmetric_difference(
-                other
-            )
+            return super().symmetric_difference(other)
 
         diff_a = self.difference(other, ignore_bi_index=True)
         diff_b = other.difference(self, ignore_bi_index=True)
         return diff_a.union(diff_b)
 
-    def is_disjoint(self,
-                    other: Self,
-                    ignore_bi_index: bool = False) -> bool:
+    def is_disjoint(self, other: Self, ignore_bi_index: bool = False) -> bool:
         """
         Determines if this scale has any common notes
         with another scale of the same notation
@@ -792,17 +751,13 @@ class PeriodicNoteScale(NoteScale):
             from a different notation
         """
 
-        intersection = self.intersection(
-            other,
-            ignore_bi_index=ignore_bi_index
-        )
+        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
 
         return len(intersection) == 0
 
-    def is_subset(self,
-                  other: Self,
-                  proper: bool = False,
-                  ignore_bi_index: bool = False) -> bool:
+    def is_subset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
         """
         Determines if all notes in this scale also exist
         in the other scale.
@@ -820,15 +775,9 @@ class PeriodicNoteScale(NoteScale):
         """
 
         if not ignore_bi_index:
-            return super().is_subset(
-                other,
-                proper=proper
-            )
+            return super().is_subset(other, proper=proper)
 
-        intersection = self.intersection(
-            other,
-            ignore_bi_index=True
-        )
+        intersection = self.intersection(other, ignore_bi_index=True)
 
         is_subset = self.is_equivalent(intersection)
 
@@ -837,10 +786,9 @@ class PeriodicNoteScale(NoteScale):
 
         return is_subset and not self.is_equivalent(other)
 
-    def is_superset(self,
-                    other: Self,
-                    proper: bool = False,
-                    ignore_bi_index: bool = False) -> bool:
+    def is_superset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
         """
         Determines if all notes in the other scale also exist
         in this scale.
@@ -858,15 +806,9 @@ class PeriodicNoteScale(NoteScale):
         """
 
         if not ignore_bi_index:
-            return super().is_superset(
-                other,
-                proper=proper
-            )
+            return super().is_superset(other, proper=proper)
 
-        intersection = self.intersection(
-            other,
-            ignore_bi_index=True
-        )
+        intersection = self.intersection(other, ignore_bi_index=True)
 
         is_superset = other.is_equivalent(intersection)
 
@@ -875,9 +817,9 @@ class PeriodicNoteScale(NoteScale):
 
         return is_superset and not self.is_equivalent(other)
 
-    def note_intersection(self,
-                          other: Self,
-                          ignore_bi_index: bool = False) -> Self:
+    def note_intersection(
+        self, other: Self, ignore_bi_index: bool = False
+    ) -> Self:
         """
         Returns a new scale including all notes that are
         included in both scales. In contrast to the intersection
@@ -914,9 +856,9 @@ class PeriodicNoteScale(NoteScale):
 
         return scale
 
-    def note_difference(self,
-                        other: Self,
-                        ignore_bi_index: bool = False) -> Self:
+    def note_difference(
+        self, other: Self, ignore_bi_index: bool = False
+    ) -> Self:
         """
         Returns a new scale containing only notes from this scale
         that are NOT present in the other scale. In contrast to
@@ -957,9 +899,9 @@ class PeriodicNoteScale(NoteScale):
 
         return scale
 
-    def is_notated_disjoint(self,
-                            other: Self,
-                            ignore_bi_index: bool = False) -> bool:
+    def is_notated_disjoint(
+        self, other: Self, ignore_bi_index: bool = False
+    ) -> bool:
         """
         Determines if this scale has any common notes with another
         scale of the same notation. In contrast to is_disjoint
@@ -978,16 +920,14 @@ class PeriodicNoteScale(NoteScale):
         """
 
         intersection = self.note_intersection(
-            other,
-            ignore_bi_index=ignore_bi_index
+            other, ignore_bi_index=ignore_bi_index
         )
 
         return len(intersection) == 0
 
-    def is_note_subset(self,
-                       other: Self,
-                       proper: bool = False,
-                       ignore_bi_index: bool = False) -> bool:
+    def is_note_subset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
         """
         Determines if all notes in this scale also exist in the
         other scale. In contrast to is_subset enharmonically
@@ -1007,15 +947,9 @@ class PeriodicNoteScale(NoteScale):
         """
 
         if not ignore_bi_index:
-            return super().is_note_subset(
-                other,
-                proper=proper
-            )
+            return super().is_note_subset(other, proper=proper)
 
-        intersection = self.note_intersection(
-            other,
-            ignore_bi_index=True
-        )
+        intersection = self.note_intersection(other, ignore_bi_index=True)
 
         is_subset = self.is_notated_equivalent(intersection)
 
@@ -1024,10 +958,9 @@ class PeriodicNoteScale(NoteScale):
 
         return is_subset and not self.is_notated_equivalent(other)
 
-    def is_note_superset(self,
-                         other: Self,
-                         proper: bool = False,
-                         ignore_bi_index: bool = False) -> bool:
+    def is_note_superset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
         """
         Determines if all notes in the other scale also exist
         in this scale. In contrast to is_superset enharmonically
@@ -1047,15 +980,9 @@ class PeriodicNoteScale(NoteScale):
         """
 
         if not ignore_bi_index:
-            return super().is_note_superset(
-                other,
-                proper=proper
-            )
+            return super().is_note_superset(other, proper=proper)
 
-        intersection = self.note_intersection(
-            other,
-            ignore_bi_index=True
-        )
+        intersection = self.note_intersection(other, ignore_bi_index=True)
 
         is_superset = other.is_notated_equivalent(intersection)
 

@@ -77,9 +77,7 @@ class NoteABC(ABC):
         :param other: The other note (can be higher
             or lower than this note)
         """
-        return self.notation.note_interval(
-            self, other
-        )
+        return self.notation.note_interval(self, other)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
@@ -117,7 +115,7 @@ class NoteABC(ABC):
         (Must be implemented by subclasses)
         Transposes the note to a different one
 
-        :param interval: A note interval 
+        :param interval: A note interval
         """
 
     @abstractmethod
@@ -205,9 +203,7 @@ class PeriodicNoteABC(NoteABC):
         Returns the equivalent of this note in the first
         base interval
         """
-        return self.transpose_bi_index(
-            -self.bi_index
-        )
+        return self.transpose_bi_index(-self.bi_index)
 
     def get_generator_index(self, generator_note: Self):
         """
@@ -231,9 +227,7 @@ class PeriodicNoteABC(NoteABC):
                 'Generator notes must originate from the same notation'
             )
 
-        return self.pitch.get_generator_index(
-            generator_note.pitch
-        )
+        return self.pitch.get_generator_index(generator_note.pitch)
 
 
 class NatAccNote(PeriodicNoteABC):
@@ -258,13 +252,15 @@ class NatAccNote(PeriodicNoteABC):
         (e.g. '#' for C#)
     """
 
-    def __init__(self,
-                 notation,
-                 nat_index: int,
-                 acc_vector: Tuple[int],
-                 pc_symbol: str,
-                 natc_symbol: str,
-                 acc_symbol: str):
+    def __init__(
+        self,
+        notation,
+        nat_index: int,
+        acc_vector: Tuple[int],
+        pc_symbol: str,
+        natc_symbol: str,
+        acc_symbol: str,
+    ):
 
         super().__init__(notation)
         self._nat_index = nat_index
@@ -296,9 +292,7 @@ class NatAccNote(PeriodicNoteABC):
         """
 
         nat_bi_index = self.nat_bi_index + bi_diff
-        return self.notation.note(
-            self.pc_symbol, nat_bi_index
-        )
+        return self.notation.note(self.pc_symbol, nat_bi_index)
 
     def is_notated_same(self, other) -> bool:
         """
@@ -310,12 +304,12 @@ class NatAccNote(PeriodicNoteABC):
 
         if other.notation is not self.notation:
             raise IncompatibleNotations(
-                'Notes must originate from the same '
-                'notation context'
+                'Notes must originate from the same notation context'
             )
 
-        return (self.pc_symbol == other.pc_symbol) and \
-            (self.nat_bi_index == other.nat_bi_index)
+        return (self.pc_symbol == other.pc_symbol) and (
+            self.nat_bi_index == other.nat_bi_index
+        )
 
     def is_notated_equivalent(self, other) -> bool:
         """
@@ -327,8 +321,7 @@ class NatAccNote(PeriodicNoteABC):
 
         if other.notation is not self.notation:
             raise IncompatibleNotations(
-                'Notes must originate from the same '
-                'notation context'
+                'Notes must originate from the same notation context'
             )
 
         return self.pc_symbol == other.pc_symbol
@@ -361,7 +354,7 @@ class NatAccNote(PeriodicNoteABC):
 
     @property
     def nat_bi_index(self) -> int:
-        """ The base interval index of the natural of this note """
+        """The base interval index of the natural of this note"""
         return self._nat_bi_index
 
     @property
@@ -384,38 +377,34 @@ class NatAccNote(PeriodicNoteABC):
 
     @property
     def nat_pc_index(self) -> int:
-        """ The pitch class index of the natural of this note """
+        """The pitch class index of the natural of this note"""
         return self._notation.nat_index_to_pc_index(self.natc_index)
 
     @property
     def nat_pitch_index(self) -> int:
-        """ The pitch index of the natural of this note """
-        return self._notation.nat_index_to_pitch_index(
-            self.nat_index
-        )
+        """The pitch index of the natural of this note"""
+        return self._notation.nat_index_to_pitch_index(self.nat_index)
 
     @property
     def natc_pitch_index(self) -> int:
-        """ The pitch index of the natural class of this note """
-        return self._notation.nat_index_to_pitch_index(
-            self.natc_index
-        )
+        """The pitch index of the natural class of this note"""
+        return self._notation.nat_index_to_pitch_index(self.natc_index)
 
     # symbols / symbol fragments of the note
 
     @property
     def natc_symbol(self) -> str:
-        """ The symbol for the natural of this note """
+        """The symbol for the natural of this note"""
         return self._natc_symbol
 
     @property
     def acc_symbol(self) -> str:
-        """ The symbol for the accidental of this note """
+        """The symbol for the accidental of this note"""
         return self._acc_symbol
 
     @property
     def pc_symbol(self) -> str:
-        """ The pitch class symbol of this note """
+        """The pitch class symbol of this note"""
         return self._pc_symbol
 
     @property
@@ -445,9 +434,7 @@ class NatAccNote(PeriodicNoteABC):
         Returns True if note refers to a pitch class
         that is a natural
         """
-        return self.notation.is_natural(
-            self.nat_pc_index + self.acc_value
-        )
+        return self.notation.is_natural(self.nat_pc_index + self.acc_value)
 
     def __repr__(self):
         return (
@@ -480,9 +467,7 @@ class NatAccNote(PeriodicNoteABC):
 
         notation = self.notation
         nat_index = self.nat_index + interval.nat_diff
-        nat_pitch_diff = notation.std_pitch_diff(
-                interval.nat_diff
-        )
+        nat_pitch_diff = notation.std_pitch_diff(interval.nat_diff)
         unbalanced_nat_pitch_index = self.nat_pitch_index + nat_pitch_diff
         unbalanced_acc_vector = tuple(
             np.add(self.acc_vector, interval.acc_vector)
@@ -490,9 +475,7 @@ class NatAccNote(PeriodicNoteABC):
 
         notation = self.notation
         acc_vector = notation.balance_note_acc_vector(
-            nat_index,
-            unbalanced_nat_pitch_index,
-            unbalanced_acc_vector
+            nat_index, unbalanced_nat_pitch_index, unbalanced_acc_vector
         )
 
         result = self.notation.gen_pc_symbol(nat_index, acc_vector)
@@ -507,7 +490,7 @@ class NatAccNote(PeriodicNoteABC):
             acc_vector,
             pc_symbol,
             natc_symbol,
-            acc_symbol
+            acc_symbol,
         )
 
 
@@ -535,10 +518,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         interval represents
     """
 
-    def __init__(self,
-                 notation,
-                 ref_note: NoteT,
-                 pitch_diff: int):
+    def __init__(self, notation, ref_note: NoteT, pitch_diff: int):
 
         self._notation = notation
         self._ref_note = ref_note
@@ -564,10 +544,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
             return self
 
         target_note = self.ref_note.transpose(self)
-        return self.notation.note_interval(
-            target_note,
-            self.ref_note
-        )
+        return self.notation.note_interval(target_note, self.ref_note)
 
     # read-only properties
 
@@ -624,10 +601,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         note_a = self.ref_note
         note_b = note_a.transpose(self)
         tuning = self.notation.tuning
-        return tuning.pitch_interval(
-            note_a.pitch,
-            note_b.pitch
-        )
+        return tuning.pitch_interval(note_a.pitch, note_b.pitch)
 
     @property
     def frequency_ratio(self) -> Frequency:
@@ -653,10 +627,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
     Implements the method :meth:`get_generator_distance`
     """
 
-    def get_generator_distance(
-        self,
-        generator_note: NoteT
-    ) -> int:
+    def get_generator_distance(self, generator_note: NoteT) -> int:
         """
         Calculates the minimum number of steps needed to reach
         one note from the other when iteratively adding a
@@ -677,14 +648,11 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
 
         if generator_note.notation is not self.notation:
             raise IncompatibleNotations(
-                'Notes must come from the same '
-                'notation instance'
+                'Notes must come from the same notation instance'
             )
 
         generator_pitch = generator_note.pitch
-        return self.pitch_interval.get_generator_distance(
-            generator_pitch
-        )
+        return self.pitch_interval.get_generator_distance(generator_pitch)
 
 
 class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
@@ -712,22 +680,20 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     :param number: An interval number
     """
 
-    def __init__(self,
-                 notation,
-                 ref_note: NatAccNote,
-                 nat_diff: int,
-                 acc_vector: Tuple[int],
-                 symbol: str,
-                 number: int):
+    def __init__(
+        self,
+        notation,
+        ref_note: NatAccNote,
+        nat_diff: int,
+        acc_vector: Tuple[int],
+        symbol: str,
+        number: int,
+    ):
 
         std_pitch_diff = notation.std_pitch_diff(nat_diff)
         pitch_diff = std_pitch_diff + sum(acc_vector)
 
-        super().__init__(
-            notation,
-            ref_note,
-            pitch_diff
-        )
+        super().__init__(notation, ref_note, pitch_diff)
 
         self._acc_vector = acc_vector
         self._nat_diff = nat_diff
@@ -795,26 +761,13 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         )
 
         acc_vector = notation.balance_interval_acc(
-            nat_diff,
-            unbalanced_nat_pitch_diff,
-            unbalanced_acc_vector
+            nat_diff, unbalanced_nat_pitch_diff, unbalanced_acc_vector
         )
 
-        symbol = notation.get_interval_symbol(
-            nat_diff, acc_vector
-        )
-        number = notation.nat_diff_to_interval_number(
-            nat_diff
-        )
+        symbol = notation.get_interval_symbol(nat_diff, acc_vector)
+        number = notation.nat_diff_to_interval_number(nat_diff)
 
-        return cls(
-            notation,
-            note_a,
-            nat_diff,
-            acc_vector,
-            symbol,
-            number
-        )
+        return cls(notation, note_a, nat_diff, acc_vector, symbol, number)
 
     def __repr__(self) -> str:
         return (

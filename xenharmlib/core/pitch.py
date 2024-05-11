@@ -27,6 +27,7 @@ from ..exc import InvalidPitchClassIndex
 from ..exc import InvalidBaseIntervalIndex
 from ..exc import InvalidGenerator
 
+
 @total_ordering
 class Pitch:
     """
@@ -52,9 +53,7 @@ class Pitch:
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self,
-                 tuning,
-                 pitch_index: int):
+    def __init__(self, tuning, pitch_index: int):
 
         self.tuning = tuning
         self._pitch_index = pitch_index
@@ -71,9 +70,7 @@ class Pitch:
         """
         Frequency of this pitch
         """
-        return self.tuning.get_frequency(
-            self
-        )
+        return self.tuning.get_frequency(self)
 
     def __eq__(self, other):
         return self.frequency == other.frequency
@@ -88,28 +85,20 @@ class Pitch:
             raise IncompatibleTunings(
                 'Pitches must originate from the same tuning context'
             )
-        return self.tuning.pitch(
-            self.pitch_index + other.pitch_index
-        )
+        return self.tuning.pitch(self.pitch_index + other.pitch_index)
 
     def __sub__(self, other):
         if self.tuning is not other.tuning:
             raise IncompatibleTunings(
                 'Pitches must originate from the same tuning context'
             )
-        return self.tuning.pitch(
-            self.pitch_index - other.pitch_index
-        )
+        return self.tuning.pitch(self.pitch_index - other.pitch_index)
 
     def __mul__(self, factor: int):
-        return self.tuning.pitch(
-            self.pitch_index * factor
-        )
+        return self.tuning.pitch(self.pitch_index * factor)
 
     def __rmul__(self, factor: int):
-        return self.tuning.pitch(
-            self.pitch_index * factor
-        )
+        return self.tuning.pitch(self.pitch_index * factor)
 
     def __repr__(self):
         return (
@@ -133,9 +122,7 @@ class Pitch:
         else:
             transposed_index = self.pitch_index + diff
 
-        return self.tuning.pitch(
-            transposed_index
-        )
+        return self.tuning.pitch(transposed_index)
 
     def retune(self, tuning) -> Pitch:
         """
@@ -143,9 +130,7 @@ class Pitch:
         tuning
         """
 
-        return tuning.get_approx_pitch(
-            self.frequency
-        )
+        return tuning.get_approx_pitch(self.frequency)
 
     def interval(self, other: Pitch) -> PitchInterval:
         """
@@ -156,9 +141,7 @@ class Pitch:
             or lower than this pitch)
         """
 
-        return self.tuning.pitch_interval(
-            self, other
-        )
+        return self.tuning.pitch_interval(self, other)
 
 
 class PeriodicPitch(Pitch):
@@ -173,14 +156,9 @@ class PeriodicPitch(Pitch):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self,
-                 tuning,
-                 pitch_index: int):
+    def __init__(self, tuning, pitch_index: int):
 
-        super().__init__(
-            tuning,
-            pitch_index
-        )
+        super().__init__(tuning, pitch_index)
         tuning_len = len(tuning)
 
         self._pc_index = pitch_index % tuning_len
@@ -218,10 +196,7 @@ class PeriodicPitch(Pitch):
 
         tuning_len = len(self.tuning)
         bi_index = self._bi_index + bi_diff
-        pitch_index = (
-            self._pc_index +
-            bi_index * tuning_len
-        )
+        pitch_index = self._pc_index + bi_index * tuning_len
         return self.tuning.pitch(pitch_index)
 
     def pcs_normalized(self) -> Self:
@@ -267,7 +242,7 @@ class PeriodicPitch(Pitch):
 
         generator_pitch = generator_pitch.pcs_normalized()
 
-        if (generator_pitch not in self.tuning.generator_pitches):
+        if generator_pitch not in self.tuning.generator_pitches:
             raise InvalidGenerator(
                 f'{generator_pitch} is not a valid generator '
                 f'in tuning {self.tuning.name}'
@@ -284,9 +259,7 @@ class PeriodicPitch(Pitch):
                 break
 
             g_index += 1
-            pc_index = (
-                pc_index + gen_pc
-            ) % len(self.tuning)
+            pc_index = (pc_index + gen_pc) % len(self.tuning)
 
         return g_index
 
@@ -300,14 +273,9 @@ class EDPitch(PeriodicPitch):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self,
-                 tuning,
-                 pitch_index: int):
+    def __init__(self, tuning, pitch_index: int):
 
-        super().__init__(
-            tuning,
-            pitch_index
-        )
+        super().__init__(tuning, pitch_index)
 
 
 class EDOPitch(EDPitch):
@@ -319,7 +287,9 @@ class EDOPitch(EDPitch):
         0 being the first pitch, 1 being the second, etc)
     """
 
+
 PitchT = TypeVar('PitchT', bound=Pitch)
+
 
 @total_ordering
 class PitchInterval(Generic[PitchT]):
@@ -356,10 +326,7 @@ class PitchInterval(Generic[PitchT]):
         interval
     """
 
-    def __init__(self,
-                 ref_pitch: PitchT,
-                 pitch_diff: int,
-                 tuning):
+    def __init__(self, ref_pitch: PitchT, pitch_diff: int, tuning):
 
         self.ref_pitch = ref_pitch
         self.pitch_diff = pitch_diff
@@ -375,9 +342,7 @@ class PitchInterval(Generic[PitchT]):
         if self.pitch_diff >= 0:
             return self
 
-        target_pitch = self.ref_pitch.transpose(
-            self.pitch_diff
-        )
+        target_pitch = self.ref_pitch.transpose(self.pitch_diff)
 
         return self.tuning.pitch_interval(target_pitch, self.ref_pitch)
 
@@ -401,9 +366,7 @@ class PitchInterval(Generic[PitchT]):
             )
 
         tuning = pitch_a.tuning
-        pitch_diff = (
-            pitch_b.pitch_index - pitch_a.pitch_index
-        )
+        pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
 
         return cls(
             pitch_a,
@@ -441,25 +404,23 @@ class PitchInterval(Generic[PitchT]):
         The interval in cents (e.g. 1200 for an octave)
         """
 
-        return round(
-            1200 * self.frequency_ratio.log(2),
-            CENTS_PRECISION
-        )
+        return round(1200 * self.frequency_ratio.log(2), CENTS_PRECISION)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.pitch_diff}, {self.tuning.name})'
+        return (
+            f'{self.__class__.__name__}({self.pitch_diff}, {self.tuning.name})'
+        )
+
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+
 
 class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
     """
     The pitch interval class for periodic tunings.
     """
 
-    def get_generator_distance(
-        self,
-        generator_pitch: PeriodicPitchT
-    ) -> int:
+    def get_generator_distance(self, generator_pitch: PeriodicPitchT) -> int:
         """
         Calculates the minimum number of steps needed to reach
         one pitch from the other when iteratively adding a
@@ -485,19 +446,16 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
         """
 
         zero = self.tuning.pitch(0)
-        target = self.tuning.pitch(
-            abs(self).pitch_diff
-        )
+        target = self.tuning.pitch(abs(self).pitch_diff)
 
         i_zero = zero.get_generator_index(generator_pitch)
         i_target = target.get_generator_index(generator_pitch)
-        i_diff = (i_target - i_zero)
+        i_diff = i_target - i_zero
 
         return min(i_diff, len(self.tuning) - i_diff)
 
 
 class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
-
     """
     Pitch interval class for equal division tunings
     """
@@ -523,9 +481,7 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
 
         tuning = pitch_a.tuning
 
-        pitch_diff = (
-            pitch_b.pitch_index - pitch_a.pitch_index
-        )
+        pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
 
         # since in equal step tunings all intervals
         # of the same pitch difference are the same
@@ -534,9 +490,7 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
         # interval does not go over the zero pitch
         # threshold
 
-        ref_pitch = tuning.pitch(
-            abs(pitch_diff)
-        )
+        ref_pitch = tuning.pitch(abs(pitch_diff))
 
         return cls(
             ref_pitch,
@@ -546,7 +500,6 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
 
 
 class EDOPitchInterval(EDPitchInterval):
-
     """
     Pitch intervals class for 'equal division of the octave'
     pitches

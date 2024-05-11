@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import *
 from .frequencies import Frequency
 
+
 @runtime_checkable
 class HasFrequency(Protocol):
     """
@@ -32,8 +33,8 @@ class HasFrequency(Protocol):
     """
 
     @property
-    def frequency(self) -> Frequency:
-        ...
+    def frequency(self) -> Frequency: ...
+
 
 @runtime_checkable
 class PitchLike(HasFrequency, Protocol):
@@ -44,12 +45,11 @@ class PitchLike(HasFrequency, Protocol):
     """
 
     @property
-    def tuning(self):
-        ...
+    def tuning(self): ...
 
     @property
-    def pitch_index(self) -> int:
-        ...
+    def pitch_index(self) -> int: ...
+
 
 @runtime_checkable
 class PeriodicPitchLike(PitchLike, Protocol):
@@ -60,18 +60,15 @@ class PeriodicPitchLike(PitchLike, Protocol):
     """
 
     @property
-    def pc_index(self) -> int:
-        ...
+    def pc_index(self) -> int: ...
 
     @property
-    def bi_index(self) -> int:
-        ...
+    def bi_index(self) -> int: ...
 
-    def transpose_bi_index(self) -> PeriodicPitchLike:
-        ...
+    def transpose_bi_index(self) -> PeriodicPitchLike: ...
 
-    def pcs_normalized(self) -> PeriodicPitchLike:
-        ...
+    def pcs_normalized(self) -> PeriodicPitchLike: ...
+
 
 @runtime_checkable
 class NoteLike(PitchLike, Protocol):
@@ -81,8 +78,8 @@ class NoteLike(PitchLike, Protocol):
     """
 
     @property
-    def notation(self):
-        ...
+    def notation(self): ...
+
 
 @runtime_checkable
 class PeriodicNoteLike(PeriodicPitchLike, Protocol):
@@ -93,12 +90,11 @@ class PeriodicNoteLike(PeriodicPitchLike, Protocol):
     """
 
     @property
-    def notation(self):
-        ...
+    def notation(self): ...
 
     @property
-    def pc_symbol(self) -> str:
-        ...
+    def pc_symbol(self) -> str: ...
+
 
 @runtime_checkable
 class HasFrequencyRatio(Protocol):
@@ -109,12 +105,11 @@ class HasFrequencyRatio(Protocol):
     """
 
     @property
-    def frequency_ratio(self) -> Frequency:
-        ...
+    def frequency_ratio(self) -> Frequency: ...
 
     @property
-    def cents(self) -> float:
-        ...
+    def cents(self) -> float: ...
+
 
 @runtime_checkable
 class PitchIntervalLike(HasFrequencyRatio, Protocol):
@@ -124,12 +119,11 @@ class PitchIntervalLike(HasFrequencyRatio, Protocol):
     """
 
     @property
-    def tuning(self):
-        ...
+    def tuning(self): ...
 
     @property
-    def pitch_diff(self) -> int:
-        ...
+    def pitch_diff(self) -> int: ...
+
 
 @runtime_checkable
 class HasFrequencies(Protocol):
@@ -139,8 +133,8 @@ class HasFrequencies(Protocol):
     """
 
     @property
-    def frequencies(self) -> List[Frequency]:
-        ...
+    def frequencies(self) -> List[Frequency]: ...
+
 
 @runtime_checkable
 class HasFrequencyRatios(Protocol):
@@ -151,12 +145,11 @@ class HasFrequencyRatios(Protocol):
     """
 
     @property
-    def frequency_ratios(self) -> List[Frequency]:
-        ...
+    def frequency_ratios(self) -> List[Frequency]: ...
 
     @property
-    def cents(self) -> List[Frequency]:
-        ...
+    def cents(self) -> List[Frequency]: ...
+
 
 @runtime_checkable
 class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
@@ -167,16 +160,14 @@ class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
     """
 
     @property
-    def tuning(self):
-        ...
+    def tuning(self): ...
 
     @property
-    def pitch_indices(self) -> List[int]:
-        ...
+    def pitch_indices(self) -> List[int]: ...
 
     @property
-    def pitch_diffs(self) -> List[int]:
-        ...
+    def pitch_diffs(self) -> List[int]: ...
+
 
 @runtime_checkable
 class PeriodicPitchScaleLike(PitchScaleLike, Protocol):
@@ -187,12 +178,11 @@ class PeriodicPitchScaleLike(PitchScaleLike, Protocol):
     """
 
     @property
-    def pc_indices(self) -> List[int]:
-        ...
+    def pc_indices(self) -> List[int]: ...
 
     @property
-    def bi_indices(self) -> List[int]:
-        ...
+    def bi_indices(self) -> List[int]: ...
+
 
 @runtime_checkable
 class NoteScaleLike(PitchScaleLike, Protocol):
@@ -202,8 +192,8 @@ class NoteScaleLike(PitchScaleLike, Protocol):
     """
 
     @property
-    def notation(self):
-        ...
+    def notation(self): ...
+
 
 @runtime_checkable
 class PeriodicNoteScaleLike(PeriodicPitchScaleLike, Protocol):
@@ -213,9 +203,7 @@ class PeriodicNoteScaleLike(PeriodicPitchScaleLike, Protocol):
     """
 
     @property
-    def notation(self):
-        ...
+    def notation(self): ...
 
     @property
-    def pc_symbols(self) -> List[str]:
-        ...
+    def pc_symbols(self) -> List[str]: ...

@@ -26,13 +26,12 @@ from .core.frequencies import Frequency
 
 
 def play(
-    playable: Iterable[HasFrequency] | 
-              HasFrequency |
-              Iterable[Frequency] |
-              Frequency,
+    playable: (
+        Iterable[HasFrequency] | HasFrequency | Iterable[Frequency] | Frequency
+    ),
     duration: float = 0.5,
     play_as_chord: bool = False,
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
 ):
     """
     Renders an object into a sine wave sound and plays it
@@ -49,13 +48,6 @@ def play(
     """
 
     output = playable_to_raw_sine_audio(
-        playable,
-        duration,
-        play_as_chord,
-        sample_rate
+        playable, duration, play_as_chord, sample_rate
     )
-    sd.play(
-        output,
-        samplerate=sample_rate,
-        blocking=True
-    )
+    sd.play(output, samplerate=sample_rate, blocking=True)

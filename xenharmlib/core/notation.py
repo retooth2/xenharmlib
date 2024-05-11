@@ -69,11 +69,13 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         generate a note scale object in the note_scale method.
     """
 
-    def __init__(self,
-                 tuning,
-                 note_cls: type[NoteT],
-                 note_interval_cls: type[IntervalT],
-                 note_scale_cls: type[ScaleT]):
+    def __init__(
+        self,
+        tuning,
+        note_cls: type[NoteT],
+        note_interval_cls: type[IntervalT],
+        note_scale_cls: type[ScaleT],
+    ):
 
         self._tuning = tuning
         self._note_cls = note_cls
@@ -119,6 +121,7 @@ class IncompleteNotation(Exception):
     """
     Gets raised when a notation is not initialized correctly
     """
+
 
 # We will give a formal definition of natural/accidental systems for sparse
 # tunings in here. We will first define the space of notes and subsequently
@@ -336,12 +339,7 @@ class NatAccNotation(
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
     ):
 
-        super().__init__(
-            tuning,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls
-        )
+        super().__init__(tuning, note_cls, note_interval_cls, note_scale_cls)
 
         # the naturals list will include tuples with two elements.
         # a tuple (symbol, natc_pitch_index) at position k in the
@@ -388,9 +386,7 @@ class NatAccNotation(
 
         # this is the q(m) function from the definition
 
-        abs_nat_bi_diff, abs_natc_diff = divmod(
-            abs(nat_diff), self.nat_count
-        )
+        abs_nat_bi_diff, abs_natc_diff = divmod(abs(nat_diff), self.nat_count)
         abs_natc_pitch_diff = self.natc_pitch_indices[abs_natc_diff]
         abs_pitch_diff = (
             abs_natc_pitch_diff + len(self.tuning) * abs_nat_bi_diff
@@ -401,10 +397,12 @@ class NatAccNotation(
         else:
             return (-1) * abs_pitch_diff
 
-    def balance_note_acc_vector(self,
-                                nat_index: int,
-                                unbalanced_nat_pitch_index: int,
-                                unbalanced_acc_vector: Tuple[int]):
+    def balance_note_acc_vector(
+        self,
+        nat_index: int,
+        unbalanced_nat_pitch_index: int,
+        unbalanced_acc_vector: Tuple[int],
+    ):
         """
         Returns a modified accidental vector that balances the
         deviation of a pitch index from the natural pitch index
@@ -435,10 +433,12 @@ class NatAccNotation(
 
         return balanced_acc_vector
 
-    def balance_interval_acc(self,
-                             nat_diff: int,
-                             unbalanced_nat_pitch_diff: int,
-                             unbalanced_acc_vector: Tuple[int]):
+    def balance_interval_acc(
+        self,
+        nat_diff: int,
+        unbalanced_nat_pitch_diff: int,
+        unbalanced_acc_vector: Tuple[int],
+    ):
         """
         Returns a modified accidental vector that balances the
         deviation of a pitch diff from the natural pitch diff
@@ -484,7 +484,9 @@ class NatAccNotation(
             interval 1)
         """
 
-        natc_symbol, acc_symbol, natc_index, acc_vector = self.parse_pc_symbol(pc_symbol)
+        natc_symbol, acc_symbol, natc_index, acc_vector = self.parse_pc_symbol(
+            pc_symbol
+        )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
 
         chosen_note = self._note_cls(
@@ -493,12 +495,14 @@ class NatAccNotation(
             acc_vector=acc_vector,
             pc_symbol=pc_symbol,
             natc_symbol=natc_symbol,
-            acc_symbol=acc_symbol
+            acc_symbol=acc_symbol,
         )
 
         return chosen_note
 
-    def note_interval(self, note_a: NatAccNote, note_b: NatAccNote) -> NatAccNoteInterval:
+    def note_interval(
+        self, note_a: NatAccNote, note_b: NatAccNote
+    ) -> NatAccNoteInterval:
         """
         Creates a note interval between two notes created by
         this notation
@@ -516,12 +520,11 @@ class NatAccNotation(
                 'originate from this notation'
             )
 
-        return self._note_interval_cls.from_notes(
-            note_a,
-            note_b
-        )
+        return self._note_interval_cls.from_notes(note_a, note_b)
 
-    def note_scale(self, notes: Optional[List[NatAccNote]] = None) -> NatAccNoteScale:
+    def note_scale(
+        self, notes: Optional[List[NatAccNote]] = None
+    ) -> NatAccNoteScale:
         """
         Creates a note scale from a list of notes
 
@@ -545,9 +548,7 @@ class NatAccNotation(
         return self._note_scale_cls(self, notes)
 
     def shorthand_interval(
-        self,
-        symbol: str,
-        number: int
+        self, symbol: str, number: int
     ) -> NatAccNoteInterval:
         """
         Creates an interval without specifying two notes.
@@ -587,12 +588,7 @@ class NatAccNotation(
         ref_note = self.note(first_natc_symbol, 0)
 
         return self._note_interval_cls(
-            self,
-            ref_note,
-            nat_diff,
-            acc_vector,
-            symbol,
-            number
+            self, ref_note, nat_diff, acc_vector, symbol, number
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
@@ -661,8 +657,8 @@ class NatAccNotation(
         """
 
         return [
-            natc_pitch_index % len(self.tuning) \
-                for natc_pitch_index in self.natc_pitch_indices
+            natc_pitch_index % len(self.tuning)
+            for natc_pitch_index in self.natc_pitch_indices
         ]
 
     # natural symbol processing
@@ -696,9 +692,7 @@ class NatAccNotation(
                 f'previous natural class index'
             )
 
-        self._naturals.append(
-            (natc_symbol, natc_pitch_index)
-        )
+        self._naturals.append((natc_symbol, natc_pitch_index))
 
     def get_natc_symbol(self, nat_index: int) -> str:
         """
@@ -724,9 +718,7 @@ class NatAccNotation(
         by the subclass constructor
         """
         if self._acc_symbol_code is None:
-            raise IncompleteNotation(
-                'No symbol code for accidentals was set'
-            )
+            raise IncompleteNotation('No symbol code for accidentals was set')
         return self._acc_symbol_code
 
     @acc_symbol_code.setter
@@ -747,9 +739,7 @@ class NatAccNotation(
         """
 
         try:
-            return self.acc_symbol_code.get_symbol_str(
-                acc_vector
-            )
+            return self.acc_symbol_code.get_symbol_str(acc_vector)
         except SymbolValueNotMapped:
             raise InvalidAccidentalValue(
                 f'Accidental vector {acc_vector} can not be '
@@ -758,9 +748,7 @@ class NatAccNotation(
 
     # interval symbol processing
 
-    def set_interval_symbol_code(self,
-                                 nat_diffc: int,
-                                 symbol_code: SymbolCode):
+    def set_interval_symbol_code(self, nat_diffc: int, symbol_code: SymbolCode):
         """
         Sets an interval class symbol for a natural index difference
         class. The natural index difference class is a number between
@@ -802,11 +790,7 @@ class NatAccNotation(
 
         self._interval_symbol_codes[nat_diffc] = symbol_code
 
-    def get_interval_symbol(
-        self,
-        nat_diff: int,
-        acc_vector: Tuple[int]
-    ) -> str:
+    def get_interval_symbol(self, nat_diff: int, acc_vector: Tuple[int]) -> str:
         """
         Returns the interval symbol for a natural/accidental note
         interval. Interval symbols depend on the natural index
@@ -894,8 +878,7 @@ class NatAccNotation(
             )
 
     def parse_pc_symbol(
-        self,
-        pc_symbol: str
+        self, pc_symbol: str
     ) -> Tuple[str, str, int, Tuple[int]]:
         """
         Parses a pitch class symbol into its natural class symbol
@@ -916,11 +899,10 @@ class NatAccNotation(
 
         if best_natc_index is None:
             raise UnknownNoteSymbol(
-                f'Could not find a natural that would '
-                f'fit to {pc_symbol}.'
+                f'Could not find a natural that would fit to {pc_symbol}.'
             )
 
-        acc_tail = pc_symbol[len(best_natc_symbol):]
+        acc_tail = pc_symbol[len(best_natc_symbol) :]
 
         try:
             acc_vector = self.acc_symbol_code.get_vector(acc_tail)
@@ -932,9 +914,7 @@ class NatAccNotation(
         return (best_natc_symbol, acc_tail, best_natc_index, acc_vector)
 
     def gen_pc_symbol(
-        self,
-        natc_index: int,
-        acc_vector: Tuple[int]
+        self, natc_index: int, acc_vector: Tuple[int]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an
@@ -957,8 +937,4 @@ class NatAccNotation(
         natc_symbol = self.get_natc_symbol(natc_index)
         acc_symbol = self.get_acc_symbol(acc_vector)
 
-        return (
-            natc_symbol + acc_symbol,
-            natc_symbol,
-            acc_symbol
-        )
+        return (natc_symbol + acc_symbol, natc_symbol, acc_symbol)

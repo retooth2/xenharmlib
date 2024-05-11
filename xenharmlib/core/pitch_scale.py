@@ -45,6 +45,7 @@ from .protocols import HasFrequencyRatio
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 
+
 class PitchScale(Generic[PitchT]):
     """
     The base class of all pitch scales. Implements list and set
@@ -78,7 +79,7 @@ class PitchScale(Generic[PitchT]):
     EDOPitchScale([6], 31-EDO)
 
     The 'in' operator accepts both pitches and pitch intervals
-    
+
     >>> p = edo31.pitch(4)
     >>> p in scale
     True
@@ -121,7 +122,7 @@ class PitchScale(Generic[PitchT]):
 
         :raises IncompatibleTunings: If the pitch has a different
             tuning than this scale.
-        
+
         :param pitch: The new pitch
         """
 
@@ -148,22 +149,18 @@ class PitchScale(Generic[PitchT]):
     # builder methods
 
     @classmethod
-    def from_pitch_indices(cls,
-                           pitch_indices: List[int],
-                           tuning) -> Self:
+    def from_pitch_indices(cls, pitch_indices: List[int], tuning) -> Self:
         """
         Creates a scale from a list of pitch
         indices
-        
+
         :param pitch_indices: A list of pitch indices in
             any order.
         :param tuning: The tuning through which these indices
             should be interpreted
         """
 
-        scale = cls(
-            tuning=tuning
-        )
+        scale = cls(tuning=tuning)
 
         for pitch_index in pitch_indices:
             scale.add_pitch_index(pitch_index)
@@ -171,7 +168,7 @@ class PitchScale(Generic[PitchT]):
         return scale
 
     def __eq__(self, other: object):
-        
+
         if not isinstance(other, PitchScale):
             return False
 
@@ -189,9 +186,7 @@ class PitchScale(Generic[PitchT]):
     def __getitem__(self, index_or_slice: Union[int, slice]):
 
         if type(index_or_slice) is slice:
-            return self.tuning.pitch_scale(
-                self._sorted_pitches[index_or_slice]
-            )
+            return self.tuning.pitch_scale(self._sorted_pitches[index_or_slice])
 
         return self._sorted_pitches[index_or_slice]
 
@@ -238,9 +233,7 @@ class PitchScale(Generic[PitchT]):
         A list of the ordered pitch indices
         present in this scale
         """
-        return [
-            pitch.pitch_index for pitch in self._sorted_pitches
-        ]
+        return [pitch.pitch_index for pitch in self._sorted_pitches]
 
     def to_pitch_intervals(self) -> List[PitchInterval]:
         """
@@ -249,9 +242,7 @@ class PitchScale(Generic[PitchT]):
 
         intervals = []
         for i in range(0, len(self) - 1):
-            intervals.append(
-                self[i].interval(self[i+1])
-            )
+            intervals.append(self[i].interval(self[i + 1]))
         return intervals
 
     def transpose(self, diff: Union[int, PitchInterval]) -> Self:
@@ -266,17 +257,13 @@ class PitchScale(Generic[PitchT]):
 
         transposed = []
         for pitch in self._sorted_pitches:
-            transposed.append(
-                pitch.transpose(diff)
-            )
-        
-        return self.tuning.pitch_scale(
-            transposed
-        )
+            transposed.append(pitch.transpose(diff))
+
+        return self.tuning.pitch_scale(transposed)
 
     def retune(self, tuning) -> PitchScale:
         """
-        Returns a scale retuned into a different tuning by 
+        Returns a scale retuned into a different tuning by
         approximating every pitch in the scale with a pitch
         from the target tuning.
 
@@ -295,7 +282,7 @@ class PitchScale(Generic[PitchT]):
             retuned_scale.add_pitch(retuned_pitch)
 
         return retuned_scale
-    
+
     # set operations
 
     def union(self, other: Self) -> Self:
@@ -324,8 +311,7 @@ class PitchScale(Generic[PitchT]):
 
         return scale
 
-    def intersection(self,
-                     other: Self) -> Self:
+    def intersection(self, other: Self) -> Self:
         """
         Returns a new scale including all pitches
         that are included in both scales.
@@ -350,12 +336,11 @@ class PitchScale(Generic[PitchT]):
 
         return scale
 
-    def difference(self,
-                   other: Self) -> Self:
+    def difference(self, other: Self) -> Self:
         """
         Returns a scale containing only pitches from this
         scale that are NOT present in the other scale
-        
+
         :param other: Another scale of the same tuning
 
         :raises IncompatibleTunings: If the other scale has a
@@ -378,14 +363,13 @@ class PitchScale(Generic[PitchT]):
 
         return scale
 
-    def symmetric_difference(self,
-                             other: Self) -> Self:
+    def symmetric_difference(self, other: Self) -> Self:
         """
         Returns a scale that includes all the pitches
         from both scales that exist in either of them
         but NOT BOTH. This is the complement operation
         of the intersection.
-        
+
         :param other: Another scale of the same tuning
 
         :raises IncompatibleTunings: If the other scale has a
@@ -401,27 +385,22 @@ class PitchScale(Generic[PitchT]):
         diff_b = other.difference(self)
         return diff_a.union(diff_b)
 
-    def is_disjoint(self,
-                    other: Self) -> bool:
+    def is_disjoint(self, other: Self) -> bool:
         """
         Determines if this scale has any common pitches
         with another scale of the same tuning
-        
+
         :param other: Another scale of the same tuning
 
         :raises IncompatibleTunings: If the other scale has a
             different tuning
         """
 
-        intersection = self.intersection(
-            other
-        )
+        intersection = self.intersection(other)
 
         return len(intersection) == 0
 
-    def is_subset(self,
-                  other: Self,
-                  proper: Optional[bool] = False) -> bool:
+    def is_subset(self, other: Self, proper: Optional[bool] = False) -> bool:
         """
         Determines if all pitches in this scale also exist
         in the other scale.
@@ -435,24 +414,20 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        intersection = self.intersection(
-            other
-        )
+        intersection = self.intersection(other)
 
-        is_subset = (self == intersection)
+        is_subset = self == intersection
 
         if not proper:
             return is_subset
 
         return is_subset and not (self == other)
 
-    def is_superset(self,
-                    other: Self,
-                    proper: Optional[bool] = False) -> bool:
+    def is_superset(self, other: Self, proper: Optional[bool] = False) -> bool:
         """
         Determines if all pitches in the other scale also exist
         in this scale.
-        
+
         :param other: Another scale of the same tuning
         :param proper: (Optional, default False) When set
             to True method will return False if the two
@@ -462,18 +437,18 @@ class PitchScale(Generic[PitchT]):
             different tuning
         """
 
-        intersection = self.intersection(
-            other
-        )
+        intersection = self.intersection(other)
 
-        is_superset = (other == intersection)
+        is_superset = other == intersection
 
         if not proper:
             return is_superset
 
         return is_superset and not (self == other)
 
+
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+
 
 class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
     """
@@ -533,9 +508,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         upwards until it is above the highest pitch
         """
 
-        rotated_scale = self.tuning.pitch_scale(
-            self[1:]
-        )
+        rotated_scale = self.tuning.pitch_scale(self[1:])
 
         pitch = self.tuning.pitch(
             self[0].pc_index + self[-1].bi_index * len(self.tuning)
@@ -553,9 +526,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         downwards until it is below the lowest pitch
         """
 
-        rotated_scale = self.tuning.pitch_scale(
-            self[:-1]
-        )
+        rotated_scale = self.tuning.pitch_scale(self[:-1])
 
         bi_diff = self[-1].bi_index - self[0].bi_index
 
@@ -602,9 +573,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         include duplicate items if the list has two
         pitches of the same pitch class
         """
-        return [
-            pitch.pc_index for pitch in self._sorted_pitches
-        ]
+        return [pitch.pc_index for pitch in self._sorted_pitches]
 
     def pcs_intersection(self, other: Self) -> Self:
         """
@@ -626,9 +595,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
     # some variations on the set operations
     # of the parent class
 
-    def intersection(self,
-                     other: Self,
-                     ignore_bi_index: Optional[bool] = False) -> Self:
+    def intersection(
+        self, other: Self, ignore_bi_index: Optional[bool] = False
+    ) -> Self:
         """
         Returns a new scale including all pitches
         that are included in both scales.
@@ -663,13 +632,13 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         return scale
 
-    def difference(self,
-                   other: Self,
-                   ignore_bi_index: Optional[bool] = False) -> Self:
+    def difference(
+        self, other: Self, ignore_bi_index: Optional[bool] = False
+    ) -> Self:
         """
         Returns a scale containing only pitches from this
         scale that are NOT present in the other scale
-        
+
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
@@ -701,15 +670,15 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         return scale
 
-    def symmetric_difference(self,
-                             other: Self,
-                             ignore_bi_index: Optional[bool] = False) -> Self:
+    def symmetric_difference(
+        self, other: Self, ignore_bi_index: Optional[bool] = False
+    ) -> Self:
         """
         Returns a scale that includes all the pitches
         from both scales that exist in either of them
         but NOT BOTH. This is the complement operation
         of the intersection.
-        
+
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
@@ -734,13 +703,13 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         diff_b = other.difference(self, ignore_bi_index=True)
         return diff_a.union(diff_b)
 
-    def is_disjoint(self,
-                    other: Self,
-                    ignore_bi_index: Optional[bool] = False) -> bool:
+    def is_disjoint(
+        self, other: Self, ignore_bi_index: Optional[bool] = False
+    ) -> bool:
         """
         Determines if this scale has any common pitches
         with another scale of the same tuning
-        
+
         :param other: Another scale of the same tuning
         :param ignore_bi_index: (Optional, default False)
             When set to True pitches of the same pitch class
@@ -752,19 +721,15 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             different tuning
         """
 
-        intersection = self.intersection(
-            other,
-            ignore_bi_index=ignore_bi_index
-        )
+        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
 
         return len(intersection) == 0
 
-    def is_equivalent(self,
-                      other: Self) -> bool:
+    def is_equivalent(self, other: Self) -> bool:
         """
         Determines if this scale and another scale have
         exactly the same pitch classes
-        
+
         :param other: Another scale of the same tuning
 
         :raises IncompatibleTunings: If the other scale has a
@@ -780,26 +745,23 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         b_set = set()
 
         for pitch_a in self:
-            a_set.add(
-                pitch_a.pc_index
-            )
+            a_set.add(pitch_a.pc_index)
 
         for pitch_b in other:
-            b_set.add(
-                pitch_b.pc_index
-            )
+            b_set.add(pitch_b.pc_index)
 
         return a_set == b_set
 
-    def is_subset(self,
-                  other: Self,
-                  proper: Optional[bool] = False,
-                  ignore_bi_index: Optional[bool] = False) -> bool:
-
+    def is_subset(
+        self,
+        other: Self,
+        proper: Optional[bool] = False,
+        ignore_bi_index: Optional[bool] = False,
+    ) -> bool:
         """
         Determines if all pitches in this scale also exist
         in the other scale.
-        
+
         :param other: Another scale of the same tuning
         :param proper: (Optional, default False) When set
             to True method will return False if the two
@@ -815,31 +777,27 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().is_subset(other, proper)
 
-        intersection = self.intersection(
-            other, ignore_bi_index=True
-        )
+        intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_subset = self.is_equivalent(
-            intersection
-        )
+        is_subset = self.is_equivalent(intersection)
 
         if not proper:
             return is_subset
 
-        equal = self.is_equivalent(
-            other
-        )
+        equal = self.is_equivalent(other)
 
         return is_subset and not equal
 
-    def is_superset(self,
-                    other: Self,
-                    proper: Optional[bool] = False,
-                    ignore_bi_index: Optional[bool] = False) -> bool:
+    def is_superset(
+        self,
+        other: Self,
+        proper: Optional[bool] = False,
+        ignore_bi_index: Optional[bool] = False,
+    ) -> bool:
         """
         Determines if all pitches in the other scale also exist
         in this scale.
-        
+
         :param other: Another scale of the same tuning
         :param proper: (Optional, default False) When set
             to True method will return False if the two
@@ -855,26 +813,21 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().is_superset(other, proper)
 
-        intersection = self.intersection(
-            other, ignore_bi_index=True
-        )
+        intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_superset = other.is_equivalent(
-            intersection
-        )
+        is_superset = other.is_equivalent(intersection)
 
         if not proper:
             return is_superset
 
-        equal = self.is_equivalent(
-            other
-        )
+        equal = self.is_equivalent(other)
 
         return is_superset and not equal
 
 
 class EDPitchScale(PeriodicPitchScale[EDPitch]):
-    """ Pitch scale class for equal division tunings """
+    """Pitch scale class for equal division tunings"""
+
 
 class EDOPitchScale(EDPitchScale):
-    """ Pitch scale class for 'equal division of the octave' tunings """
+    """Pitch scale class for 'equal division of the octave' tunings"""

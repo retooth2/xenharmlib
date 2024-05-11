@@ -123,9 +123,7 @@ class UpDownNotation(NatAccNotation):
     ):
 
         if not isinstance(tuning, EDOTuning):
-            raise UnfittingNotation(
-                'UpDownNotation only supports EDO tunings'
-            )
+            raise UnfittingNotation('UpDownNotation only supports EDO tunings')
 
         super().__init__(
             tuning,
@@ -260,9 +258,7 @@ class UpDownNotation(NatAccNotation):
         flats do not exist
         """
 
-        acc_arith = SymbolArithmetic(
-            allow_empty=True
-        )
+        acc_arith = SymbolArithmetic(allow_empty=True)
 
         acc_arith.add_symbol('^', (1,))
         acc_arith.add_symbol('v', (-1,))
@@ -276,10 +272,7 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
-        acc_arith = SymbolArithmetic(
-            dimensions=2,
-            allow_empty=True
-        )
+        acc_arith = SymbolArithmetic(dimensions=2, allow_empty=True)
 
         acc_arith.add_symbol('#', (sharpness, 0))
         acc_arith.add_symbol('b', ((-1) * sharpness, 0))
@@ -301,9 +294,7 @@ class UpDownNotation(NatAccNotation):
         p_arith = SymbolArithmeticSet()
 
         p_sub_arith_zero = SymbolArithmetic()
-        p_sub_arith_zero.add_symbol(
-            'P', (0,), min_occurence=1, max_occurence=1
-        )
+        p_sub_arith_zero.add_symbol('P', (0,), min_occurence=1, max_occurence=1)
         p_arith.add_arithmetic(p_sub_arith_zero)
 
         p_sub_arith_ud = SymbolArithmetic()
@@ -462,8 +453,7 @@ class UpDownNotation(NatAccNotation):
         #      vvm        vm          m         ^m          ^m
 
         imp_min_arith = SymbolArithmetic(
-            dimensions=2,
-            offset=((-1) * sharpness, 0)
+            dimensions=2, offset=((-1) * sharpness, 0)
         )
         imp_min_arith.add_symbol(
             'm', (0, 0), min_occurence=1, max_occurence=1, position=1
@@ -488,9 +478,7 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         ^A         ^^A
 
-        imp_aug_arith = SymbolArithmetic(
-            dimensions=2
-        )
+        imp_aug_arith = SymbolArithmetic(dimensions=2)
         imp_aug_arith.add_symbol(
             'A', (sharpness, 0), min_occurence=1, position=1
         )
@@ -515,8 +503,7 @@ class UpDownNotation(NatAccNotation):
         #      vvd        vd          d         ^d         ^^d
 
         imp_dim_arith = SymbolArithmetic(
-            dimensions=2,
-            offset=((-1) * sharpness, 0)
+            dimensions=2, offset=((-1) * sharpness, 0)
         )
         imp_dim_arith.add_symbol(
             'd', ((-1) * sharpness, 0), min_occurence=1, position=1
@@ -540,8 +527,7 @@ class UpDownNotation(NatAccNotation):
             self.set_interval_symbol_code(nat_index_diff, imp_arith)
 
     def parse_pc_symbol(
-        self,
-        pc_symbol: str
+        self, pc_symbol: str
     ) -> Tuple[str, str, int, Tuple[int]]:
         """
         Parses a pitch class symbol into its natural class symbol
@@ -580,9 +566,7 @@ class UpDownNotation(NatAccNotation):
         return natc_symbol, acc_symbol, natc_index, acc_value
 
     def gen_pc_symbol(
-        self,
-        nat_index: int,
-        acc_vector: Tuple[int]
+        self, nat_index: int, acc_vector: Tuple[int]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an
@@ -618,7 +602,7 @@ class UpDownNotation(NatAccNotation):
         return (
             acc_head + natc_symbol + acc_tail,
             natc_symbol,
-            acc_head + acc_tail
+            acc_head + acc_tail,
         )
 
     @property

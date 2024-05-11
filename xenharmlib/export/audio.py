@@ -29,9 +29,11 @@ from scipy.io.wavfile import write as write_wav
 DEFAULT_SAMPLE_RATE = 22050
 
 
-def freq_to_raw_sine_audio(frequency: Frequency,
-                           duration: float = 0.5,
-                           sample_rate: int = DEFAULT_SAMPLE_RATE):
+def freq_to_raw_sine_audio(
+    frequency: Frequency,
+    duration: float = 0.5,
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
+):
     """
     Returns a raw audio byte stream as a numpy array
     for a given frequency by using a generic sine wave
@@ -43,7 +45,7 @@ def freq_to_raw_sine_audio(frequency: Frequency,
     """
 
     frequency = float(frequency)
-    t = np.linspace(0, duration, math.ceil(sample_rate*duration))
+    t = np.linspace(0, duration, math.ceil(sample_rate * duration))
     output = np.sin(2 * np.pi * frequency * t)
 
     # generate fade in/out array (to remove the clicking
@@ -55,12 +57,12 @@ def freq_to_raw_sine_audio(frequency: Frequency,
     volume = []
 
     for i in range(0, fade_in_t):
-        volume.append(i/fade_in_t)
+        volume.append(i / fade_in_t)
 
     volume.extend([1] * (len(output) - (fade_in_t + fade_out_t)))
 
     for i in range(0, fade_out_t):
-        volume.append((fade_out_t - i - 1)/fade_out_t)
+        volume.append((fade_out_t - i - 1) / fade_out_t)
 
     output = output * np.array(volume)
 
@@ -70,7 +72,7 @@ def freq_to_raw_sine_audio(frequency: Frequency,
 def pitch_like_to_raw_sine_audio(
     pitch_like: HasFrequency,
     duration: float = 0.5,
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
 ):
     """
     Returns a raw audio byte stream as a numpy array
@@ -83,17 +85,13 @@ def pitch_like_to_raw_sine_audio(
         (optional, default is 22050)
     """
 
-    return freq_to_raw_sine_audio(
-        pitch_like.frequency,
-        duration,
-        sample_rate
-    )
+    return freq_to_raw_sine_audio(pitch_like.frequency, duration, sample_rate)
 
 
 def tone_obj_to_raw_sine_audio(
     tone_obj: Frequency | HasFrequency,
     duration: float = 0.5,
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
 ):
     """
     Returns a raw audio byte stream as a numpy array
@@ -107,22 +105,13 @@ def tone_obj_to_raw_sine_audio(
     """
 
     if isinstance(tone_obj, Frequency):
-        return freq_to_raw_sine_audio(
-            tone_obj,
-            duration,
-            sample_rate
-        )
+        return freq_to_raw_sine_audio(tone_obj, duration, sample_rate)
 
     elif isinstance(tone_obj, HasFrequency):
-        return pitch_like_to_raw_sine_audio(
-            tone_obj,
-            duration,
-            sample_rate
-        )
+        return pitch_like_to_raw_sine_audio(tone_obj, duration, sample_rate)
 
     raise ValueError(
-        'Tone object must be a frequency or have '
-        'a frequency property'
+        'Tone object must be a frequency or have a frequency property'
     )
 
 
@@ -169,13 +158,12 @@ def mix_audio_chunks(chunks: List):
 
 
 def playable_to_raw_sine_audio(
-    playable: Iterable[HasFrequency] |
-              HasFrequency |
-              Iterable[Frequency] |
-              Frequency,
+    playable: (
+        Iterable[HasFrequency] | HasFrequency | Iterable[Frequency] | Frequency
+    ),
     duration: float = 0.5,
     play_as_chord: bool = False,
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
 ):
     """
     Returns a raw audio byte stream as a numpy array for
@@ -195,11 +183,7 @@ def playable_to_raw_sine_audio(
 
     chunks = []
     for tone_obj in playable:
-        chunk = tone_obj_to_raw_sine_audio(
-            tone_obj,
-            duration,
-            sample_rate
-        )
+        chunk = tone_obj_to_raw_sine_audio(tone_obj, duration, sample_rate)
         chunks.append(chunk)
 
     if play_as_chord:
@@ -210,13 +194,12 @@ def playable_to_raw_sine_audio(
 
 def export_wav(
     filename: str,
-    playable: Iterable[HasFrequency] |
-              HasFrequency |
-              Iterable[Frequency] |
-              Frequency,
+    playable: (
+        Iterable[HasFrequency] | HasFrequency | Iterable[Frequency] | Frequency
+    ),
     duration: float = 0.5,
     play_as_chord: bool = False,
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    sample_rate: int = DEFAULT_SAMPLE_RATE,
 ):
     """
     This function exports a playable object as a wav file
@@ -234,10 +217,7 @@ def export_wav(
     """
 
     output = playable_to_raw_sine_audio(
-        playable,
-        duration,
-        play_as_chord,
-        sample_rate
+        playable, duration, play_as_chord, sample_rate
     )
 
     scaled = np.int16(output / np.max(np.abs(output)) * 32767)

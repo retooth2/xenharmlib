@@ -150,10 +150,12 @@ class SymbolArithmetic(SymbolCode):
         exceptions will be raised on empty strings
     """
 
-    def __init__(self,
-                 dimensions: int = 1,
-                 offset: Optional[Tuple[int]] = None,
-                 allow_empty: bool = False):
+    def __init__(
+        self,
+        dimensions: int = 1,
+        offset: Optional[Tuple[int]] = None,
+        allow_empty: bool = False,
+    ):
 
         if offset is None:
             offset = (0,) * dimensions
@@ -182,12 +184,14 @@ class SymbolArithmetic(SymbolCode):
     def offset(self) -> Tuple[int]:
         return self._offset
 
-    def add_symbol(self,
-                   symbol: str,
-                   vector: Tuple[int],
-                   position: Optional[int] = None,
-                   min_occurence: Optional[int] = None,
-                   max_occurence: Optional[int] = None):
+    def add_symbol(
+        self,
+        symbol: str,
+        vector: Tuple[int],
+        position: Optional[int] = None,
+        min_occurence: Optional[int] = None,
+        max_occurence: Optional[int] = None,
+    ):
         """
         Adds a string symbol with its corresponding integer
         vector to this arithmetic
@@ -232,8 +236,7 @@ class SymbolArithmetic(SymbolCode):
 
         if symbol in self._symbol_vectors:
             raise AmbiguousSymbol(
-                f'Symbol {symbol} already exists in this '
-                f'arithmetic'
+                f'Symbol {symbol} already exists in this arithmetic'
             )
 
         if vector in self._vector_symbols:
@@ -438,9 +441,7 @@ class SymbolArithmetic(SymbolCode):
             ub_list.append(ub)
 
         if not self._allow_empty:
-            A_array.append(
-                [1] * symbol_count
-            )
+            A_array.append([1] * symbol_count)
             lb_list.append(1)
             ub_list.append(np.inf)
 
@@ -449,9 +450,7 @@ class SymbolArithmetic(SymbolCode):
         ub = np.array(ub_list)
 
         result = milp(
-            c,
-            integrality=integrality,
-            constraints=LinearConstraint(A, lb, ub)
+            c, integrality=integrality, constraints=LinearConstraint(A, lb, ub)
         )
 
         if not result.success:
@@ -516,10 +515,13 @@ class SymbolArithmeticSet(SymbolCode):
     def __init__(
         self,
         dimensions: int = 1,
-        pref_func: Callable[
-            [List[Tuple[SymbolArithmetic, Tuple[str]]]],
-            Tuple[SymbolArithmetic, Tuple[str]]
-        ] | None = None
+        pref_func: (
+            Callable[
+                [List[Tuple[SymbolArithmetic, Tuple[str]]]],
+                Tuple[SymbolArithmetic, Tuple[str]],
+            ]
+            | None
+        ) = None,
     ):
         self._dimensions = dimensions
         self._arithmetics: List[SymbolArithmetic] = []
@@ -570,10 +572,7 @@ class SymbolArithmeticSet(SymbolCode):
 
         return best
 
-    def parse(
-        self,
-        symbol_str: str
-    ) -> Tuple[SymbolArithmetic, List[str]]:
+    def parse(self, symbol_str: str) -> Tuple[SymbolArithmetic, List[str]]:
         """
         Tries to parse a symbol string by each arithmetic in the
         set. If an arithmetic returns a result it is added to the
@@ -600,8 +599,7 @@ class SymbolArithmeticSet(SymbolCode):
 
         if not matches:
             raise UnknownSymbolString(
-                'Symbol string did not match with any '
-                'arithmetic in the set'
+                'Symbol string did not match with any arithmetic in the set'
             )
 
         return self._pref_func(matches)

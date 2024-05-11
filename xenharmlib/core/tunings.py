@@ -53,6 +53,7 @@ PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
+
 class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
     """
     The most abstract tuning class and the base class for all
@@ -83,11 +84,13 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         tuning is built.
     """
 
-    def __init__(self,
-                 pitch_cls: type[PitchT],
-                 pitch_interval_cls: type[IntervalT],
-                 pitch_scale_cls: type[ScaleT],
-                 ref_frequency: Frequency):
+    def __init__(
+        self,
+        pitch_cls: type[PitchT],
+        pitch_interval_cls: type[IntervalT],
+        pitch_scale_cls: type[ScaleT],
+        ref_frequency: Frequency,
+    ):
 
         self.ref_frequency = ref_frequency
         self._pitch_cls = pitch_cls
@@ -112,9 +115,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitch_a: The starting pitch
         :param pitch_b: The target pitch
         """
-        return self._pitch_interval_cls.from_pitches(
-            pitch_a, pitch_b
-        )
+        return self._pitch_interval_cls.from_pitches(pitch_a, pitch_b)
 
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
@@ -123,9 +124,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
 
         :param pitches: A list of pitches
         """
-        return self._pitch_scale_cls(
-            self, pitches
-        )
+        return self._pitch_scale_cls(self, pitches)
 
     def pitch_range(self, start, stop=None, step=1):
         """
@@ -195,7 +194,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
             top_pitch = base_pitch
             i = 0
             while True:
-                bottom_pitch = self.pitch(-2**i)
+                bottom_pitch = self.pitch(-(2**i))
                 if bottom_pitch.frequency < frequency:
                     break
                 i += 1
@@ -220,24 +219,25 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         higher_pitch = self.pitch(higher_pi)
         lower_pitch = self.pitch(lower_pi)
 
-        if (abs(lower_pitch.frequency - frequency) < \
-                abs(higher_pitch.frequency - frequency)):
+        if abs(lower_pitch.frequency - frequency) < abs(
+            higher_pitch.frequency - frequency
+        ):
             return lower_pitch
 
         return higher_pitch
 
     def __repr__(self):
-        return (
-            f'{self.__class__.__name__}({self.name})'
-        )
+        return f'{self.__class__.__name__}({self.name})'
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
 PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
 
-class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT]):
 
+class PeriodicTuning(
+    TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT]
+):
     """
     This abstract class makes the assumption that the tuning has
     a period (a fixed distance between two pitches that declares
@@ -270,18 +270,20 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
         tuning is build.
     """
 
-    def __init__(self,
-                 period_length: int,
-                 pitch_cls: type[PeriodicPitchT],
-                 pitch_interval_cls: type[PeriodicIntervalT],
-                 pitch_scale_cls: type[PeriodicScaleT],
-                 ref_frequency: Frequency):
+    def __init__(
+        self,
+        period_length: int,
+        pitch_cls: type[PeriodicPitchT],
+        pitch_interval_cls: type[PeriodicIntervalT],
+        pitch_scale_cls: type[PeriodicScaleT],
+        ref_frequency: Frequency,
+    ):
 
         super().__init__(
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
-            ref_frequency=ref_frequency
+            ref_frequency=ref_frequency,
         )
 
         self._period_length = period_length
@@ -328,21 +330,16 @@ class PeriodicTuning(TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT
             while q != 0:
                 p, q = q, p % q
 
-            if p == 1: # numbers are co-prime
-                generators.append(
-                    self.pitch(index)
-                )
+            if p == 1:  # numbers are co-prime
+                generators.append(self.pitch(index))
 
         return generators
 
 
-Hz440C0 = Frequency(
-    sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4)
-)
+Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
 
 
 class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
-
     """
     EDTuning ("equal division tuning") takes a base interval
     given as a frequency ratio and divides this base interval
@@ -381,20 +378,22 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
     """
 
-    def __init__(self,
-                 divisions,
-                 eq_ratio: Frequency,
-                 pitch_cls: type[EDPitch] = EDPitch,
-                 pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
-                 pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
-                 ref_frequency: Frequency = Hz440C0):
+    def __init__(
+        self,
+        divisions,
+        eq_ratio: Frequency,
+        pitch_cls: type[EDPitch] = EDPitch,
+        pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
+        pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
+        ref_frequency: Frequency = Hz440C0,
+    ):
 
         super().__init__(
             period_length=divisions,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
-            ref_frequency=ref_frequency
+            ref_frequency=ref_frequency,
         )
         self.divisions = divisions
         self.eq_ratio = eq_ratio
@@ -414,16 +413,12 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         """
 
         if pitch.tuning is not self:
-            raise IncompatibleTunings(
-                'Given pitch has a different tuning'
-            )
+            raise IncompatibleTunings('Given pitch has a different tuning')
 
         scale_size = len(self)
         index = pitch.pitch_index
         exp = sp.Rational(1, scale_size)
-        return Frequency(
-            self.ref_frequency * (self.eq_ratio**exp)**index
-        )
+        return Frequency(self.ref_frequency * (self.eq_ratio**exp) ** index)
 
 
 class EDOTuning(EDTuning):
@@ -451,12 +446,14 @@ class EDOTuning(EDTuning):
         for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
     """
 
-    def __init__(self,
-                 divisions,
-                 pitch_cls: type[EDOPitch] = EDOPitch,
-                 pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
-                 pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
-                 ref_frequency: Frequency = Hz440C0):
+    def __init__(
+        self,
+        divisions,
+        pitch_cls: type[EDOPitch] = EDOPitch,
+        pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
+        pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
+        ref_frequency: Frequency = Hz440C0,
+    ):
 
         super().__init__(
             divisions=divisions,
@@ -464,7 +461,7 @@ class EDOTuning(EDTuning):
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
-            ref_frequency=ref_frequency
+            ref_frequency=ref_frequency,
         )
 
     @property
@@ -521,10 +518,7 @@ class EDOTuning(EDTuning):
         """
 
         fifth = self.fifth
-        return(fifth.pitch_index * 7 - self.divisions * 4)
+        return fifth.pitch_index * 7 - self.divisions * 4
 
     def __repr__(self):
-        return (
-            f'{self.__class__.__name__}'
-            f'({self.name}, {self.divisions})'
-        )
+        return f'{self.__class__.__name__} ({self.name}, {self.divisions})'
