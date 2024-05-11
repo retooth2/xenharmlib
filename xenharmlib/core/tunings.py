@@ -522,4 +522,4 @@ class EDOTuning(EDTuning):
         return fifth.pitch_index * 7 - self.divisions * 4
 
     def __repr__(self):
-        return f'{self.__class__.__name__} ({self.name}, {self.divisions})'
+        return f'{self.__class__.__name__}({self.name}, {self.divisions})'
