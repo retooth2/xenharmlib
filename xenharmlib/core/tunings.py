@@ -401,7 +401,8 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
     @property
     def name(self) -> str:
-        return f'{self.divisions}ed{self.eq_ratio}'
+        expr = f'{self.eq_ratio.sp_expr}'
+        return f'{self.divisions}ed{expr}'
 
     def get_frequency(self, pitch: EDPitch) -> Frequency:
         """
