@@ -3,6 +3,22 @@ from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import UnknownSymbolString
 from xenharmlib.core.symbols import AmbiguousSymbol
 from xenharmlib.core.symbols import SymbolValueNotMapped
+from xenharmlib.core.symbols import UnfittingDimensions
+
+
+def test_init_unfitting_dimensions():
+
+    with pytest.raises(UnfittingDimensions):
+        SymbolArithmetic(
+            dimensions=2,
+            offset=(2,)
+        )
+
+    with pytest.raises(UnfittingDimensions):
+        SymbolArithmetic(
+            dimensions=2,
+            offset=(2, 3, 4)
+        )
 
 
 def test_add_symbol_ambiguous():
@@ -15,6 +31,17 @@ def test_add_symbol_ambiguous():
 
     with pytest.raises(AmbiguousSymbol):
         arith.add_symbol('!', (5,))
+
+
+def test_add_symbol_unfitting_dimensions():
+
+    arith = SymbolArithmetic(dimensions=2)
+
+    with pytest.raises(UnfittingDimensions):
+        arith.add_symbol('&', (2,))
+
+    with pytest.raises(UnfittingDimensions):
+        arith.add_symbol('!', (5, 5, 3))
 
 
 def test_parse():
@@ -203,6 +230,15 @@ def test_get_symbol_str(symbol_str, value):
     assert arith.get_symbol_str(value) == symbol_str
 
 
+def test_get_symbol_str_unfitting_dimensions():
+
+    arith = SymbolArithmetic()
+    arith.add_symbol('&', (5,))
+
+    with pytest.raises(UnfittingDimensions):
+        arith.get_symbol_str((2, 3, 4))
+
+
 @pytest.mark.parametrize(
     'symbol_str, value',
     [
@@ -281,3 +317,113 @@ def test_get_symbol_str_not_mapped():
 
     with pytest.raises(SymbolValueNotMapped):
         assert empty.get_symbol_str((0,))
+
+
+@pytest.mark.parametrize(
+    'symbols, value',
+    [
+        (('&',), (1,)),
+        (('++', '&'), (0,)),
+        (('./', './', '&'), (19,)),
+        (('./', './', '.', '.', '&'), (23,)),
+        (('./', './', '.', '.'), (22,)),
+    ]
+)
+def test_get_symbols(symbols, value):
+
+    arith = SymbolArithmetic()
+    arith.add_symbol('++', (-1,))
+    arith.add_symbol('./', (9,))
+    arith.add_symbol('.', (2,))
+    arith.add_symbol('&', (1,))
+
+    assert arith.get_symbols(value) == symbols
+
+
+def test_get_symbols_unfitting_dimensions():
+
+    arith = SymbolArithmetic()
+    arith.add_symbol('&', (5,))
+
+    with pytest.raises(UnfittingDimensions):
+        arith.get_symbols((2, 3, 4))
+
+
+@pytest.mark.parametrize(
+    'symbols, value',
+    [
+        (('&',), (5,)),
+        (('++', '&'), (4,)),
+        (('./', './', '&'), (23,)),
+        (('./', './', '.', '.', '&'), (27,)),
+        (('./', './', '.', '.'), (26,)),
+    ]
+)
+def test_get_symbols_offset(symbols, value):
+
+    arith = SymbolArithmetic(
+        offset=(4,)
+    )
+    arith.add_symbol('++', (-1,))
+    arith.add_symbol('./', (9,))
+    arith.add_symbol('.', (2,))
+    arith.add_symbol('&', (1,))
+
+    assert arith.get_symbols(value) == symbols
+
+
+@pytest.mark.parametrize(
+    'symbols, value',
+    [
+        (('&',), (-1,)),
+        (('++', '&'), (-2,)),
+        (('./', './', '&'), (17,)),
+        (('./', './', '.', '.', '&'), (21,)),
+        (('./', './', '.', '.'), (20,)),
+    ]
+)
+def test_get_symbols_offset_neg(symbols, value):
+
+    arith = SymbolArithmetic(
+        offset=(-2,)
+    )
+    arith.add_symbol('++', (-1,))
+    arith.add_symbol('./', (9,))
+    arith.add_symbol('.', (2,))
+    arith.add_symbol('&', (1,))
+
+    assert arith.get_symbols(value) == symbols
+
+
+def test_get_symbols_allow_empty():
+
+    arith = SymbolArithmetic(
+        allow_empty=True
+    )
+    arith.add_symbol('&', (1,))
+    arith.add_symbol('++', (-1,))
+
+    assert arith.get_symbols((0,)) == tuple()
+
+
+def test_get_symbols_not_mapped():
+
+    arith = SymbolArithmetic(
+        offset=(-2,)
+    )
+    arith.add_symbol('./', (9,))
+    arith.add_symbol('.', (2,))
+
+    with pytest.raises(SymbolValueNotMapped):
+        assert arith.get_symbols((1,))
+
+    with pytest.raises(SymbolValueNotMapped):
+        assert arith.get_symbols((1,))
+
+    # TODO: should we allow empty arithmetics
+    # that map to 0 if allow_empty=True?
+
+    empty = SymbolArithmetic()
+
+    with pytest.raises(SymbolValueNotMapped):
+        assert empty.get_symbols((0,))

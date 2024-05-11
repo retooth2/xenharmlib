@@ -3,6 +3,20 @@ from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import SymbolArithmeticSet
 from xenharmlib.core.symbols import UnknownSymbolString
 from xenharmlib.core.symbols import SymbolValueNotMapped
+from xenharmlib.core.symbols import UnfittingDimensions
+
+
+def test_add_arithmetic_unfitting_dimensions():
+
+    arith = SymbolArithmetic(
+        offset=(3,)
+    )
+    arith.add_symbol('U', (0,))
+
+    arith_set = SymbolArithmeticSet(dimensions=2)
+
+    with pytest.raises(UnfittingDimensions):
+        arith_set.add_arithmetic(arith)
 
 
 @pytest.mark.parametrize(
