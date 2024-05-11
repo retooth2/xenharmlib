@@ -3,7 +3,9 @@ Welcome to xenharmlib's documentation!
 
 Xenharmlib is a music theory library for the exploration and research of
 microtonality, diatonic set theory, non-standard notations, and many
-more.
+more. The library implements a superset of Western classical music theory,
+so you can also use it to compose and analyze music in the boundaries of
+the common practice period or 20th century Western music.
 
 It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
