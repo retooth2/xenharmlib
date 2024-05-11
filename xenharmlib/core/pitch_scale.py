@@ -31,9 +31,13 @@ difference, etc.
 
 from __future__ import annotations
 
-from collections import defaultdict
 from bisect import insort
-from typing import *
+from typing import TypeVar
+from typing import Generic
+from typing import List
+from typing import Self
+from typing import Union
+from typing import Optional
 from .pitch import Pitch
 from .pitch import PeriodicPitch
 from .pitch import EDPitch

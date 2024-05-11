@@ -21,7 +21,9 @@ making complicated inheritance hierarchies.
 """
 
 from __future__ import annotations
-from typing import *
+from typing import Protocol
+from typing import runtime_checkable
+from typing import List
 from .frequencies import Frequency
 
 

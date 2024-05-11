@@ -28,6 +28,10 @@ import sympy as sp
 from abc import ABC
 from abc import abstractmethod
 from fractions import Fraction
+from typing import TypeVar
+from typing import Generic
+from typing import List
+from typing import Optional
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -43,11 +47,8 @@ from .pitch import EDPitchInterval
 from .pitch import EDOPitchInterval
 from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
-from .utils import get_primes
 from .frequencies import Frequency
 from ..exc import IncompatibleTunings
-from ..exc import InvalidFrequency
-from typing import *
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)

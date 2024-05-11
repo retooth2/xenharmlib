@@ -906,7 +906,7 @@ class NatAccNotation(
                 f'Could not find a natural that would fit to {pc_symbol}.'
             )
 
-        acc_tail = pc_symbol[len(best_natc_symbol) :]
+        acc_tail = pc_symbol[len(best_natc_symbol):]
 
         try:
             acc_vector = self.acc_symbol_code.get_vector(acc_tail)
