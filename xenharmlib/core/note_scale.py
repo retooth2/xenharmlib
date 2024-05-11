@@ -33,16 +33,14 @@ from ..exc import IncompatibleNotations
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 
+
 class NoteScale(Generic[NoteT]):
     """
-    Abstract base class for all note scales. Implements list and
+    Base class for all note scales. Implements list and
     set operations, transposition, etc
 
     Note scales are implemented as generic types with the
     inner type being a note class.
-
-    Subclasses must implement at least the :meth:`from_notes`
-    method.
 
     :param notation: The notation this scale refers to
     :param notes: (optional) A list of notes from the notation.
@@ -205,7 +203,7 @@ class NoteScale(Generic[NoteT]):
             transposed.append(
                 notes.transpose(interval)
             )
-        
+
         return self.notation.note_scale(
             transposed
         )
@@ -357,7 +355,7 @@ class NoteScale(Generic[NoteT]):
             sets are identical
 
         :raises IncompatibleNotations: If the other scale has a
-            different tuning
+            different notation
         """
 
         intersection = self.intersection(other)
@@ -373,7 +371,7 @@ class NoteScale(Generic[NoteT]):
                     other: Self,
                     proper: bool = False) -> bool:
         """
-        Determines if all pitches in the other scale also exist
+        Determines if all notes in the other scale also exist
         in this scale.
 
         :param other: Another scale of the same notation
@@ -382,7 +380,7 @@ class NoteScale(Generic[NoteT]):
             sets are identical
 
         :raises IncompatibleNotations: If the other scale has a
-            different tuning
+            different notation
         """
 
         intersection = self.intersection(other)
@@ -483,7 +481,7 @@ class NoteScale(Generic[NoteT]):
             sets are identical
 
         :raises IncompatibleNotations: If the other scale has a
-            different tuning
+            different notation
         """
 
         intersection = self.note_intersection(other)
@@ -510,7 +508,7 @@ class NoteScale(Generic[NoteT]):
             sets are identical
 
         :raises IncompatibleNotations: If the other scale has a
-            different tuning
+            different notation
         """
 
         intersection = self.note_intersection(other)
@@ -523,7 +521,6 @@ class NoteScale(Generic[NoteT]):
         return is_superset and not self.is_notated_same(other)
 
 
-
 class PeriodicNoteScale(NoteScale):
     """
     Note scale class for periodic notations. Implements
@@ -531,15 +528,13 @@ class PeriodicNoteScale(NoteScale):
     equivalent notes the same as equal notes).
     """
 
-    # TODO: implement normalization
-
     @property
     def pc_indices(self) -> List[int]:
         """
         Returns a list of pitch class indices in
         the order they appear in this scale. This can
-        include duplicate items if the list has two
-        pitches of the same pitch class
+        include duplicate items if the scale has two
+        notes of the same pitch class
         """
         return [
             note.pc_index for note in self
@@ -585,7 +580,7 @@ class PeriodicNoteScale(NoteScale):
     def rotated_down(self) -> Self:
         """
         Create a new scale by transposing the base interval of the
-        highest pitch downwards until it is below the lowest pitch
+        highest note downwards until it is below the lowest note
         """
 
         rotated_scale = self.notation.note_scale(
@@ -681,7 +676,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same. For example, if the
             intersection of two scales including C-0 and
-            C-1 respectively is calculated, both pitches
+            C-1 respectively is calculated, both notes
             will be added to the result
 
         :raises IncompatibleNotations: If the other scale has a
@@ -847,7 +842,7 @@ class PeriodicNoteScale(NoteScale):
                     proper: bool = False,
                     ignore_bi_index: bool = False) -> bool:
         """
-        Determines if all pitches in the other scale also exist
+        Determines if all notes in the other scale also exist
         in this scale.
 
         :param other: Another scale of the same notation
@@ -894,7 +889,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same. For example, if the
             intersection of two scales including C-0 and
-            C-1 respectively is calculated, both pitches
+            C-1 respectively is calculated, both notes
             will be added to the result
 
         :raises IncompatibleNotations: If the other scale has a
@@ -1204,7 +1199,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         The list of accidental directions of notes in the scale
         (0 if the note is a natural, 1 if the note is a sharp note,
         -1 if it is a flat note, so for example in 31-EDO [0, 1, -1]
-        for [C0, B^2, Cb0])
+        for [C0, ^B#2, Cb0])
         """
         directions = []
         for note in self:

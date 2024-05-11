@@ -66,8 +66,8 @@ class SymbolCode(ABC):
     to turn symbol strings into integer vectors and vice versa.
 
     The interface consists of two abstract methods
-    * :meth:`SymbolCode.get_value`
-    * :meth:`SymbolCode.get_symbol_str`
+        * :meth:`SymbolCode.get_value`
+        * :meth:`SymbolCode.get_symbol_str`
     """
 
     @abstractmethod

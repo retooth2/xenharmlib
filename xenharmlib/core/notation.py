@@ -307,7 +307,7 @@ class NatAccNotation(
     and one category for ups/downs. Consequently, accidental values are
     given in the form of a vector.
 
-    It further assumes that intervals are uniquely defined by their
+    It assumes that intervals are uniquely defined by their
     difference in natural index + the difference of the accidental
     vectors of their source notes. It further assumes that intervals
     are notated as a tuple (symbol, number). The class implements
@@ -619,9 +619,6 @@ class NatAccNotation(
         """
         Returns the pitch class index a natural index refers to
 
-        :raises InvalidNaturalIndex: If the natural index is
-            smaller than 0
-
         :param nat_index: A natural index
         """
 
@@ -724,7 +721,7 @@ class NatAccNotation(
     def acc_symbol_code(self) -> SymbolCode:
         """
         The symbol code for the accidentals. Must be set
-        be the subclass constructor
+        by the subclass constructor
         """
         if self._acc_symbol_code is None:
             raise IncompleteNotation(
@@ -903,7 +900,7 @@ class NatAccNotation(
         """
         Parses a pitch class symbol into its natural class symbol
         part and its accidental symbol part. Returns a 4-tuple
-        (natc_symbol, acc_symbol, natc_index, acc_vactor) with
+        (natc_symbol, acc_symbol, natc_index, acc_vector) with
         the parsing result.
         """
 
@@ -946,9 +943,9 @@ class NatAccNotation(
         accidental symbol configuration for the vector.
 
         The method will return a tuple of 3 with the following semantics:
-        * The first element will be the pitch class symbol
-        * The second element will be the natural class symbol
-        * The third element will be the accidental symbol string
+            * The first element will be the pitch class symbol
+            * The second element will be the natural class symbol
+            * The third element will be the accidental symbol string
 
         (Subclasses can overwrite this method if they e.g wish to generate
         pc_symbols that have post-fix or in-fix naturals)

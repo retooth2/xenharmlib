@@ -459,6 +459,9 @@ class NatAccNote(PeriodicNoteABC):
 
     @property
     def short_repr(self):
+        """
+        A shortened representation of this note
+        """
         return f'{self.pc_symbol}{self.nat_bi_index}'
 
     def transpose(self, interval: NatAccNoteInterval) -> NatAccNote:
@@ -688,7 +691,8 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     """
     Note interval class for intervals with natural/accidental notes.
     The class assumes that the interval is value-representable by
-    the difference in natural indices and the difference in pitch.
+    the difference in natural indices and an accidental vector
+    signifying step alterations of different categories.
     It is meant as a solid basis for interval notations that are
     similar to the traditional Western interval notation having
     a interval symbol (like 'M') and an interval number (like 2)
