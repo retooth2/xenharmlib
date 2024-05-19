@@ -36,6 +36,7 @@ html_logo = "_static/images/sidebar-logo.png"
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+html_extra_path = ['google6d5968067404c332.html']
 
 # fake modules with requirements written in C for readthedocs
 # RTD does not install dependencies that have bindings to C
