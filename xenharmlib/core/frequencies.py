@@ -36,15 +36,18 @@ from .constants import CENTS_PRECISION
 
 # hack for RTD (see doc/conf.py for more info)
 if isinstance(sp.Expr, mock.Mock):
-    FreqNumber: TypeAlias = int | Fraction | float
+    ScalarLike: TypeAlias = 'int | Fraction | float | FrequencyRatio'
 else:
-    FreqNumber: TypeAlias = int | Fraction | float | sp.Expr
+    ScalarLike: TypeAlias = 'int | Fraction | float | FrequencyRatio | sp.Expr'
 
 
-def _to_sp_expr(number: object):
+def _scalar_to_sp_expr(number: object, allow_freq_ratio=True):
     """
-    Takes any python builtin number type and converts to
-    an equivalent sympy expression
+    Converts a number to a sympy number expression. A number can be
+    an integer, a Fraction, a float, a FrequencyRatio and a sympy
+    number expression itself. If a sympy number expression is
+    given the function will simply return the expression without
+    modification
     """
 
     # bools are ints for some reason :/
@@ -55,20 +58,23 @@ def _to_sp_expr(number: object):
         return sp.Rational(number.numerator, number.denominator)
 
     if isinstance(number, float):
-        return sp.Float(number)
+        # sympy is very strict on floats with different precisions.
+        # for example 0.6 != 0.60000 != 3/5. this can have very
+        # counter-intuitive results for the user. because of this
+        # we convert every float into a fraction
+        n, d = number.as_integer_ratio()
+        return sp.Rational(n, d)
+
+    if isinstance(number, FrequencyRatio) and allow_freq_ratio:
+        return number.sp_expr
 
     if isinstance(number, sp.Expr):
-
         if not number.is_number:
             raise ValueError(
                 'SymPy expression can not have any free '
                 'variables or undefined functions'
             )
-
         return number
-
-    if isinstance(number, Frequency):
-        return number.sp_expr
 
     raise ValueError(
         f'Unsupported inner type for frequency type: {type(number)}'
@@ -96,7 +102,7 @@ class Frequency:
     >>> Frequency(440)
     Frequency(440)
     >>> Frequency(1.5)
-    Frequency(1.50000000000000)
+    Frequency(3/2)
     >>> Frequency(Fraction(3, 2))
     Frequency(3/2)
 
@@ -104,118 +110,544 @@ class Frequency:
     >>> Frequency(sp.Integer(2)**sp.Rational(1, 12))
     Frequency(2**(1/12))
 
-    Frequency objects seamlessly interact with all kinds of numbers
+    Frequency objects define a "dimensionful arithmetic" on the set of
+    frequencies and scalars (like integers, sympy expressions and
+    frequency ratios)
 
-    >>> 3 * Frequency(440)
-    Frequency(1320)
-    >>> Frequency(3) / 2
-    Frequency(3/2)
-    >>> Frequency(2) - 2
-    Frequency(0)
-    >>> from fractions import Fraction
-    >>> Frequency(2) ** Fraction(1, 3)
-    Frequency(2**(1/3))
+    Frequencies can be added to and subtracted from other frequencies:
+
+    >>> Frequency(440) + Frequency(100)
+    Frequency(540)
+    >>> Frequency(440) - Frequency(100)
+    Frequency(340)
+
+    However, since :math:`x Hz + y` is undefined, adding/subtracting a scalar
+    raises an error:
+
+    >>> Frequency(440) + 100
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for +: 'Frequency' and 'int'"
+
+    For multiplication the same holds in reverse. Frequencies can be
+    multiplied by a scalar, however not with one other.
+
+    >>> from xenharmlib import FrequencyRatio
+    >>> 3 * Frequency(100)
+    Frequency(300)
+    >>> Frequency(200) * FrequencyRatio(3, 2)
+    Frequency(300)
+
+    A frequency can be divided by both a scalar and a frequency. While
+    the first results in a Frequency, the second will be a FrequencyRatio:
+
+    >>> Frequency(440) / 10
+    Frequency(44)
+    >>> Frequency(440) / Frequency(100)
+    FrequencyRatio(22/5)
+
+    A scalar can not be divided by a frequency (an expression like 1 / (80 Hz)
+    has a meaning in physics, however this meaning is out of scope for this
+    implementation)
+
+    >>> 1 / Frequency(100)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'int' and 'Frequency'"
     """
 
-    def __init__(self, number: Self | FreqNumber):
-        sp_expr = _to_sp_expr(number)
+    def __init__(self, number: ScalarLike):
+        sp_expr = _scalar_to_sp_expr(number, allow_freq_ratio=False)
         self.sp_expr = sp_expr
 
-    def __add__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr + other_sp_expr)
+    # A note on error handling: On most arithmetic methods we want to
+    # be strict and not give an unknown object the chance to call its
+    # right operand method (like __radd__, __rmul__, etc).
 
-    def __sub__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr - other_sp_expr)
+    # __add__ and __sub__ are only defined on the Frequency
+    # set itself, not in relation with scalars, for example:
+    # 40 Hz + 80 Hz = 120 Hz, but 50 Hz + 9 raises an error
 
-    def __mul__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
+    def __add__(self, other: Self) -> Frequency:
+        if not isinstance(other, Frequency):
+            raise TypeError(
+                f"unsupported operand type(s) for +: "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return Frequency(self.sp_expr + other.sp_expr)
+
+    def __sub__(self, other: Self) -> Frequency:
+        if not isinstance(other, Frequency):
+            raise TypeError(
+                f"unsupported operand type(s) for -: "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return Frequency(self.sp_expr - other.sp_expr)
+
+    # __radd__ and __rsub__ are undefined because addition and
+    # subtraction is only defined for the Frequency set itself
+    # for which __add__ and __sub__ suffice
+
+    # __mul__ / __rmul__ is defined only in relation to scalars
+    # 3 * 50 Hz = 150 Hz, but 30 Hz * 20 Hz raises an error
+
+    def __mul__(self, other: ScalarLike) -> Frequency:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for *: "
+                f"'Frequency' and '{type(other)}'"
+            )
         return Frequency(self.sp_expr * other_sp_expr)
 
-    def __truediv__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr / other_sp_expr)
-
-    def __floordiv__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr // other_sp_expr)
-
-    def __mod__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr % other_sp_expr)
-
-    def __pow__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(self.sp_expr**other_sp_expr)
-
-    def __radd__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr + self.sp_expr)
-
-    def __rsub__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr - self.sp_expr)
-
-    def __rmul__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
+    def __rmul__(self, other: ScalarLike) -> Frequency:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for *: "
+                f"'Frequency' and '{type(other)}'"
+            )
         return Frequency(other_sp_expr * self.sp_expr)
 
-    def __rtruediv__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr / self.sp_expr)
+    # __truediv__ is defined for both scalars and frequencies
+    # but with different result types: dividing a frequency
+    # by a scalar returns a frequency: 80 Hz / 2 = 40 Hz,
+    # however dividing a frequency by a frequency gives
+    # a (scalar) FrequencyRatio: 100 Hz / 20 Hz = 5
 
-    def __rfloordiv__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr // self.sp_expr)
+    def __truediv__(
+        self,
+        other: Self | ScalarLike
+    ) -> Frequency | FrequencyRatio:
 
-    def __rmod__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr % self.sp_expr)
+        if isinstance(other, Frequency):
+            return FrequencyRatio(self.sp_expr, other.sp_expr)
 
-    def __rpow__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return Frequency(other_sp_expr**self.sp_expr)
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for *: "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return Frequency(self.sp_expr / other_sp_expr)
 
-    def __abs__(self):
+    # __rtruediv__ is undefined because dividing a scalar through
+    # a frequency would make us end up in a whole different part
+    # of physics, e.g. 10 / (5 Hz) = 2 Hz^(-1) = 2 seconds
+
+    # __mod__ is only defined inside the Frequency set and not in
+    # relation to scalars, because a mod q is defined as r with
+    # a = nq + r with |r| < |n|. If scalars were allowed we would
+    # receive for 80 Hz % 20 the equation 80 Hz = n * 20 + r.
+    # Since n must a scalar, we would have (n * 20) being scalar.
+    # In order to obtain r we would need to subtract (n * 20)
+    # from both side of the equation, receiving on the left side
+    # the expression 80 Hz - (n * 20) which is undefined, since
+    # subtraction on the frequency set is only defined for two
+    # frequencies, not a frequency and a scalar
+
+    def __mod__(self, other: Self):
+        if not isinstance(other, Frequency):
+            raise TypeError(
+                f"unsupported operand type(s) for %: "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return Frequency(self.sp_expr % other.sp_expr)
+
+    # __rmod__ is undefined because mod is only defined for
+    # the Frequency set itself for which __mod__ suffices
+
+    # __floordiv__ is only defined inside the Frequency set and not in
+    # relation to scalars, because one definition of floored division
+    # is x // y := (x - (x % y)) / y. In this definition the expression
+    # 80 Hz // 3 would be (80 Hz - (80 Hz % 3)) / 3 which includes the
+    # expression (80 Hz % 3) that is undefined for the reasons stated
+    # in the __mod__ section above.
+
+    def __floordiv__(self, other: Self) -> Frequency:
+        if not isinstance(other, Frequency):
+            raise TypeError(
+                f"unsupported operand type(s) for //: "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return Frequency(self.sp_expr // other.sp_expr)
+
+    # __rfloordiv__ is undefined because // is only defined for
+    # the Frequency set itself for which __floordiv__ suffices
+
+    # __pow__ and __rpow__ are undefined, because pow() on natural
+    # exponents is defined as iterative multiplication of the base
+    # with itself: (10 Hz)^3 = 10 Hz * 10 Hz * 10 Hz = 100 Hz^3
+    # we exclude this for the same reason we excluded __mul__
+    # on two frequencies
+
+    def __abs__(self) -> Frequency:
         return Frequency(abs(self.sp_expr))
 
-    def __eq__(self, other: object):
-        other_sp_expr = _to_sp_expr(other)
-        return self.sp_expr == other_sp_expr
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Frequency):
+            return False
+        return self.sp_expr == other.sp_expr
 
-    def __lt__(self, other: Self | FreqNumber):
-        other_sp_expr = _to_sp_expr(other)
-        return self.sp_expr < other_sp_expr
+    def __lt__(self, other: Frequency) -> bool:
+        if not isinstance(other, Frequency):
+            raise TypeError(
+                f"'<' not supported between instances of "
+                f"'Frequency' and '{type(other)}'"
+            )
+        return self.sp_expr < other.sp_expr
 
     def __float__(self) -> float:
+        # sympy is very eager to drag other types into its expression
+        # system. this causes some problems for us when we have an
+        # arithmetic expression like sp.Rational(2, 3) * Frequency(300)
+        # where the first operand is a sympy expression and subsequently
+        # the first object's __mul__ operator definition has precedence.
+        # If we allow standard float conversion sympy will recognize the
+        # Frequency object as a float-like object, resulting in the
+        # above expression to be a sympy object. This clashes with
+        # our definition in __rmul__ stating that the result type
+        # of scalar * frequency is frequency. Raising a TypeError
+        # deters sympy and makes the expression evaluate according
+        # to Frequency.__rmul__
+        raise TypeError("For floating point conversion use .to_float()")
+
+    def to_float(self) -> float:
         return float(self.sp_expr.evalf())
 
     def __round__(self, ndigits: int = 0) -> float:
         return round(float(self.sp_expr), ndigits)
 
-    def log(self, base: Self | FreqNumber):
-        base = _to_sp_expr(base)
-        return Frequency(sp.log(self.sp_expr, base))
-
-    @property
-    def numerator(self) -> Frequency:
-        n, _ = sp.fraction(self.sp_expr)
-        return Frequency(n)
-
-    @property
-    def denominator(self) -> Frequency:
-        _, d = sp.fraction(self.sp_expr)
-        return Frequency(d)
-
     def __repr__(self) -> str:
         return f'Frequency({repr(self.sp_expr)})'
+
+    def get_harmonic(self, index: int) -> Frequency:
+        """
+        Returns the k-th overtone frequency for
+        this frequency.
+
+        :param index: Index of the harmonic.
+            0 is the original frequency, 1 the
+            first harmonic, etc
+        """
+
+        return self + (index * self)
+
+    def get_harmonics(
+        self, limit: Optional[Frequency] = None
+    ) -> List['Frequency']:
+        """
+        Returns a list of overtone frequencies for
+        this note
+
+        :param limit: (optional) upper-frequency limit
+            of the list in Hz, defaults to the average
+            audible maximum of the human ear of
+            20KHz
+        """
+
+        if limit is None:
+            limit = Frequency(20_000)
+
+        frequency = self
+        frequencies = []
+        i = 0
+
+        while True:
+            frequency = self.get_harmonic(i)
+            if frequency > limit:
+                break
+            frequencies.append(frequency)
+            i += 1
+
+        return frequencies
+
+
+@total_ordering
+class FrequencyRatio:
+    """
+    A FrequencyRatio object is a scalar value that results from dividing two
+    Frequency objects. The FrequencyRatio class can be understood as an
+    augmented version of the python builtin Fraction type:
+
+    FrequencyRatio is built on sympy expressions meaning that both rational
+    and irrational ratios (with infinite precision) are possible. Irrational
+    ratios are especially important to describe frequency relations in equal
+    division tunings. If the ratio is rational FrequencyRatio provides a
+    method to factorize the ratio into a prime exponent vector (monzo).
+
+    FrequencyRatio objects can be created like Fractions:
+
+    >>> FrequencyRatio(20, 8)
+    FrequencyRatio(5/2)
+    >>> FrequencyRatio(3)
+    FrequencyRatio(3)
+
+    For both numerator and denominator sympy expressions can be used
+
+    >>> import sympy as sp
+    >>> FrequencyRatio(sp.Integer(3)**sp.Rational(3, 12), sp.sqrt(3))
+    FrequencyRatio(3**(3/4)/3)
+
+    Frequency ratios define a standard arithmetic and interact seemlessly
+    with other scalar types:
+
+    >>> FrequencyRatio(20, 8) * FrequencyRatio(2)
+    FrequencyRatio(5)
+
+    >>> FrequencyRatio(20, 8) + 3
+    FrequencyRatio(11/2)
+    >>> 3 + FrequencyRatio(20, 8)
+    FrequencyRatio(11/2)
+
+    >>> from fractions import Fraction
+    >>> FrequencyRatio(20, 8) * Fraction(8, 20)
+    FrequencyRatio(1)
+    >>> Fraction(16, 20) * FrequencyRatio(20, 8)
+    FrequencyRatio(2)
+
+    >>> FrequencyRatio(20) / 10
+    FrequencyRatio(2)
+    >>> 5 / FrequencyRatio(20)
+    FrequencyRatio(1/4)
+    """
+
+    def __init__(self, numerator: ScalarLike, denominator: ScalarLike = 1):
+        numerator = _scalar_to_sp_expr(numerator)
+        denominator = _scalar_to_sp_expr(denominator)
+        self.sp_expr = numerator / denominator
+
+    # A note on error handling: On most arithmetic methods we want to
+    # be strict and not give an unknown object the chance to call its
+    # right operand method (like __radd__, __rmul__, etc). The reason
+    # for this is, that sympy is sometimes very lenient on input types
+    # and accepts FrequencyRatio as normal number type which can cause
+    # an operation with a FrequencyRatio to succeed without returning
+    # a FrequencyRatio object. We want to avoid that, since we want a
+    # somewhat "closed systems" of Frequency and FrequencyRatio that
+    # does not spill other types in operation results.
+    # This is why most of the time we raise TypeError and do not
+    # return NotImplemented.
+
+    def __add__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for +: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr + other_sp_expr)
+
+    def __radd__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for +: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr + self.sp_expr)
+
+    def __sub__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for -: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr - other_sp_expr)
+
+    def __rsub__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for -: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr - self.sp_expr)
+
+    def __mul__(
+        self,
+        other: Frequency | ScalarLike
+    ) -> Frequency | FrequencyRatio:
+
+        if isinstance(other, Frequency):
+            # give Frequency.__rmul__ a chance
+            return NotImplemented
+
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for *: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr * other_sp_expr)
+
+    def __rmul__(
+        self,
+        other: ScalarLike
+    ) -> FrequencyRatio:
+        # we don't need to implement frequency * ratio here
+        # because Frequency implements __mul__ for this
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for *: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr * self.sp_expr)
+
+    def __truediv__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for /: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr / other_sp_expr)
+
+    def __rtruediv__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for /: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr / self.sp_expr)
+
+    def __floordiv__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for //: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr // other_sp_expr)
+
+    def __rfloordiv__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for //: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr // self.sp_expr)
+
+    def __mod__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for %: "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr % other_sp_expr)
+
+    def __rmod__(self, other: ScalarLike):
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for %: "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr % self.sp_expr)
+
+    def __pow__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for ** or pow(): "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return FrequencyRatio(self.sp_expr**other_sp_expr)
+
+    def __rpow__(self, other: ScalarLike) -> FrequencyRatio:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"unsupported operand type(s) for ** or pow(): "
+                f"'{type(other)}' and 'FrequencyRatio'"
+            )
+        return FrequencyRatio(other_sp_expr**self.sp_expr)
+
+    def __abs__(self) -> FrequencyRatio:
+        return FrequencyRatio(abs(self.sp_expr))
+
+    def __eq__(self, other: object) -> bool:
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            return False
+        return self.sp_expr == other_sp_expr
+
+    def __lt__(self, other: ScalarLike):
+        try:
+            other_sp_expr = _scalar_to_sp_expr(other)
+        except ValueError:
+            raise TypeError(
+                f"'<' not supported between instances of "
+                f"'FrequencyRatio' and '{type(other)}'"
+            )
+        return self.sp_expr < other_sp_expr
+
+    def __float__(self) -> float:
+        # sympy is very eager to drag other types into its expression
+        # system. this causes some problems for us when we have an
+        # arithmetic expression like sp.Rational(2, 3) * FrequencyRatio(2)
+        # where the first operand is a sympy expression and subsequently
+        # the first object's __mul__ operator definition has precedence.
+        # If we allow standard float conversion sympy will recognize the
+        # FrequencyRatio object as a float-like object, resulting in the
+        # above expression to be a sympy object. This clashes with
+        # our definition in __rmul__ stating that the result type
+        # of scalar * freq ratio is freq ratio. Raising a TypeError
+        # deters sympy and makes the expression evaluate according
+        # to FrequencyRatio.__rmul__
+        raise TypeError("For floating point conversion use .to_float()")
+
+    def to_float(self) -> float:
+        return float(self.sp_expr.evalf())
+
+    def __round__(self, ndigits: int = 0) -> float:
+        return round(float(self.sp_expr), ndigits)
+
+    def log(self, base: ScalarLike) -> FrequencyRatio:
+        base = _scalar_to_sp_expr(base)
+        return FrequencyRatio(sp.log(self.sp_expr, base))
+
+    @property
+    def numerator(self) -> FrequencyRatio:
+        n, _ = sp.fraction(self.sp_expr)
+        return FrequencyRatio(n)
+
+    @property
+    def denominator(self) -> FrequencyRatio:
+        _, d = sp.fraction(self.sp_expr)
+        return FrequencyRatio(d)
+
+    def __repr__(self) -> str:
+        return f'FrequencyRatio({repr(self.sp_expr)})'
 
     @classmethod
     def from_monzo(cls, monzo: List[int]):
         """
-        Creates a frequency from a monzo. A monzo is a list of
-        exponents for the prime numbers, for example, the
+        Creates a frequency ratio from a monzo. A monzo is a
+        list of exponents for the prime numbers, for example, the
         argument [-1, 1] creates the frequency :math:`2^{-1} * 3^1`
         """
 
@@ -237,7 +669,10 @@ class Frequency:
 
     def to_monzo(self):
         """
-        Factorizes the frequency into a monzo.
+        Factorizes the frequency ratio into a monzo. A monzo is a
+        list of exponents for the prime numbers, for example, the
+        frequency ratio 3/2 creates the monzo [-1, 1], since
+        :math:`2^{-1} * 3^1 = \\frac{3}{2}`
         """
 
         if not self.sp_expr.is_rational:
@@ -284,51 +719,10 @@ class Frequency:
 
         return monzo
 
-    def get_harmonic(self, index: int) -> Frequency:
-        """
-        Returns the k-th overtone frequency for
-        this frequency.
-
-        :param index: Index of the harmonic.
-            0 is the original frequency, 1 the
-            first harmonic, etc
-        """
-
-        return Frequency(self + (index * self))
-
-    def get_harmonics(
-        self, limit: Optional[Frequency] = None
-    ) -> List['Frequency']:
-        """
-        Returns a list of overtone frequencies for
-        this note
-
-        :param limit: (optional) upper-frequency limit
-            of the list in Hz, defaults to the average
-            audible maximum of the human ear of
-            20KHz
-        """
-
-        if limit is None:
-            limit = Frequency(20_000)
-
-        frequency = self
-        frequencies = []
-        i = 0
-
-        while True:
-            frequency = self.get_harmonic(i)
-            if frequency > limit:
-                break
-            frequencies.append(frequency)
-            i += 1
-
-        return frequencies
-
     @property
     def cents(self):
         """
-        The cents equivalent of this frequency
+        The cents equivalent of this frequency ratio
         """
 
         return round(1200 * self.log(2), CENTS_PRECISION)

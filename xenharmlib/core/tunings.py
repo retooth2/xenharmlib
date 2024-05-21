@@ -49,6 +49,7 @@ from .pitch import EDOPitchInterval
 from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from ..exc import IncompatibleTunings
 
 PitchT = TypeVar('PitchT', bound=Pitch)
@@ -355,10 +356,10 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     like this:
 
     >>> from xenharmlib import EDTuning
-    >>> from xenharmlib import Frequency
+    >>> from xenharmlib import FrequencyRatio
     >>> BP = EDTuning(
     ...     divisions=13,
-    ...     eq_ratio=Frequency(3)
+    ...     eq_ratio=FrequencyRatio(3)
     ... )
 
     :param divisions: The number of divisions of the base
@@ -387,7 +388,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
     def __init__(
         self,
         divisions,
-        eq_ratio: Frequency,
+        eq_ratio: FrequencyRatio,
         pitch_cls: type[EDPitch] = EDPitch,
         pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
         pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
@@ -401,6 +402,12 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
             pitch_scale_cls=pitch_scale_cls,
             ref_frequency=ref_frequency,
         )
+
+        if not isinstance(eq_ratio, FrequencyRatio):
+            raise TypeError(
+                'eq_ratio must be a FrequencyRatio'
+            )
+
         self.divisions = divisions
         self.eq_ratio = eq_ratio
 
@@ -424,7 +431,8 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         scale_size = len(self)
         index = pitch.pitch_index
         exp = sp.Rational(1, scale_size)
-        return Frequency(self.ref_frequency * (self.eq_ratio**exp) ** index)
+        ratio = (self.eq_ratio**exp)**index
+        return self.ref_frequency * ratio
 
 
 class EDOTuning(EDTuning):
@@ -463,7 +471,7 @@ class EDOTuning(EDTuning):
 
         super().__init__(
             divisions=divisions,
-            eq_ratio=Frequency(2),
+            eq_ratio=FrequencyRatio(2),
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
@@ -481,7 +489,7 @@ class EDOTuning(EDTuning):
         (frequency ratio 3/2) in this tuning.
         """
         return self.get_approx_pitch(
-            self.ref_frequency * Frequency(Fraction(3, 2))
+            self.ref_frequency * FrequencyRatio(3, 2)
         )
 
     @property

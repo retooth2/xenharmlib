@@ -1,7 +1,7 @@
 import pytest
 from xenharmlib import EDOTuning
 from xenharmlib import EDTuning
-from xenharmlib import Frequency
+from xenharmlib import FrequencyRatio
 from xenharmlib.core.note_scale import NoteScale
 from xenharmlib.exc import IncompatibleNotations
 from ..utils import make_nat_acc_test_notation
@@ -12,7 +12,7 @@ edo24 = EDOTuning(24)
 n_edo24 = make_nat_acc_test_notation(edo24)
 edo31 = EDOTuning(31)
 n_edo31 = make_nat_acc_test_notation(edo31)
-ed13_3 = EDTuning(13, Frequency(3))
+ed13_3 = EDTuning(13, FrequencyRatio(3))
 n_ed13_3 = make_nat_acc_test_notation(ed13_3)
 
 

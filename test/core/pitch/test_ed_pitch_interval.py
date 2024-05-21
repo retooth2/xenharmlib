@@ -1,14 +1,14 @@
 import pytest
-from xenharmlib.core.frequencies import Frequency
+from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch import EDPitchInterval
 from xenharmlib.exc import IncompatibleTunings
 
-edo12 = EDTuning(12, Frequency(2))
-edo24 = EDTuning(24, Frequency(2))
-edo31 = EDTuning(31, Frequency(2))
-ed13_3 = EDTuning(13, Frequency(3))
+edo12 = EDTuning(12, FrequencyRatio(2))
+edo24 = EDTuning(24, FrequencyRatio(2))
+edo31 = EDTuning(31, FrequencyRatio(2))
+ed13_3 = EDTuning(13, FrequencyRatio(3))
 
 def test_init_incompatible_tunings():
     """
@@ -16,7 +16,7 @@ def test_init_incompatible_tunings():
     that originate from different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     with pytest.raises(IncompatibleTunings):
         EDPitchInterval.from_pitches(
             EDPitch(edo12, 0),
