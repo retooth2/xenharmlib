@@ -209,6 +209,8 @@ def test_get_harmonics_limit():
     ]
 )
 def test_add(a, b, result):
+    assert isinstance(a + b, Frequency)
+    assert isinstance(b + a, Frequency)
     assert a + b == result
     assert b + a == result
 
@@ -364,6 +366,7 @@ def test_add_type_error(a, b):
     ]
 )
 def test_sub(a, b, result):
+    assert isinstance(a - b, Frequency)
     assert a - b == result
 
 
@@ -591,6 +594,8 @@ def test_sub_type_error(a, b):
     ]
 )
 def test_mul(a, b, result):
+    assert isinstance(a * b, Frequency)
+    assert isinstance(b * a, Frequency)
     assert a * b == result
     assert b * a == result
 
@@ -856,6 +861,7 @@ def test_mul_type_error(a, b):
     ]
 )
 def test_truediv(a, b, result):
+    assert isinstance(a / b, result.__class__)
     assert a / b == result
 
 
@@ -1001,6 +1007,7 @@ def test_truediv_type_error(a, b):
     ]
 )
 def test_floordiv(a, b, result):
+    assert isinstance(a // b, Frequency)
     assert a // b == result
 
 
@@ -1116,6 +1123,7 @@ def test_floordiv_type_error(a, b):
     ]
 )
 def test_abs(a, result):
+    assert isinstance(abs(a), Frequency)
     assert abs(a) == result
 
 
@@ -1173,6 +1181,7 @@ def test_abs(a, result):
     ]
 )
 def test_mod(a, b, result):
+    assert isinstance(a % b, Frequency)
     assert a % b == result
 
 

@@ -669,6 +669,8 @@ def test_sub_bogus(x, y):
     ]
 )
 def test_mul(x, y, result):
+    assert isinstance(x * y, FrequencyRatio)
+    assert isinstance(y * x, FrequencyRatio)
     assert x * y == result
     assert y * x == result
 
@@ -932,6 +934,7 @@ def test_mul_bogus(x, y):
     ]
 )
 def test_truediv(x, y, result):
+    assert isinstance(x / y, FrequencyRatio)
     assert x / y == result
 
 
@@ -1210,6 +1213,7 @@ def test_truediv_bogus(x, y):
     ]
 )
 def test_floordiv(x, y, result):
+    assert isinstance(x // y, FrequencyRatio)
     assert x // y == result
 
 
@@ -1491,6 +1495,7 @@ def test_floordiv_bogus(x, y):
     ]
 )
 def test_mod(x, y, result):
+    assert isinstance(x % y, FrequencyRatio)
     assert x % y == result
 
 
@@ -1861,6 +1866,8 @@ def test_mod_bogus(x, y):
     ]
 )
 def test_pow(x, y, result):
+    assert isinstance(x ** y, FrequencyRatio)
+    assert isinstance(pow(x, y), FrequencyRatio)
     assert x ** y == result
     assert pow(x, y) == result
 
@@ -2299,6 +2306,7 @@ def test_cents(ratio, cents):
     ]
 )
 def test_log(ratio, base, result):
+    assert isinstance(ratio.log(base), FrequencyRatio)
     assert ratio.log(base) == result
 
 
