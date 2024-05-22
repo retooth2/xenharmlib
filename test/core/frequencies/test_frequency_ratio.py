@@ -250,10 +250,8 @@ def test_add(x, y, result):
     ]
 )
 def test_add_bogus(x, y):
-
     with pytest.raises(TypeError):
         x + y
-
     with pytest.raises(TypeError):
         y + x
 
@@ -516,10 +514,8 @@ def test_sub(x, y, result):
     ]
 )
 def test_sub_bogus(x, y):
-
     with pytest.raises(TypeError):
         x - y
-
     with pytest.raises(TypeError):
         y - x
 
@@ -690,10 +686,8 @@ def test_mul(x, y, result):
     ]
 )
 def test_mul_bogus(x, y):
-
     with pytest.raises(TypeError):
         x * y
-
     with pytest.raises(TypeError):
         y * x
 
@@ -953,10 +947,8 @@ def test_truediv(x, y, result):
     ]
 )
 def test_truediv_bogus(x, y):
-
     with pytest.raises(TypeError):
         x / y
-
     with pytest.raises(TypeError):
         y / x
 
@@ -1235,10 +1227,8 @@ def test_floordiv(x, y, result):
     ]
 )
 def test_floordiv_bogus(x, y):
-
     with pytest.raises(TypeError):
         x // y
-
     with pytest.raises(TypeError):
         y // x
 
@@ -1517,10 +1507,8 @@ def test_mod(x, y, result):
     ]
 )
 def test_mod_bogus(x, y):
-
     with pytest.raises(TypeError):
         x % y
-
     with pytest.raises(TypeError):
         y % x
 
@@ -1890,10 +1878,8 @@ def test_pow(x, y, result):
     ]
 )
 def test_pow_bogus(x, y):
-
     with pytest.raises(TypeError):
         x ** y
-
     with pytest.raises(TypeError):
         pow(x, y)
 
@@ -2139,10 +2125,8 @@ def test_lt(x, y):
     ]
 )
 def test_lt_bogus(x, y):
-
     with pytest.raises(TypeError):
         x < y
-
     with pytest.raises(TypeError):
         y < x
 
@@ -2274,10 +2258,8 @@ def test_eq_bogus(x, y):
     ]
 )
 def test_to_float(x, as_float):
-
     with pytest.raises(TypeError):
         float(x)
-
     assert x.to_float() == as_float
 
 

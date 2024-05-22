@@ -1555,6 +1555,5 @@ def test_repr(freq, result):
     ]
 )
 def test_init_inconvertible(inconvertible):
-
     with pytest.raises(ValueError):
         Frequency(inconvertible)
