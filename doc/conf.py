@@ -38,18 +38,23 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 html_extra_path = ['google6d5968067404c332.html']
 
-# fake modules with requirements written in C for readthedocs
-# RTD does not install dependencies that have bindings to C
-# code so we need to mock these for generating API docs
+if 'READTHEDOCS' in os.environ:
 
-MOCK_MODULES = [
-    'numpy',
-    'scipy',
-    'scipy.optimize',
-    'scipy.io',
-    'scipy.io.wavfile',
-    'sympy',
-    'sounddevice',
-]
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()
+    # fake modules with requirements written in C for readthedocs
+    # RTD does not install dependencies that have bindings to C
+    # code so we need to mock these for generating API docs
+
+    MOCK_MODULES = [
+        'numpy',
+        'scipy',
+        'scipy.optimize',
+        'scipy.io',
+        'scipy.io.wavfile',
+        'sympy',
+        'sounddevice',
+    ]
+    for mod_name in MOCK_MODULES:
+        sys.modules[mod_name] = mock.Mock()
+
+    # FIXME: there should be some way to patch Frequency and FrequencyRatio
+    # so the default values in the docs do not show as mock.Mock

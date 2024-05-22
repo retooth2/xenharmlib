@@ -22,6 +22,7 @@ useful representations for frequencies and frequency ratios.
 
 from __future__ import annotations
 
+import os
 import sympy as sp
 from typing import Self
 from typing import TypeAlias
@@ -35,7 +36,7 @@ from .utils import get_all_primes
 from .constants import CENTS_PRECISION
 
 # hack for RTD (see doc/conf.py for more info)
-if isinstance(sp.Expr, mock.Mock):
+if 'READTHEDOCS' in os.environ:
     ScalarLike: TypeAlias = 'int | Fraction | float | FrequencyRatio'
 else:
     ScalarLike: TypeAlias = 'int | Fraction | float | FrequencyRatio | sp.Expr'

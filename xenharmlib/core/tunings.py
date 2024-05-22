@@ -24,6 +24,7 @@ that need a couple of methods implemented by a subclass.
 """
 
 from __future__ import annotations
+import os
 import sympy as sp
 from abc import ABC
 from abc import abstractmethod
@@ -340,7 +341,7 @@ class PeriodicTuning(
 
 
 # hack for RTD (see doc/conf.py for more info)
-if isinstance(sp, mock.Mock):
+if 'READTHEDOCS' in os.environ:
     Hz440C0 = Frequency(55 / 2 ** Fraction(7, 4))
 else:
     Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
