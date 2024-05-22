@@ -2289,6 +2289,25 @@ def test_to_float(x, as_float):
 
 
 @pytest.mark.parametrize(
+    'ratio, result',
+    [
+        # ratio(int)
+        (FrequencyRatio(3), 'FrequencyRatio(3)'),
+        # ratio(int, int)
+        (FrequencyRatio(7, 2), 'FrequencyRatio(7/2)'),
+        # ratio(float)
+        (FrequencyRatio(0.5), 'FrequencyRatio(1/2)'),
+        # ratio(Fraction)
+        (FrequencyRatio(Fraction(5, 2)), 'FrequencyRatio(5/2)'),
+        # ratio(SP_NUM)
+        (FrequencyRatio(SP_NUM), 'FrequencyRatio(2**(1/3))'),
+    ]
+)
+def test_repr(ratio, result):
+    assert repr(ratio) == result
+
+
+@pytest.mark.parametrize(
     'ratio, cents',
     [
         (FrequencyRatio(Fraction(3, 2)), 701.9550008654),
