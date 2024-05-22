@@ -1234,6 +1234,31 @@ def test_floordiv_bogus(x, y):
 
 
 @pytest.mark.parametrize(
+    'x, result',
+    [
+        # freq(int)
+        (FrequencyRatio(-2), FrequencyRatio(2)),
+        (FrequencyRatio(5), FrequencyRatio(5)),
+        # freq(int, int)
+        (FrequencyRatio(-2, 3), FrequencyRatio(2, 3)),
+        (FrequencyRatio(5, 3), FrequencyRatio(5, 3)),
+        # freq(float)
+        (FrequencyRatio(-0.1), FrequencyRatio(0.1)),
+        (FrequencyRatio(0.5), FrequencyRatio(0.5)),
+        # freq(Fraction)
+        (FrequencyRatio(Fraction(-1, 2)), FrequencyRatio(1, 2)),
+        (FrequencyRatio(Fraction(3, 4)), FrequencyRatio(3, 4)),
+        # freq(SP_NUM)
+        (FrequencyRatio(- SP_NUM), FrequencyRatio(SP_NUM)),
+        (FrequencyRatio(SP_NUM), FrequencyRatio(SP_NUM)),
+    ]
+)
+def test_abs(x, result):
+    assert isinstance(abs(x), FrequencyRatio)
+    assert abs(x) == result
+
+
+@pytest.mark.parametrize(
     'x, y, result',
     [
         # ratio(int) x ratio(int)
