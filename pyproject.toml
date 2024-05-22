@@ -40,5 +40,6 @@ dependencies = [
 ]
 
 [project.urls]
+Documentation = "https://xenharmlib.readthedocs.io/en/latest/"
 Homepage = "https://gitlab.com/retooth/xenharmlib"
 Issues = "https://gitlab.com/retooth/xenharmlib/-/issues"
