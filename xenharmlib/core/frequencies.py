@@ -86,13 +86,13 @@ def _scalar_to_sp_expr(number: object, allow_freq_ratio=True):
 class Frequency:
     """
     Frequency is the class to which all pitch definitions ultimately
-    come down to. Frequencies represent the physical layer of sound,
+    come down. Frequencies represent the physical layer of sound,
     stripped from all other abstractions.
 
-    Frequency is a wrapper around symbolic mathematical expressions,
-    which are provided by the sympy package. Using those expressions
-    instead of floats allows us to do exact precision calculations
-    which is especially useful in regards to equal division tunings
+    Frequency is a wrapper around symbolic mathematical expressions
+    that are provided by the sympy package. Using those expressions
+    instead of floats allows us to do exact precision calculations.
+    This is especially useful in regard to equal division tunings
     where pitches have irrational frequencies.
 
     Frequency objects can be constructed by providing an integer,
@@ -111,9 +111,34 @@ class Frequency:
     >>> Frequency(sp.Integer(2)**sp.Rational(1, 12))
     Frequency(2**(1/12))
 
-    Frequency objects define a "dimensionful arithmetic" on the set of
-    frequencies and scalars (like integers, sympy expressions and
-    frequency ratios)
+    As you might have noticed floats get converted to fractions internally.
+    This is done to ensure precision when dealing with frequencies, however
+    despite this safeguard using floats has a lot of pitfalls, as you
+    can see in this example:
+
+    >>> Frequency(0.2)
+    Frequency(3602879701896397/18014398509481984)
+
+    For very technical reasons floats are pretty bad at saving certain
+    numbers. So even though it is possible to initialize a Frequency
+    from a float it is *highly discouraged*. Instead, you should use
+    python's Fraction type
+
+    >>> Frequency(Fraction(2, 10))
+    Frequency(1/5)
+    >>> Frequency(440 + Fraction(2, 10))
+    Frequency(2201/5)
+
+    If you want a more human-readable form you can always convert to float
+    after all calculations have been done:
+
+    >>> Frequency(440 + Fraction(2, 10)).to_float()
+    440.2
+
+    Frequency objects are part of a dimensionful arithmetic that is defined
+    on Frequency objects and various scalars. Frequencies can interact with
+    one another and with scalar values in the way how they would in a proper
+    physical equation:
 
     Frequencies can be added to and subtracted from other frequencies:
 
@@ -122,8 +147,9 @@ class Frequency:
     >>> Frequency(440) - Frequency(100)
     Frequency(340)
 
-    However, since :math:`x Hz + y` is undefined, adding/subtracting a scalar
-    raises an error:
+    However, the same way as adding a dimensionless quality to a quantity in
+    Hz is forbidden in a physical equation Frequency objects and scalar values
+    can not be added in xenharmlib:
 
     >>> Frequency(440) + 100
     Traceback (most recent call last):
@@ -131,7 +157,7 @@ class Frequency:
     TypeError: unsupported operand type(s) for +: 'Frequency' and 'int'"
 
     For multiplication the same holds in reverse. Frequencies can be
-    multiplied by a scalar, however not with one other.
+    multiplied by a scalar, but not with one other:
 
     >>> from xenharmlib import FrequencyRatio
     >>> 3 * Frequency(100)
@@ -139,17 +165,19 @@ class Frequency:
     >>> Frequency(200) * FrequencyRatio(3, 2)
     Frequency(300)
 
-    A frequency can be divided by both a scalar and a frequency. While
-    the first results in a Frequency, the second will be a FrequencyRatio:
+    A Frequency can be divided by both a scalar and a frequency. While
+    the first case results in a Frequency in Hz, the second will be a
+    scalar FrequencyRatio without a physical unit attached to it:
 
     >>> Frequency(440) / 10
     Frequency(44)
     >>> Frequency(440) / Frequency(100)
     FrequencyRatio(22/5)
 
-    A scalar can not be divided by a frequency (an expression like 1 / (80 Hz)
-    has a meaning in physics, however this meaning is out of scope for this
-    implementation)
+    Even though a frequency can be divided by a scalar, the same does not
+    hold in reverse: Dividing a scalar by a frequency will raise an error.
+    Even though an expression like 1 / 80 Hz is technically legal in a
+    physics equation it is outside the scope of this implementation.
 
     >>> 1 / Frequency(100)
     Traceback (most recent call last):
