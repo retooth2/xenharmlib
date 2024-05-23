@@ -6,6 +6,8 @@ more. The library implements a superset of Western classical music theory,
 so you can also use it to compose and analyze music in the boundaries of
 the common practice period or 20th century Western music.
 
+[Click here for the official documentation](https://xenharmlib.readthedocs.io/en/latest/)
+
 So far it supports the following:
 
 * Equal division tunings (e.g. Western, Modern Arabic, Bohlen-Pierce)

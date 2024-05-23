@@ -44,9 +44,9 @@ yourself:
 .. testcode::
 
    from xenharmlib import EDTuning
-   from xenharmlib import Frequency
+   from xenharmlib import FrequencyRatio
 
-   bohlen_pierce = EDTuning(13, Frequency(3))
+   bohlen_pierce = EDTuning(13, FrequencyRatio(3))
 
 Xenharmlib is designed in a way that you can use different levels of
 abstraction for individual tuning sounds. Some prefer the customary
@@ -139,7 +139,7 @@ point math)
 
 .. testcode::
 
-    print(float(edo24.pitch(3).frequency))
+    print(edo24.pitch(3).frequency.to_float())
 
 .. testoutput::
 
@@ -258,11 +258,11 @@ perfect fifth in a tuning you can do something like this:
 
 .. testcode::
 
-    from fractions import Fraction
+    from xenharmlib import FrequencyRatio
 
     def get_fifth_pc_index(tuning):
         zero_freq = tuning.pitch(0).frequency
-        perfect_fifth_freq = zero_freq * Frequency(Fraction(3, 2))
+        perfect_fifth_freq = zero_freq * FrequencyRatio(3, 2)
         fifth = tuning.get_approx_pitch(
             perfect_fifth_freq
         )

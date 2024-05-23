@@ -1,14 +1,14 @@
 import pytest
-from xenharmlib.core.frequencies import Frequency
+from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch_scale import PeriodicPitchScale
 from xenharmlib.exc import IncompatibleTunings
 
-edo12 = EDTuning(12, Frequency(2))
-edo24 = EDTuning(24, Frequency(2))
-edo31 = EDTuning(31, Frequency(2))
-ed13_3 = EDTuning(13, Frequency(3))
+edo12 = EDTuning(12, FrequencyRatio(2))
+edo24 = EDTuning(24, FrequencyRatio(2))
+edo31 = EDTuning(31, FrequencyRatio(2))
+ed13_3 = EDTuning(13, FrequencyRatio(3))
 
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
@@ -192,7 +192,7 @@ def test_union_incompatible_tunings():
     different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -284,7 +284,7 @@ def test_intersection_incompatible_tunings():
     different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -376,7 +376,7 @@ def test_difference_incompatible_tunings():
     different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -469,7 +469,7 @@ def test_symmetric_difference_incompatible_tunings():
     originate from different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -527,7 +527,7 @@ def test_pcs_intersection_incompatible_tunings():
     different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -611,7 +611,7 @@ def test_is_disjoint_incompatible_tunings():
     originate from different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -664,7 +664,7 @@ def test_is_equivalent_incompatible_tunings():
     different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -816,7 +816,7 @@ def test_is_subset_incompatible_tunings():
     originate from different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):
@@ -973,7 +973,7 @@ def test_is_superset_incompatible_tunings():
     originate from different tunings
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     tunings = edo12, edo24, edo31, ed13_3, edo12_2
 
     for i, tuning_a in enumerate(tunings):

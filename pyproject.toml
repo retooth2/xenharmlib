@@ -7,7 +7,7 @@ include = ["xenharmlib"]
 
 [project]
 name = "xenharmlib"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Fabian Vallon", email="fabian.vallon@gmail.com" },
 ]
@@ -40,5 +40,6 @@ dependencies = [
 ]
 
 [project.urls]
+Documentation = "https://xenharmlib.readthedocs.io/en/latest/"
 Homepage = "https://gitlab.com/retooth/xenharmlib"
 Issues = "https://gitlab.com/retooth/xenharmlib/-/issues"

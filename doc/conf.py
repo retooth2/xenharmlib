@@ -23,7 +23,11 @@ author = 'Fabian Vallon'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinxext.opengraph'
+]
 
 templates_path = ['_templates']
 html_css_files = ['css/smufl.css',]
@@ -36,20 +40,26 @@ html_logo = "_static/images/sidebar-logo.png"
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
-html_extra_path = ['google6d5968067404c332.html']
 
-# fake modules with requirements written in C for readthedocs
-# RTD does not install dependencies that have bindings to C
-# code so we need to mock these for generating API docs
+ogp_image = '_static/images/sidebar-logo.png'
 
-MOCK_MODULES = [
-    'numpy',
-    'scipy',
-    'scipy.optimize',
-    'scipy.io',
-    'scipy.io.wavfile',
-    'sympy',
-    'sounddevice',
-]
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()
+if 'READTHEDOCS' in os.environ:
+
+    # fake modules with requirements written in C for readthedocs
+    # RTD does not install dependencies that have bindings to C
+    # code so we need to mock these for generating API docs
+
+    MOCK_MODULES = [
+        'numpy',
+        'scipy',
+        'scipy.optimize',
+        'scipy.io',
+        'scipy.io.wavfile',
+        'sympy',
+        'sounddevice',
+    ]
+    for mod_name in MOCK_MODULES:
+        sys.modules[mod_name] = mock.Mock()
+
+    # FIXME: there should be some way to patch Frequency and FrequencyRatio
+    # so the default values in the docs do not show as mock.Mock

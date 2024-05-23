@@ -1,16 +1,16 @@
 import pytest
-from xenharmlib.core.frequencies import Frequency
+from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.exc import IncompatibleTunings
 from xenharmlib.exc import InvalidGenerator
 
-edo12 = EDTuning(12, Frequency(2))
-edo17 = EDTuning(17, Frequency(2))
-edo24 = EDTuning(24, Frequency(2))
-edo31 = EDTuning(31, Frequency(2))
-ed13_3 = EDTuning(13, Frequency(3))
-ed17_3 = EDTuning(17, Frequency(3))
+edo12 = EDTuning(12, FrequencyRatio(2))
+edo17 = EDTuning(17, FrequencyRatio(2))
+edo24 = EDTuning(24, FrequencyRatio(2))
+edo31 = EDTuning(31, FrequencyRatio(2))
+ed13_3 = EDTuning(13, FrequencyRatio(3))
+ed17_3 = EDTuning(17, FrequencyRatio(3))
 
 @pytest.mark.parametrize(
     'tuning, pitch_index, exp_pc, exp_bi',
@@ -271,7 +271,7 @@ def test_get_generator_index_incompatible_tunings(pitch_b):
     tuning context
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     pitch_a = EDPitch(edo12_2, 0)
 
     with pytest.raises(IncompatibleTunings):
@@ -333,7 +333,7 @@ def test_arithmetic_incompatible_tunings(index_a, index_b):
     tuning contexts
     """
 
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
     pitch_a = EDPitch(edo12, index_a)
     pitch_b = EDPitch(edo12_2, index_b)
 

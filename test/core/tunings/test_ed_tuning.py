@@ -4,6 +4,7 @@ from fractions import Fraction
 
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.frequencies import Frequency
+from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.exc import IncompatibleTunings
 from xenharmlib.exc import InvalidFrequency
 
@@ -14,19 +15,19 @@ FREQ_EPSILON = 0.1
     'tuning, pitch_index, freq',
     [
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             9+12*4,
-            440
+            Frequency(440)
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(20)),
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(20)),
             17,
-            sp.Integer(60) * sp.Integer(3) ** sp.Rational(4, 13)
+            Frequency(sp.Integer(60) * sp.Integer(3) ** sp.Rational(4, 13))
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(50)),
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(50)),
             27,
-            sp.Integer(450) * sp.Integer(3) ** sp.Rational(1, 13)
+            Frequency(sp.Integer(450) * sp.Integer(3) ** sp.Rational(1, 13))
         )
     ]
 )
@@ -38,8 +39,8 @@ def test_get_frequency(tuning, pitch_index, freq):
 
 def test_get_frequency_incompatible_tunings():
 
-    edo12 = EDTuning(12, Frequency(2))
-    edo12_2 = EDTuning(12, Frequency(2))
+    edo12 = EDTuning(12, FrequencyRatio(2))
+    edo12_2 = EDTuning(12, FrequencyRatio(2))
 
     edo12_pitch = edo12.pitch(8)
 
@@ -51,52 +52,52 @@ def test_get_frequency_incompatible_tunings():
     'tuning, pitch_index, freq',
     [
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             9+12*4,
-            440
+            Frequency(440)
         ),
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             -12,
-            8.175
+            Frequency(8.175)
         ),
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             6,
-            Frequency(16.3) * Frequency(Fraction(3**6, 2**9))
+            Frequency(16.3) * FrequencyRatio(3**6, 2**9)
         ),
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             6,
-            Frequency(16.35) * (Frequency(2)**(1/12))**6
+            Frequency(16.35) * (FrequencyRatio(2)**(1/12))**6
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(16.3)),
             17,
-            68.6
+            Frequency(68.6)
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(16.3)),
             27,
-            159.6
+            Frequency(159.6)
         ),
     ]
 )
 def test_get_approx_pitch(tuning, pitch_index, freq):
     pitch = tuning.get_approx_pitch(freq)
     assert pitch.pitch_index == pitch_index
-    assert (pitch.frequency - freq) < FREQ_EPSILON
+    assert (pitch.frequency - freq) < Frequency(FREQ_EPSILON)
 
 
 @pytest.mark.parametrize(
     'tuning, generator_pitch_indices',
     [
         (
-            EDTuning(12, Frequency(2)),
+            EDTuning(12, FrequencyRatio(2)),
             [1, 5, 7, 11]
         ),
         (
-            EDTuning(13, Frequency(3), ref_frequency=Frequency(16.3)),
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(16.3)),
             list(range(1, 13)),
         )
     ]

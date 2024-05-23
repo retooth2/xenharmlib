@@ -89,12 +89,12 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 .. testcode::
 
    from xenharmlib import EDTuning
-   from xenharmlib import Frequency
+   from xenharmlib import FrequencyRatio
 
    # analyze group theoretical properties of
    # Bohlen-Pierce tunings
 
-   bp = EDTuning(13, Frequency(3))
+   bp = EDTuning(13, FrequencyRatio(3))
 
    p1 = bp.pitch(4)
    p2 = bp.pitch(18)
@@ -114,7 +114,7 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
    4
    5
-   Frequency(3*3**(1/13))
+   FrequencyRatio(3*3**(1/13))
    2
 
 Audience & Design Philosophy
@@ -223,6 +223,12 @@ prerequisites for a pull request to be accepted that you should know:
 * Xenharmlib is designed around functional programming principles.
   Objects should not alter their state when calling methods (except
   on initialization methods)
+
+Changelog
+---------
+
+For a list of changes see :doc:`changelog`
+
 
 Indices and tables
 ==================
