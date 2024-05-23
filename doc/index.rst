@@ -224,6 +224,12 @@ prerequisites for a pull request to be accepted that you should know:
   Objects should not alter their state when calling methods (except
   on initialization methods)
 
+Changelog
+---------
+
+For a list of changes see :doc:`changelog`
+
+
 Indices and tables
 ==================
 

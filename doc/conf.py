@@ -23,7 +23,11 @@ author = 'Fabian Vallon'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinxext.opengraph'
+]
 
 templates_path = ['_templates']
 html_css_files = ['css/smufl.css',]
@@ -36,6 +40,8 @@ html_logo = "_static/images/sidebar-logo.png"
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+
+ogp_image = '_static/images/sidebar-logo.png'
 
 if 'READTHEDOCS' in os.environ:
 
