@@ -401,15 +401,15 @@ class Frequency:
 @total_ordering
 class FrequencyRatio:
     """
-    A FrequencyRatio object is a scalar value that results from dividing two
-    Frequency objects. The FrequencyRatio class can be understood as an
-    augmented version of the python builtin Fraction type:
+    The FrequencyRatio class can be understood as an augmented version of
+    the Python built-in Fraction type. Different from the built-in Fraction
+    type FrequencyRatio can also hold infinite-precision irrational
+    fractions like  :math:`\\frac{\\sqrt[12]{2}}{2^{\\frac{1}{12}}}`
+    that are essential for equal temperament intervals.
 
-    FrequencyRatio is built on sympy expressions meaning that both rational
-    and irrational ratios (with infinite precision) are possible. Irrational
-    ratios are especially important to describe frequency relations in equal
-    division tunings. If the ratio is rational FrequencyRatio provides a
-    method to factorize the ratio into a prime exponent vector (monzo).
+    For infinite-precision calculation, FrequencyRatio wraps the sympy
+    package for symbolic arithmetic. Calculation results do not get
+    converted to approximations until the user explicitly decides to.
 
     FrequencyRatio objects can be created like Fractions:
 
@@ -418,13 +418,28 @@ class FrequencyRatio:
     >>> FrequencyRatio(3)
     FrequencyRatio(3)
 
-    For both numerator and denominator sympy expressions can be used
+    For both numerator and denominator, sympy expressions can be used:
 
     >>> import sympy as sp
     >>> FrequencyRatio(sp.Integer(3)**sp.Rational(3, 12), sp.sqrt(3))
     FrequencyRatio(3**(3/4)/3)
 
-    Frequency ratios define a standard arithmetic and interact seemlessly
+    Frequency ratios can also be constructed from prime exponent vectors
+    (monzos):
+
+    >>> FrequencyRatio.from_monzo([-11, 7])
+    FrequencyRatio(2187/2048)
+
+    Floats are also supported, however *highly discouraged* because of
+    the technical limitations of the data type that can lead to surprising
+    and unwanted results:
+
+    >>> FrequencyRatio(0.2) # bad
+    FrequencyRatio(3602879701896397/18014398509481984)
+    >>> FrequencyRatio(2, 10) # good
+    FrequencyRatio(1/5)
+
+    Frequency ratios define a standard arithmetic and interact seamlessly
     with other scalar types:
 
     >>> FrequencyRatio(20, 8) * FrequencyRatio(2)
@@ -653,22 +668,37 @@ class FrequencyRatio:
         raise TypeError("For floating point conversion use .to_float()")
 
     def to_float(self) -> float:
+        """
+        Converts this object into a floating point number
+        """
         return float(self.sp_expr.evalf())
 
     def __round__(self, ndigits: int = 0) -> float:
         return round(float(self.sp_expr), ndigits)
 
     def log(self, base: ScalarLike) -> FrequencyRatio:
+        """
+        Returns the result of the logarithm of this object
+
+        :param base: The base that should be assumed
+            for calculation
+        """
         base = _scalar_to_sp_expr(base)
         return FrequencyRatio(sp.log(self.sp_expr, base))
 
     @property
     def numerator(self) -> FrequencyRatio:
+        """
+        The numerator of the ratio
+        """
         n, _ = sp.fraction(self.sp_expr)
         return FrequencyRatio(n)
 
     @property
     def denominator(self) -> FrequencyRatio:
+        """
+        The denominator of the ratio
+        """
         _, d = sp.fraction(self.sp_expr)
         return FrequencyRatio(d)
 
