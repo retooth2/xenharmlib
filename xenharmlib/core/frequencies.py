@@ -345,6 +345,9 @@ class Frequency:
         raise TypeError("For floating point conversion use .to_float()")
 
     def to_float(self) -> float:
+        """
+        Converts this object into a floating point number
+        """
         return float(self.sp_expr.evalf())
 
     def __round__(self, ndigits: int = 0) -> float:
