@@ -2,7 +2,7 @@ import pytest
 
 from xenharmlib import EDOTuning
 from xenharmlib import EDTuning
-from xenharmlib import Frequency
+from xenharmlib import FrequencyRatio
 from xenharmlib import UpDownNotation
 from xenharmlib.exc import UnfittingNotation
 from xenharmlib.exc import UnknownNoteSymbol
@@ -10,7 +10,7 @@ from xenharmlib.exc import UnknownNoteSymbol
 
 def test_unfitting_notation():
 
-    bp = EDTuning(13, Frequency(3))
+    bp = EDTuning(13, FrequencyRatio(3))
 
     with pytest.raises(UnfittingNotation):
         UpDownNotation(bp)
