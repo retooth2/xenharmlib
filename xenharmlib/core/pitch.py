@@ -483,17 +483,8 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
 
         pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
 
-        # since in equal step tunings all intervals
-        # of the same pitch difference are the same
-        # in ratio we can just construct an arbitrary
-        # pitch as a reference pitch as long as the
-        # interval does not go over the zero pitch
-        # threshold
-
-        ref_pitch = tuning.pitch(abs(pitch_diff))
-
         return cls(
-            ref_pitch,
+            pitch_a,
             pitch_diff,
             tuning,
         )
