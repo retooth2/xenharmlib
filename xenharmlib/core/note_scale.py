@@ -60,6 +60,13 @@ class NoteScale(Generic[NoteT]):
         return self.notation.tuning
 
     @property
+    def enharm_strategy(self):
+        """
+        A proxy property to the enharmonic strategy of the notation
+        """
+        return self.notation.enharm_strategy
+
+    @property
     def pitch_scale(self):
         """
         Returns the equivalent pitch scale for this object
@@ -183,13 +190,18 @@ class NoteScale(Generic[NoteT]):
             intervals.append(self[i].interval(self[i + 1]))
         return intervals
 
-    def transpose(self, interval: NoteIntervalABC) -> Self:
+    def transpose(self, diff: Union[int | NoteIntervalABC]) -> Self:
         """
         Transposes the scale by the given interval
 
-        :param interval: A note interval
+        :param interval: A note interval or pitch difference given
+            as an integer
         """
 
+        if isinstance(diff, int):
+            return self.enharm_strategy.note_scale_transpose(self, diff)
+
+        interval = diff
         transposed = []
         for notes in self._sorted_notes:
             transposed.append(notes.transpose(interval))
@@ -528,6 +540,15 @@ class PeriodicNoteScale(NoteScale):
             n_scale.add_note(n_note)
 
         return n_scale
+
+    def pcs_complement(self) -> Self:
+        """
+        Returns a complement version of this scale that includes
+        all the notes in the first base interval that are not part
+        of this scale
+        """
+
+        return self.enharm_strategy.note_scale_pcs_complement(self)
 
     def rotated_up(self) -> Self:
         """

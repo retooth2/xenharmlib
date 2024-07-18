@@ -38,6 +38,7 @@ from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
 from ..exc import IncompatibleNotations
+from ..exc import IncompatibleTunings
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
@@ -81,6 +82,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         self._note_cls = note_cls
         self._note_interval_cls = note_interval_cls
         self._note_scale_cls = note_scale_cls
+        self._enharm_strategy = None
 
     @property
     def tuning(self):
@@ -88,6 +90,24 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         Returns the tuning this notation was built for
         """
         return self._tuning
+
+    @property
+    def enharm_strategy(self):
+        """
+        The enharmonic strategy of this notation. Enharmonic strategies
+        define different ways to map pitch layer objects to notation layer
+        objects.
+        """
+        if self._enharm_strategy is None:
+            raise IncompleteNotation(
+                'Notation did not define an enharmonic strategy. Without '
+                'it the result of this operation is not well-defined'
+            )
+        return self._enharm_strategy
+
+    @enharm_strategy.setter
+    def enharm_strategy(self, enharm_strategy):
+        self._enharm_strategy = enharm_strategy
 
     @abstractmethod
     def note(self, *args, **kwargs) -> NoteT:
@@ -115,6 +135,56 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
         :param notes: A list of notes
         """
+
+    def guess_note(self, pitch) -> NoteT:
+        """
+        Guesses a note from a pitch using the preferred enharmonic
+        strategy of this notation
+
+        :pitch: A pitch object originating from the underlying tuning
+        """
+
+        if pitch.tuning is not self.tuning:
+            raise IncompatibleTunings(
+                'Pitch must originate from the tuning that this '
+                'notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note(self, pitch)
+
+    def guess_note_interval(self, pitch_interval) -> NoteT:
+        """
+        Guesses a note interval from a pitch interval using the preferred
+        enharmonic strategy of this notation
+
+        :pitch_interval: A pitch interval object originating
+            from the underlying tuning
+        """
+
+        if pitch_interval.tuning is not self.tuning:
+            raise IncompatibleTunings(
+                'Pitch interval must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval(self, pitch_interval)
+
+    def guess_note_scale(self, pitch_scale) -> NoteT:
+        """
+        Guesses a note scale from a pitch scale using the preferred
+        enharmonic strategy of this notation
+
+        :pitch_scale: A pitch scale object originating
+            from the underlying tuning
+        """
+
+        if pitch_scale.tuning is not self.tuning:
+            raise IncompatibleTunings(
+                'Pitch scale must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_scale(self, pitch_scale)
 
 
 class IncompleteNotation(Exception):

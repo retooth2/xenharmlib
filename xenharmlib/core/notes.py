@@ -69,6 +69,13 @@ class NoteABC(ABC):
         """
         return self.notation.tuning
 
+    @property
+    def enharm_strategy(self):
+        """
+        Proxy property for the enharmonic strategy of the notation
+        """
+        return self.notation.enharm_strategy
+
     def interval(self, other: Self) -> NoteIntervalABC[Self]:
         """
         Returns an interval between this note and
@@ -110,12 +117,13 @@ class NoteABC(ABC):
         """
 
     @abstractmethod
-    def transpose(self, interval) -> Self:
+    def transpose(self, diff: int | NoteIntervalABC[Self]) -> Self:
         """
         (Must be implemented by subclasses)
         Transposes the note to a different one
 
-        :param interval: A note interval
+        :param diff: A note interval or an integer denoting the pitch
+            difference
         """
 
     @abstractmethod
@@ -451,13 +459,56 @@ class NatAccNote(PeriodicNoteABC):
         """
         return f'{self.pc_symbol}{self.nat_bi_index}'
 
-    def transpose(self, interval: NatAccNoteInterval) -> NatAccNote:
+    def acc_altered(self, acc_diff: Tuple[int]):
+        """
+        Returns a note with altered accidentals from an accidental
+        difference vector, so for example in UpDownNotation for a tuning
+        with sharpness 2 altering ^C# by (2, -1) results in the note Cx
+
+        :param acc_diff: The accidental difference vector
+        """
+
+        if len(self.acc_vector) != len(acc_diff):
+            raise ValueError(
+                "The accidental difference vector must have the same "
+                "number of dimensions as the accidental vector of the "
+                "note it is applied to"
+            )
+
+        acc_vector = tuple(np.add(self.acc_vector, acc_diff))
+        result = self.notation.gen_pc_symbol(self.nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
+
+        return self.__class__(
+            self.notation,
+            self.nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol,
+        )
+
+    def transpose(
+        self,
+        diff: int | NatAccNoteInterval[Self]
+    ) -> NatAccNote:
         """
         Transposes the note to another one by a natural/accidental
         note interval.
 
-        :param interval: A natural/accidental note interval object
+        :param diff: A natural/accidental note interval object
+            or an integer denoting the pitch difference
         """
+
+        if isinstance(diff, int):
+            return self.enharm_strategy.note_transpose(self, diff)
+
+        # rename diff to interval so it is clear that
+        # we have a proper interval definition
+        interval = diff
 
         if interval.notation is not self.notation:
             raise IncompatibleNotations(
