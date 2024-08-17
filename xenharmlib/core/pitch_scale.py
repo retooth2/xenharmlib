@@ -113,11 +113,26 @@ class PitchScale(Generic[PitchT]):
     """
 
     def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
+
         self.tuning = tuning
-        self._sorted_pitches: List[PitchT] = []
-        if pitches is not None:
-            for pitch in pitches:
-                self.add_pitch(pitch)
+
+        if pitches is None:
+            pitches = []
+
+        unique_pitches = []
+        indices = set()
+
+        for pitch in pitches:
+            if pitch.tuning is not self.tuning:
+                raise IncompatibleTunings(
+                    'Pitch must originate from the same tuning '
+                    'context as the scale'
+                )
+            if pitch.pitch_index not in indices:
+                indices.add(pitch.pitch_index)
+                unique_pitches.append(pitch)
+
+        self._sorted_pitches: List[PitchT] = sorted(unique_pitches)
 
     def add_pitch(self, pitch: PitchT):
         """

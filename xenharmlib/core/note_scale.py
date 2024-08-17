@@ -49,11 +49,26 @@ class NoteScale(Generic[NoteT]):
     """
 
     def __init__(self, notation, notes=None):
+
         self.notation = notation
-        self._sorted_notes = []
-        if notes is not None:
-            for note in notes:
-                self.add_note(note)
+
+        if notes is None:
+            notes = []
+
+        unique_notes = []
+        indices = set()
+
+        for note in notes:
+            if note.notation is not self.notation:
+                raise IncompatibleNotations(
+                    'The provided note originates from a different '
+                    'notation than the scale'
+                )
+            if note.pitch_index not in indices:
+                indices.add(note.pitch_index)
+                unique_notes.append(note)
+
+        self._sorted_notes = sorted(unique_notes)
 
     @property
     def tuning(self):
