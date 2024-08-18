@@ -953,7 +953,7 @@ class NatAccNotation(
 
     def parse_pc_symbol(
         self, pc_symbol: str
-    ) -> Tuple[str, str, int, Tuple[int]]:
+    ) -> Tuple[str, str, int, Tuple[int, ...]]:
         """
         Parses a pitch class symbol into its natural class symbol
         part and its accidental symbol part. Returns a 4-tuple

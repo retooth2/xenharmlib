@@ -29,6 +29,8 @@ from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
 import numpy as np
+from .protocols import PitchLike
+from .protocols import PitchIntervalLike
 from .protocols import PeriodicPitchLike
 from .frequencies import Frequency
 from .pitch import PeriodicPitch
@@ -89,7 +91,7 @@ class NoteABC(ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
-        if self.tuning is other.tuning:
+        if isinstance(other, PitchLike) and self.tuning is other.tuning:
             # this is an optimization because frequency
             # comparison is actually quite costly with
             # sympy expression evaluation
@@ -97,7 +99,7 @@ class NoteABC(ABC):
         return self.frequency == other.frequency
 
     def __lt__(self, other: HasFrequency) -> bool:
-        if self.tuning is other.tuning:
+        if isinstance(other, PitchLike) and self.tuning is other.tuning:
             # this is an optimization because frequency
             # comparison is actually quite costly with
             # sympy expression evaluation
@@ -274,7 +276,7 @@ class NatAccNote(PeriodicNoteABC):
         self,
         notation,
         nat_index: int,
-        acc_vector: Tuple[int],
+        acc_vector: Tuple[int, ...],
         pc_symbol: str,
         natc_symbol: str,
         acc_symbol: str,
@@ -384,7 +386,7 @@ class NatAccNote(PeriodicNoteABC):
         return int(sum(self._acc_vector))
 
     @property
-    def acc_vector(self) -> Tuple[int]:
+    def acc_vector(self) -> Tuple[int, ...]:
         """
         The accidental vector of this note
         """
@@ -469,7 +471,7 @@ class NatAccNote(PeriodicNoteABC):
         """
         return f'{self.pc_symbol}{self.nat_bi_index}'
 
-    def acc_altered(self, acc_diff: Tuple[int]):
+    def acc_altered(self, acc_diff: Tuple[int, ...]):
         """
         Returns a note with altered accidentals from an accidental
         difference vector, so for example in UpDownNotation for a tuning
@@ -503,7 +505,7 @@ class NatAccNote(PeriodicNoteABC):
 
     def transpose(
         self,
-        diff: int | NatAccNoteInterval[Self]
+        diff: int | NatAccNoteInterval
     ) -> NatAccNote:
         """
         Transposes the note to another one by a natural/accidental
@@ -646,7 +648,8 @@ class NoteIntervalABC(Generic[NoteT], ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequencyRatio):
             return False
-        if self.tuning is other.tuning:
+        if isinstance(other, PitchIntervalLike) and \
+                self.tuning is other.tuning:
             # this is an optimization because frequency
             # ratio comparison is actually quite costly
             # with sympy expression evaluation
@@ -654,7 +657,8 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other: HasFrequencyRatio) -> bool:
-        if self.tuning is other.tuning:
+        if isinstance(other, PitchIntervalLike) and \
+                self.tuning is other.tuning:
             # this is an optimization because frequency
             # ratio comparison is actually quite costly
             # with sympy expression evaluation
@@ -756,7 +760,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         notation,
         ref_note: NatAccNote,
         nat_diff: int,
-        acc_vector: Tuple[int],
+        acc_vector: Tuple[int, ...],
         symbol: str,
         number: int,
     ):
@@ -772,7 +776,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         self._number = number
 
     @property
-    def acc_vector(self) -> Tuple[int]:
+    def acc_vector(self) -> Tuple[int, ...]:
         """
         The accidental vector of this interval (signifying the different
         pitch deviations from the standard natural pitch difference)

@@ -17,7 +17,7 @@
 This module includes functionality to deal with enharmonic ambiguity
 """
 
-from typing import Iterable
+from typing import Sequence
 from .notes import PeriodicNoteABC
 
 
@@ -171,7 +171,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
     UpDownNote(E, 2)
     """
 
-    def __init__(self, pc_blueprint: Iterable[PeriodicNoteABC]):
+    def __init__(self, pc_blueprint: Sequence[PeriodicNoteABC]):
 
         notation = pc_blueprint[0].notation
 

@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Protocol
 from typing import runtime_checkable
 from typing import List
+from collections.abc import Iterator
 from .frequencies import Frequency
 
 
@@ -154,7 +155,11 @@ class HasFrequencyRatios(Protocol):
 
 
 @runtime_checkable
-class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
+class PitchScaleLike(
+    HasFrequencies,
+    HasFrequencyRatios,
+    Protocol
+):
     """
     Extension protocol that builds both on HasFrequencies and
     HasFrequencyRatios. Demands in addition that the properties
@@ -169,6 +174,12 @@ class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
 
     @property
     def pitch_diffs(self) -> List[int]: ...
+
+    def __iter__(self) -> Iterator: ...
+
+    def __len__(self) -> int: ...
+
+    def __getitem__(self, index_or_slice: int | slice): ...
 
 
 @runtime_checkable
