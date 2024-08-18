@@ -296,13 +296,13 @@ class PitchScale(Generic[PitchT]):
         :param tuning: The target tuning
         """
 
-        retuned_scale = tuning.pitch_scale()
+        pitches = []
 
         for pitch in self:
             retuned_pitch = pitch.retune(tuning)
-            retuned_scale.add_pitch(retuned_pitch)
+            pitches.append(retuned_pitch)
 
-        return retuned_scale
+        return tuning.pitch_scale(pitches)
 
     # set operations
 
@@ -322,15 +322,8 @@ class PitchScale(Generic[PitchT]):
                 'Scales must originate from the same tuning context'
             )
 
-        scale = self.tuning.pitch_scale()
-
-        for pitch in self:
-            scale.add_pitch(pitch)
-
-        for pitch in other:
-            scale.add_pitch(pitch)
-
-        return scale
+        pitches = list(self) + list(other)
+        return self.tuning.pitch_scale(pitches)
 
     def intersection(self, other: Self) -> Self:
         """
@@ -348,14 +341,14 @@ class PitchScale(Generic[PitchT]):
                 'Scales must originate from the same tuning context'
             )
 
-        scale = self.tuning.pitch_scale()
+        pitches = []
 
         for pitch_a in self:
             for pitch_b in other:
                 if pitch_a == pitch_b:
-                    scale.add_pitch(pitch_a)
+                    pitches.append(pitch_a)
 
-        return scale
+        return self.tuning.pitch_scale(pitches)
 
     def difference(self, other: Self) -> Self:
         """
@@ -373,16 +366,16 @@ class PitchScale(Generic[PitchT]):
                 'Scales must originate from the same tuning context'
             )
 
-        scale = self.tuning.pitch_scale()
+        pitches = []
 
         for pitch_a in self:
             for pitch_b in other:
                 if pitch_a == pitch_b:
                     break
             else:
-                scale.add_pitch(pitch_a)
+                pitches.append(pitch_a)
 
-        return scale
+        return self.tuning.pitch_scale(pitches)
 
     def symmetric_difference(self, other: Self) -> Self:
         """
@@ -491,13 +484,13 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         the normalized scale will be smaller in cardinality.
         """
 
-        n_scale = self.tuning.pitch_scale()
+        pitches = []
 
         for pitch in self._sorted_pitches:
             n_pitch = self.tuning.pitch(pitch.pc_index)
-            n_scale.add_pitch(n_pitch)
+            pitches.append(n_pitch)
 
-        return n_scale
+        return self.tuning.pitch_scale(pitches)
 
     def pcs_complement(self) -> Self:
         """
@@ -508,8 +501,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         """
 
         n_scale = self.pcs_normalized()
-
-        complement = self.tuning.pitch_scale()
+        complement = []
 
         full_scale = self.tuning.pitch_scale(
             self.tuning.pitch_range(len(self.tuning))
@@ -517,9 +509,9 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         for pitch in full_scale:
             if pitch not in n_scale:
-                complement.add_pitch(pitch)
+                complement.append(pitch)
 
-        return complement
+        return self.tuning.pitch_scale(complement)
 
     # typical scale operations in music theory
 
@@ -529,17 +521,17 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         upwards until it is above the highest pitch
         """
 
-        rotated_scale = self.tuning.pitch_scale(self[1:])
+        pitches = list(self[1:])
 
         pitch = self.tuning.pitch(
             self[0].pc_index + self[-1].bi_index * len(self.tuning)
         )
 
-        if pitch <= rotated_scale[-1]:
+        if pitch <= pitches[-1]:
             pitch = pitch.transpose_bi_index(1)
 
-        rotated_scale.add_pitch(pitch)
-        return rotated_scale
+        pitches.append(pitch)
+        return self.tuning.pitch_scale(pitches)
 
     def rotated_down(self) -> Self:
         """
@@ -547,7 +539,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         downwards until it is below the lowest pitch
         """
 
-        rotated_scale = self.tuning.pitch_scale(self[:-1])
+        pitches = list(self[:-1])
 
         bi_diff = self[-1].bi_index - self[0].bi_index
 
@@ -555,11 +547,11 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             self[-1].pitch_index - bi_diff * len(self.tuning)
         )
 
-        if pitch >= rotated_scale[0]:
+        if pitch >= pitches[0]:
             pitch = pitch.transpose_bi_index(-1)
 
-        rotated_scale.add_pitch(pitch)
-        return rotated_scale
+        pitches.append(pitch)
+        return self.tuning.pitch_scale(pitches)
 
     def rotation(self, order: int) -> Self:
         """
@@ -643,15 +635,15 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().intersection(other)
 
-        scale = self.tuning.pitch_scale()
+        pitches = []
 
         for pitch_a in self:
             for pitch_b in other:
                 if pitch_a.is_equivalent(pitch_b):
-                    scale.add_pitch(pitch_a)
-                    scale.add_pitch(pitch_b)
+                    pitches.append(pitch_a)
+                    pitches.append(pitch_b)
 
-        return scale
+        return self.tuning.pitch_scale(pitches)
 
     def difference(
         self, other: Self, ignore_bi_index: Optional[bool] = False
@@ -680,16 +672,16 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         if not ignore_bi_index:
             return super().difference(other)
 
-        scale = self.tuning.pitch_scale()
+        pitches = []
 
         for pitch_a in self:
             for pitch_b in other:
                 if pitch_a.is_equivalent(pitch_b):
                     break
             else:
-                scale.add_pitch(pitch_a)
+                pitches.append(pitch_a)
 
-        return scale
+        return self.tuning.pitch_scale(pitches)
 
     def symmetric_difference(
         self, other: Self, ignore_bi_index: Optional[bool] = False

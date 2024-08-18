@@ -225,11 +225,11 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         :param pitch_scale: The pitch scale object
         """
 
-        scale = notation.note_scale()
+        notes = []
         for pitch in pitch_scale:
             note = self.guess_note(notation, pitch)
-            scale.add_note(note)
-        return scale
+            notes.append(note)
+        return notation.note_scale(notes)
 
     def note_transpose(self, note, pitch_diff: int):
         """
@@ -255,11 +255,11 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         """
 
         notation = note_scale.notation
-        scale = notation.note_scale()
+        notes = []
         for note in note_scale:
             transposed = self.note_transpose(note, pitch_diff)
-            scale.add_note(transposed)
-        return scale
+            notes.append(transposed)
+        return notation.note_scale(notes)
 
     def note_scale_pcs_complement(self, note_scale):
         """
@@ -271,10 +271,10 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
         note_scale = note_scale.pcs_normalized()
         notation = note_scale.notation
-        scale = notation.note_scale()
 
+        notes = []
         for note in self.pc_blueprint:
             if note not in note_scale:
-                scale.add_note(note)
+                notes.append(note)
 
-        return scale
+        return notation.note_scale(notes)
