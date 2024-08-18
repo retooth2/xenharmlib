@@ -57,6 +57,7 @@ class Pitch:
 
         self.tuning = tuning
         self._pitch_index = pitch_index
+        self._frequency = tuning.get_frequency(self)
 
     @property
     def pitch_index(self) -> int:
@@ -70,7 +71,7 @@ class Pitch:
         """
         Frequency of this pitch
         """
-        return self.tuning.get_frequency(self)
+        return self._frequency
 
     def __eq__(self, other):
         if self.tuning is other.tuning:
@@ -342,6 +343,15 @@ class PitchInterval(Generic[PitchT]):
         self.pitch_diff = pitch_diff
         self.tuning = tuning
 
+        pitch_b = self.tuning.pitch(
+            self.ref_pitch.pitch_index + self.pitch_diff
+        )
+
+        freq_a = ref_pitch.frequency
+        freq_b = pitch_b.frequency
+
+        self._frequency_ratio = freq_b / freq_a
+
     def __abs__(self) -> Self:
         """
         Returns the absolute of this pitch interval. On downwards
@@ -409,14 +419,7 @@ class PitchInterval(Generic[PitchT]):
         2 for an octave)
         """
 
-        pitch_b = self.tuning.pitch(
-            self.ref_pitch.pitch_index + self.pitch_diff
-        )
-
-        freq_a = self.ref_pitch.frequency
-        freq_b = pitch_b.frequency
-
-        return freq_b / freq_a
+        return self._frequency_ratio
 
     @property
     def cents(self) -> float:
