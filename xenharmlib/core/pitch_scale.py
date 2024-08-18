@@ -535,7 +535,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             self[0].pc_index + self[-1].bi_index * len(self.tuning)
         )
 
-        if pitch < rotated_scale[-1]:
+        if pitch <= rotated_scale[-1]:
             pitch = pitch.transpose_bi_index(1)
 
         rotated_scale.add_pitch(pitch)
@@ -555,7 +555,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
             self[-1].pitch_index - bi_diff * len(self.tuning)
         )
 
-        if pitch > rotated_scale[0]:
+        if pitch >= rotated_scale[0]:
             pitch = pitch.transpose_bi_index(-1)
 
         rotated_scale.add_pitch(pitch)

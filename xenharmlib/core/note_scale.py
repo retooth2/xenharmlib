@@ -576,7 +576,7 @@ class PeriodicNoteScale(NoteScale):
         bi_diff = self[-1].bi_index - self[0].bi_index
         note = self[0].transpose_bi_index(bi_diff)
 
-        if note < rotated_scale[-1]:
+        if note <= rotated_scale[-1]:
             note = note.transpose_bi_index(1)
 
         rotated_scale.add_note(note)
@@ -593,7 +593,7 @@ class PeriodicNoteScale(NoteScale):
         bi_diff = self[0].bi_index - self[-1].bi_index
         note = self[-1].transpose_bi_index(bi_diff)
 
-        if note > rotated_scale[0]:
+        if note >= rotated_scale[0]:
             note = note.transpose_bi_index(-1)
 
         rotated_scale.add_note(note)
