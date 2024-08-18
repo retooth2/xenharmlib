@@ -73,9 +73,19 @@ class Pitch:
         return self.tuning.get_frequency(self)
 
     def __eq__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index == other.pitch_index
         return self.frequency == other.frequency
 
     def __lt__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
 
     # arithmetic
@@ -377,9 +387,19 @@ class PitchInterval(Generic[PitchT]):
     # methods necessary for total ordering
 
     def __eq__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff == other.pitch_diff
         return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff < other.pitch_diff
         return self.frequency_ratio < other.frequency_ratio
 
     @property

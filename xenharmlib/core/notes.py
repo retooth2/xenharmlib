@@ -89,9 +89,19 @@ class NoteABC(ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index == other.pitch_index
         return self.frequency == other.frequency
 
     def __lt__(self, other: HasFrequency) -> bool:
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
 
     @property
@@ -636,9 +646,19 @@ class NoteIntervalABC(Generic[NoteT], ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequencyRatio):
             return False
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff == other.pitch_diff
         return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other: HasFrequencyRatio) -> bool:
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff < other.pitch_diff
         return self.frequency_ratio < other.frequency_ratio
 
     # pitch interval calculation and proxy properties
