@@ -22,6 +22,7 @@ from ..core.symbols import SymbolArithmeticSet
 from ..core.notes import NatAccNote
 from ..core.notes import NatAccNoteInterval
 from ..core.note_scale import NatAccNoteScale
+from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
 from ..exc import UnfittingNotation
 
@@ -140,6 +141,9 @@ class UpDownNotation(NatAccNotation):
         else:
             self._init_imperfect_edo_acc()
             self._init_imperfect_edo_intervals()
+
+        # initialize default enharmonic strategy
+        self.enharm_strategy = MixedLeftEnharmStrategy(self)
 
     @property
     def edo_category(self) -> str:
@@ -613,3 +617,316 @@ class UpDownNotation(NatAccNotation):
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.tuning.name})'
+
+
+class UpDownEnharmStrategy(PCBlueprintStrategy):
+    """
+    Base class for all enharmonic strategies for UpDownNotation.
+    Implements a collection of helper methods.
+    """
+
+    @staticmethod
+    def sharp_fillers(start_note, end_note):
+        """
+        Generator that yields all sharpened notes between the
+        given bordering notes.
+
+        :param start_note: The left bordering note
+        :param end_note: The right bordering note
+        """
+
+        if not (start_note < end_note):
+            raise ValueError(
+                'start note must be stricly smaller than end note'
+            )
+
+        sharpness = start_note.tuning.sharpness
+
+        if sharpness == 0:
+            return
+
+        interval = start_note.interval(end_note)
+        gap_size = (interval.pitch_diff - 1)
+        fillers_count = gap_size // abs(sharpness)
+        ref_note = start_note if sharpness > 0 else end_note
+
+        for i in range(1, fillers_count + 1):
+            sharpened = ref_note.acc_altered((i * sharpness, 0))
+            yield sharpened
+
+    @staticmethod
+    def flat_fillers(start_note, end_note):
+        """
+        Generator that yields all flattened notes between the
+        given bordering notes.
+
+        :param start_note: The left bordering note
+        :param end_note: The right bordering note
+        """
+
+        if not (start_note < end_note):
+            raise ValueError(
+                'start note must be stricly smaller than end note'
+            )
+
+        sharpness = start_note.tuning.sharpness
+
+        if sharpness == 0:
+            return
+
+        interval = start_note.interval(end_note)
+        gap_size = (interval.pitch_diff - 1)
+        fillers_count = gap_size // abs(sharpness)
+        ref_note = end_note if sharpness > 0 else start_note
+
+        for i in range(1, fillers_count + 1):
+            sharpened = ref_note.acc_altered((-i * sharpness, 0))
+            yield sharpened
+
+    @staticmethod
+    def up_fillers(start_note, end_note):
+        """
+        Generator that yields all upped notes between the
+        given bordering notes.
+
+        :param start_note: The left bordering note
+        :param end_note: The right bordering note
+        """
+
+        if not (start_note < end_note):
+            raise ValueError(
+                'start note must be stricly smaller than end note'
+            )
+
+        sharpness = start_note.tuning.sharpness
+        interval = start_note.interval(end_note)
+        gap_size = (interval.pitch_diff - 1)
+
+        for i in range(1, gap_size + 1):
+            alteration = (i,) if sharpness == 0 else (0, i)
+            upped = start_note.acc_altered(alteration)
+            yield upped
+
+    @staticmethod
+    def down_fillers(start_note, end_note):
+        """
+        Generator that yields all downed notes between the
+        given bordering notes.
+
+        :param start_note: The left bordering note
+        :param end_note: The right bordering note
+        """
+
+        if not (start_note < end_note):
+            raise ValueError(
+                'start note must be stricly smaller than end note'
+            )
+
+        sharpness = start_note.tuning.sharpness
+        interval = start_note.interval(end_note)
+        gap_size = (interval.pitch_diff - 1)
+
+        for i in range(1, gap_size + 1):
+            alteration = (-i,) if sharpness == 0 else (0, -i)
+            downed = end_note.acc_altered(alteration)
+            yield downed
+
+    @staticmethod
+    def gen_natural_scale(notation):
+
+        # the natural scale must be pcs normalized because in some
+        # EDOs naturals point outside of the first base interval
+
+        return notation.natural_scale().pcs_normalized()
+
+
+class UpwardsEnharmStrategy(UpDownEnharmStrategy):
+    """
+    The "upwards enharmonic strategy" is a pitch class blueprint
+    strategy that tries to guess notes from pitches as follows:
+
+        1. Create a partial scale with all the natural notes
+        2. Into the resulting gaps (if any) add sharps from the
+           left bordering note, if the sharpness of the EDO > 0,
+           or from the right bordering note if the sharpness of
+           the EDO < 0. If sharpness = 0 this step will be omitted
+        3. Into the leftover gaps add up arrows from the left
+           bordering notes
+    """
+
+    def __init__(self, notation):
+
+        natural_scale = self.gen_natural_scale(notation)
+
+        a = natural_scale
+        b = natural_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            for sharpened in self.sharp_fillers(current_note, next_note):
+                notes.append(sharpened)
+
+        partial_scale = notation.note_scale(notes)
+
+        a = partial_scale
+        b = partial_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            for upped in self.up_fillers(current_note, next_note):
+                notes.append(upped)
+
+        pc_blueprint = notation.note_scale(notes)
+        super().__init__(pc_blueprint)
+
+
+class DownwardsEnharmStrategy(UpDownEnharmStrategy):
+    """
+    The "downwards enharmonic strategy" is a pitch class blueprint
+    strategy that tries to guess notes from pitches as follows:
+
+        1. Create a partial scale with all the natural notes
+        2. Into the resulting gaps (if any) add flats from the
+           right bordering note, if the sharpness of the EDO > 0,
+           or from the left bordering note if the sharpness of the
+           EDO < 0. If sharpness = 0 this step will be omitted
+        3. Into the leftover gaps add down arrows from the right
+           bordering notes
+    """
+
+    def __init__(self, notation):
+
+        natural_scale = self.gen_natural_scale(notation)
+
+        a = natural_scale
+        b = natural_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            for flattened in self.flat_fillers(current_note, next_note):
+                notes.append(flattened)
+
+        partial_scale = notation.note_scale(notes)
+
+        a = partial_scale
+        b = partial_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            for downed in self.down_fillers(current_note, next_note):
+                notes.append(downed)
+
+        pc_blueprint = notation.note_scale(notes)
+        super().__init__(pc_blueprint)
+
+
+class MixedLeftEnharmStrategy(UpDownEnharmStrategy):
+    """
+    The "mixed left enharmonic strategy" is a pitch class blueprint
+    strategy that tries to guess notes from pitches as follows:
+
+        1. Create an partial scale with all the natural notes
+        2. In the resulting gaps (if any) add sharps/flats from
+           the bordering naturals in an alternating fashion,
+           starting from the left bordering note. If the EDO
+           is perfect this step will be omitted.
+        3. In the leftover gaps add ups/downs from the bordering
+           notes in an alternating fashion, starting from the
+           left bordering note.
+
+    Since gaps are filled from the left a tie in the middle of
+    gaps will be resolved in the favor of sharps (or, in the
+    special case of superflat EDOs, flats) and ups.
+
+    This is the default strategy for UpDownNotation
+    """
+
+    def __init__(self, notation):
+
+        natural_scale = self.gen_natural_scale(notation)
+
+        a = natural_scale
+        b = natural_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            sharp_gen = self.sharp_fillers(current_note, next_note)
+            flat_gen = self.flat_fillers(current_note, next_note)
+            for sharpened, flattened in zip(sharp_gen, flat_gen, strict=True):
+                notes.append(sharpened)
+                notes.append(flattened)
+
+        partial_scale = notation.note_scale(notes)
+
+        a = partial_scale
+        b = partial_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            up_gen = self.up_fillers(current_note, next_note)
+            down_gen = self.down_fillers(current_note, next_note)
+            for upped, downed in zip(up_gen, down_gen, strict=True):
+                notes.append(upped)
+                notes.append(downed)
+
+        pc_blueprint = notation.note_scale(notes)
+        super().__init__(pc_blueprint)
+
+
+class MixedRightEnharmStrategy(UpDownEnharmStrategy):
+    """
+    The "mixed right enharmonic strategy" is a pitch class blueprint
+    strategy that tries to guess notes from pitches as follows:
+
+        1. Create an partial scale with all the natural notes
+        2. In the resulting gaps (if any) add sharps/flats from
+           the bordering naturals in an alternating fashion,
+           starting from the right bordering note. If the EDO
+           is perfect this step will be omitted.
+        3. In the leftover gaps add ups/downs from the bordering
+           notes in an alternating fashion, starting from the
+           right bordering note.
+
+    Since gaps are filled from the right a tie in the middle of
+    gaps will be resolved in the favor of flats (or, in the
+    special case of superflat EDOs, sharps) and downs.
+    """
+
+    def __init__(self, notation):
+
+        natural_scale = self.gen_natural_scale(notation)
+
+        a = natural_scale
+        b = natural_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            sharp_gen = self.sharp_fillers(current_note, next_note)
+            flat_gen = self.flat_fillers(current_note, next_note)
+            for sharpened, flattened in zip(sharp_gen, flat_gen, strict=True):
+                notes.append(flattened)
+                notes.append(sharpened)
+
+        partial_scale = notation.note_scale(notes)
+
+        a = partial_scale
+        b = partial_scale.rotated_up()
+        notes = []
+
+        for current_note, next_note in zip(a, b):
+            notes.append(current_note)
+            up_gen = self.up_fillers(current_note, next_note)
+            down_gen = self.down_fillers(current_note, next_note)
+            for upped, downed in zip(up_gen, down_gen, strict=True):
+                notes.append(downed)
+                notes.append(upped)
+
+        pc_blueprint = notation.note_scale(notes)
+        super().__init__(pc_blueprint)
