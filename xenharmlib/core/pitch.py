@@ -57,6 +57,7 @@ class Pitch:
 
         self.tuning = tuning
         self._pitch_index = pitch_index
+        self._frequency = tuning.get_frequency(self)
 
     @property
     def pitch_index(self) -> int:
@@ -70,12 +71,22 @@ class Pitch:
         """
         Frequency of this pitch
         """
-        return self.tuning.get_frequency(self)
+        return self._frequency
 
     def __eq__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index == other.pitch_index
         return self.frequency == other.frequency
 
     def __lt__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
 
     # arithmetic
@@ -332,6 +343,15 @@ class PitchInterval(Generic[PitchT]):
         self.pitch_diff = pitch_diff
         self.tuning = tuning
 
+        pitch_b = self.tuning.pitch(
+            self.ref_pitch.pitch_index + self.pitch_diff
+        )
+
+        freq_a = ref_pitch.frequency
+        freq_b = pitch_b.frequency
+
+        self._frequency_ratio = freq_b / freq_a
+
     def __abs__(self) -> Self:
         """
         Returns the absolute of this pitch interval. On downwards
@@ -377,9 +397,19 @@ class PitchInterval(Generic[PitchT]):
     # methods necessary for total ordering
 
     def __eq__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff == other.pitch_diff
         return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other):
+        if self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff < other.pitch_diff
         return self.frequency_ratio < other.frequency_ratio
 
     @property
@@ -389,14 +419,7 @@ class PitchInterval(Generic[PitchT]):
         2 for an octave)
         """
 
-        pitch_b = self.tuning.pitch(
-            self.ref_pitch.pitch_index + self.pitch_diff
-        )
-
-        freq_a = self.ref_pitch.frequency
-        freq_b = pitch_b.frequency
-
-        return freq_b / freq_a
+        return self._frequency_ratio
 
     @property
     def cents(self) -> float:
@@ -483,17 +506,8 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
 
         pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
 
-        # since in equal step tunings all intervals
-        # of the same pitch difference are the same
-        # in ratio we can just construct an arbitrary
-        # pitch as a reference pitch as long as the
-        # interval does not go over the zero pitch
-        # threshold
-
-        ref_pitch = tuning.pitch(abs(pitch_diff))
-
         return cls(
-            ref_pitch,
+            pitch_a,
             pitch_diff,
             tuning,
         )

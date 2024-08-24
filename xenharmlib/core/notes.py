@@ -29,6 +29,8 @@ from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
 import numpy as np
+from .protocols import PitchLike
+from .protocols import PitchIntervalLike
 from .protocols import PeriodicPitchLike
 from .frequencies import Frequency
 from .pitch import PeriodicPitch
@@ -69,6 +71,13 @@ class NoteABC(ABC):
         """
         return self.notation.tuning
 
+    @property
+    def enharm_strategy(self):
+        """
+        Proxy property for the enharmonic strategy of the notation
+        """
+        return self.notation.enharm_strategy
+
     def interval(self, other: Self) -> NoteIntervalABC[Self]:
         """
         Returns an interval between this note and
@@ -82,9 +91,19 @@ class NoteABC(ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequency):
             return False
+        if isinstance(other, PitchLike) and self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index == other.pitch_index
         return self.frequency == other.frequency
 
     def __lt__(self, other: HasFrequency) -> bool:
+        if isinstance(other, PitchLike) and self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # comparison is actually quite costly with
+            # sympy expression evaluation
+            return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
 
     @property
@@ -110,12 +129,13 @@ class NoteABC(ABC):
         """
 
     @abstractmethod
-    def transpose(self, interval) -> Self:
+    def transpose(self, diff: int | NoteIntervalABC[Self]) -> Self:
         """
         (Must be implemented by subclasses)
         Transposes the note to a different one
 
-        :param interval: A note interval
+        :param diff: A note interval or an integer denoting the pitch
+            difference
         """
 
     @abstractmethod
@@ -256,7 +276,7 @@ class NatAccNote(PeriodicNoteABC):
         self,
         notation,
         nat_index: int,
-        acc_vector: Tuple[int],
+        acc_vector: Tuple[int, ...],
         pc_symbol: str,
         natc_symbol: str,
         acc_symbol: str,
@@ -366,7 +386,7 @@ class NatAccNote(PeriodicNoteABC):
         return int(sum(self._acc_vector))
 
     @property
-    def acc_vector(self) -> Tuple[int]:
+    def acc_vector(self) -> Tuple[int, ...]:
         """
         The accidental vector of this note
         """
@@ -451,13 +471,56 @@ class NatAccNote(PeriodicNoteABC):
         """
         return f'{self.pc_symbol}{self.nat_bi_index}'
 
-    def transpose(self, interval: NatAccNoteInterval) -> NatAccNote:
+    def acc_altered(self, acc_diff: Tuple[int, ...]):
+        """
+        Returns a note with altered accidentals from an accidental
+        difference vector, so for example in UpDownNotation for a tuning
+        with sharpness 2 altering ^C# by (2, -1) results in the note Cx
+
+        :param acc_diff: The accidental difference vector
+        """
+
+        if len(self.acc_vector) != len(acc_diff):
+            raise ValueError(
+                "The accidental difference vector must have the same "
+                "number of dimensions as the accidental vector of the "
+                "note it is applied to"
+            )
+
+        acc_vector = tuple(np.add(self.acc_vector, acc_diff))
+        result = self.notation.gen_pc_symbol(self.nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
+
+        return self.__class__(
+            self.notation,
+            self.nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol,
+        )
+
+    def transpose(
+        self,
+        diff: int | NatAccNoteInterval
+    ) -> NatAccNote:
         """
         Transposes the note to another one by a natural/accidental
         note interval.
 
-        :param interval: A natural/accidental note interval object
+        :param diff: A natural/accidental note interval object
+            or an integer denoting the pitch difference
         """
+
+        if isinstance(diff, int):
+            return self.enharm_strategy.note_transpose(self, diff)
+
+        # rename diff to interval so it is clear that
+        # we have a proper interval definition
+        interval = diff
 
         if interval.notation is not self.notation:
             raise IncompatibleNotations(
@@ -585,9 +648,21 @@ class NoteIntervalABC(Generic[NoteT], ABC):
     def __eq__(self, other) -> bool:
         if not isinstance(other, HasFrequencyRatio):
             return False
+        if isinstance(other, PitchIntervalLike) and \
+                self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff == other.pitch_diff
         return self.frequency_ratio == other.frequency_ratio
 
     def __lt__(self, other: HasFrequencyRatio) -> bool:
+        if isinstance(other, PitchIntervalLike) and \
+                self.tuning is other.tuning:
+            # this is an optimization because frequency
+            # ratio comparison is actually quite costly
+            # with sympy expression evaluation
+            return self.pitch_diff < other.pitch_diff
         return self.frequency_ratio < other.frequency_ratio
 
     # pitch interval calculation and proxy properties
@@ -685,7 +760,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         notation,
         ref_note: NatAccNote,
         nat_diff: int,
-        acc_vector: Tuple[int],
+        acc_vector: Tuple[int, ...],
         symbol: str,
         number: int,
     ):
@@ -701,7 +776,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         self._number = number
 
     @property
-    def acc_vector(self) -> Tuple[int]:
+    def acc_vector(self) -> Tuple[int, ...]:
         """
         The accidental vector of this interval (signifying the different
         pitch deviations from the standard natural pitch difference)

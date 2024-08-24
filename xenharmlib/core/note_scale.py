@@ -49,15 +49,37 @@ class NoteScale(Generic[NoteT]):
     """
 
     def __init__(self, notation, notes=None):
+
         self.notation = notation
-        self._sorted_notes = []
-        if notes is not None:
-            for note in notes:
-                self.add_note(note)
+
+        if notes is None:
+            notes = []
+
+        unique_notes = []
+        indices = set()
+
+        for note in notes:
+            if note.notation is not self.notation:
+                raise IncompatibleNotations(
+                    'The provided note originates from a different '
+                    'notation than the scale'
+                )
+            if note.pitch_index not in indices:
+                indices.add(note.pitch_index)
+                unique_notes.append(note)
+
+        self._sorted_notes = sorted(unique_notes)
 
     @property
     def tuning(self):
         return self.notation.tuning
+
+    @property
+    def enharm_strategy(self):
+        """
+        A proxy property to the enharmonic strategy of the notation
+        """
+        return self.notation.enharm_strategy
 
     @property
     def pitch_scale(self):
@@ -183,13 +205,18 @@ class NoteScale(Generic[NoteT]):
             intervals.append(self[i].interval(self[i + 1]))
         return intervals
 
-    def transpose(self, interval: NoteIntervalABC) -> Self:
+    def transpose(self, diff: Union[int | NoteIntervalABC]) -> Self:
         """
         Transposes the scale by the given interval
 
-        :param interval: A note interval
+        :param interval: A note interval or pitch difference given
+            as an integer
         """
 
+        if isinstance(diff, int):
+            return self.enharm_strategy.note_scale_transpose(self, diff)
+
+        interval = diff
         transposed = []
         for notes in self._sorted_notes:
             transposed.append(notes.transpose(interval))
@@ -205,10 +232,10 @@ class NoteScale(Generic[NoteT]):
             between this note scale and the resulting one
         """
 
-        scale = self.notation.note_scale()
+        notes = []
         for note in self:
-            scale.add_note(note.transpose_bi_index(bi_diff))
-        return scale
+            notes.append(note.transpose_bi_index(bi_diff))
+        return self.notation.note_scale(notes)
 
     # set operations
 
@@ -228,15 +255,8 @@ class NoteScale(Generic[NoteT]):
                 'Scales do not originate from the same notation'
             )
 
-        scale = self.notation.note_scale()
-
-        for note in self:
-            scale.add_note(note)
-
-        for note in other:
-            scale.add_note(note)
-
-        return scale
+        notes = list(self) + list(other)
+        return self.notation.note_scale(notes)
 
     def intersection(self, other: Self) -> Self:
         """
@@ -254,14 +274,14 @@ class NoteScale(Generic[NoteT]):
                 'Scales do not originate from the same notation'
             )
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a == note_b:
-                    scale.add_note(note_a)
+                    notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def difference(self, other: Self) -> Self:
         """
@@ -279,16 +299,17 @@ class NoteScale(Generic[NoteT]):
                 'Scales do not originate from the same notation'
             )
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a == note_b:
                     break
             else:
-                scale.add_note(note_a)
+                notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
+
 
     def symmetric_difference(self, other: Self) -> Self:
         """
@@ -389,14 +410,14 @@ class NoteScale(Generic[NoteT]):
                 'Scales do not originate from the same notation'
             )
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_notated_same(note_b):
-                    scale.add_note(note_a)
+                    notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def note_difference(self, other: Self) -> Self:
         """
@@ -417,16 +438,16 @@ class NoteScale(Generic[NoteT]):
                 'Scales do not originate from the same notation'
             )
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_notated_same(note_b):
                     break
             else:
-                scale.add_note(note_a)
+                notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def is_notated_disjoint(self, other: Self) -> bool:
         """
@@ -521,13 +542,22 @@ class PeriodicNoteScale(NoteScale):
         the normalized scale will be smaller in cardinality.
         """
 
-        n_scale = self.notation.note_scale()
+        notes = []
 
         for note in self._sorted_notes:
             n_note = note.pcs_normalized()
-            n_scale.add_note(n_note)
+            notes.append(n_note)
 
-        return n_scale
+        return self.notation.note_scale(notes)
+
+    def pcs_complement(self) -> Self:
+        """
+        Returns a complement version of this scale that includes
+        all the notes in the first base interval that are not part
+        of this scale
+        """
+
+        return self.enharm_strategy.note_scale_pcs_complement(self)
 
     def rotated_up(self) -> Self:
         """
@@ -535,16 +565,16 @@ class PeriodicNoteScale(NoteScale):
         lowest note upwards until it is above the highest note
         """
 
-        rotated_scale = self.notation.note_scale(self[1:])
+        notes = list(self[1:])
 
         bi_diff = self[-1].bi_index - self[0].bi_index
         note = self[0].transpose_bi_index(bi_diff)
 
-        if note < rotated_scale[-1]:
+        if note <= notes[-1]:
             note = note.transpose_bi_index(1)
 
-        rotated_scale.add_note(note)
-        return rotated_scale
+        notes.append(note)
+        return self.notation.note_scale(notes)
 
     def rotated_down(self) -> Self:
         """
@@ -552,16 +582,16 @@ class PeriodicNoteScale(NoteScale):
         highest note downwards until it is below the lowest note
         """
 
-        rotated_scale = self.notation.note_scale(self[:-1])
+        notes = list(self[:-1])
 
         bi_diff = self[0].bi_index - self[-1].bi_index
         note = self[-1].transpose_bi_index(bi_diff)
 
-        if note > rotated_scale[0]:
+        if note >= notes[0]:
             note = note.transpose_bi_index(-1)
 
-        rotated_scale.add_note(note)
-        return rotated_scale
+        notes.append(note)
+        return self.notation.note_scale(notes)
 
     def rotation(self, order: int) -> Self:
         """
@@ -656,15 +686,15 @@ class PeriodicNoteScale(NoteScale):
         if not ignore_bi_index:
             return super().intersection(other)
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_equivalent(note_b):
-                    scale.add_note(note_a)
-                    scale.add_note(note_b)
+                    notes.append(note_a)
+                    notes.append(note_b)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def difference(self, other: Self, ignore_bi_index: bool = False) -> Self:
         """
@@ -691,16 +721,16 @@ class PeriodicNoteScale(NoteScale):
         if not ignore_bi_index:
             return super().difference(other)
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_equivalent(note_b):
                     break
             else:
-                scale.add_note(note_a)
+                notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def symmetric_difference(
         self, other: Self, ignore_bi_index: bool = False
@@ -848,15 +878,15 @@ class PeriodicNoteScale(NoteScale):
         if not ignore_bi_index:
             return super().note_intersection(other)
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_notated_equivalent(note_b):
-                    scale.add_note(note_a)
-                    scale.add_note(note_b)
+                    notes.append(note_a)
+                    notes.append(note_b)
 
-        return scale
+        return self.notation.note_scale(notes)
 
     def note_difference(
         self, other: Self, ignore_bi_index: bool = False
@@ -890,16 +920,17 @@ class PeriodicNoteScale(NoteScale):
         if not ignore_bi_index:
             return super().note_difference(other)
 
-        scale = self.notation.note_scale()
+        notes = []
 
         for note_a in self:
             for note_b in other:
                 if note_a.is_notated_equivalent(note_b):
                     break
             else:
-                scale.add_note(note_a)
+                notes.append(note_a)
 
-        return scale
+        return self.notation.note_scale(notes)
+
 
     def is_notated_disjoint(
         self, other: Self, ignore_bi_index: bool = False

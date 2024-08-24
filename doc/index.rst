@@ -194,8 +194,10 @@ features.
    :caption: Contents:
 
    quickstart
+   adv_notation_features
    core_api
    export_api
+   notation_api
 
 Contributor Guide
 ---------------------
