@@ -112,6 +112,9 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         frequency = self.get_frequency_for_index(pitch_index)
         return self._pitch_cls(self, frequency, pitch_index)
 
+    def interval(self, source: PitchT, target: PitchT) -> IntervalT:
+        return self.pitch_interval(source, target)
+
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
         Returns a pitch interval having the pitch intervals type

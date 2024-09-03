@@ -33,6 +33,7 @@ from .protocols import PitchLike
 from .protocols import PitchIntervalLike
 from .protocols import PeriodicPitchLike
 from .frequencies import Frequency
+from .freq_repr import SDFreqRepr
 from .pitch import PeriodicPitch
 from .protocols import HasFrequency
 from .protocols import HasFrequencyRatio
@@ -40,7 +41,7 @@ from ..exc import IncompatibleNotations
 
 
 @total_ordering
-class NoteABC(ABC):
+class NoteABC(SDFreqRepr):
     """
     Abstract base class for notes. Implements the properties
     :attr:`tuning`, :attr:`frequency` and :attr:`pitch_index`
@@ -57,9 +58,8 @@ class NoteABC(ABC):
     """
 
     def __init__(self, notation, frequency, pitch_index):
+        super().__init__(notation, frequency, pitch_index)
         self._notation = notation
-        self._pitch_index = pitch_index
-        self._frequency = frequency
 
     @property
     def notation(self):
@@ -82,64 +82,12 @@ class NoteABC(ABC):
         """
         return self.notation.enharm_strategy
 
-    def interval(self, other: Self) -> NoteIntervalABC[Self]:
-        """
-        Returns an interval between this note and
-        another note of the same notation.
-
-        :param other: The other note (can be higher
-            or lower than this note)
-        """
-        return self.notation.note_interval(self, other)
-
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, HasFrequency):
-            return False
-        if isinstance(other, PitchLike) and self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index == other.pitch_index
-        return self.frequency == other.frequency
-
-    def __lt__(self, other: HasFrequency) -> bool:
-        if isinstance(other, PitchLike) and self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index < other.pitch_index
-        return self.frequency < other.frequency
-
-    @property
-    def frequency(self) -> Frequency:
-        """
-        The frequency of this note
-        """
-        return self._frequency
-
-    @property
-    def pitch_index(self) -> int:
-        """
-        The pitch index of the underlying pitch
-        """
-        return self._pitch_index
-
     @property
     @abstractmethod
     def pitch(self):
         """
         (Must be implemented by subclasses)
         Returns the underlying pitch object
-        """
-
-    @abstractmethod
-    def transpose(self, diff: int | NoteIntervalABC[Self]) -> Self:
-        """
-        (Must be implemented by subclasses)
-        Transposes the note to a different one
-
-        :param diff: A note interval or an integer denoting the pitch
-            difference
         """
 
     @abstractmethod
@@ -153,17 +101,8 @@ class NoteABC(ABC):
             notation or class
         """
 
-    @property
-    @abstractmethod
-    def short_repr(self) -> str:
-        """
-        (Must be implemented by subclasses)
-        A shortened representation of this note
-        (to be used in collection objects like scales)
-        """
 
-
-class PeriodicNoteABC(NoteABC):
+class PeriodicNoteABC(NoteABC, PeriodicPitchLike):
     """
     Abstract base class for periodic notes. Implements
     proxy properties :attr:`pc_index` and :attr:`bi_index`
@@ -175,9 +114,7 @@ class PeriodicNoteABC(NoteABC):
     """
 
     def __init__(self, notation, frequency, pitch_index):
-        self._notation = notation
-        self._frequency = frequency
-        self._pitch_index = pitch_index
+        super().__init__(notation, frequency, pitch_index)
         self._pc_index = pitch_index % len(notation.tuning)
         self._bi_index = pitch_index // len(notation.tuning)
 

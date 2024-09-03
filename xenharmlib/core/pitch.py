@@ -21,6 +21,7 @@ from typing import *
 from .frequencies import Frequency
 from .protocols import PeriodicPitchLike
 from .constants import CENTS_PRECISION
+from .freq_repr import SDFreqRepr
 from ..exc import IncompatibleTunings
 from ..exc import InvalidPitchIndex
 from ..exc import InvalidPitchClassIndex
@@ -28,8 +29,7 @@ from ..exc import InvalidBaseIntervalIndex
 from ..exc import InvalidGenerator
 
 
-@total_ordering
-class Pitch:
+class Pitch(SDFreqRepr):
     """
     In its most basic form, a Pitch is a tuple of a pitch index
     (an integer value) and a tuning that interprets this index
@@ -55,40 +55,12 @@ class Pitch:
     """
 
     def __init__(self, tuning, frequency, pitch_index: int):
-
-        self.tuning = tuning
-        self._pitch_index = pitch_index
-        self._frequency = frequency
+        super().__init__(tuning, frequency, pitch_index)
+        self._tuning = tuning
 
     @property
-    def pitch_index(self) -> int:
-        """
-        The index of this pitch as an integer
-        """
-        return self._pitch_index
-
-    @property
-    def frequency(self) -> Frequency:
-        """
-        Frequency of this pitch
-        """
-        return self._frequency
-
-    def __eq__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index == other.pitch_index
-        return self.frequency == other.frequency
-
-    def __lt__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index < other.pitch_index
-        return self.frequency < other.frequency
+    def tuning(self):
+        return self._tuning
 
     # arithmetic
 
@@ -144,19 +116,8 @@ class Pitch:
 
         return tuning.get_approx_pitch(self.frequency)
 
-    def interval(self, other: Pitch) -> PitchInterval:
-        """
-        Returns an interval between this pitch and
-        another pitch of the same tuning.
 
-        :param other: The other pitch (can be higher
-            or lower than this pitch)
-        """
-
-        return self.tuning.pitch_interval(self, other)
-
-
-class PeriodicPitch(Pitch):
+class PeriodicPitch(Pitch, PeriodicPitchLike):
     """
     The pitch type for periodic tunings. Depending on the period
     length it will classify the pitch into a 'pitch class index'
@@ -288,8 +249,10 @@ class EDPitch(PeriodicPitch):
     """
 
     def __init__(self, tuning, frequency, pitch_index: int):
-
         super().__init__(tuning, frequency, pitch_index)
+
+    def short_repr(self) -> str:
+        return self.pitch_index
 
 
 class EDOPitch(EDPitch):

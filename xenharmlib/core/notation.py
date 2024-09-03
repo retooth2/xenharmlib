@@ -616,6 +616,13 @@ class NatAccNotation(
 
         return chosen_note
 
+    def interval(
+        self,
+        source: NatAccNote,
+        target: NatAccNote
+    ) -> NatAccNoteInterval:
+        return self.note_interval(source, target)
+
     def note_interval(
         self, note_a: NatAccNote, note_b: NatAccNote
     ) -> NatAccNoteInterval:
