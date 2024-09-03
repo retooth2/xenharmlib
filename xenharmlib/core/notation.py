@@ -558,14 +558,58 @@ class NatAccNotation(
             pc_symbol
         )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
+        natc_pitch_index = self.nat_index_to_pitch_index(natc_index)
+        acc_value = int(sum(acc_vector))
+
+        tuning = self.tuning
+        pitch_index = (
+            natc_pitch_index + len(tuning) * nat_bi_index
+        ) + acc_value
+        frequency = tuning.get_frequency_for_index(pitch_index)
 
         chosen_note = self._note_cls(
             self,
+            frequency,
             nat_index=nat_index,
             acc_vector=acc_vector,
             pc_symbol=pc_symbol,
             natc_symbol=natc_symbol,
             acc_symbol=acc_symbol,
+        )
+
+        return chosen_note
+
+    def note_by_numdef(
+        self,
+        nat_index: int,
+        acc_vector: Tuple[int, ...]
+    ) -> NatAccNote:
+        """
+        Creates a natural/accidental note by its numerical definition.
+        Autogenerates appropriate symbols
+
+        :param nat_index: The natural index of the note
+        :param acc_vector: The accidental vector of the note
+        """
+
+        acc_value = int(sum(acc_vector))
+        nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
+        pitch_index = nat_pitch_index + acc_value
+        frequency = self.tuning.get_frequency_for_index(pitch_index)
+        result = self.gen_pc_symbol(nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
+
+        chosen_note = self._note_cls(
+            self,
+            frequency,
+            nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol,
         )
 
         return chosen_note

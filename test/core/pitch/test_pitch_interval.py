@@ -2,7 +2,6 @@ import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch import PitchInterval
 from xenharmlib.exc import IncompatibleTunings
 
@@ -31,8 +30,8 @@ def test_init_pitch_diff(tuning,
     """
 
     interval = PitchInterval.from_pitches(
-        EDPitch(tuning, pitch_index_a),
-        EDPitch(tuning, pitch_index_b),
+        tuning.pitch(pitch_index_a),
+        tuning.pitch(pitch_index_b),
     )
 
     interval.ref_pitch == tuning.pitch(pitch_index_a)
@@ -61,12 +60,12 @@ def test_lt_gt(tuning_ab,
     """
 
     interval_ab = PitchInterval.from_pitches(
-        EDPitch(tuning_ab, pitch_index_a),
-        EDPitch(tuning_ab, pitch_index_b),
+        tuning_ab.pitch(pitch_index_a),
+        tuning_ab.pitch(pitch_index_b),
     )
     interval_cd = PitchInterval.from_pitches(
-        EDPitch(tuning_cd, pitch_index_c),
-        EDPitch(tuning_cd, pitch_index_d),
+        tuning_cd.pitch(pitch_index_c),
+        tuning_cd.pitch(pitch_index_d),
     )
     assert interval_ab < interval_cd
     assert interval_cd > interval_ab
@@ -95,12 +94,12 @@ def test_eq(tuning_ab,
     """
 
     interval_ab = PitchInterval.from_pitches(
-        EDPitch(tuning_ab, pitch_index_a),
-        EDPitch(tuning_ab, pitch_index_b),
+        tuning_ab.pitch(pitch_index_a),
+        tuning_ab.pitch(pitch_index_b),
     )
     interval_cd = PitchInterval.from_pitches(
-        EDPitch(tuning_cd, pitch_index_c),
-        EDPitch(tuning_cd, pitch_index_d),
+        tuning_cd.pitch(pitch_index_c),
+        tuning_cd.pitch(pitch_index_d),
     )
     assert interval_ab == interval_cd
 
@@ -121,12 +120,12 @@ def test_abs(tuning,
     """
 
     interval_a = PitchInterval.from_pitches(
-        EDPitch(tuning, pitch_index_a),
-        EDPitch(tuning, pitch_index_b),
+        tuning.pitch(pitch_index_a),
+        tuning.pitch(pitch_index_b),
     )
     interval_b = PitchInterval.from_pitches(
-        EDPitch(tuning, pitch_index_b),
-        EDPitch(tuning, pitch_index_a),
+        tuning.pitch(pitch_index_b),
+        tuning.pitch(pitch_index_a),
     )
     assert abs(interval_a) == abs(interval_b)
     assert abs(interval_b) == interval_a
@@ -149,8 +148,8 @@ def test_cents(tuning,
     """
 
     interval = PitchInterval.from_pitches(
-        EDPitch(tuning, pitch_index_a),
-        EDPitch(tuning, pitch_index_b),
+        tuning.pitch(pitch_index_a),
+        tuning.pitch(pitch_index_b),
     )
     assert interval.cents == cents
 
@@ -165,8 +164,8 @@ def test_init_incompatible_tunings():
 
     with pytest.raises(IncompatibleTunings):
         PitchInterval.from_pitches(
-            EDPitch(edo12, 0),
-            EDPitch(edo12_2, 0),
+            edo12.pitch(0),
+            edo12_2.pitch(0),
         )
 
 
@@ -186,8 +185,8 @@ def test_repr(tuning,
     """
 
     interval = PitchInterval.from_pitches(
-        EDPitch(tuning, pitch_index_a),
-        EDPitch(tuning, pitch_index_b),
+        tuning.pitch(pitch_index_a),
+        tuning.pitch(pitch_index_b),
     )
 
     assert repr(interval) == repr_result

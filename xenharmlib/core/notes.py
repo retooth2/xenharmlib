@@ -52,10 +52,12 @@ class NoteABC(ABC):
     method.
 
     :param notation: The notation object this note belongs to
+    :param frequency: The frequency this note represents
     """
 
-    def __init__(self, notation):
+    def __init__(self, notation, frequency):
         self._notation = notation
+        self._frequency = frequency
 
     @property
     def notation(self):
@@ -111,7 +113,7 @@ class NoteABC(ABC):
         """
         The frequency of this note
         """
-        return self.pitch.frequency
+        return self._frequency
 
     @property
     def pitch_index(self) -> int:
@@ -257,6 +259,7 @@ class NatAccNote(PeriodicNoteABC):
     subclassing from :class:`~xenharmlib.core.notation.NatAccNotation`)
 
     :param notation: The notation object this note belongs to
+    :param frequency: The frequency this note represents
     :param nat_index: The natural index of this note, which is an index
         counting the naturals starting with 0 (e.g. in Western notation
         C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
@@ -275,6 +278,7 @@ class NatAccNote(PeriodicNoteABC):
     def __init__(
         self,
         notation,
+        frequency,
         nat_index: int,
         acc_vector: Tuple[int, ...],
         pc_symbol: str,
@@ -282,7 +286,7 @@ class NatAccNote(PeriodicNoteABC):
         acc_symbol: str,
     ):
 
-        super().__init__(notation)
+        super().__init__(notation, frequency)
         self._nat_index = nat_index
         self._natc_index = nat_index % notation.nat_count
         self._nat_bi_index = nat_index // notation.nat_count
@@ -488,20 +492,7 @@ class NatAccNote(PeriodicNoteABC):
             )
 
         acc_vector = tuple(np.add(self.acc_vector, acc_diff))
-        result = self.notation.gen_pc_symbol(self.nat_index, acc_vector)
-
-        pc_symbol = result[0]
-        natc_symbol = result[1]
-        acc_symbol = result[2]
-
-        return self.__class__(
-            self.notation,
-            self.nat_index,
-            acc_vector,
-            pc_symbol,
-            natc_symbol,
-            acc_symbol,
-        )
+        return self.notation.note_by_numdef(self.nat_index, acc_vector)
 
     def transpose(
         self,
@@ -541,20 +532,7 @@ class NatAccNote(PeriodicNoteABC):
             nat_index, unbalanced_nat_pitch_index, unbalanced_acc_vector
         )
 
-        result = self.notation.gen_pc_symbol(nat_index, acc_vector)
-
-        pc_symbol = result[0]
-        natc_symbol = result[1]
-        acc_symbol = result[2]
-
-        return self.__class__(
-            self.notation,
-            nat_index,
-            acc_vector,
-            pc_symbol,
-            natc_symbol,
-            acc_symbol,
-        )
+        return self.notation.note_by_numdef(nat_index, acc_vector)
 
 
 NoteT = TypeVar('NoteT', bound=NoteABC)

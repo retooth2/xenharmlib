@@ -49,15 +49,16 @@ class Pitch:
     True
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: int):
 
         self.tuning = tuning
         self._pitch_index = pitch_index
-        self._frequency = tuning.get_frequency(self)
+        self._frequency = frequency
 
     @property
     def pitch_index(self) -> int:
@@ -163,13 +164,14 @@ class PeriodicPitch(Pitch):
     (:attr:`bi_index`)
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: int):
 
-        super().__init__(tuning, pitch_index)
+        super().__init__(tuning, frequency, pitch_index)
         tuning_len = len(tuning)
 
         self._pc_index = pitch_index % tuning_len
@@ -280,13 +282,14 @@ class EDPitch(PeriodicPitch):
     The pitch type for equal division tunings
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: int):
 
-        super().__init__(tuning, pitch_index)
+        super().__init__(tuning, frequency, pitch_index)
 
 
 class EDOPitch(EDPitch):
@@ -294,6 +297,7 @@ class EDOPitch(EDPitch):
     The pitch type for 'equal division of the octave' tunings
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """

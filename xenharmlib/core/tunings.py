@@ -109,7 +109,8 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitch_index: An integer denoting the
             number of steps from the zero pitch.
         """
-        return self._pitch_cls(self, pitch_index)
+        frequency = self.get_frequency_for_index(pitch_index)
+        return self._pitch_cls(self, frequency, pitch_index)
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
@@ -172,6 +173,13 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         """
         (Must be overwritten by subclasses)
         Returns the frequency for a given pitch
+        """
+
+    @abstractmethod
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        (Must be overwritten by subclasses)
+        Returns the frequency for a given pitch index
         """
 
     def get_approx_pitch(self, frequency: Frequency) -> PitchT:
@@ -429,10 +437,19 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         if pitch.tuning is not self:
             raise IncompatibleTunings('Given pitch has a different tuning')
 
-        scale_size = len(self)
         index = pitch.pitch_index
+        return self.get_frequency_for_index(index)
+
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        Returns the frequency for a given pitch index
+
+        :param pitch_index: A pitch index
+        """
+
+        scale_size = len(self)
         exp = sp.Rational(1, scale_size)
-        ratio = (self.eq_ratio**exp)**index
+        ratio = (self.eq_ratio**exp)**pitch_index
         return self.ref_frequency * ratio
 
 

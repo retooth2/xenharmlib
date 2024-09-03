@@ -19,60 +19,60 @@ def test_init_incompatible_tunings():
     edo12_2 = EDTuning(12, FrequencyRatio(2))
     with pytest.raises(IncompatibleTunings):
         EDPitchInterval.from_pitches(
-            EDPitch(edo12, 0),
-            EDPitch(edo12_2, 0),
+            edo12.pitch(0),
+            edo12_2.pitch(0),
         )
 
 @pytest.mark.parametrize(
     'interval, gen_pitch, distance',
     [
         (
-            EDPitch(edo12, 0).interval(
-                EDPitch(edo12, 14)
+            edo12.pitch(0).interval(
+                edo12.pitch(14)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             2
         ),
         (
-            EDPitch(edo12, 9).interval(
-                EDPitch(edo12, 6)
+            edo12.pitch(9).interval(
+                edo12.pitch(6)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             3
         ),
         (
-            EDPitch(edo12, 6).interval(
-                EDPitch(edo12, 9)
+            edo12.pitch(6).interval(
+                edo12.pitch(9)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             3
         ),
         (
-            EDPitch(edo31, 12).interval(
-                EDPitch(edo31, 12)
+            edo31.pitch(12).interval(
+                edo31.pitch(12)
             ), 
-            EDPitch(edo31, 7),
+            edo31.pitch(7),
             0
         ),
         (
-            EDPitch(edo31, 8).interval(
-                EDPitch(edo31, 12)
+            edo31.pitch(8).interval(
+                edo31.pitch(12)
             ), 
-            EDPitch(edo31, 1),
+            edo31.pitch(1),
             4
         ),
         (
-            EDPitch(edo31, 12).interval(
-                EDPitch(edo31, 8)
+            edo31.pitch(12).interval(
+                edo31.pitch(8)
             ), 
-            EDPitch(edo31, 1),
+            edo31.pitch(1),
             4
         ),
         (
-            EDPitch(edo31, 0).interval(
-                EDPitch(edo31, 13)
+            edo31.pitch(0).interval(
+                edo31.pitch(13)
             ),
-            EDPitch(edo31, 18),
+            edo31.pitch(18),
             1
         ),
     ]
