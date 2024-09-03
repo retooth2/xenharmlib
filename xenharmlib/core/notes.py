@@ -52,11 +52,13 @@ class NoteABC(ABC):
     method.
 
     :param notation: The notation object this note belongs to
+    :param pitch_index: The pitch index of this note
     :param frequency: The frequency this note represents
     """
 
-    def __init__(self, notation, frequency):
+    def __init__(self, notation, frequency, pitch_index):
         self._notation = notation
+        self._pitch_index = pitch_index
         self._frequency = frequency
 
     @property
@@ -120,7 +122,7 @@ class NoteABC(ABC):
         """
         The pitch index of the underlying pitch
         """
-        return self.pitch.pitch_index
+        return self._pitch_index
 
     @property
     @abstractmethod
@@ -172,19 +174,26 @@ class PeriodicNoteABC(NoteABC):
     of NoteABC)
     """
 
+    def __init__(self, notation, frequency, pitch_index):
+        self._notation = notation
+        self._frequency = frequency
+        self._pitch_index = pitch_index
+        self._pc_index = pitch_index % len(notation.tuning)
+        self._bi_index = pitch_index // len(notation.tuning)
+
     @property
     def pc_index(self) -> int:
         """
         The pitch class index of this note
         """
-        return self.pitch.pc_index
+        return self._pc_index
 
     @property
     def bi_index(self) -> int:
         """
         The base interval index of this note
         """
-        return self.pitch.bi_index
+        return self._bi_index
 
     def is_equivalent(self, other: PeriodicPitchLike) -> bool:
         """
@@ -260,6 +269,7 @@ class NatAccNote(PeriodicNoteABC):
 
     :param notation: The notation object this note belongs to
     :param frequency: The frequency this note represents
+    :param pitch_index: The pitch index of this note
     :param nat_index: The natural index of this note, which is an index
         counting the naturals starting with 0 (e.g. in Western notation
         C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
@@ -279,6 +289,7 @@ class NatAccNote(PeriodicNoteABC):
         self,
         notation,
         frequency,
+        pitch_index,
         nat_index: int,
         acc_vector: Tuple[int, ...],
         pc_symbol: str,
@@ -286,7 +297,7 @@ class NatAccNote(PeriodicNoteABC):
         acc_symbol: str,
     ):
 
-        super().__init__(notation, frequency)
+        super().__init__(notation, frequency, pitch_index)
         self._nat_index = nat_index
         self._natc_index = nat_index % notation.nat_count
         self._nat_bi_index = nat_index // notation.nat_count

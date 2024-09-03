@@ -570,6 +570,7 @@ class NatAccNotation(
         chosen_note = self._note_cls(
             self,
             frequency,
+            pitch_index,
             nat_index=nat_index,
             acc_vector=acc_vector,
             pc_symbol=pc_symbol,
@@ -605,6 +606,7 @@ class NatAccNotation(
         chosen_note = self._note_cls(
             self,
             frequency,
+            pitch_index,
             nat_index,
             acc_vector,
             pc_symbol,
