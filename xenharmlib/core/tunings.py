@@ -34,6 +34,7 @@ from typing import Generic
 from typing import List
 from typing import Optional
 from unittest import mock
+from warnings import warn
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -113,7 +114,14 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         return self._pitch_cls(self, frequency, pitch_index)
 
     def interval(self, source: PitchT, target: PitchT) -> IntervalT:
-        return self.pitch_interval(source, target)
+        """
+        Returns a pitch interval having the pitch intervals type
+        this tuning was configured with
+
+        :param source: The starting pitch
+        :param target: The target pitch
+        """
+        return self._pitch_interval_cls.from_source_and_target(source, target)
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
@@ -123,7 +131,14 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitch_a: The starting pitch
         :param pitch_b: The target pitch
         """
-        return self._pitch_interval_cls.from_pitches(pitch_a, pitch_b)
+        warn(
+            f'{self.__class__.__name__}.pitch_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.interval(pitch_a, pitch_b)
 
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """

@@ -28,6 +28,7 @@ from typing import Optional
 from typing import TypeVar
 from typing import Generic
 from typing import List
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from ..exc import UnknownNoteSymbol
@@ -125,6 +126,16 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
         :param note_a: The source note
         :param note_b: The target note
+        """
+
+    @abstractmethod
+    def interval(self, source: NoteT, target: NoteT) -> IntervalT:
+        """
+        Returns a note interval of the note interval type this
+        notation was initialized with
+
+        :param source: The source note
+        :param target: The target note
         """
 
     @abstractmethod
@@ -616,13 +627,6 @@ class NatAccNotation(
 
         return chosen_note
 
-    def interval(
-        self,
-        source: NatAccNote,
-        target: NatAccNote
-    ) -> NatAccNoteInterval:
-        return self.note_interval(source, target)
-
     def note_interval(
         self, note_a: NatAccNote, note_b: NatAccNote
     ) -> NatAccNoteInterval:
@@ -636,14 +640,38 @@ class NatAccNotation(
         :param note_a: The source note
         :param note_b: The target note
         """
+        warn(
+            f'{self.__class__.__name__}.note_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.interval(note_a, note_b)
 
-        if note_a.notation is not self or note_b.notation is not self:
+    def interval(
+        self,
+        source: NatAccNote,
+        target: NatAccNote
+    ) -> NatAccNoteInterval:
+        """
+        Creates a note interval between two notes created by
+        this notation
+
+        :raises IncompatibleNotations: If one of the notes has
+            a different notation than this one
+
+        :param source: The source note
+        :param target: The target note
+        """
+
+        if source.notation is not self or target.notation is not self:
             raise IncompatibleNotations(
                 'At least one of the given notes does not '
                 'originate from this notation'
             )
 
-        return self._note_interval_cls.from_notes(note_a, note_b)
+        return self._note_interval_cls.from_source_and_target(source, target)
 
     def note_scale(
         self, notes: Optional[List[NatAccNote]] = None
@@ -710,8 +738,24 @@ class NatAccNotation(
         first_natc_symbol = self.get_natc_symbol(0)
         ref_note = self.note(first_natc_symbol, 0)
 
+        nat_pitch_diff = self.std_pitch_diff(nat_diff)
+        pitch_diff_zero = int(sum(acc_vector)) + nat_pitch_diff
+        pitch_diff = pitch_diff_zero - ref_note.pitch_index
+
+        tuning = self.tuning
+        frequency_ratio = ref_note.pitch.interval(
+            tuning.pitch(pitch_diff_zero)
+        ).frequency_ratio
+
         return self._note_interval_cls(
-            self, ref_note, nat_diff, acc_vector, symbol, number
+            self,
+            frequency_ratio,
+            pitch_diff,
+            ref_note,
+            nat_diff,
+            acc_vector,
+            symbol,
+            number
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:

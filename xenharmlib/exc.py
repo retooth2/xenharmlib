@@ -19,6 +19,16 @@ by the user of the library
 """
 
 
+class IncompatibleOriginContexts(Exception):
+    """
+    Gets raised whenever two or more objects are not
+    compatible because they are based on different
+    orgin contexts
+    """
+
+    pass
+
+
 class IncompatibleTunings(Exception):
     """
     Gets raised whenever two or more objects are not
