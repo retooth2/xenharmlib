@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 import sympy as sp
+from typing import overload
 from typing import Self
 from typing import TypeAlias
 from typing import List
@@ -245,6 +246,12 @@ class Frequency:
     # by a scalar returns a frequency: 80 Hz / 2 = 40 Hz,
     # however dividing a frequency by a frequency gives
     # a (scalar) FrequencyRatio: 100 Hz / 20 Hz = 5
+
+    @overload
+    def __truediv__(self, other: Self) -> FrequencyRatio: ...
+
+    @overload
+    def __truediv__(self, other: ScalarLike) -> Frequency: ...
 
     def __truediv__(
         self,
