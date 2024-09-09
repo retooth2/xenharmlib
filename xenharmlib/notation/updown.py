@@ -572,7 +572,7 @@ class UpDownNotation(NatAccNotation):
         return natc_symbol, acc_symbol, natc_index, acc_value
 
     def gen_pc_symbol(
-        self, nat_index: int, acc_vector: Tuple[int]
+        self, nat_index: int, acc_vector: Tuple[int, ...]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an

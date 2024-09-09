@@ -913,7 +913,7 @@ class NatAccNotation(
     def acc_symbol_code(self, symbol_code: SymbolCode):
         self._acc_symbol_code = symbol_code
 
-    def get_acc_symbol(self, acc_vector: Tuple[int]) -> str:
+    def get_acc_symbol(self, acc_vector: Tuple[int, ...]) -> str:
         """
         Returns a symbol string for an accidental vector,
         like (1, 0) -> '#' or (-1, 1) -> '^b'
@@ -1106,7 +1106,7 @@ class NatAccNotation(
         return (best_natc_symbol, acc_tail, best_natc_index, acc_vector)
 
     def gen_pc_symbol(
-        self, natc_index: int, acc_vector: Tuple[int]
+        self, natc_index: int, acc_vector: Tuple[int, ...]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an
