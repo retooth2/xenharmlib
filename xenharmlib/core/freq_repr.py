@@ -114,6 +114,9 @@ class SDFreqRepr(FreqRepr):
         super().__init__(origin_context, frequency)
         self._pitch_index = pitch_index
 
+    def __hash__(self):
+        return hash(self._pitch_index)
+
     @property
     def pitch_index(self) -> int:
         return self._pitch_index
