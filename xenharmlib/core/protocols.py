@@ -196,6 +196,8 @@ class PeriodicPitchScaleLike(PitchScaleLike, Protocol):
     @property
     def bi_indices(self) -> List[int]: ...
 
+    def pcs_normalized(self) -> PeriodicPitchScaleLike: ...
+
 
 @runtime_checkable
 class NoteScaleLike(PitchScaleLike, Protocol):
