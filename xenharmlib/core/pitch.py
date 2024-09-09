@@ -329,6 +329,9 @@ class PitchInterval(SDInterval[PitchT]):
     @classmethod
     def from_pitches(cls, pitch_a: PitchT, pitch_b: PitchT) -> Self:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`from_source_and_target` instead.
+
         Constructs an interval out of two pitches of the same tuning.
         If the second pitch is lower than the first pitch the Interval
         will have a negative pitch difference

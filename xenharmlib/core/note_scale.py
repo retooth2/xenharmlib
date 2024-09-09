@@ -71,6 +71,9 @@ class NoteScale(Scale[NoteT]):
 
     def add_note(self, note: NoteT):
         """
+        .. deprecated:: 0.2.0
+           objects in xenharmlib are supposed to be immutable
+
         Inserts a new note into to the scale at the right
         position. If the note already exists in the scale
         the method will do nothing.
@@ -140,6 +143,9 @@ class NoteScale(Scale[NoteT]):
 
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`to_intervals` instead.
+
         Returns this scale represented as a list of note intervals
         """
         warn(

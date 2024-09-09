@@ -631,6 +631,9 @@ class NatAccNotation(
         self, note_a: NatAccNote, note_b: NatAccNote
     ) -> NatAccNoteInterval:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Creates a note interval between two notes created by
         this notation
 
@@ -677,6 +680,9 @@ class NatAccNotation(
         self, notes: Optional[List[NatAccNote]] = None
     ) -> NatAccNoteScale:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
         Creates a note scale from a list of notes
 
         :raises IncompatibleNotations: If one of the notes has

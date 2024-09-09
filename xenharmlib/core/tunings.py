@@ -125,6 +125,9 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Returns a pitch interval having the pitch intervals type
         this tuning was configured with
 
@@ -151,6 +154,9 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
 
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
         Returns a pitch scale having the pitch scale type
         this tuning was configured with
 

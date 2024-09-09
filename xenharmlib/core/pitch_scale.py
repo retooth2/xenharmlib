@@ -116,6 +116,9 @@ class PitchScale(Scale[PitchT]):
 
     def add_pitch(self, pitch: PitchT):
         """
+        .. deprecated:: 0.2.0
+           objects in xenharmlib are supposed to be immutable
+
         Inserts a new pitch into the scale at
         the right position
 
@@ -196,6 +199,9 @@ class PitchScale(Scale[PitchT]):
 
     def to_pitch_intervals(self) -> List[PitchInterval[PitchT]]:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`to_intervals` instead.
+
         Returns this scale represented as a list of pitch intervals
         """
         warn(

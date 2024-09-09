@@ -694,6 +694,9 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     @classmethod
     def from_notes(cls, note_a: NatAccNote, note_b: NatAccNote) -> Self:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`from_source_and_target` instead.
+
         Creates a note interval from two notes
 
         :raises IncompatibleNotations: If notes belong to different
