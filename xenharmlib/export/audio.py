@@ -44,9 +44,9 @@ def freq_to_raw_sine_audio(
         (optional, default is 22050)
     """
 
-    frequency = frequency.to_float()
+    _frequency = frequency.to_float()
     t = np.linspace(0, duration, math.ceil(sample_rate * duration))
-    output = np.sin(2 * np.pi * frequency * t)
+    output = np.sin(2 * np.pi * _frequency * t)
 
     # generate fade in/out array (to remove the clicking
     # noise on frequency change)
