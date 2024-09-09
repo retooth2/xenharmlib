@@ -685,6 +685,27 @@ class NatAccNotation(
         :param notes: A list of notes created by this
             notation
         """
+        warn(
+            f'{self.__class__.__name__}.note_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.scale(notes)
+
+    def scale(
+        self, notes: Optional[List[NatAccNote]] = None
+    ) -> NatAccNoteScale:
+        """
+        Creates a note scale from a list of notes
+
+        :raises IncompatibleNotations: If one of the notes has
+            a different notation than this one
+
+        :param notes: A list of notes created by this
+            notation
+        """
 
         if notes is None:
             notes = []

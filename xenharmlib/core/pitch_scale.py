@@ -33,24 +33,22 @@ from __future__ import annotations
 
 from bisect import insort
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from typing import Self
-from typing import Union
 from typing import Optional
+from warnings import warn
 from .pitch import Pitch
 from .pitch import PeriodicPitch
 from .pitch import EDPitch
 from .pitch import PitchInterval
-from .frequencies import Frequency
+from .scale import Scale
+from .scale import PeriodicScale
 from ..exc import IncompatibleTunings
-from .protocols import HasFrequency
-from .protocols import HasFrequencyRatio
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 
 
-class PitchScale(Generic[PitchT]):
+class PitchScale(Scale[PitchT]):
     """
     The base class of all pitch scales. Implements list and set
     operations, transposition, retuning, etc.
@@ -113,26 +111,8 @@ class PitchScale(Generic[PitchT]):
     """
 
     def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
-
+        super().__init__(tuning, pitches)
         self.tuning = tuning
-
-        if pitches is None:
-            pitches = []
-
-        unique_pitches = []
-        indices = set()
-
-        for pitch in pitches:
-            if pitch.tuning is not self.tuning:
-                raise IncompatibleTunings(
-                    'Pitch must originate from the same tuning '
-                    'context as the scale'
-                )
-            if pitch.pitch_index not in indices:
-                indices.add(pitch.pitch_index)
-                unique_pitches.append(pitch)
-
-        self._sorted_pitches: List[PitchT] = sorted(unique_pitches)
 
     def add_pitch(self, pitch: PitchT):
         """
@@ -144,6 +124,13 @@ class PitchScale(Generic[PitchT]):
 
         :param pitch: The new pitch
         """
+        warn(
+            f'{self.__class__.__name__}.add_pitch is deprecated and '
+            f'will be removed in 1.0.0. As per design philosophy '
+            f'scales should be immutable',
+            DeprecationWarning,
+            stacklevel=2
+        )
 
         if pitch.tuning is not self.tuning:
             raise IncompatibleTunings(
@@ -151,8 +138,8 @@ class PitchScale(Generic[PitchT]):
                 'context as the scale'
             )
 
-        if pitch not in self._sorted_pitches:
-            insort(self._sorted_pitches, pitch)
+        if pitch not in self._sorted_elements:
+            insort(self._sorted_elements, pitch)
 
     def add_pitch_index(self, pitch_index: int):
         """
@@ -186,51 +173,6 @@ class PitchScale(Generic[PitchT]):
 
         return scale
 
-    def __eq__(self, other: object):
-
-        if not isinstance(other, PitchScale):
-            return False
-
-        return list(self) == list(other)
-
-    # in this section we implement all the magic methods
-    # s so the scale behaves similar to a list
-
-    def __len__(self):
-        return len(self._sorted_pitches)
-
-    def __iter__(self):
-        return self._sorted_pitches.__iter__()
-
-    def __getitem__(self, index_or_slice: Union[int, slice]):
-
-        if type(index_or_slice) is slice:
-            return self.tuning.pitch_scale(
-                self._sorted_pitches[index_or_slice]
-            )
-
-        return self._sorted_pitches[index_or_slice]
-
-    def __contains__(self, object: object) -> bool:
-
-        if isinstance(object, HasFrequency):
-            return object in self._sorted_pitches
-
-        elif isinstance(object, HasFrequencyRatio):
-            for pitch_a in self._sorted_pitches:
-                for pitch_b in self._sorted_pitches:
-                    interval_u = pitch_a.interval(pitch_b)
-                    if interval_u == object:
-                        return True
-                    interval_d = pitch_b.interval(pitch_a)
-                    if interval_d == object:
-                        return True
-
-        # TODO: should Frequencies and FrequencyRatios also
-        # allowed to be checked with in operator?
-
-        return False
-
     # the obligatory __repr__
 
     def __repr__(self):
@@ -245,28 +187,27 @@ class PitchScale(Generic[PitchT]):
     # pitches
 
     @property
-    def frequencies(self) -> List[Frequency]:
-        return [pitch.frequency for pitch in self]
-
-    @property
     def pitch_indices(self) -> List[int]:
         """
         A list of the ordered pitch indices
         present in this scale
         """
-        return [pitch.pitch_index for pitch in self._sorted_pitches]
+        return [pitch.pitch_index for pitch in self]
 
-    def to_pitch_intervals(self) -> List[PitchInterval]:
+    def to_pitch_intervals(self) -> List[PitchInterval[PitchT]]:
         """
         Returns this scale represented as a list of pitch intervals
         """
+        warn(
+            f'{self.__class__.__name__}.to_pitch_intervals is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.to_intervals instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.to_intervals()
 
-        intervals = []
-        for i in range(0, len(self) - 1):
-            intervals.append(self[i].interval(self[i + 1]))
-        return intervals
-
-    def transpose(self, diff: Union[int, PitchInterval]) -> Self:
+    def transpose(self, diff: int | PitchInterval[PitchT]) -> Self:
         """
         Transposes the scale upwards or downwards
 
@@ -277,7 +218,7 @@ class PitchScale(Generic[PitchT]):
         """
 
         transposed = []
-        for pitch in self._sorted_pitches:
+        for pitch in self:
             transposed.append(pitch.transpose(diff))
 
         return self.tuning.pitch_scale(transposed)
@@ -304,167 +245,14 @@ class PitchScale(Generic[PitchT]):
 
         return tuning.pitch_scale(pitches)
 
-    # set operations
-
-    def union(self, other: Self) -> Self:
-        """
-        Returns a new scale including all pitches from
-        this scale as well as the other
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        pitches = list(self) + list(other)
-        return self.tuning.pitch_scale(pitches)
-
-    def intersection(self, other: Self) -> Self:
-        """
-        Returns a new scale including all pitches
-        that are included in both scales.
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        pitches = []
-
-        for pitch_a in self:
-            for pitch_b in other:
-                if pitch_a == pitch_b:
-                    pitches.append(pitch_a)
-
-        return self.tuning.pitch_scale(pitches)
-
-    def difference(self, other: Self) -> Self:
-        """
-        Returns a scale containing only pitches from this
-        scale that are NOT present in the other scale
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        pitches = []
-
-        for pitch_a in self:
-            for pitch_b in other:
-                if pitch_a == pitch_b:
-                    break
-            else:
-                pitches.append(pitch_a)
-
-        return self.tuning.pitch_scale(pitches)
-
-    def symmetric_difference(self, other: Self) -> Self:
-        """
-        Returns a scale that includes all the pitches
-        from both scales that exist in either of them
-        but NOT BOTH. This is the complement operation
-        of the intersection.
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        diff_a = self.difference(other)
-        diff_b = other.difference(self)
-        return diff_a.union(diff_b)
-
-    def is_disjoint(self, other: Self) -> bool:
-        """
-        Determines if this scale has any common pitches
-        with another scale of the same tuning
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        intersection = self.intersection(other)
-
-        return len(intersection) == 0
-
-    def is_subset(self, other: Self, proper: Optional[bool] = False) -> bool:
-        """
-        Determines if all pitches in this scale also exist
-        in the other scale.
-
-        :param other: Another scale of the same tuning
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        intersection = self.intersection(other)
-
-        is_subset = self == intersection
-
-        if not proper:
-            return is_subset
-
-        return is_subset and not (self == other)
-
-    def is_superset(self, other: Self, proper: Optional[bool] = False) -> bool:
-        """
-        Determines if all pitches in the other scale also exist
-        in this scale.
-
-        :param other: Another scale of the same tuning
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        intersection = self.intersection(other)
-
-        is_superset = other == intersection
-
-        if not proper:
-            return is_superset
-
-        return is_superset and not (self == other)
-
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
 
-class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
+class PeriodicPitchScale(
+    PitchScale[PeriodicPitchT],
+    PeriodicScale[PeriodicPitchT]
+):
     """
     Pitch scale class for periodic tunings. Implements
     operations like rotation and customized set operations
@@ -473,24 +261,6 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
     """
 
     # normalization methods
-
-    def pcs_normalized(self) -> Self:
-        """
-        Returns a normalized version of this scale where
-        all the pitches of the scale are put into the first
-        base interval of the tuning
-
-        Note: If the original scale has equivalent pitch pairs
-        the normalized scale will be smaller in cardinality.
-        """
-
-        pitches = []
-
-        for pitch in self._sorted_pitches:
-            n_pitch = self.tuning.pitch(pitch.pc_index)
-            pitches.append(n_pitch)
-
-        return self.tuning.pitch_scale(pitches)
 
     def pcs_complement(self) -> Self:
         """
@@ -513,71 +283,6 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
 
         return self.tuning.pitch_scale(complement)
 
-    # typical scale operations in music theory
-
-    def rotated_up(self) -> Self:
-        """
-        Create a new scale by transposing the lowest pitch
-        upwards until it is above the highest pitch
-        """
-
-        pitches = list(self[1:])
-
-        pitch = self.tuning.pitch(
-            self[0].pc_index + self[-1].bi_index * len(self.tuning)
-        )
-
-        if pitch <= pitches[-1]:
-            pitch = pitch.transpose_bi_index(1)
-
-        pitches.append(pitch)
-        return self.tuning.pitch_scale(pitches)
-
-    def rotated_down(self) -> Self:
-        """
-        Create a new scale by transposing the highest pitch
-        downwards until it is below the lowest pitch
-        """
-
-        pitches = list(self[:-1])
-
-        bi_diff = self[-1].bi_index - self[0].bi_index
-
-        pitch = self.tuning.pitch(
-            self[-1].pitch_index - bi_diff * len(self.tuning)
-        )
-
-        if pitch >= pitches[0]:
-            pitch = pitch.transpose_bi_index(-1)
-
-        pitches.append(pitch)
-        return self.tuning.pitch_scale(pitches)
-
-    def rotation(self, order: int) -> Self:
-        """
-        Returns the n-th rotation of this scale.
-
-        :param order: The number of times the scale is
-            rotated. If a negative number is given the
-            scale will be rotated downwards. On 0 the
-            scale will return itself
-        """
-
-        if order == 0:
-            return self
-
-        scale = self
-
-        if order > 0:
-            for _ in range(0, order):
-                scale = scale.rotated_up()
-
-        if order < 0:
-            for _ in range(0, abs(order)):
-                scale = scale.rotated_down()
-
-        return scale
-
     @property
     def pc_indices(self) -> List[int]:
         """
@@ -586,258 +291,7 @@ class PeriodicPitchScale(PitchScale[PeriodicPitchT]):
         include duplicate items if the list has two
         pitches of the same pitch class
         """
-        return [pitch.pc_index for pitch in self._sorted_pitches]
-
-    def pcs_intersection(self, other: Self) -> Self:
-        """
-        Returns a scale including all pitches whose pitch class
-        resides in both of the scales, normalized to the first
-        base interval
-
-        This is a shortcut for calling intersection with the ignore
-        base interval flag and subsequent base interval normalization
-
-        :param other: The other scale
-        """
-
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
-
-        return n_self.intersection(n_other)
-
-    # some variations on the set operations
-    # of the parent class
-
-    def intersection(
-        self, other: Self, ignore_bi_index: Optional[bool] = False
-    ) -> Self:
-        """
-        Returns a new scale including all pitches
-        that are included in both scales.
-
-        :param other: Another scale of the same tuning
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same. For example, if the
-            intersection of two scales including C-0 and
-            C-1 respectively is calculated, both pitches
-            will be added to the result
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        if not ignore_bi_index:
-            return super().intersection(other)
-
-        pitches = []
-
-        for pitch_a in self:
-            for pitch_b in other:
-                if pitch_a.is_equivalent(pitch_b):
-                    pitches.append(pitch_a)
-                    pitches.append(pitch_b)
-
-        return self.tuning.pitch_scale(pitches)
-
-    def difference(
-        self, other: Self, ignore_bi_index: Optional[bool] = False
-    ) -> Self:
-        """
-        Returns a scale containing only pitches from this
-        scale that are NOT present in the other scale
-
-        :param other: Another scale of the same tuning
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same. For example, if the
-            difference between two scales including C-0 and C-1
-            respectively is calculated, C-0 will not be
-            inserted into the new scale
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        if not ignore_bi_index:
-            return super().difference(other)
-
-        pitches = []
-
-        for pitch_a in self:
-            for pitch_b in other:
-                if pitch_a.is_equivalent(pitch_b):
-                    break
-            else:
-                pitches.append(pitch_a)
-
-        return self.tuning.pitch_scale(pitches)
-
-    def symmetric_difference(
-        self, other: Self, ignore_bi_index: Optional[bool] = False
-    ) -> Self:
-        """
-        Returns a scale that includes all the pitches
-        from both scales that exist in either of them
-        but NOT BOTH. This is the complement operation
-        of the intersection.
-
-        :param other: Another scale of the same tuning
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same. For example, if the
-            difference of two scales including C-0 and C-1
-            respectively is calculated, both C-0 and C-1
-            will not be inserted into the new scale
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        if not ignore_bi_index:
-            return super().symmetric_difference(other)
-
-        diff_a = self.difference(other, ignore_bi_index=True)
-        diff_b = other.difference(self, ignore_bi_index=True)
-        return diff_a.union(diff_b)
-
-    def is_disjoint(
-        self, other: Self, ignore_bi_index: Optional[bool] = False
-    ) -> bool:
-        """
-        Determines if this scale has any common pitches
-        with another scale of the same tuning
-
-        :param other: Another scale of the same tuning
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same. For example, if one
-            scale includes C-0 and the other includes C-1
-            the scales will not be considered disjoint
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        intersection = self.intersection(
-            other, ignore_bi_index=ignore_bi_index
-        )
-
-        return len(intersection) == 0
-
-    def is_equivalent(self, other: Self) -> bool:
-        """
-        Determines if this scale and another scale have
-        exactly the same pitch classes
-
-        :param other: Another scale of the same tuning
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
-                'Scales must originate from the same tuning context'
-            )
-
-        a_set = set()
-        b_set = set()
-
-        for pitch_a in self:
-            a_set.add(pitch_a.pc_index)
-
-        for pitch_b in other:
-            b_set.add(pitch_b.pc_index)
-
-        return a_set == b_set
-
-    def is_subset(
-        self,
-        other: Self,
-        proper: Optional[bool] = False,
-        ignore_bi_index: Optional[bool] = False,
-    ) -> bool:
-        """
-        Determines if all pitches in this scale also exist
-        in the other scale.
-
-        :param other: Another scale of the same tuning
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same.
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if not ignore_bi_index:
-            return super().is_subset(other, proper)
-
-        intersection = self.intersection(other, ignore_bi_index=True)
-
-        is_subset = self.is_equivalent(intersection)
-
-        if not proper:
-            return is_subset
-
-        equal = self.is_equivalent(other)
-
-        return is_subset and not equal
-
-    def is_superset(
-        self,
-        other: Self,
-        proper: Optional[bool] = False,
-        ignore_bi_index: Optional[bool] = False,
-    ) -> bool:
-        """
-        Determines if all pitches in the other scale also exist
-        in this scale.
-
-        :param other: Another scale of the same tuning
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-        :param ignore_bi_index: (Optional, default False)
-            When set to True pitches of the same pitch class
-            will be treated the same.
-
-        :raises IncompatibleTunings: If the other scale has a
-            different tuning
-        """
-
-        if not ignore_bi_index:
-            return super().is_superset(other, proper)
-
-        intersection = self.intersection(other, ignore_bi_index=True)
-
-        is_superset = other.is_equivalent(intersection)
-
-        if not proper:
-            return is_superset
-
-        equal = self.is_equivalent(other)
-
-        return is_superset and not equal
+        return [pitch.pc_index for pitch in self]
 
 
 class EDPitchScale(PeriodicPitchScale[EDPitch]):

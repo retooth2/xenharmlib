@@ -1,0 +1,634 @@
+# This file is part of xenharmlib.
+#
+# xenharmlib is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# xenharmlib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
+
+"""
+This module implements base classes for scales
+"""
+
+from __future__ import annotations
+
+from abc import ABC
+from abc import abstractmethod
+from collections.abc import Sequence
+from typing import overload
+from typing import Optional
+from typing import Iterable
+from typing import TypeVar
+from typing import List
+from typing import Self
+from .interval import Interval
+from .freq_repr import FreqRepr
+from .protocols import PeriodicPitchLike
+from ..exc import IncompatibleOriginContexts
+
+FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
+
+
+class Scale(Sequence[FreqReprT], ABC):
+    """
+    Scale is the abstract base class for all scale types. The class
+    implements iteration, the 'in' operator, the == operator, item
+    retrieval with [] and set operations.
+
+    Subclasses must implement at least the transpose function
+
+    :param origin_context: An origin context (like a tuning or a notation)
+    :param elements: A list of frequency representations
+    """
+
+    def __init__(
+        self,
+        origin_context,
+        elements: Optional[Iterable[FreqReprT]] = None
+    ):
+
+        self._origin_context = origin_context
+
+        if elements is None:
+            _elements: Iterable[FreqReprT] = []
+        else:
+            _elements = elements
+
+        unique_elements: List[FreqReprT] = []
+        element_set = set()
+
+        for element in _elements:
+            if element.origin_context is not self.origin_context:
+                raise IncompatibleOriginContexts(
+                    f'The element {element} does not originate from context '
+                    f'{origin_context}. Cannot construct scale.'
+                )
+            if element not in element_set:
+                element_set.add(element)
+                unique_elements.append(element)
+
+        self._sorted_elements = sorted(unique_elements)
+
+    @property
+    def origin_context(self):
+        """
+        The origin context from which this scale was built
+        """
+        return self._origin_context
+
+    def __iter__(self):
+        return self._sorted_elements.__iter__()
+
+    def __len__(self) -> int:
+        return len(self._sorted_elements)
+
+    def __contains__(self, o: object) -> bool:
+
+        if isinstance(o, FreqRepr):
+            return o in self._sorted_elements
+
+        elif isinstance(o, Interval):
+            for element_a in self._sorted_elements:
+                for element_b in self._sorted_elements:
+                    interval_u = element_a.interval(element_b)
+                    if interval_u == o:
+                        return True
+                    interval_d = element_b.interval(element_a)
+                    if interval_d == o:
+                        return True
+
+        return False
+
+    @overload
+    def __getitem__(self, index_or_slice: int) -> FreqReprT: ...
+
+    @overload
+    def __getitem__(self, index_or_slice: slice) -> Self: ...
+
+    def __getitem__(self, index_or_slice: int | slice) -> FreqReprT | Self:
+
+        if type(index_or_slice) is slice:
+            partial = self._sorted_elements[index_or_slice]
+            return self.origin_context.scale(partial)
+
+        return self._sorted_elements[index_or_slice]
+
+    def __eq__(self, other: object):
+        if not isinstance(other, Scale):
+            return False
+        if len(self) != len(other):
+            return False
+        for a, b in zip(self, other):
+            if a != b:
+                return False
+        return True
+
+    @abstractmethod
+    def transpose(self, diff) -> Self:
+        # argument diff is not type annotated because it can differ
+        # greatly for scales containing single dimensional elements
+        # and scales containing multi-dimensional elements
+        ...
+
+    @property
+    def frequencies(self):
+        """
+        An ordered list of frequencies present in this scale
+        """
+        return [element.frequency for element in self]
+
+    def to_intervals(self) -> List[Interval[FreqReprT]]:
+        """
+        Returns this scale represented as a list of intervals
+        """
+
+        intervals = []
+        for i in range(0, len(self) - 1):
+            intervals.append(self[i].interval(self[i + 1]))
+        return intervals
+
+    # set operations
+
+    def union(self, other: Self) -> Self:
+        """
+        Returns a new scale including all elements from
+        this scale as well as the other
+
+        :param other: Another scale of the same origin context
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        elements = list(self) + list(other)
+        return self.origin_context.scale(elements)
+
+    def intersection(self, other: Self) -> Self:
+        """
+        Returns a new scale including all elements that are
+        included in both scales.
+
+        :param other: Another scale of the same origin context
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        elements = []
+
+        for element_a in self:
+            for element_b in other:
+                if element_a == element_b:
+                    elements.append(element_a)
+
+        return self.origin_context.scale(elements)
+
+    def difference(self, other: Self) -> Self:
+        """
+        Returns a scale containing only elements from this
+        scale that are NOT present in the other scale
+
+        :param other: Another scale of the same origin context
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        elements = []
+
+        for element_a in self:
+            for element_b in other:
+                if element_a == element_b:
+                    break
+            else:
+                elements.append(element_a)
+
+        return self.origin_context.scale(elements)
+
+    def symmetric_difference(self, other: Self) -> Self:
+        """
+        Returns a scale that includes all the elements from both
+        scales that exist in either of them but NOT BOTH. This
+        is the complement operation of the intersection.
+
+        :param other: Another scale of the same origin context
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        diff_a = self.difference(other)
+        diff_b = other.difference(self)
+        return diff_a.union(diff_b)
+
+    def is_disjoint(self, other: Self) -> bool:
+        """
+        Determines if this scale has any common elements
+        with another scale of the same origin context.
+
+        :param other: Another scale of the same origin context
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        intersection = self.intersection(other)
+
+        return len(intersection) == 0
+
+    def is_subset(self, other: Self, proper: bool = False) -> bool:
+        """
+        Determines if all elements in this scale also exist
+        in the other scale.
+
+        :param other: Another scale of the same origin context
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        intersection = self.intersection(other)
+
+        is_subset = self == intersection
+
+        if not proper:
+            return is_subset
+
+        return is_subset and not (self == other)
+
+    def is_superset(self, other: Self, proper: bool = False) -> bool:
+        """
+        Determines if all elements in the other scale also exist
+        in this scale.
+
+        :param other: Another scale of the same origin context
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        intersection = self.intersection(other)
+
+        is_superset = other == intersection
+
+        if not proper:
+            return is_superset
+
+        return is_superset and not (self == other)
+
+
+PeriodicFreqReprT = TypeVar(
+    'PeriodicFreqReprT',
+    bound=PeriodicPitchLike
+)
+
+
+class PeriodicScale(Scale[PeriodicFreqReprT]):
+    """
+    PeriodicScale is the abstract base class for scales that contain
+    frequency representations of periodic tunings / notations. It
+    overwrites the set operations to allow for the ignore_bi_index
+    flag.
+
+    It implements the following additional methods:
+        * pcs_normalized
+        * pcs_intersection
+        * is_equivalent
+        * rotated_up
+        * rotated_down
+        * rotation
+
+    Subclasses must implement at least the transpose function
+
+    :param origin_context: An origin context (like a tuning or a notation)
+    :param elements: A list of frequency representations
+    """
+
+    def pcs_normalized(self) -> Self:
+        """
+        Returns a normalized version of this scale where
+        all the elements of the scale are put into the first
+        base interval of the tuning
+
+        Note: If the original scale has equivalent element pairs
+        the normalized scale will be smaller in cardinality.
+        """
+
+        elements = []
+
+        for element in self._sorted_elements:
+            n_element = element.pcs_normalized()
+            elements.append(n_element)
+
+        return self.origin_context.scale(elements)
+
+    def rotated_up(self) -> Self:
+        """
+        Create a new scale by transposing the base interval of the
+        lowest element upwards until it is above the highest element
+        """
+
+        elements = list(self[1:])
+
+        bi_diff = self[-1].bi_index - self[0].bi_index
+        element = self[0].transpose_bi_index(bi_diff)
+
+        if element <= elements[-1]:
+            element = element.transpose_bi_index(1)
+
+        elements.append(element)
+        return self.origin_context.scale(elements)
+
+    def rotated_down(self) -> Self:
+        """
+        Create a new scale by transposing the base interval of the
+        highest element downwards until it is below the lowest element
+        """
+
+        elements = list(self[:-1])
+
+        bi_diff = self[0].bi_index - self[-1].bi_index
+        element = self[-1].transpose_bi_index(bi_diff)
+
+        if element >= elements[0]:
+            element = element.transpose_bi_index(-1)
+
+        elements.append(element)
+        return self.origin_context.scale(elements)
+
+    def rotation(self, order: int) -> Self:
+        """
+        Returns the n-th rotation of this scale.
+
+        :param order: The number of times the scale is
+            rotated. If a negative number is given the
+            scale will be rotated downwards. On 0 the
+            scale will return itself
+        """
+
+        if order == 0:
+            return self
+
+        scale = self
+
+        if order > 0:
+            for _ in range(0, order):
+                scale = scale.rotated_up()
+
+        if order < 0:
+            for _ in range(0, abs(order)):
+                scale = scale.rotated_down()
+
+        return scale
+
+    def is_equivalent(self, other: PeriodicScale) -> bool:
+        """
+        Returns True if every element in this scale corresponds to another
+        one in the other scale that has the same pitch class index.
+        (and vice versa)
+
+        :param other: Another periodic scale
+        """
+
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
+
+        return n_self == n_other
+
+    def pcs_intersection(self, other: Self) -> Self:
+        """
+        Returns a scale including all elements whose pitch class
+        resides in both of the scales, normalized to the first
+        base interval.
+
+        :param other: The other scale
+        """
+
+        n_self = self.pcs_normalized()
+        n_other = other.pcs_normalized()
+
+        return n_self.intersection(n_other)
+
+    # some variations on the set operations
+    # of the parent class
+
+    def intersection(self, other: Self, ignore_bi_index: bool = False) -> Self:
+        """
+        Returns a new scale including all elements that are included
+        in both scales.
+
+        :param other: Another scale of the same origin context
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same. For example, if the
+            intersection of two scales including C-0 and
+            C-1 respectively is calculated, both elements
+            will be added to the result
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        if not ignore_bi_index:
+            return super().intersection(other)
+
+        elements = []
+
+        for element_a in self:
+            for element_b in other:
+                if element_a.is_equivalent(element_b):
+                    elements.append(element_a)
+                    elements.append(element_b)
+
+        return self.origin_context.scale(elements)
+
+    def difference(self, other: Self, ignore_bi_index: bool = False) -> Self:
+        """
+        Returns a scale containing only elements from this
+        scale that are NOT present in the other scale
+
+        :param other: Another scale of the same origin context
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same. For example, if the
+            difference of two scales including C-0 and C-1
+            respectively is calculated, C-0 will not be
+            inserted into the new scale
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        if not ignore_bi_index:
+            return super().difference(other)
+
+        elements = []
+
+        for element_a in self:
+            for element_b in other:
+                if element_a.is_equivalent(element_b):
+                    break
+            else:
+                elements.append(element_a)
+
+        return self.origin_context.scale(elements)
+
+    def symmetric_difference(
+        self, other: Self, ignore_bi_index: bool = False
+    ) -> Self:
+        """
+        Returns a scale that includes all the elements
+        from both scales that exist in either of them
+        but NOT BOTH. This is the complement operation
+        of the intersection.
+
+        :param other: Another scale of the same origin context
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same. For example, if the
+            difference of two scales including C-0 and C-1
+            respectively is calculated, C-0 will not be
+            inserted into the new scale
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        if not ignore_bi_index:
+            return super().symmetric_difference(other)
+
+        diff_a = self.difference(other, ignore_bi_index=True)
+        diff_b = other.difference(self, ignore_bi_index=True)
+        return diff_a.union(diff_b)
+
+    def is_disjoint(self, other: Self, ignore_bi_index: bool = False) -> bool:
+        """
+        Determines if this scale has any common elements
+        with another scale of the same origin context
+
+        :param other: Another scale of the same origin context
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same. For example, if one
+            scale includes C-0 and another C-1 the scales
+            will not be considered disjoint
+
+        :raises IncompatibleOriginContexts: If the other scale originates
+            from a different origin context
+        """
+
+        intersection = self.intersection(
+            other, ignore_bi_index=ignore_bi_index
+        )
+
+        return len(intersection) == 0
+
+    def is_subset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
+        """
+        Determines if all elements in this scale also exist
+        in the other scale.
+
+        :param other: Another scale of the same origin context
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same.
+
+        :raises IncompatibleOriginContexts: If the other scale originates
+            from a different origin context
+        """
+
+        if not ignore_bi_index:
+            return super().is_subset(other, proper=proper)
+
+        intersection = self.intersection(other, ignore_bi_index=True)
+
+        is_subset = self.is_equivalent(intersection)
+
+        if not proper:
+            return is_subset
+
+        return is_subset and not self.is_equivalent(other)
+
+    def is_superset(
+        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
+    ) -> bool:
+        """
+        Determines if all elements in the other scale also exist
+        in this scale.
+
+        :param other: Another scale of the same origin context
+        :param proper: (Optional, default False) When set
+            to True method will return False if the two
+            sets are identical
+        :param ignore_bi_index: (Optional, default False)
+            When set to True elements of the same pitch class
+            will be treated the same.
+
+        :raises IncompatibleOriginContexts: If the other scale originates
+            from a different origin context
+        """
+
+        if not ignore_bi_index:
+            return super().is_superset(other, proper=proper)
+
+        intersection = self.intersection(other, ignore_bi_index=True)
+
+        is_superset = other.is_equivalent(intersection)
+
+        if not proper:
+            return is_superset
+
+        return is_superset and not self.is_equivalent(other)

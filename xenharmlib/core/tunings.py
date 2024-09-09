@@ -140,6 +140,15 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         )
         return self.interval(pitch_a, pitch_b)
 
+    def scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
+        """
+        Returns a pitch scale having the pitch scale type
+        this tuning was configured with
+
+        :param pitches: A list of pitches
+        """
+        return self._pitch_scale_cls(self, pitches)
+
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
         Returns a pitch scale having the pitch scale type
@@ -147,6 +156,13 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
 
         :param pitches: A list of pitches
         """
+        warn(
+            f'{self.__class__.__name__}.pitch_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
         return self._pitch_scale_cls(self, pitches)
 
     def pitch_range(self, start, stop=None, step=1):
