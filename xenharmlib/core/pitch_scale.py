@@ -146,11 +146,21 @@ class PitchScale(Scale[PitchT]):
 
     def add_pitch_index(self, pitch_index: int):
         """
+        .. deprecated:: 0.2.0
+           objects in xenharmlib are supposed to be immutable
+
         Inserts a new pitch into the scale denoted
         by its pitch index
 
         :param pitch_index: Index of the pitch
         """
+        warn(
+            f'{self.__class__.__name__}.add_pitch_index is deprecated and '
+            f'will be removed in 1.0.0. As per design philosophy '
+            f'scales should be immutable',
+            DeprecationWarning,
+            stacklevel=2
+        )
 
         pitch = self.tuning.pitch(pitch_index)
         self.add_pitch(pitch)
