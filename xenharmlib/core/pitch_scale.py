@@ -58,7 +58,7 @@ class PitchScale(Scale[PitchT]):
 
     >>> from xenharmlib import EDOTuning
     >>> edo31 = EDOTuning(31)
-    >>> scale = edo31.pitch_scale(
+    >>> scale = edo31.scale(
     ...     [edo31.pitch(4), edo31.pitch(6), edo31.pitch(9)]
     ... )
 
@@ -93,7 +93,7 @@ class PitchScale(Scale[PitchT]):
     >>> edo12 = EDOTuning(12)
     >>> edo24 = EDOTuning(24)
     >>> edo12_fifth = edo12.pitch(0).interval(edo12.pitch(7))
-    >>> edo24_scale = edo24.pitch_scale(edo24.pitch_range(24))
+    >>> edo24_scale = edo24.scale(edo24.pitch_range(24))
     >>> edo12_fifth in edo24_scale
     True
 
@@ -169,12 +169,11 @@ class PitchScale(Scale[PitchT]):
             should be interpreted
         """
 
-        scale = cls(tuning=tuning)
-
+        pitches = []
         for pitch_index in pitch_indices:
-            scale.add_pitch_index(pitch_index)
+            pitches.append(tuning.pitch(pitch_index))
 
-        return scale
+        return tuning.scale(pitches)
 
     # the obligatory __repr__
 
@@ -227,7 +226,7 @@ class PitchScale(Scale[PitchT]):
         for pitch in self:
             transposed.append(pitch.transpose(diff))
 
-        return self.tuning.pitch_scale(transposed)
+        return self.tuning.scale(transposed)
 
     def retune(self, tuning) -> PitchScale:
         """
@@ -249,7 +248,7 @@ class PitchScale(Scale[PitchT]):
             retuned_pitch = pitch.retune(tuning)
             pitches.append(retuned_pitch)
 
-        return tuning.pitch_scale(pitches)
+        return tuning.scale(pitches)
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
@@ -279,7 +278,7 @@ class PeriodicPitchScale(
         n_scale = self.pcs_normalized()
         complement = []
 
-        full_scale = self.tuning.pitch_scale(
+        full_scale = self.tuning.scale(
             self.tuning.pitch_range(len(self.tuning))
         )
 
@@ -287,7 +286,7 @@ class PeriodicPitchScale(
             if pitch not in n_scale:
                 complement.append(pitch)
 
-        return self.tuning.pitch_scale(complement)
+        return self.tuning.scale(complement)
 
     @property
     def pc_indices(self) -> List[int]:

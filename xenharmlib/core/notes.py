@@ -525,7 +525,7 @@ class NoteIntervalABC(SDInterval[NoteT], ABC):
             return self
 
         target_note = self.ref_note.transpose(self)
-        return self.notation.note_interval(target_note, self.ref_note)
+        return self.notation.interval(target_note, self.ref_note)
 
     # read-only properties
 
@@ -564,7 +564,7 @@ class NoteIntervalABC(SDInterval[NoteT], ABC):
         note_a = self.ref_note
         note_b = note_a.transpose(self)
         tuning = self.notation.tuning
-        return tuning.pitch_interval(note_a.pitch, note_b.pitch)
+        return tuning.interval(note_a.pitch, note_b.pitch)
 
 
 class PeriodicNoteInterval(NoteIntervalABC[NoteT]):

@@ -324,7 +324,7 @@ class PitchInterval(SDInterval[PitchT]):
 
         target_pitch = self.ref_pitch.transpose(self.pitch_diff)
 
-        return self.tuning.pitch_interval(target_pitch, self.ref_pitch)
+        return self.tuning.interval(target_pitch, self.ref_pitch)
 
     @classmethod
     def from_pitches(cls, pitch_a: PitchT, pitch_b: PitchT) -> Self:

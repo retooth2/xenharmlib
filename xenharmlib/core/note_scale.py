@@ -67,7 +67,7 @@ class NoteScale(Scale[NoteT]):
         """
         Returns the equivalent pitch scale for this object
         """
-        return self.tuning.pitch_scale([note.pitch for note in self])
+        return self.tuning.scale([note.pitch for note in self])
 
     def add_note(self, note: NoteT):
         """
@@ -173,7 +173,7 @@ class NoteScale(Scale[NoteT]):
         for notes in self:
             transposed.append(notes.transpose(interval))
 
-        return self.notation.note_scale(transposed)
+        return self.notation.scale(transposed)
 
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
@@ -187,7 +187,7 @@ class NoteScale(Scale[NoteT]):
         notes = []
         for note in self:
             notes.append(note.transpose_bi_index(bi_diff))
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def note_intersection(self, other: Self) -> Self:
         """
@@ -213,7 +213,7 @@ class NoteScale(Scale[NoteT]):
                 if note_a.is_notated_same(note_b):
                     notes.append(note_a)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def note_difference(self, other: Self) -> Self:
         """
@@ -243,7 +243,7 @@ class NoteScale(Scale[NoteT]):
             else:
                 notes.append(note_a)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def is_notated_disjoint(self, other: Self) -> bool:
         """
@@ -349,7 +349,7 @@ class PeriodicNoteScale(
             n_note = note.pcs_normalized()
             notes.append(n_note)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def pcs_complement(self) -> Self:
         """
@@ -409,7 +409,7 @@ class PeriodicNoteScale(
                     notes.append(note_a)
                     notes.append(note_b)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def note_difference(
         self, other: Self, ignore_bi_index: bool = False
@@ -452,7 +452,7 @@ class PeriodicNoteScale(
             else:
                 notes.append(note_a)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def is_notated_disjoint(
         self, other: Self, ignore_bi_index: bool = False

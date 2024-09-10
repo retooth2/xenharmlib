@@ -767,7 +767,7 @@ class UpwardsEnharmStrategy(UpDownEnharmStrategy):
             for sharpened in self.sharp_fillers(current_note, next_note):
                 notes.append(sharpened)
 
-        partial_scale = notation.note_scale(notes)
+        partial_scale = notation.scale(notes)
 
         a = partial_scale
         b = partial_scale.rotated_up()
@@ -778,7 +778,7 @@ class UpwardsEnharmStrategy(UpDownEnharmStrategy):
             for upped in self.up_fillers(current_note, next_note):
                 notes.append(upped)
 
-        pc_blueprint = notation.note_scale(notes)
+        pc_blueprint = notation.scale(notes)
         super().__init__(pc_blueprint)
 
 
@@ -809,7 +809,7 @@ class DownwardsEnharmStrategy(UpDownEnharmStrategy):
             for flattened in self.flat_fillers(current_note, next_note):
                 notes.append(flattened)
 
-        partial_scale = notation.note_scale(notes)
+        partial_scale = notation.scale(notes)
 
         a = partial_scale
         b = partial_scale.rotated_up()
@@ -820,7 +820,7 @@ class DownwardsEnharmStrategy(UpDownEnharmStrategy):
             for downed in self.down_fillers(current_note, next_note):
                 notes.append(downed)
 
-        pc_blueprint = notation.note_scale(notes)
+        pc_blueprint = notation.scale(notes)
         super().__init__(pc_blueprint)
 
 
@@ -861,7 +861,7 @@ class MixedLeftEnharmStrategy(UpDownEnharmStrategy):
                 notes.append(sharpened)
                 notes.append(flattened)
 
-        partial_scale = notation.note_scale(notes)
+        partial_scale = notation.scale(notes)
 
         a = partial_scale
         b = partial_scale.rotated_up()
@@ -875,7 +875,7 @@ class MixedLeftEnharmStrategy(UpDownEnharmStrategy):
                 notes.append(upped)
                 notes.append(downed)
 
-        pc_blueprint = notation.note_scale(notes)
+        pc_blueprint = notation.scale(notes)
         super().__init__(pc_blueprint)
 
 
@@ -914,7 +914,7 @@ class MixedRightEnharmStrategy(UpDownEnharmStrategy):
                 notes.append(flattened)
                 notes.append(sharpened)
 
-        partial_scale = notation.note_scale(notes)
+        partial_scale = notation.scale(notes)
 
         a = partial_scale
         b = partial_scale.rotated_up()
@@ -928,5 +928,5 @@ class MixedRightEnharmStrategy(UpDownEnharmStrategy):
                 notes.append(downed)
                 notes.append(upped)
 
-        pc_blueprint = notation.note_scale(notes)
+        pc_blueprint = notation.scale(notes)
         super().__init__(pc_blueprint)

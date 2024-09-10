@@ -796,11 +796,12 @@ class NatAccNotation(
             reside in
         """
 
-        scale = self.note_scale()
+        notes = []
         for natc_symbol, _ in self._naturals:
             note = self.note(natc_symbol, bi_index)
-            scale.add_note(note)
-        return scale
+            notes.append(note)
+
+        return self.scale(notes)
 
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
