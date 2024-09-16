@@ -28,7 +28,7 @@ from .notes import PeriodicNoteABC
 from .notes import NoteIntervalABC
 from .scale import Scale
 from .scale import PeriodicScale
-from ..exc import IncompatibleNotations
+from ..exc import IncompatibleOriginContexts
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 
@@ -78,7 +78,7 @@ class NoteScale(Scale[NoteT]):
         position. If the note already exists in the scale
         the method will do nothing.
 
-        :raises IncompatibleNotations: If the note has a different
+        :raises IncompatibleOriginContexts: If the note has a different
             notation than this scale.
 
         :param note: The new note
@@ -92,7 +92,7 @@ class NoteScale(Scale[NoteT]):
         )
 
         if note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'The provided note originates from a different '
                 'notation than the scale'
             )
@@ -197,12 +197,12 @@ class NoteScale(Scale[NoteT]):
         sets if they are notated the same and excluded otherwise,
         even if they are enharmonically equivalent
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -225,12 +225,12 @@ class NoteScale(Scale[NoteT]):
         equivalent to a note in this set but notated in a
         different way, the latter will stay in the result set.
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -252,7 +252,7 @@ class NoteScale(Scale[NoteT]):
         enharmonically equivalent but differently notated notes
         will be treated as distinct
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -272,7 +272,7 @@ class NoteScale(Scale[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -297,7 +297,7 @@ class NoteScale(Scale[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -389,12 +389,12 @@ class PeriodicNoteScale(
             C-1 respectively is calculated, both notes
             will be added to the result
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -431,12 +431,12 @@ class PeriodicNoteScale(
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -470,7 +470,7 @@ class PeriodicNoteScale(
             scale includes C-0 and another C-1 the scales
             will not be considered disjoint
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 
@@ -497,7 +497,7 @@ class PeriodicNoteScale(
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 
@@ -530,7 +530,7 @@ class PeriodicNoteScale(
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 

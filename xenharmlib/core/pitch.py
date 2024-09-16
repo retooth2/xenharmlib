@@ -21,7 +21,7 @@ from .frequencies import FrequencyRatio
 from .protocols import PeriodicPitchLike
 from .freq_repr import SDFreqRepr
 from .interval import SDInterval
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidGenerator
 
 
@@ -62,14 +62,14 @@ class Pitch(SDFreqRepr):
 
     def __add__(self, other):
         if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(self.pitch_index + other.pitch_index)
 
     def __sub__(self, other):
         if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(self.pitch_index - other.pitch_index)
@@ -198,7 +198,7 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
             to the equivalent pitch in the first base interval if its
             pitch index exceeds the period length of the tuning.
 
-        :raises IncompatibleTunings: If pitches come
+        :raises IncompatibleOriginContexts: If pitches come
             from different tuning systems
 
         :raises InvalidGenerator: If the given generator pitch is not in
@@ -206,7 +206,7 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
         """
 
         if generator_pitch.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
 
@@ -336,7 +336,7 @@ class PitchInterval(SDInterval[PitchT]):
         If the second pitch is lower than the first pitch the Interval
         will have a negative pitch difference
 
-        :raises IncompatibleTunings: If pitches come
+        :raises IncompatibleOriginContexts: If pitches come
             from different tuning systems
 
         :param pitch_a: The first (or reference) pitch
@@ -358,7 +358,7 @@ class PitchInterval(SDInterval[PitchT]):
         If the second pitch is lower than the first pitch the Interval
         will have a negative pitch difference
 
-        :raises IncompatibleTunings: If pitches come
+        :raises IncompatibleOriginContexts: If pitches come
             from different tuning systems
 
         :param source: The starting point of the interval
@@ -366,7 +366,7 @@ class PitchInterval(SDInterval[PitchT]):
         """
 
         if source.tuning is not target.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
 

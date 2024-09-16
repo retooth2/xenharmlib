@@ -3,21 +3,21 @@ from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch import EDPitchInterval
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))
 edo24 = EDTuning(24, FrequencyRatio(2))
 edo31 = EDTuning(31, FrequencyRatio(2))
 ed13_3 = EDTuning(13, FrequencyRatio(3))
 
-def test_init_incompatible_tunings():
+def test_init_incompatible_origin_contexts():
     """
     Test if interval cannot be initialized from two pitches
     that originate from different tunings
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         EDPitchInterval.from_pitches(
             edo12.pitch(0),
             edo12_2.pitch(0),

@@ -38,8 +38,7 @@ from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
-from ..exc import IncompatibleNotations
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
@@ -156,7 +155,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch must originate from the tuning that this '
                 'notation is build upon'
             )
@@ -173,7 +172,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch_interval.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch interval must originate from the tuning '
                 'that this notation is build upon'
             )
@@ -190,7 +189,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch_scale.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch scale must originate from the tuning '
                 'that this notation is build upon'
             )
@@ -637,7 +636,7 @@ class NatAccNotation(
         Creates a note interval between two notes created by
         this notation
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param note_a: The source note
@@ -661,7 +660,7 @@ class NatAccNotation(
         Creates a note interval between two notes created by
         this notation
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param source: The source note
@@ -669,7 +668,7 @@ class NatAccNotation(
         """
 
         if source.notation is not self or target.notation is not self:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'At least one of the given notes does not '
                 'originate from this notation'
             )
@@ -685,7 +684,7 @@ class NatAccNotation(
 
         Creates a note scale from a list of notes
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param notes: A list of notes created by this
@@ -706,7 +705,7 @@ class NatAccNotation(
         """
         Creates a note scale from a list of notes
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param notes: A list of notes created by this
@@ -718,7 +717,7 @@ class NatAccNotation(
 
         for note in notes:
             if note.notation is not self:
-                raise IncompatibleNotations(
+                raise IncompatibleOriginContexts(
                     'At least one of the given notes does not '
                     'originate from this notation'
                 )

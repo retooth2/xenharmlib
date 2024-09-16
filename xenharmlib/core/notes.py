@@ -33,7 +33,7 @@ from .protocols import PeriodicPitchLike
 from .freq_repr import SDFreqRepr
 from .interval import SDInterval
 from .pitch import PeriodicPitch
-from ..exc import IncompatibleNotations
+from ..exc import IncompatibleOriginContexts
 
 
 @total_ordering
@@ -179,7 +179,7 @@ class PeriodicNoteABC(NoteABC, PeriodicPitchLike):
             to the equivalent note in the first base interval if its
             pitch index exceeds the period length of the tuning.
 
-        :raises IncompatibleNotations: If notes come
+        :raises IncompatibleOriginContexts: If notes come
             from a different notation system
 
         :raises InvalidGenerator: If the pitch of given generator note is
@@ -187,7 +187,7 @@ class PeriodicNoteABC(NoteABC, PeriodicPitchLike):
         """
 
         if generator_note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Generator notes must originate from the same notation'
             )
 
@@ -271,7 +271,7 @@ class NatAccNote(PeriodicNoteABC):
         """
 
         if other.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must originate from the same notation context'
             )
 
@@ -288,7 +288,7 @@ class NatAccNote(PeriodicNoteABC):
         """
 
         if other.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must originate from the same notation context'
             )
 
@@ -458,7 +458,7 @@ class NatAccNote(PeriodicNoteABC):
         interval = diff
 
         if interval.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Interval must originate from same notation '
                 'as the note that should be transposed'
             )
@@ -595,7 +595,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
         """
 
         if generator_note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must come from the same notation instance'
             )
 
@@ -699,7 +699,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
 
         Creates a note interval from two notes
 
-        :raises IncompatibleNotations: If notes belong to different
+        :raises IncompatibleOriginContexts: If notes belong to different
             notations
 
         :param note_a: The source note
@@ -723,7 +723,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         """
         Creates a note interval from two notes
 
-        :raises IncompatibleNotations: If notes belong to different
+        :raises IncompatibleOriginContexts: If notes belong to different
             notations
 
         :param source: The source note
@@ -731,7 +731,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         """
 
         if source.notation is not target.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes do not originate from the same notation'
             )
 

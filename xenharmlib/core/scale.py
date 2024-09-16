@@ -420,8 +420,16 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         one in the other scale that has the same pitch class index.
         (and vice versa)
 
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+
         :param other: Another periodic scale
         """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
 
         n_self = self.pcs_normalized()
         n_other = other.pcs_normalized()

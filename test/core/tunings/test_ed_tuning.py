@@ -5,7 +5,7 @@ from fractions import Fraction
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.frequencies import Frequency
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidFrequency
 
 FREQ_EPSILON = 0.1
@@ -37,14 +37,14 @@ def test_get_frequency(tuning, pitch_index, freq):
     assert tuning.get_frequency(pitch) == freq
 
 
-def test_get_frequency_incompatible_tunings():
+def test_get_frequency_incompatible_origin_contexts():
 
     edo12 = EDTuning(12, FrequencyRatio(2))
     edo12_2 = EDTuning(12, FrequencyRatio(2))
 
     edo12_pitch = edo12.pitch(8)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         edo12_2.get_frequency(edo12_pitch)
 
 

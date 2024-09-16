@@ -2,7 +2,7 @@ import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 
 edo12 = EDTuning(12, FrequencyRatio(2))
@@ -264,9 +264,9 @@ def test_is_not_equivalent(pitch_a, pitch_b):
         ed13_3.pitch(7),
     ]
 )
-def test_get_generator_index_incompatible_tunings(pitch_b):
+def test_get_generator_index_incompatible_origin_contexts(pitch_b):
     """
-    Test if IncompatibleTunings is raised while calling
+    Test if IncompatibleOriginContexts is raised while calling
     get_generator_index when generator pitch is from a different
     tuning context
     """
@@ -274,7 +274,7 @@ def test_get_generator_index_incompatible_tunings(pitch_b):
     edo12_2 = EDTuning(12, FrequencyRatio(2))
     pitch_a = edo12_2.pitch(0)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a.get_generator_index(pitch_b)
 
 
@@ -320,9 +320,9 @@ def test_arithmetic(index_a, index_b):
         (-9, 2),
     ]
 )
-def test_arithmetic_incompatible_tunings(index_a, index_b):
+def test_arithmetic_incompatible_origin_contexts(index_a, index_b):
     """
-    Test if IncompatibleTunings is raised when addition
+    Test if IncompatibleOriginContexts is raised when addition
     and substraction is done with pitches from different
     tuning contexts
     """
@@ -331,8 +331,8 @@ def test_arithmetic_incompatible_tunings(index_a, index_b):
     pitch_a = edo12.pitch(index_a)
     pitch_b = edo12_2.pitch(index_b)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a - pitch_b
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a + pitch_b

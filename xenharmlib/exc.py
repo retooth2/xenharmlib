@@ -25,27 +25,6 @@ class IncompatibleOriginContexts(Exception):
     compatible because they are based on different
     orgin contexts
     """
-
-    pass
-
-
-class IncompatibleTunings(Exception):
-    """
-    Gets raised whenever two or more objects are not
-    compatible because they are based on different
-    tunings
-    """
-
-    pass
-
-
-class IncompatibleNotations(Exception):
-    """
-    Gets raised whenever two or more objects are not
-    compatible because they are based on different
-    notations
-    """
-
     pass
 
 

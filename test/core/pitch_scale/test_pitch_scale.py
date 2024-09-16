@@ -4,7 +4,7 @@ from xenharmlib.core.tunings import EDOTuning
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch_scale import PitchScale
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)
@@ -84,9 +84,9 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_add_pitch_incompatible_tunings():
+def test_add_pitch_incompatible_origin_contexts():
     """
-    Test if add_pitch raises IncompatibleTunings if argument
+    Test if add_pitch raises IncompatibleOriginContexts if argument
     originates from a different tuning
     """
 
@@ -101,7 +101,7 @@ def test_add_pitch_incompatible_tunings():
                 tuning_a
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale.add_pitch(
                     tuning_b.pitch(4)
                 )
@@ -623,7 +623,7 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_union_incompatible_tunings():
+def test_union_incompatible_origin_contexts():
     """
     Test if union operation fails if scales originate from
     different tunings
@@ -643,7 +643,7 @@ def test_union_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.union(scale_b)
 
 
@@ -678,7 +678,7 @@ def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_intersection_incompatible_tunings():
+def test_intersection_incompatible_origin_contexts():
     """
     Test if intersection operation fails if scales originate from
     different tunings
@@ -698,7 +698,7 @@ def test_intersection_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
 
 
@@ -733,7 +733,7 @@ def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_difference_incompatible_tunings():
+def test_difference_incompatible_origin_contexts():
     """
     Test if difference operation fails if scales originate from
     different tunings
@@ -753,7 +753,7 @@ def test_difference_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
 
 
@@ -788,7 +788,7 @@ def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_symmetric_difference_incompatible_tunings():
+def test_symmetric_difference_incompatible_origin_contexts():
     """
     Test if symmetric difference operation fails if scales originate
     from different tunings
@@ -808,7 +808,7 @@ def test_symmetric_difference_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
 
 
@@ -839,7 +839,7 @@ def test_is_disjoint(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_disjoint(scale_b) == expected
 
 
-def test_is_disjoint_incompatible_tunings():
+def test_is_disjoint_incompatible_origin_contexts():
     """
     Test if is_disjoint set test fails if scales originate
     from different tunings
@@ -859,7 +859,7 @@ def test_is_disjoint_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_disjoint(scale_b)
 
 
@@ -920,7 +920,7 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_subset(scale_b, proper=True) == expected
 
 
-def test_is_subset_incompatible_tunings():
+def test_is_subset_incompatible_origin_contexts():
     """
     Test if is_subset test fails if scales originate
     from different tunings
@@ -940,7 +940,7 @@ def test_is_subset_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
 
 
@@ -1001,7 +1001,7 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_superset(scale_b, proper=True) == expected
 
 
-def test_is_superset_incompatible_tunings():
+def test_is_superset_incompatible_origin_contexts():
     """
     Test if is_subset test fails if scales originate
     from different tunings
@@ -1021,5 +1021,5 @@ def test_is_superset_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)

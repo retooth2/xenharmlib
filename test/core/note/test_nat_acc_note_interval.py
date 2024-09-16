@@ -1,6 +1,6 @@
 import pytest
 from xenharmlib import EDOTuning
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 from xenharmlib.core.notes import NatAccNoteInterval
 from ..utils import make_nat_acc_test_notation
@@ -489,7 +489,7 @@ def test_note_interval_get_generator_distance_invalid_generator(
         )
 
 
-def test_get_generator_distance_incompatible_notations():
+def test_get_generator_distance_incompatible_origin_contexts():
     """
     Test if get_generator_distance fails if interval and generator
     note are from different notations
@@ -500,7 +500,7 @@ def test_get_generator_distance_incompatible_notations():
     )
     gen_note = n_edo31.note('A', 0)
     
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         interval.get_generator_distance(gen_note)
 
 
@@ -537,7 +537,7 @@ def test_note_repr(
     assert repr(interval) == expected
 
 
-def test_from_notes_incompatible_notations():
+def test_from_notes_incompatible_origin_contexts():
     """
     Test if from_notes method raises correct error
     when notes are from different notations
@@ -546,5 +546,5 @@ def test_from_notes_incompatible_notations():
     note_a = n_edo12.note('A', 0)
     note_b = n_edo24.note('B', 1)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         NatAccNoteInterval.from_notes(note_a, note_b)

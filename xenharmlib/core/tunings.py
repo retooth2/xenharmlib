@@ -52,7 +52,7 @@ from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
@@ -470,12 +470,12 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         Returns the frequency of a given note
 
         :param note: A note from this tuning
-        :raises IncompatibleTunings: If note is from a different
+        :raises IncompatibleOriginContexts: If note is from a different
             tuning
         """
 
         if pitch.tuning is not self:
-            raise IncompatibleTunings('Given pitch has a different tuning')
+            raise IncompatibleOriginContexts('Given pitch has a different tuning')
 
         index = pitch.pitch_index
         return self.get_frequency_for_index(index)

@@ -3,7 +3,7 @@ from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.tunings import EDOTuning
 from xenharmlib.core.pitch import PitchInterval
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))
 edo24 = EDTuning(24, FrequencyRatio(2))
@@ -154,15 +154,15 @@ def test_cents(tuning,
     assert interval.cents == cents
 
 
-def test_init_incompatible_tunings():
+def test_init_incompatible_origin_contexts():
     """
-    Test if IncompatibleTunings is raised when trying to form an
+    Test if IncompatibleOriginContexts is raised when trying to form an
     interval from two pitches that originate from different tunings
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         PitchInterval.from_pitches(
             edo12.pitch(0),
             edo12_2.pitch(0),

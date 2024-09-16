@@ -43,7 +43,7 @@ from .pitch import EDPitch
 from .pitch import PitchInterval
 from .scale import Scale
 from .scale import PeriodicScale
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 
@@ -122,7 +122,7 @@ class PitchScale(Scale[PitchT]):
         Inserts a new pitch into the scale at
         the right position
 
-        :raises IncompatibleTunings: If the pitch has a different
+        :raises IncompatibleOriginContexts: If the pitch has a different
             tuning than this scale.
 
         :param pitch: The new pitch
@@ -136,7 +136,7 @@ class PitchScale(Scale[PitchT]):
         )
 
         if pitch.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch must originate from the same tuning '
                 'context as the scale'
             )

@@ -1,6 +1,6 @@
 import pytest
 from xenharmlib import EDOTuning
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -12,22 +12,22 @@ n_edo24 = make_nat_acc_test_notation(edo24)
 # properly unit tested
 
 
-def test_note_interval_incompatible_notations():
+def test_note_interval_incompatible_origin_contexts():
 
     note_a = n_edo12.note('A', 0)
     note_b = n_edo12.note('B', 0)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         n_edo24.note_interval(note_a, note_b)
 
 
-def test_note_scale_incompatible_notations():
+def test_note_scale_incompatible_origin_contexts():
 
     note_a = n_edo12.note('A', 0)
     note_b = n_edo12.note('B', 0)
     note_c = n_edo24.note('B', 0)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         n_edo12.note_scale(
             [note_a, note_b, note_c]
         )
