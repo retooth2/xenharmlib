@@ -1,6 +1,6 @@
 import pytest
 from xenharmlib import EDOTuning
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 from xenharmlib.core.notes import NatAccNoteInterval
 from ..utils import make_nat_acc_test_notation
@@ -39,7 +39,11 @@ def test_note_interval_pitch_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.pitch_diff == pitch_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.pitch_diff == pitch_diff
 
 
@@ -69,7 +73,11 @@ def test_note_interval_nat_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.nat_diff == nat_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.nat_diff == nat_diff
 
 
@@ -100,7 +108,11 @@ def test_note_interval_symbol(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.symbol == symbol
+
+    interval = notation.interval(note_a, note_b)
     assert interval.symbol == symbol
 
 
@@ -131,7 +143,11 @@ def test_note_interval_number(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.number == number
+
+    interval = notation.interval(note_a, note_b)
     assert interval.number == number
 
 
@@ -163,7 +179,11 @@ def test_note_interval_shorthand(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval1 = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval1 = notation.note_interval(note_a, note_b)
+    assert interval1.shorthand_name == shorthand_name
+
+    interval1 = notation.interval(note_a, note_b)
     assert interval1.shorthand_name == shorthand_name
 
     interval2 = notation.shorthand_interval(*shorthand_name)
@@ -489,7 +509,7 @@ def test_note_interval_get_generator_distance_invalid_generator(
         )
 
 
-def test_get_generator_distance_incompatible_notations():
+def test_get_generator_distance_incompatible_origin_contexts():
     """
     Test if get_generator_distance fails if interval and generator
     note are from different notations
@@ -500,7 +520,7 @@ def test_get_generator_distance_incompatible_notations():
     )
     gen_note = n_edo31.note('A', 0)
     
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         interval.get_generator_distance(gen_note)
 
 
@@ -537,7 +557,7 @@ def test_note_repr(
     assert repr(interval) == expected
 
 
-def test_from_notes_incompatible_notations():
+def test_from_notes_incompatible_origin_contexts():
     """
     Test if from_notes method raises correct error
     when notes are from different notations
@@ -546,5 +566,5 @@ def test_from_notes_incompatible_notations():
     note_a = n_edo12.note('A', 0)
     note_b = n_edo24.note('B', 1)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         NatAccNoteInterval.from_notes(note_a, note_b)

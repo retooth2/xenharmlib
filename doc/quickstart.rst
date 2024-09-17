@@ -281,14 +281,14 @@ Pitch Intervals
 
 Two pitches can form an interval. Pitch intervals can be either
 created with the
-:meth:`~xenharmlib.core.tunings.TuningABC.pitch_interval` method of a
+:meth:`~xenharmlib.core.tunings.TuningABC.interval` method of a
 tuning or with the interval method of a pitch:
 
 .. testcode::
 
     pitch_a = edo31.pitch(3)
     pitch_b = edo31.pitch(9)
-    interval = edo31.pitch_interval(pitch_a, pitch_b)
+    interval = edo31.interval(pitch_a, pitch_b)
 
     assert interval == pitch_a.interval(pitch_b)
     print(interval.pitch_diff)
@@ -444,7 +444,7 @@ can be constructed through a builder method in the tuning object.
 
 .. testcode::
 
-    scale = edo31.pitch_scale(
+    scale = edo31.scale(
         [edo31.pitch(9), edo31.pitch(0), edo31.pitch(4), edo31.pitch(5)]
     )
 
@@ -487,7 +487,7 @@ interval is given xenharmlib checks if *any* two pairs of notes
 
 .. testcode::
    
-    scale = edo31.pitch_scale(
+    scale = edo31.scale(
         [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
     )
 
@@ -502,8 +502,8 @@ tunings:
 
 .. testcode::
 
-    edo12_scale = edo12.pitch_scale(edo12.pitch_range(0, 12))
-    edo24_scale = edo24.pitch_scale(edo24.pitch_range(0, 24))
+    edo12_scale = edo12.scale(edo12.pitch_range(0, 12))
+    edo24_scale = edo24.scale(edo24.pitch_range(0, 24))
 
     assert all([pitch in edo24_scale for pitch in edo12_scale])
 
@@ -518,7 +518,7 @@ same way you can transpose pitches:
 
 .. testcode::
    
-    scale = edo31.pitch_scale(
+    scale = edo31.scale(
         [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
     )
     transposed = scale.transpose(2)
@@ -533,7 +533,7 @@ tuning:
 
 .. testcode::
 
-    scale = edo12.pitch_scale(
+    scale = edo12.scale(
         [edo12.pitch(0), edo12.pitch(1), edo12.pitch(2)]
     )
     retuned = scale.retune(edo24)
@@ -562,7 +562,7 @@ Let's look at it in the context of triads:
     e0 = edo12.pitch(4)
     g0 = edo12.pitch(7)
 
-    c_triad = edo12.pitch_scale([c0, e0, g0])
+    c_triad = edo12.scale([c0, e0, g0])
 
 We can use the :meth:`rotated_up` method to receive the first inversion
 of the triad:
@@ -628,10 +628,10 @@ avoided:
         # differ in base interval)
         return scale.difference(avoid_scale, ignore_bi_index=True)
 
-    c_maj = edo12.pitch_scale(
+    c_maj = edo12.scale(
         [edo12.pitch(i) for i in [0, 2, 4, 5, 7, 9, 11]]
     )
-    C7 = edo12.pitch_scale(
+    C7 = edo12.scale(
         [edo12.pitch(i) for i in [0, 4, 7, 10]]
     )
 
@@ -648,10 +648,10 @@ the Western equal-tempered 12-tone system:
 
 .. testcode::
 
-    revati = edo12.pitch_scale(
+    revati = edo12.scale(
         [edo12.pitch(i) for i in [0, 1, 5, 7, 10]]
     )
-    hirajoshi = edo12.pitch_scale(
+    hirajoshi = edo12.scale(
         [edo12.pitch(i) for i in [0, 1, 5, 6, 10]]
     )
 
@@ -671,7 +671,7 @@ purposes.
 
 .. testcode::
 
-    a_minor = edo12.pitch_scale(
+    a_minor = edo12.scale(
         [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
     )
     print(a_minor.pcs_normalized())
@@ -692,10 +692,10 @@ intersection method to achieve our goal:
 
 .. testcode::
 
-    a_minor = edo12.pitch_scale(
+    a_minor = edo12.scale(
         [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
     )
-    g_major = edo12.pitch_scale(
+    g_major = edo12.scale(
         [edo12.pitch(i) for i in [7, 9, 11, 12, 14, 16, 18]]
     )
 
@@ -771,10 +771,10 @@ You can combine two notes to form a note interval:
 
 .. testcode::
 
-    neutral_3 = n_edo31.note_interval(
+    neutral_3 = n_edo31.interval(
         c, e_neutral
     )
-    diminished_5 = n_edo31.note_interval(
+    diminished_5 = n_edo31.interval(
         c, g_flat
     )
 
@@ -782,7 +782,7 @@ A list of notes can be used to create a note scale:
 
 .. testcode::
 
-    triad = n_edo31.note_scale(
+    triad = n_edo31.scale(
         [c, e_neutral, g_flat]
     )
 
@@ -1259,7 +1259,7 @@ appropriate shorthand interval name:
     edo31 = EDOTuning(31)
     n_edo31 = UpDownNotation(edo31)
 
-    interval = n_edo31.note_interval(
+    interval = n_edo31.interval(
         n_edo31.note('C', 0),
         n_edo31.note('G#', 0)
     )
@@ -1349,7 +1349,7 @@ You can also compare note intervals and pitch intervals:
 
     P5_31 = n_edo31.shorthand_interval('P', 5)
     
-    assert P5_31 < edo12.pitch_interval(
+    assert P5_31 < edo12.interval(
         edo12.pitch(0), edo12.pitch(7)
     )
 
@@ -1426,7 +1426,7 @@ a subsection below. But first, let's create our first note scale:
 
 .. testcode::
 
-    Cm7 = n_edo12.note_scale(
+    Cm7 = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
 
@@ -1455,10 +1455,10 @@ equal sign will ignore enharmonic notation differences:
 
 .. testcode::
 
-    Cm = n_edo12.note_scale(
+    Cm = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G']]
     )
-    Cm_weird = n_edo12.note_scale(
+    Cm_weird = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'D#', 'Abb']]
     )
 
@@ -1576,10 +1576,10 @@ transpose to obtain each chord.
 
 .. testcode::
 
-    C7 = n_edo12.note_scale(
+    C7 = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'E', 'G', 'Bb']]
     )
-    Cm7 = n_edo12.note_scale(
+    Cm7 = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
 
@@ -1720,8 +1720,8 @@ scale object:
     e_flat = n_edo12.note('Eb', 0)
     d_sharp = n_edo12.note('D#', 0)
 
-    scale_a = n_edo12.note_scale([e_flat])
-    scale_b = n_edo12.note_scale([d_sharp])
+    scale_a = n_edo12.scale([e_flat])
+    scale_b = n_edo12.scale([d_sharp])
 
     note_union = scale_a.union(scale_b)
     pitch_union = scale_a.pitch_scale.union(
@@ -1733,9 +1733,9 @@ scale object:
     assert note_union.frequencies == pitch_union.frequencies
     assert len(note_union) == len(pitch_union)
     pitch_intervals = [
-        i.pitch_interval for i in note_union.to_note_intervals()
+        i.pitch_interval for i in note_union.to_intervals()
     ]
-    assert pitch_intervals == pitch_union.to_pitch_intervals()
+    assert pitch_intervals == pitch_union.to_intervals()
 
 This choice also allows implementing the scale's :code:`==` operator
 as a consistent logical extension of the note's :code:`==` operator,
@@ -1759,7 +1759,7 @@ encounter:
 
 .. testcode::
 
-    scale = n_edo12.note_scale(
+    scale = n_edo12.scale(
         [
             n_edo12.note('D#', 0),
             n_edo12.note('Eb', 0),
@@ -1778,31 +1778,31 @@ of the scale that executed the operation:
     e_flat = n_edo12.note('Eb', 0)
     d_sharp = n_edo12.note('D#', 0)
 
-    scale_a = n_edo12.note_scale([c, e_flat])
-    scale_b = n_edo12.note_scale([d_sharp, g])
+    scale_a = n_edo12.scale([c, e_flat])
+    scale_b = n_edo12.scale([d_sharp, g])
 
     # A v B / A ^ B
 
     union_a_b = scale_a.union(scale_b)
     assert union_a_b.is_notated_same(
-        n_edo12.note_scale([c, e_flat, g])
+        n_edo12.scale([c, e_flat, g])
     )
 
     intersection_a_b = scale_a.intersection(scale_b)
     assert intersection_a_b.is_notated_same(
-        n_edo12.note_scale([e_flat])
+        n_edo12.scale([e_flat])
     )
 
     # B v A / B ^ A
 
     union_b_a = scale_b.union(scale_a)
     assert union_b_a.is_notated_same(
-        n_edo12.note_scale([c, d_sharp, g])
+        n_edo12.scale([c, d_sharp, g])
     )
 
     intersection_b_a = scale_b.intersection(scale_a)
     assert intersection_b_a.is_notated_same(
-        n_edo12.note_scale([d_sharp])
+        n_edo12.scale([d_sharp])
     )
 
 Using the :code:`==` operator we see that even though the results
@@ -1850,8 +1850,8 @@ These stricter variants of the set operations are called:
     e_flat = n_edo12.note('Eb', 0)
     d_sharp = n_edo12.note('D#', 0)
 
-    scale_a = n_edo12.note_scale([c, e_flat])
-    scale_b = n_edo12.note_scale([d_sharp, g])
+    scale_a = n_edo12.scale([c, e_flat])
+    scale_b = n_edo12.scale([d_sharp, g])
 
     intersection_a_b = scale_a.note_intersection(scale_b)
     assert len(intersection_a_b) == 0
@@ -1911,7 +1911,7 @@ Linux and Windows using the :func:`~xenharmlib.play.play` function:
     from xenharmlib.play import play
 
     edo31 = EDOTuning(31)
-    mothra_6 = edo31.pitch_scale(
+    mothra_6 = edo31.scale(
         edo31.pitch_range(0, 31, 6)
     )
 
@@ -1944,11 +1944,11 @@ as a chord:
     n_edo12 = UpDownNotation(edo12)
     n_edo31 = UpDownNotation(edo31)
 
-    edo12_chord = n_edo12.note_scale(
+    edo12_chord = n_edo12.scale(
         [n_edo12.note(s, 4) for s in ['C', 'E', 'G', 'Bb']]
     )
 
-    edo31_chord = n_edo31.note_scale(
+    edo31_chord = n_edo31.scale(
         [n_edo31.note(s, 4) for s in ['C', 'E', 'G', 'vBb']]
     )
 
@@ -2003,7 +2003,7 @@ plugin)
     from xenharmlib.export.scl import export_scl
 
     edo31 = EDOTuning(31)
-    scale = edo31.pitch_scale(
+    scale = edo31.scale(
         edo31.pitch_range(0, 31)
     )
 

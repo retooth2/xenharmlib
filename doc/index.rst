@@ -26,7 +26,7 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
    P5 = n_edo31.shorthand_interval('P', 5)
    m7 = n_edo31.shorthand_interval('m', 7)
 
-   chord = n_edo31.note_scale(
+   chord = n_edo31.scale(
       [
          d_down,
          d_down.transpose(SM3),
@@ -98,7 +98,7 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
    p1 = bp.pitch(4)
    p2 = bp.pitch(18)
-   i1 = bp.pitch_interval(p1, p2)
+   i1 = bp.interval(p1, p2)
 
    print(p1.pc_index)
    print(p2.pc_index)

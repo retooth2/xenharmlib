@@ -180,7 +180,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         # exactly as much unique notes in the first base interval
         # as the period length of the tuning
 
-        self.pc_blueprint = notation.note_scale(
+        self.pc_blueprint = notation.scale(
             pc_blueprint
         ).pcs_normalized()
 
@@ -229,7 +229,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         for pitch in pitch_scale:
             note = self.guess_note(notation, pitch)
             notes.append(note)
-        return notation.note_scale(notes)
+        return notation.scale(notes)
 
     def note_transpose(self, note, pitch_diff: int):
         """
@@ -259,7 +259,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         for note in note_scale:
             transposed = self.note_transpose(note, pitch_diff)
             notes.append(transposed)
-        return notation.note_scale(notes)
+        return notation.scale(notes)
 
     def note_scale_pcs_complement(self, note_scale):
         """
@@ -277,4 +277,4 @@ class PCBlueprintStrategy(EnharmonicStrategy):
             if note not in note_scale:
                 notes.append(note)
 
-        return notation.note_scale(notes)
+        return notation.scale(notes)

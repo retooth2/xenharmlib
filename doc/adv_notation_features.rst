@@ -55,7 +55,7 @@ then sharps/ups win against flats/downs)
    edo31 = EDOTuning(31)
    n_edo31 = UpDownNotation(edo31)
 
-   pitch_scale = edo31.pitch_scale(
+   pitch_scale = edo31.scale(
        edo31.pitch_range(0, 18)
    )
 
@@ -80,7 +80,7 @@ upwards-pointing accidentals (sharps/ups) for all the gaps:
    strategy = UpwardsEnharmStrategy(n_edo31)
    n_edo31.enharm_strategy = strategy
 
-   pitch_scale = edo31.pitch_scale(
+   pitch_scale = edo31.scale(
        edo31.pitch_range(0, 18)
    )
 
@@ -111,7 +111,7 @@ is that interval names can change drastically:
    edo12 = EDOTuning(12)
    n_edo12 = UpDownNotation(edo12)
 
-   interval = edo12.pitch_interval(
+   interval = edo12.interval(
        edo12.pitch(0), edo12.pitch(3)
    )
    n_interval1 = n_edo12.guess_note_interval(interval)
@@ -258,7 +258,7 @@ The interface definition for enharmonic strategies is as follows:
            function. It should return a suitable note interval for
            the provided pitch interval
            """
-           return notation.note_interval(
+           return notation.interval(
                notation.note('C', 0),
                notation.note('C', 3),
            )
@@ -269,7 +269,7 @@ The interface definition for enharmonic strategies is as follows:
            function. It should return a suitable note scale for the
            provided pitch scale
            """
-           return notation.note_scale(
+           return notation.scale(
                [notation.note('C', 0), notation.note('C', 3)]
            )
 
@@ -290,7 +290,7 @@ The interface definition for enharmonic strategies is as follows:
            note scale with all notes transposed by the correct
            pitch difference.
            """
-           return note_scale.notation.note_scale('C', 0)
+           return note_scale.notation.scale('C', 0)
 
        def note_scale_pcs_complement(self, note_scale):
            """
@@ -298,7 +298,7 @@ The interface definition for enharmonic strategies is as follows:
            function. It should return a pcs normalized scale with
            all notes not present in the original scale.
            """
-           return notation.note_scale(
+           return notation.scale(
                [notation.note('C', 0), notation.note('D#', 0)]
            )
 

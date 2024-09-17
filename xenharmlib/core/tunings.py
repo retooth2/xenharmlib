@@ -34,6 +34,7 @@ from typing import Generic
 from typing import List
 from typing import Optional
 from unittest import mock
+from warnings import warn
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -51,7 +52,7 @@ from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
@@ -109,25 +110,65 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitch_index: An integer denoting the
             number of steps from the zero pitch.
         """
-        return self._pitch_cls(self, pitch_index)
+        frequency = self.get_frequency_for_index(pitch_index)
+        return self._pitch_cls(self, frequency, pitch_index)
+
+    def interval(self, source: PitchT, target: PitchT) -> IntervalT:
+        """
+        Returns a pitch interval having the pitch intervals type
+        this tuning was configured with
+
+        :param source: The starting pitch
+        :param target: The target pitch
+        """
+        return self._pitch_interval_cls.from_source_and_target(source, target)
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Returns a pitch interval having the pitch intervals type
         this tuning was configured with
 
         :param pitch_a: The starting pitch
         :param pitch_b: The target pitch
         """
-        return self._pitch_interval_cls.from_pitches(pitch_a, pitch_b)
+        warn(
+            f'{self.__class__.__name__}.pitch_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.interval(pitch_a, pitch_b)
 
-    def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
+    def scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
         Returns a pitch scale having the pitch scale type
         this tuning was configured with
 
         :param pitches: A list of pitches
         """
+        return self._pitch_scale_cls(self, pitches)
+
+    def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
+        """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
+        Returns a pitch scale having the pitch scale type
+        this tuning was configured with
+
+        :param pitches: A list of pitches
+        """
+        warn(
+            f'{self.__class__.__name__}.pitch_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
         return self._pitch_scale_cls(self, pitches)
 
     def pitch_range(self, start, stop=None, step=1):
@@ -172,6 +213,13 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         """
         (Must be overwritten by subclasses)
         Returns the frequency for a given pitch
+        """
+
+    @abstractmethod
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        (Must be overwritten by subclasses)
+        Returns the frequency for a given pitch index
         """
 
     def get_approx_pitch(self, frequency: Frequency) -> PitchT:
@@ -422,17 +470,26 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         Returns the frequency of a given note
 
         :param note: A note from this tuning
-        :raises IncompatibleTunings: If note is from a different
+        :raises IncompatibleOriginContexts: If note is from a different
             tuning
         """
 
         if pitch.tuning is not self:
-            raise IncompatibleTunings('Given pitch has a different tuning')
+            raise IncompatibleOriginContexts('Given pitch has a different tuning')
+
+        index = pitch.pitch_index
+        return self.get_frequency_for_index(index)
+
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        Returns the frequency for a given pitch index
+
+        :param pitch_index: A pitch index
+        """
 
         scale_size = len(self)
-        index = pitch.pitch_index
         exp = sp.Rational(1, scale_size)
-        ratio = (self.eq_ratio**exp)**index
+        ratio = (self.eq_ratio**exp)**pitch_index
         return self.ref_frequency * ratio
 
 

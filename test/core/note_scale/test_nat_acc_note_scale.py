@@ -1,9 +1,6 @@
 import pytest
 from xenharmlib import EDOTuning
-from xenharmlib import EDTuning
-from xenharmlib import Frequency
 from xenharmlib.core.note_scale import NatAccNoteScale
-from xenharmlib.exc import IncompatibleNotations
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)

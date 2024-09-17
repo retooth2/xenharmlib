@@ -3,7 +3,7 @@ from xenharmlib import EDOTuning
 from xenharmlib import EDTuning
 from xenharmlib import FrequencyRatio
 from xenharmlib.core.note_scale import NoteScale
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -16,9 +16,9 @@ ed13_3 = EDTuning(13, FrequencyRatio(3))
 n_ed13_3 = make_nat_acc_test_notation(ed13_3)
 
 
-def test_init_incompatible_notation():
+def test_init_incompatible_origin_contexts():
     """
-    Test that IncompatibleNotations exception is raised
+    Test that IncompatibleOriginContexts exception is raised
     in constructor when given notes are not from the
     given notational context
     """
@@ -26,7 +26,7 @@ def test_init_incompatible_notation():
     n_edo12 = make_nat_acc_test_notation(edo12)
     n_edo12_2 = make_nat_acc_test_notation(edo12)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         NoteScale(
             n_edo12,
             [n_edo12_2.note('A', 0)]
@@ -52,7 +52,14 @@ def test_pitch_scale(notation, notes, pitch_indices):
     )
 
     tuning = notation.tuning
-    expected = tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        expected = tuning.pitch_scale(
+            [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
+        )
+    note_scale.pitch_scale == expected
+
+    expected = tuning.scale(
         [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
     )
     note_scale.pitch_scale == expected
@@ -96,9 +103,9 @@ def test_add_note(notation, notes, ordered_notes):
     assert note_list == ordered_note_list
 
 
-def test_add_note_incompatible_notation():
+def test_add_note_incompatible_origin_contexts():
     """
-    Test that IncompatibleNotations exception is raised
+    Test that IncompatibleOriginContexts exception is raised
     when note is added that is from a different notational
     context
     """
@@ -106,7 +113,7 @@ def test_add_note_incompatible_notation():
     n_edo12 = make_nat_acc_test_notation(edo12)
     n_edo12_2 = make_nat_acc_test_notation(edo12)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         note_scale = NoteScale(n_edo12)
         note_scale.add_note(n_edo12_2.note('A', 0))
 
@@ -941,7 +948,10 @@ def test_to_note_intervals(notation, input_pairs, intervals):
         )
         note_intervals.append(interval)
 
-    assert scale.to_note_intervals() == note_intervals
+    with pytest.deprecated_call():
+        assert scale.to_note_intervals() == note_intervals
+
+    assert scale.to_intervals() == note_intervals
 
 
 @pytest.mark.parametrize(
@@ -989,7 +999,13 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
     )
 
     transposed = scale.transpose(note_interval)
-    assert transposed == notation.note_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
         [notation.note(*pair) for pair in result_pairs]
     )
 
@@ -1034,7 +1050,13 @@ def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
     )
 
     transposed = scale.transpose_bi_index(bi_diff)
-    assert transposed == notation.note_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
         [notation.note(*pair) for pair in result_pairs]
     )
 
@@ -1090,7 +1112,7 @@ def test_union(notation, input_pairs_a, input_pairs_b, result_pairs):
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_union_incompatible_notations():
+def test_union_incompatible_origin_contexts():
     """
     Test if union operation fails if scales originate from
     different notations
@@ -1110,7 +1132,7 @@ def test_union_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.union(scale_b)
 
 
@@ -1233,7 +1255,7 @@ def test_note_intersection(
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_intersection_incompatible_notations():
+def test_intersection_incompatible_origin_contexts():
     """
     Test if intersection operation fails if scales originate from
     different notations
@@ -1253,11 +1275,11 @@ def test_intersection_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
 
 
-def test_note_intersection_incompatible_notations():
+def test_note_intersection_incompatible_origin_contexts():
     """
     Test if note_intersection operation fails if scales originate from
     different notations
@@ -1277,7 +1299,7 @@ def test_note_intersection_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.note_intersection(scale_b)
 
 
@@ -1400,7 +1422,7 @@ def test_note_difference(
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_difference_incompatible_notations():
+def test_difference_incompatible_origin_contexts():
     """
     Test if difference operation fails if scales originate from
     different notations
@@ -1420,11 +1442,11 @@ def test_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
 
 
-def test_note_difference_incompatible_notations():
+def test_note_difference_incompatible_origin_contexts():
     """
     Test if note_difference operation fails if scales originate from
     different notations
@@ -1444,7 +1466,7 @@ def test_note_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.note_difference(scale_b)
 
 
@@ -1499,7 +1521,7 @@ def test_symmetric_difference(notation, input_pairs_a, input_pairs_b, result_pai
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_symmetric_difference_incompatible_notations():
+def test_symmetric_difference_incompatible_origin_contexts():
     """
     Test if symmetric_difference operation fails if scales originate from
     different notations
@@ -1519,7 +1541,7 @@ def test_symmetric_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
 
 
@@ -1629,7 +1651,7 @@ def test_is_notated_disjoint(notation, input_pairs_a, input_pairs_b, expected):
     assert scale_a.is_notated_disjoint(scale_b) == expected
 
 
-def test_is_disjoint_incompatible_notations():
+def test_is_disjoint_incompatible_origin_contexts():
     """
     Test if is_disjoint operation fails if scales originate from
     different notations
@@ -1649,11 +1671,11 @@ def test_is_disjoint_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_disjoint(scale_b)
 
 
-def test_is_notated_disjoint_incompatible_notations():
+def test_is_notated_disjoint_incompatible_origin_contexts():
     """
     Test if is_notated_disjoint operation fails if scales originate from
     different notations
@@ -1673,7 +1695,7 @@ def test_is_notated_disjoint_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_notated_disjoint(scale_b)
 
 
@@ -1935,7 +1957,7 @@ def test_is_note_subset_proper(
     ) == expected
 
 
-def test_is_subset_incompatible_notations():
+def test_is_subset_incompatible_origin_contexts():
     """
     Test if is_subset operation fails if scales originate from
     different notations
@@ -1955,11 +1977,11 @@ def test_is_subset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
 
 
-def test_is_note_subset_incompatible_notations():
+def test_is_note_subset_incompatible_origin_contexts():
     """
     Test if is_note_subset operation fails if scales originate from
     different notations
@@ -1979,7 +2001,7 @@ def test_is_note_subset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_subset(scale_b)
 
 
@@ -2241,7 +2263,7 @@ def test_is_note_superset_proper(
     ) == expected
 
 
-def test_is_superset_incompatible_notations():
+def test_is_superset_incompatible_origin_contexts():
     """
     Test if is_superset operation fails if scales originate from
     different notations
@@ -2261,11 +2283,11 @@ def test_is_superset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
 
 
-def test_is_note_superset_incompatible_notations():
+def test_is_note_superset_incompatible_origin_contexts():
     """
     Test if is_note_superset operation fails if scales originate from
     different notations
@@ -2285,5 +2307,5 @@ def test_is_note_superset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_superset(scale_b)

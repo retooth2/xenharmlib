@@ -28,6 +28,7 @@ from typing import Optional
 from typing import TypeVar
 from typing import Generic
 from typing import List
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from ..exc import UnknownNoteSymbol
@@ -37,8 +38,7 @@ from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
-from ..exc import IncompatibleNotations
-from ..exc import IncompatibleTunings
+from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
@@ -128,6 +128,16 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
     @abstractmethod
+    def interval(self, source: NoteT, target: NoteT) -> IntervalT:
+        """
+        Returns a note interval of the note interval type this
+        notation was initialized with
+
+        :param source: The source note
+        :param target: The target note
+        """
+
+    @abstractmethod
     def note_scale(self, notes: Optional[List[NoteT]] = None) -> ScaleT:
         """
         Returns a note scale of the note scale type this
@@ -145,7 +155,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch must originate from the tuning that this '
                 'notation is build upon'
             )
@@ -162,7 +172,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch_interval.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch interval must originate from the tuning '
                 'that this notation is build upon'
             )
@@ -179,7 +189,7 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         """
 
         if pitch_scale.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitch scale must originate from the tuning '
                 'that this notation is build upon'
             )
@@ -558,9 +568,19 @@ class NatAccNotation(
             pc_symbol
         )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
+        natc_pitch_index = self.nat_index_to_pitch_index(natc_index)
+        acc_value = int(sum(acc_vector))
+
+        tuning = self.tuning
+        pitch_index = (
+            natc_pitch_index + len(tuning) * nat_bi_index
+        ) + acc_value
+        frequency = tuning.get_frequency_for_index(pitch_index)
 
         chosen_note = self._note_cls(
             self,
+            frequency,
+            pitch_index,
             nat_index=nat_index,
             acc_vector=acc_vector,
             pc_symbol=pc_symbol,
@@ -570,35 +590,122 @@ class NatAccNotation(
 
         return chosen_note
 
+    def note_by_numdef(
+        self,
+        nat_index: int,
+        acc_vector: Tuple[int, ...]
+    ) -> NatAccNote:
+        """
+        Creates a natural/accidental note by its numerical definition.
+        Autogenerates appropriate symbols
+
+        :param nat_index: The natural index of the note
+        :param acc_vector: The accidental vector of the note
+        """
+
+        acc_value = int(sum(acc_vector))
+        nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
+        pitch_index = nat_pitch_index + acc_value
+        frequency = self.tuning.get_frequency_for_index(pitch_index)
+        result = self.gen_pc_symbol(nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
+
+        chosen_note = self._note_cls(
+            self,
+            frequency,
+            pitch_index,
+            nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol,
+        )
+
+        return chosen_note
+
     def note_interval(
         self, note_a: NatAccNote, note_b: NatAccNote
     ) -> NatAccNoteInterval:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Creates a note interval between two notes created by
         this notation
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param note_a: The source note
         :param note_b: The target note
         """
+        warn(
+            f'{self.__class__.__name__}.note_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.interval(note_a, note_b)
 
-        if note_a.notation is not self or note_b.notation is not self:
-            raise IncompatibleNotations(
+    def interval(
+        self,
+        source: NatAccNote,
+        target: NatAccNote
+    ) -> NatAccNoteInterval:
+        """
+        Creates a note interval between two notes created by
+        this notation
+
+        :raises IncompatibleOriginContexts: If one of the notes has
+            a different notation than this one
+
+        :param source: The source note
+        :param target: The target note
+        """
+
+        if source.notation is not self or target.notation is not self:
+            raise IncompatibleOriginContexts(
                 'At least one of the given notes does not '
                 'originate from this notation'
             )
 
-        return self._note_interval_cls.from_notes(note_a, note_b)
+        return self._note_interval_cls.from_source_and_target(source, target)
 
     def note_scale(
         self, notes: Optional[List[NatAccNote]] = None
     ) -> NatAccNoteScale:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
         Creates a note scale from a list of notes
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
+            a different notation than this one
+
+        :param notes: A list of notes created by this
+            notation
+        """
+        warn(
+            f'{self.__class__.__name__}.note_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.scale(notes)
+
+    def scale(
+        self, notes: Optional[List[NatAccNote]] = None
+    ) -> NatAccNoteScale:
+        """
+        Creates a note scale from a list of notes
+
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param notes: A list of notes created by this
@@ -610,7 +717,7 @@ class NatAccNotation(
 
         for note in notes:
             if note.notation is not self:
-                raise IncompatibleNotations(
+                raise IncompatibleOriginContexts(
                     'At least one of the given notes does not '
                     'originate from this notation'
                 )
@@ -657,8 +764,24 @@ class NatAccNotation(
         first_natc_symbol = self.get_natc_symbol(0)
         ref_note = self.note(first_natc_symbol, 0)
 
+        nat_pitch_diff = self.std_pitch_diff(nat_diff)
+        pitch_diff_zero = int(sum(acc_vector)) + nat_pitch_diff
+        pitch_diff = pitch_diff_zero - ref_note.pitch_index
+
+        tuning = self.tuning
+        frequency_ratio = ref_note.pitch.interval(
+            tuning.pitch(pitch_diff_zero)
+        ).frequency_ratio
+
         return self._note_interval_cls(
-            self, ref_note, nat_diff, acc_vector, symbol, number
+            self,
+            frequency_ratio,
+            pitch_diff,
+            ref_note,
+            nat_diff,
+            acc_vector,
+            symbol,
+            number
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
@@ -672,11 +795,12 @@ class NatAccNotation(
             reside in
         """
 
-        scale = self.note_scale()
+        notes = []
         for natc_symbol, _ in self._naturals:
             note = self.note(natc_symbol, bi_index)
-            scale.add_note(note)
-        return scale
+            notes.append(note)
+
+        return self.scale(notes)
 
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
@@ -795,7 +919,7 @@ class NatAccNotation(
     def acc_symbol_code(self, symbol_code: SymbolCode):
         self._acc_symbol_code = symbol_code
 
-    def get_acc_symbol(self, acc_vector: Tuple[int]) -> str:
+    def get_acc_symbol(self, acc_vector: Tuple[int, ...]) -> str:
         """
         Returns a symbol string for an accidental vector,
         like (1, 0) -> '#' or (-1, 1) -> '^b'
@@ -988,7 +1112,7 @@ class NatAccNotation(
         return (best_natc_symbol, acc_tail, best_natc_index, acc_vector)
 
     def gen_pc_symbol(
-        self, natc_index: int, acc_vector: Tuple[int]
+        self, natc_index: int, acc_vector: Tuple[int, ...]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an

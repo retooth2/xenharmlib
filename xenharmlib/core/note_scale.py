@@ -20,21 +20,20 @@ types of scale notation systems.
 
 from typing import Self
 from typing import TypeVar
-from typing import Generic
-from typing import Union
 from typing import List
+from warnings import warn
 from bisect import insort
 from .notes import NoteABC
+from .notes import PeriodicNoteABC
 from .notes import NoteIntervalABC
-from .protocols import HasFrequency
-from .protocols import HasFrequencyRatio
-from .protocols import PeriodicPitchScaleLike
-from ..exc import IncompatibleNotations
+from .scale import Scale
+from .scale import PeriodicScale
+from ..exc import IncompatibleOriginContexts
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 
 
-class NoteScale(Generic[NoteT]):
+class NoteScale(Scale[NoteT]):
     """
     Base class for all note scales. Implements list and
     set operations, transposition, etc
@@ -49,26 +48,8 @@ class NoteScale(Generic[NoteT]):
     """
 
     def __init__(self, notation, notes=None):
-
+        super().__init__(notation, notes)
         self.notation = notation
-
-        if notes is None:
-            notes = []
-
-        unique_notes = []
-        indices = set()
-
-        for note in notes:
-            if note.notation is not self.notation:
-                raise IncompatibleNotations(
-                    'The provided note originates from a different '
-                    'notation than the scale'
-                )
-            if note.pitch_index not in indices:
-                indices.add(note.pitch_index)
-                unique_notes.append(note)
-
-        self._sorted_notes = sorted(unique_notes)
 
     @property
     def tuning(self):
@@ -86,33 +67,38 @@ class NoteScale(Generic[NoteT]):
         """
         Returns the equivalent pitch scale for this object
         """
-        return self.tuning.pitch_scale([note.pitch for note in self])
+        return self.tuning.scale([note.pitch for note in self])
 
     def add_note(self, note: NoteT):
         """
+        .. deprecated:: 0.2.0
+           objects in xenharmlib are supposed to be immutable
+
         Inserts a new note into to the scale at the right
         position. If the note already exists in the scale
         the method will do nothing.
 
-        :raises IncompatibleNotations: If the note has a different
+        :raises IncompatibleOriginContexts: If the note has a different
             notation than this scale.
 
         :param note: The new note
         """
+        warn(
+            f'{self.__class__.__name__}.add_note is deprecated and '
+            f'will be removed in 1.0.0. As per design philosophy '
+            f'scales should be immutable',
+            DeprecationWarning,
+            stacklevel=2
+        )
 
         if note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'The provided note originates from a different '
                 'notation than the scale'
             )
 
-        if note not in self._sorted_notes:
-            insort(self._sorted_notes, note)
-
-    def __eq__(self, other: object):
-        if not isinstance(other, NoteScale):
-            return False
-        return list(self) == list(other)
+        if note not in self._sorted_elements:
+            insort(self._sorted_elements, note)
 
     def is_notated_same(self, other: Self) -> bool:
         """
@@ -130,44 +116,11 @@ class NoteScale(Generic[NoteT]):
 
         return True
 
-    # in this section we implement all the magic methods
-    # so the scale behaves similar to a list
-
-    def __len__(self):
-        return len(self._sorted_notes)
-
-    def __iter__(self):
-        return self._sorted_notes.__iter__()
-
-    def __getitem__(self, index_or_slice: Union[int, slice]):
-
-        if type(index_or_slice) is slice:
-            return self.notation.note_scale(self._sorted_notes[index_or_slice])
-
-        return self._sorted_notes[index_or_slice]
-
-    def __contains__(self, object: object) -> bool:
-
-        if isinstance(object, HasFrequency):
-            return object in self._sorted_notes
-
-        elif isinstance(object, HasFrequencyRatio):
-            for note_a in self._sorted_notes:
-                for note_b in self._sorted_notes:
-                    interval_u = note_a.interval(note_b)
-                    if interval_u == object:
-                        return True
-                    interval_d = note_b.interval(note_a)
-                    if interval_d == object:
-                        return True
-
-        return False
-
     # the obligatory __repr__
 
     def __repr__(self):
         note_symbols = []
-        for note in self._sorted_notes:
+        for note in self:
             note_symbols.append(note.short_repr)
         note_symbols = ', '.join(note_symbols)
         note_symbols = '[' + note_symbols + ']'
@@ -182,30 +135,29 @@ class NoteScale(Generic[NoteT]):
     # notes
 
     @property
-    def frequencies(self):
-        """
-        An ordered list of frequencies present in this scale
-        """
-        return [notes.frequency for notes in self]
-
-    @property
     def pitch_indices(self) -> List[int]:
         """
         An ordered list of pitch indices present in this scale
         """
-        return [notes.pitch_index for notes in self._sorted_notes]
+        return [notes.pitch_index for notes in self]
 
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`to_intervals` instead.
+
         Returns this scale represented as a list of note intervals
         """
+        warn(
+            f'{self.__class__.__name__}.to_note_intervals is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.to_intervals instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.to_intervals()
 
-        intervals = []
-        for i in range(0, len(self) - 1):
-            intervals.append(self[i].interval(self[i + 1]))
-        return intervals
-
-    def transpose(self, diff: Union[int | NoteIntervalABC]) -> Self:
+    def transpose(self, diff: int | NoteIntervalABC) -> Self:
         """
         Transposes the scale by the given interval
 
@@ -218,10 +170,10 @@ class NoteScale(Generic[NoteT]):
 
         interval = diff
         transposed = []
-        for notes in self._sorted_notes:
+        for notes in self:
             transposed.append(notes.transpose(interval))
 
-        return self.notation.note_scale(transposed)
+        return self.notation.scale(transposed)
 
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
@@ -235,163 +187,7 @@ class NoteScale(Generic[NoteT]):
         notes = []
         for note in self:
             notes.append(note.transpose_bi_index(bi_diff))
-        return self.notation.note_scale(notes)
-
-    # set operations
-
-    def union(self, other: Self) -> Self:
-        """
-        Returns a new scale including all notes from
-        this scale as well as the other
-
-        :param other: Another note of the same notation
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        notes = list(self) + list(other)
-        return self.notation.note_scale(notes)
-
-    def intersection(self, other: Self) -> Self:
-        """
-        Returns a new scale including all notes that are
-        included in both scales.
-
-        :param other: Another scale of the same notation
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        notes = []
-
-        for note_a in self:
-            for note_b in other:
-                if note_a == note_b:
-                    notes.append(note_a)
-
-        return self.notation.note_scale(notes)
-
-    def difference(self, other: Self) -> Self:
-        """
-        Returns a scale containing only notes from this
-        scale that are NOT present in the other scale
-
-        :param other: Another scale of the same notation
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        notes = []
-
-        for note_a in self:
-            for note_b in other:
-                if note_a == note_b:
-                    break
-            else:
-                notes.append(note_a)
-
-        return self.notation.note_scale(notes)
-
-
-    def symmetric_difference(self, other: Self) -> Self:
-        """
-        Returns a scale that includes all the notes from both
-        scales that exist in either of them but NOT BOTH. This
-        is the complement operation of the intersection.
-
-        :param other: Another scale of the same notation
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        diff_a = self.difference(other)
-        diff_b = other.difference(self)
-        return diff_a.union(diff_b)
-
-    def is_disjoint(self, other: Self) -> bool:
-        """
-        Determines if this scale has any common notes
-        with another scale of the same notation.
-
-        :param other: Another scale of the same notation
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        intersection = self.intersection(other)
-
-        return len(intersection) == 0
-
-    def is_subset(self, other: Self, proper: bool = False) -> bool:
-        """
-        Determines if all notes in this scale also exist
-        in the other scale.
-
-        :param other: Another scale of the same notation
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        intersection = self.intersection(other)
-
-        is_subset = self == intersection
-
-        if not proper:
-            return is_subset
-
-        return is_subset and not (self == other)
-
-    def is_superset(self, other: Self, proper: bool = False) -> bool:
-        """
-        Determines if all notes in the other scale also exist
-        in this scale.
-
-        :param other: Another scale of the same notation
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        intersection = self.intersection(other)
-
-        is_superset = other == intersection
-
-        if not proper:
-            return is_superset
-
-        return is_superset and not (self == other)
+        return self.notation.scale(notes)
 
     def note_intersection(self, other: Self) -> Self:
         """
@@ -401,12 +197,12 @@ class NoteScale(Generic[NoteT]):
         sets if they are notated the same and excluded otherwise,
         even if they are enharmonically equivalent
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -417,7 +213,7 @@ class NoteScale(Generic[NoteT]):
                 if note_a.is_notated_same(note_b):
                     notes.append(note_a)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def note_difference(self, other: Self) -> Self:
         """
@@ -429,12 +225,12 @@ class NoteScale(Generic[NoteT]):
         equivalent to a note in this set but notated in a
         different way, the latter will stay in the result set.
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -447,7 +243,7 @@ class NoteScale(Generic[NoteT]):
             else:
                 notes.append(note_a)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def is_notated_disjoint(self, other: Self) -> bool:
         """
@@ -456,7 +252,7 @@ class NoteScale(Generic[NoteT]):
         enharmonically equivalent but differently notated notes
         will be treated as distinct
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -476,7 +272,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -501,7 +297,7 @@ class NoteScale(Generic[NoteT]):
             to True method will return False if the two
             sets are identical
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
@@ -515,7 +311,12 @@ class NoteScale(Generic[NoteT]):
         return is_superset and not self.is_notated_same(other)
 
 
-class PeriodicNoteScale(NoteScale):
+PeriodicNoteT = TypeVar('PeriodicNoteT', bound=PeriodicNoteABC)
+
+
+class PeriodicNoteScale(
+    NoteScale[PeriodicNoteT], PeriodicScale[PeriodicNoteT]
+):
     """
     Note scale class for periodic notations. Implements
     customized set operations (for when you want to treat
@@ -544,11 +345,11 @@ class PeriodicNoteScale(NoteScale):
 
         notes = []
 
-        for note in self._sorted_notes:
+        for note in self:
             n_note = note.pcs_normalized()
             notes.append(n_note)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def pcs_complement(self) -> Self:
         """
@@ -558,79 +359,6 @@ class PeriodicNoteScale(NoteScale):
         """
 
         return self.enharm_strategy.note_scale_pcs_complement(self)
-
-    def rotated_up(self) -> Self:
-        """
-        Create a new scale by transposing the base interval of the
-        lowest note upwards until it is above the highest note
-        """
-
-        notes = list(self[1:])
-
-        bi_diff = self[-1].bi_index - self[0].bi_index
-        note = self[0].transpose_bi_index(bi_diff)
-
-        if note <= notes[-1]:
-            note = note.transpose_bi_index(1)
-
-        notes.append(note)
-        return self.notation.note_scale(notes)
-
-    def rotated_down(self) -> Self:
-        """
-        Create a new scale by transposing the base interval of the
-        highest note downwards until it is below the lowest note
-        """
-
-        notes = list(self[:-1])
-
-        bi_diff = self[0].bi_index - self[-1].bi_index
-        note = self[-1].transpose_bi_index(bi_diff)
-
-        if note >= notes[0]:
-            note = note.transpose_bi_index(-1)
-
-        notes.append(note)
-        return self.notation.note_scale(notes)
-
-    def rotation(self, order: int) -> Self:
-        """
-        Returns the n-th rotation of this scale.
-
-        :param order: The number of times the scale is
-            rotated. If a negative number is given the
-            scale will be rotated downwards. On 0 the
-            scale will return itself
-        """
-
-        if order == 0:
-            return self
-
-        scale = self
-
-        if order > 0:
-            for _ in range(0, order):
-                scale = scale.rotated_up()
-
-        if order < 0:
-            for _ in range(0, abs(order)):
-                scale = scale.rotated_down()
-
-        return scale
-
-    def is_equivalent(self, other: PeriodicPitchScaleLike) -> bool:
-        """
-        Returns True if every note in this scale corresponds to another
-        one in the other scale that has the same pitch class index.
-        (and vice versa)
-
-        :param other: Another periodic note or pitch scale
-        """
-
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
-
-        return n_self == n_other
 
     def is_notated_equivalent(self, other: Self) -> bool:
         """
@@ -643,211 +371,6 @@ class PeriodicNoteScale(NoteScale):
         n_other = other.pcs_normalized()
 
         return n_self.is_notated_same(n_other)
-
-    def pcs_intersection(self, other: Self) -> Self:
-        """
-        Returns a scale including all notes whose pitch class
-        resides in both of the scales, normalized to the first
-        base interval.
-
-        :param other: The other scale
-        """
-
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
-
-        return n_self.intersection(n_other)
-
-    # some variations on the set operations
-    # of the parent class
-
-    def intersection(self, other: Self, ignore_bi_index: bool = False) -> Self:
-        """
-        Returns a new scale including all notes that are included
-        in both scales.
-
-        :param other: Another scale of the same notation
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same. For example, if the
-            intersection of two scales including C-0 and
-            C-1 respectively is calculated, both notes
-            will be added to the result
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        if not ignore_bi_index:
-            return super().intersection(other)
-
-        notes = []
-
-        for note_a in self:
-            for note_b in other:
-                if note_a.is_equivalent(note_b):
-                    notes.append(note_a)
-                    notes.append(note_b)
-
-        return self.notation.note_scale(notes)
-
-    def difference(self, other: Self, ignore_bi_index: bool = False) -> Self:
-        """
-        Returns a scale containing only notes from this
-        scale that are NOT present in the other scale
-
-        :param other: Another scale of the same notation
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same. For example, if the
-            difference of two scales including C-0 and C-1
-            respectively is calculated, C-0 will not be
-            inserted into the new scale
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        if not ignore_bi_index:
-            return super().difference(other)
-
-        notes = []
-
-        for note_a in self:
-            for note_b in other:
-                if note_a.is_equivalent(note_b):
-                    break
-            else:
-                notes.append(note_a)
-
-        return self.notation.note_scale(notes)
-
-    def symmetric_difference(
-        self, other: Self, ignore_bi_index: bool = False
-    ) -> Self:
-        """
-        Returns a scale that includes all the notes
-        from both scales that exist in either of them
-        but NOT BOTH. This is the complement operation
-        of the intersection.
-
-        :param other: Another scale of the same notation
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same. For example, if the
-            difference of two scales including C-0 and C-1
-            respectively is calculated, C-0 will not be
-            inserted into the new scale
-
-        :raises IncompatibleNotations: If the other scale has a
-            different notation
-        """
-
-        if self.notation is not other.notation:
-            raise IncompatibleNotations(
-                'Scales do not originate from the same notation'
-            )
-
-        if not ignore_bi_index:
-            return super().symmetric_difference(other)
-
-        diff_a = self.difference(other, ignore_bi_index=True)
-        diff_b = other.difference(self, ignore_bi_index=True)
-        return diff_a.union(diff_b)
-
-    def is_disjoint(self, other: Self, ignore_bi_index: bool = False) -> bool:
-        """
-        Determines if this scale has any common notes
-        with another scale of the same notation
-
-        :param other: Another scale of the same notation
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same. For example, if one
-            scale includes C-0 and another C-1 the scales
-            will not be considered disjoint
-
-        :raises IncompatibleNotations: If the other scale originates
-            from a different notation
-        """
-
-        intersection = self.intersection(
-            other, ignore_bi_index=ignore_bi_index
-        )
-
-        return len(intersection) == 0
-
-    def is_subset(
-        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
-    ) -> bool:
-        """
-        Determines if all notes in this scale also exist
-        in the other scale.
-
-        :param other: Another scale of the same notation
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same.
-
-        :raises IncompatibleNotations: If the other scale originates
-            from a different notation
-        """
-
-        if not ignore_bi_index:
-            return super().is_subset(other, proper=proper)
-
-        intersection = self.intersection(other, ignore_bi_index=True)
-
-        is_subset = self.is_equivalent(intersection)
-
-        if not proper:
-            return is_subset
-
-        return is_subset and not self.is_equivalent(other)
-
-    def is_superset(
-        self, other: Self, proper: bool = False, ignore_bi_index: bool = False
-    ) -> bool:
-        """
-        Determines if all notes in the other scale also exist
-        in this scale.
-
-        :param other: Another scale of the same notation
-        :param proper: (Optional, default False) When set
-            to True method will return False if the two
-            sets are identical
-        :param ignore_bi_index: (Optional, default False)
-            When set to True notes of the same pitch class
-            will be treated the same.
-
-        :raises IncompatibleNotations: If the other scale originates
-            from a different notation
-        """
-
-        if not ignore_bi_index:
-            return super().is_superset(other, proper=proper)
-
-        intersection = self.intersection(other, ignore_bi_index=True)
-
-        is_superset = other.is_equivalent(intersection)
-
-        if not proper:
-            return is_superset
-
-        return is_superset and not self.is_equivalent(other)
 
     def note_intersection(
         self, other: Self, ignore_bi_index: bool = False
@@ -866,12 +389,12 @@ class PeriodicNoteScale(NoteScale):
             C-1 respectively is calculated, both notes
             will be added to the result
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -886,7 +409,7 @@ class PeriodicNoteScale(NoteScale):
                     notes.append(note_a)
                     notes.append(note_b)
 
-        return self.notation.note_scale(notes)
+        return self.notation.scale(notes)
 
     def note_difference(
         self, other: Self, ignore_bi_index: bool = False
@@ -908,12 +431,12 @@ class PeriodicNoteScale(NoteScale):
             respectively is calculated, C-0 will not be
             inserted into the new scale
 
-        :raises IncompatibleNotations: If the other scale has a
+        :raises IncompatibleOriginContexts: If the other scale has a
             different notation
         """
 
         if self.notation is not other.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Scales do not originate from the same notation'
             )
 
@@ -929,8 +452,7 @@ class PeriodicNoteScale(NoteScale):
             else:
                 notes.append(note_a)
 
-        return self.notation.note_scale(notes)
-
+        return self.notation.scale(notes)
 
     def is_notated_disjoint(
         self, other: Self, ignore_bi_index: bool = False
@@ -948,7 +470,7 @@ class PeriodicNoteScale(NoteScale):
             scale includes C-0 and another C-1 the scales
             will not be considered disjoint
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 
@@ -975,7 +497,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 
@@ -1008,7 +530,7 @@ class PeriodicNoteScale(NoteScale):
             When set to True notes of the same pitch class
             will be treated the same.
 
-        :raises IncompatibleNotations: If the other scale originates
+        :raises IncompatibleOriginContexts: If the other scale originates
             from a different notation
         """
 

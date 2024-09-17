@@ -15,21 +15,17 @@
 
 from __future__ import annotations
 
-import math
-from functools import total_ordering
 from typing import *
-from .frequencies import Frequency
+from warnings import warn
+from .frequencies import FrequencyRatio
 from .protocols import PeriodicPitchLike
-from .constants import CENTS_PRECISION
-from ..exc import IncompatibleTunings
-from ..exc import InvalidPitchIndex
-from ..exc import InvalidPitchClassIndex
-from ..exc import InvalidBaseIntervalIndex
+from .freq_repr import SDFreqRepr
+from .interval import SDInterval
+from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidGenerator
 
 
-@total_ordering
-class Pitch:
+class Pitch(SDFreqRepr):
     """
     In its most basic form, a Pitch is a tuple of a pitch index
     (an integer value) and a tuning that interprets this index
@@ -49,58 +45,31 @@ class Pitch:
     True
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
-
-        self.tuning = tuning
-        self._pitch_index = pitch_index
-        self._frequency = tuning.get_frequency(self)
+    def __init__(self, tuning, frequency, pitch_index: int):
+        super().__init__(tuning, frequency, pitch_index)
+        self._tuning = tuning
 
     @property
-    def pitch_index(self) -> int:
-        """
-        The index of this pitch as an integer
-        """
-        return self._pitch_index
-
-    @property
-    def frequency(self) -> Frequency:
-        """
-        Frequency of this pitch
-        """
-        return self._frequency
-
-    def __eq__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index == other.pitch_index
-        return self.frequency == other.frequency
-
-    def __lt__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index < other.pitch_index
-        return self.frequency < other.frequency
+    def tuning(self):
+        return self._tuning
 
     # arithmetic
 
     def __add__(self, other):
         if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(self.pitch_index + other.pitch_index)
 
     def __sub__(self, other):
         if self.tuning is not other.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
         return self.tuning.pitch(self.pitch_index - other.pitch_index)
@@ -143,19 +112,8 @@ class Pitch:
 
         return tuning.get_approx_pitch(self.frequency)
 
-    def interval(self, other: Pitch) -> PitchInterval:
-        """
-        Returns an interval between this pitch and
-        another pitch of the same tuning.
 
-        :param other: The other pitch (can be higher
-            or lower than this pitch)
-        """
-
-        return self.tuning.pitch_interval(self, other)
-
-
-class PeriodicPitch(Pitch):
+class PeriodicPitch(Pitch, PeriodicPitchLike):
     """
     The pitch type for periodic tunings. Depending on the period
     length it will classify the pitch into a 'pitch class index'
@@ -163,13 +121,14 @@ class PeriodicPitch(Pitch):
     (:attr:`bi_index`)
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: int):
 
-        super().__init__(tuning, pitch_index)
+        super().__init__(tuning, frequency, pitch_index)
         tuning_len = len(tuning)
 
         self._pc_index = pitch_index % tuning_len
@@ -239,7 +198,7 @@ class PeriodicPitch(Pitch):
             to the equivalent pitch in the first base interval if its
             pitch index exceeds the period length of the tuning.
 
-        :raises IncompatibleTunings: If pitches come
+        :raises IncompatibleOriginContexts: If pitches come
             from different tuning systems
 
         :raises InvalidGenerator: If the given generator pitch is not in
@@ -247,7 +206,7 @@ class PeriodicPitch(Pitch):
         """
 
         if generator_pitch.tuning is not self.tuning:
-            raise IncompatibleTunings(
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
 
@@ -280,13 +239,17 @@ class EDPitch(PeriodicPitch):
     The pitch type for equal division tunings
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: int):
+        super().__init__(tuning, frequency, pitch_index)
 
-        super().__init__(tuning, pitch_index)
+    @property
+    def short_repr(self) -> str:
+        return f'{self.pitch_index}'
 
 
 class EDOPitch(EDPitch):
@@ -294,6 +257,7 @@ class EDOPitch(EDPitch):
     The pitch type for 'equal division of the octave' tunings
 
     :param tuning: The tuning to which this pitch belongs
+    :param frequency: The frequency this pitch represents
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
@@ -302,8 +266,7 @@ class EDOPitch(EDPitch):
 PitchT = TypeVar('PitchT', bound=Pitch)
 
 
-@total_ordering
-class PitchInterval(Generic[PitchT]):
+class PitchInterval(SDInterval[PitchT]):
     """
     The most abstract form of an interval of two pitches.
     Implements conversion functions to frequency ratios
@@ -323,34 +286,31 @@ class PitchInterval(Generic[PitchT]):
     so the order of pitches from which the interval is created
     is important
 
+    :param tuning: The tuning associated with this
+        interval
+    :param frequency_ratio: The frequency ratio of this interval
+    :param pitch_diff: An integer that defines the
+        number of steps this interval encompasses
+        (a positive integer means 'upward steps',
+        while a negative one means 'downward steps')
     :param ref_pitch: A reference pitch for the pitch
         difference. This is necessary for tunings that
         are not equal step. In just intonation tunings
         frequency ratios may vary depending on the
         original pitches used to construct the interval,
         even if their pitch index difference is the same
-    :param pitch_diff: An integer that defines the
-        number of steps this interval encompasses
-        (a positive integer means 'upward steps',
-        while a negative one means 'downward steps')
-    :param tuning: The tuning associated with this
-        interval
     """
 
-    def __init__(self, ref_pitch: PitchT, pitch_diff: int, tuning):
-
+    def __init__(
+        self,
+        tuning,
+        frequency_ratio: FrequencyRatio,
+        pitch_diff: int,
+        ref_pitch: PitchT
+    ):
+        super().__init__(tuning, frequency_ratio, pitch_diff)
         self.ref_pitch = ref_pitch
-        self.pitch_diff = pitch_diff
         self.tuning = tuning
-
-        pitch_b = self.tuning.pitch(
-            self.ref_pitch.pitch_index + self.pitch_diff
-        )
-
-        freq_a = ref_pitch.frequency
-        freq_b = pitch_b.frequency
-
-        self._frequency_ratio = freq_b / freq_a
 
     def __abs__(self) -> Self:
         """
@@ -364,75 +324,71 @@ class PitchInterval(Generic[PitchT]):
 
         target_pitch = self.ref_pitch.transpose(self.pitch_diff)
 
-        return self.tuning.pitch_interval(target_pitch, self.ref_pitch)
+        return self.tuning.interval(target_pitch, self.ref_pitch)
 
     @classmethod
     def from_pitches(cls, pitch_a: PitchT, pitch_b: PitchT) -> Self:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`from_source_and_target` instead.
+
         Constructs an interval out of two pitches of the same tuning.
         If the second pitch is lower than the first pitch the Interval
         will have a negative pitch difference
 
-        :raises IncompatibleTunings: If pitches come
+        :raises IncompatibleOriginContexts: If pitches come
             from different tuning systems
 
         :param pitch_a: The first (or reference) pitch
         :param pitch_b: The second (or target) pitch
         """
+        warn(
+            f'{cls.__name__}.from_pitches is deprecated and will be '
+            f'removed in 1.0.0. Please use '
+            f'{cls.__name__}.from_source_and_target instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return cls.from_source_and_target(pitch_a, pitch_b)
 
-        if pitch_a.tuning is not pitch_b.tuning:
-            raise IncompatibleTunings(
+    @classmethod
+    def from_source_and_target(cls, source: PitchT, target: PitchT) -> Self:
+        """
+        Constructs an interval out of two pitches of the same tuning.
+        If the second pitch is lower than the first pitch the Interval
+        will have a negative pitch difference
+
+        :raises IncompatibleOriginContexts: If pitches come
+            from different tuning systems
+
+        :param source: The starting point of the interval
+        :param target: The end point of the interval
+        """
+
+        if source.tuning is not target.tuning:
+            raise IncompatibleOriginContexts(
                 'Pitches must originate from the same tuning context'
             )
 
-        tuning = pitch_a.tuning
-        pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
+        tuning = source.tuning
+        pitch_diff = target.pitch_index - source.pitch_index
+        frequency_ratio = target.frequency / source.frequency
 
         return cls(
-            pitch_a,
-            pitch_diff,
             tuning,
+            frequency_ratio,
+            pitch_diff,
+            source,
         )
-
-    # methods necessary for total ordering
-
-    def __eq__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # ratio comparison is actually quite costly
-            # with sympy expression evaluation
-            return self.pitch_diff == other.pitch_diff
-        return self.frequency_ratio == other.frequency_ratio
-
-    def __lt__(self, other):
-        if self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # ratio comparison is actually quite costly
-            # with sympy expression evaluation
-            return self.pitch_diff < other.pitch_diff
-        return self.frequency_ratio < other.frequency_ratio
-
-    @property
-    def frequency_ratio(self) -> Frequency:
-        """
-        Returns the frequency ratio between the pitches (e.g.
-        2 for an octave)
-        """
-
-        return self._frequency_ratio
-
-    @property
-    def cents(self) -> float:
-        """
-        The interval in cents (e.g. 1200 for an octave)
-        """
-
-        return round(1200 * self.frequency_ratio.log(2), CENTS_PRECISION)
 
     def __repr__(self):
         return (
             f'{self.__class__.__name__}({self.pitch_diff}, {self.tuning.name})'
         )
+
+    @property
+    def short_repr(self) -> str:
+        return f'{self.pitch_diff}'
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
@@ -482,35 +438,6 @@ class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
     """
     Pitch interval class for equal division tunings
     """
-
-    @classmethod
-    def from_pitches(cls, pitch_a: EDPitch, pitch_b: EDPitch) -> Self:
-        """
-        Constructs an interval out of two pitches of the same tuning.
-        If the second pitch is lower than the first pitch the Interval
-        will have a negative pitch difference
-
-        :raises IncompatibleTunings: If pitches come
-            from different tuning systems
-
-        :param pitch_a: The first (or reference) pitch
-        :param pitch_b: The second (or target) pitch
-        """
-
-        if pitch_a.tuning is not pitch_b.tuning:
-            raise IncompatibleTunings(
-                'Pitches must originate from the same tuning context'
-            )
-
-        tuning = pitch_a.tuning
-
-        pitch_diff = pitch_b.pitch_index - pitch_a.pitch_index
-
-        return cls(
-            pitch_a,
-            pitch_diff,
-            tuning,
-        )
 
 
 class EDOPitchInterval(EDPitchInterval):

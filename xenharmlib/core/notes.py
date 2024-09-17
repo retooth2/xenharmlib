@@ -24,23 +24,20 @@ from __future__ import annotations
 from typing import Tuple
 from typing import Self
 from typing import TypeVar
-from typing import Generic
+from warnings import warn
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
 import numpy as np
-from .protocols import PitchLike
-from .protocols import PitchIntervalLike
 from .protocols import PeriodicPitchLike
-from .frequencies import Frequency
+from .freq_repr import SDFreqRepr
+from .interval import SDInterval
 from .pitch import PeriodicPitch
-from .protocols import HasFrequency
-from .protocols import HasFrequencyRatio
-from ..exc import IncompatibleNotations
+from ..exc import IncompatibleOriginContexts
 
 
 @total_ordering
-class NoteABC(ABC):
+class NoteABC(SDFreqRepr):
     """
     Abstract base class for notes. Implements the properties
     :attr:`tuning`, :attr:`frequency` and :attr:`pitch_index`
@@ -52,9 +49,12 @@ class NoteABC(ABC):
     method.
 
     :param notation: The notation object this note belongs to
+    :param pitch_index: The pitch index of this note
+    :param frequency: The frequency this note represents
     """
 
-    def __init__(self, notation):
+    def __init__(self, notation, frequency, pitch_index):
+        super().__init__(notation, frequency, pitch_index)
         self._notation = notation
 
     @property
@@ -78,64 +78,12 @@ class NoteABC(ABC):
         """
         return self.notation.enharm_strategy
 
-    def interval(self, other: Self) -> NoteIntervalABC[Self]:
-        """
-        Returns an interval between this note and
-        another note of the same notation.
-
-        :param other: The other note (can be higher
-            or lower than this note)
-        """
-        return self.notation.note_interval(self, other)
-
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, HasFrequency):
-            return False
-        if isinstance(other, PitchLike) and self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index == other.pitch_index
-        return self.frequency == other.frequency
-
-    def __lt__(self, other: HasFrequency) -> bool:
-        if isinstance(other, PitchLike) and self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # comparison is actually quite costly with
-            # sympy expression evaluation
-            return self.pitch_index < other.pitch_index
-        return self.frequency < other.frequency
-
-    @property
-    def frequency(self) -> Frequency:
-        """
-        The frequency of this note
-        """
-        return self.pitch.frequency
-
-    @property
-    def pitch_index(self) -> int:
-        """
-        The pitch index of the underlying pitch
-        """
-        return self.pitch.pitch_index
-
     @property
     @abstractmethod
     def pitch(self):
         """
         (Must be implemented by subclasses)
         Returns the underlying pitch object
-        """
-
-    @abstractmethod
-    def transpose(self, diff: int | NoteIntervalABC[Self]) -> Self:
-        """
-        (Must be implemented by subclasses)
-        Transposes the note to a different one
-
-        :param diff: A note interval or an integer denoting the pitch
-            difference
         """
 
     @abstractmethod
@@ -149,17 +97,8 @@ class NoteABC(ABC):
             notation or class
         """
 
-    @property
-    @abstractmethod
-    def short_repr(self) -> str:
-        """
-        (Must be implemented by subclasses)
-        A shortened representation of this note
-        (to be used in collection objects like scales)
-        """
 
-
-class PeriodicNoteABC(NoteABC):
+class PeriodicNoteABC(NoteABC, PeriodicPitchLike):
     """
     Abstract base class for periodic notes. Implements
     proxy properties :attr:`pc_index` and :attr:`bi_index`
@@ -170,19 +109,24 @@ class PeriodicNoteABC(NoteABC):
     of NoteABC)
     """
 
+    def __init__(self, notation, frequency, pitch_index):
+        super().__init__(notation, frequency, pitch_index)
+        self._pc_index = pitch_index % len(notation.tuning)
+        self._bi_index = pitch_index // len(notation.tuning)
+
     @property
     def pc_index(self) -> int:
         """
         The pitch class index of this note
         """
-        return self.pitch.pc_index
+        return self._pc_index
 
     @property
     def bi_index(self) -> int:
         """
         The base interval index of this note
         """
-        return self.pitch.bi_index
+        return self._bi_index
 
     def is_equivalent(self, other: PeriodicPitchLike) -> bool:
         """
@@ -235,7 +179,7 @@ class PeriodicNoteABC(NoteABC):
             to the equivalent note in the first base interval if its
             pitch index exceeds the period length of the tuning.
 
-        :raises IncompatibleNotations: If notes come
+        :raises IncompatibleOriginContexts: If notes come
             from a different notation system
 
         :raises InvalidGenerator: If the pitch of given generator note is
@@ -243,7 +187,7 @@ class PeriodicNoteABC(NoteABC):
         """
 
         if generator_note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Generator notes must originate from the same notation'
             )
 
@@ -257,6 +201,8 @@ class NatAccNote(PeriodicNoteABC):
     subclassing from :class:`~xenharmlib.core.notation.NatAccNotation`)
 
     :param notation: The notation object this note belongs to
+    :param frequency: The frequency this note represents
+    :param pitch_index: The pitch index of this note
     :param nat_index: The natural index of this note, which is an index
         counting the naturals starting with 0 (e.g. in Western notation
         C0 ^= 0, D0 ^= 1, C1 ^=7, etc)
@@ -275,6 +221,8 @@ class NatAccNote(PeriodicNoteABC):
     def __init__(
         self,
         notation,
+        frequency,
+        pitch_index,
         nat_index: int,
         acc_vector: Tuple[int, ...],
         pc_symbol: str,
@@ -282,7 +230,7 @@ class NatAccNote(PeriodicNoteABC):
         acc_symbol: str,
     ):
 
-        super().__init__(notation)
+        super().__init__(notation, frequency, pitch_index)
         self._nat_index = nat_index
         self._natc_index = nat_index % notation.nat_count
         self._nat_bi_index = nat_index // notation.nat_count
@@ -323,7 +271,7 @@ class NatAccNote(PeriodicNoteABC):
         """
 
         if other.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must originate from the same notation context'
             )
 
@@ -340,7 +288,7 @@ class NatAccNote(PeriodicNoteABC):
         """
 
         if other.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must originate from the same notation context'
             )
 
@@ -488,20 +436,7 @@ class NatAccNote(PeriodicNoteABC):
             )
 
         acc_vector = tuple(np.add(self.acc_vector, acc_diff))
-        result = self.notation.gen_pc_symbol(self.nat_index, acc_vector)
-
-        pc_symbol = result[0]
-        natc_symbol = result[1]
-        acc_symbol = result[2]
-
-        return self.__class__(
-            self.notation,
-            self.nat_index,
-            acc_vector,
-            pc_symbol,
-            natc_symbol,
-            acc_symbol,
-        )
+        return self.notation.note_by_numdef(self.nat_index, acc_vector)
 
     def transpose(
         self,
@@ -523,7 +458,7 @@ class NatAccNote(PeriodicNoteABC):
         interval = diff
 
         if interval.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Interval must originate from same notation '
                 'as the note that should be transposed'
             )
@@ -541,60 +476,43 @@ class NatAccNote(PeriodicNoteABC):
             nat_index, unbalanced_nat_pitch_index, unbalanced_acc_vector
         )
 
-        result = self.notation.gen_pc_symbol(nat_index, acc_vector)
-
-        pc_symbol = result[0]
-        natc_symbol = result[1]
-        acc_symbol = result[2]
-
-        return self.__class__(
-            self.notation,
-            nat_index,
-            acc_vector,
-            pc_symbol,
-            natc_symbol,
-            acc_symbol,
-        )
+        return self.notation.note_by_numdef(nat_index, acc_vector)
 
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 
 
 @total_ordering
-class NoteIntervalABC(Generic[NoteT], ABC):
+class NoteIntervalABC(SDInterval[NoteT], ABC):
     """
     Abstract base class for note intervals. Implements the
-    properties :attr:`pitch_interval`, :attr:`frequency_ratio`,
-    :attr:`cents`, :attr:`pitch_diff` as well as equality and
-    lesser-than relations based on frequency ratio.
+    property :attr:`pitch_interval` that constructs the
+    equivalent pitch interval
 
     Note intervals are implemented as generic types with the
     inner type being a note class.
 
-    Subclasses must at least implement the :meth:`from_notes`
+    Subclasses must at least implement the :meth:`from_source_and_target`
     class method.
 
     :param notation: The notation this interval refers to
-    :param ref_note: A reference note (needed for non-equal
-        step tunings)
+    :param frequency_ratio: A frequency ratio object
     :param pitch_diff: The difference in pitch that this
         interval represents
+    :param ref_note: A reference note (needed for non-equal
+        step tunings)
     """
 
-    def __init__(self, notation, ref_note: NoteT, pitch_diff: int):
-
+    def __init__(
+        self,
+        notation,
+        frequency_ratio,
+        pitch_diff: int,
+        ref_note: NoteT,
+    ):
+        super().__init__(notation, frequency_ratio, pitch_diff)
         self._notation = notation
         self._ref_note = ref_note
-        self._pitch_diff = pitch_diff
-
-    # abstract methods
-
-    @classmethod
-    @abstractmethod
-    def from_notes(cls, note_a: NoteT, note_b: NoteT) -> Self:
-        """
-        Constructs an interval from two notes
-        """
 
     def __abs__(self) -> Self:
         """
@@ -607,7 +525,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
             return self
 
         target_note = self.ref_note.transpose(self)
-        return self.notation.note_interval(target_note, self.ref_note)
+        return self.notation.interval(target_note, self.ref_note)
 
     # read-only properties
 
@@ -635,36 +553,6 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         """
         return self._ref_note
 
-    @property
-    def pitch_diff(self) -> int:
-        """
-        The size of the interval in pitch steps from one
-        note to the other
-        """
-        return self._pitch_diff
-
-    # methods necessary for total ordering
-
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, HasFrequencyRatio):
-            return False
-        if isinstance(other, PitchIntervalLike) and \
-                self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # ratio comparison is actually quite costly
-            # with sympy expression evaluation
-            return self.pitch_diff == other.pitch_diff
-        return self.frequency_ratio == other.frequency_ratio
-
-    def __lt__(self, other: HasFrequencyRatio) -> bool:
-        if isinstance(other, PitchIntervalLike) and \
-                self.tuning is other.tuning:
-            # this is an optimization because frequency
-            # ratio comparison is actually quite costly
-            # with sympy expression evaluation
-            return self.pitch_diff < other.pitch_diff
-        return self.frequency_ratio < other.frequency_ratio
-
     # pitch interval calculation and proxy properties
 
     @property
@@ -676,22 +564,7 @@ class NoteIntervalABC(Generic[NoteT], ABC):
         note_a = self.ref_note
         note_b = note_a.transpose(self)
         tuning = self.notation.tuning
-        return tuning.pitch_interval(note_a.pitch, note_b.pitch)
-
-    @property
-    def frequency_ratio(self) -> Frequency:
-        """
-        The frequency ratio of this note interval
-        """
-        return self.pitch_interval.frequency_ratio
-
-    @property
-    def cents(self) -> float:
-        """
-        The frequency ratio of this note interval
-        measured in cents
-        """
-        return self.pitch_interval.cents
+        return tuning.interval(note_a.pitch, note_b.pitch)
 
 
 class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
@@ -722,7 +595,7 @@ class PeriodicNoteInterval(NoteIntervalABC[NoteT]):
         """
 
         if generator_note.notation is not self.notation:
-            raise IncompatibleNotations(
+            raise IncompatibleOriginContexts(
                 'Notes must come from the same notation instance'
             )
 
@@ -742,15 +615,20 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
 
     The concrete way an interval symbol and number are chosen is
     dependent on the underlying notation from which a symbol and
-    a number are received in the :meth:`from_notes` builder method.
+    a number are received in the :meth:`from_source_and_target`
+    builder method.
 
     :param notation: The notation this interval refers to
-    :param ref_note: A reference note (needed for non-equal
-        step tunings)
+    :param frequency_ratio: A frequency ratio object
     :param pitch_diff: The difference in pitch that this
         interval represents
+    :param ref_note: A reference note (needed for non-equal
+        step tunings)
     :param nat_diff: The difference of the natural indices
         of the two notes defining the interval
+    :param acc_vector: A vector defining the alteration of
+        the standard pitch index difference of a natural
+        index difference
     :param symbol: An interval symbol (like 'M', 'd', 'P')
     :param number: An interval number
     """
@@ -758,6 +636,8 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     def __init__(
         self,
         notation,
+        frequency_ratio,
+        pitch_diff,
         ref_note: NatAccNote,
         nat_diff: int,
         acc_vector: Tuple[int, ...],
@@ -765,10 +645,12 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         number: int,
     ):
 
-        std_pitch_diff = notation.std_pitch_diff(nat_diff)
-        pitch_diff = std_pitch_diff + sum(acc_vector)
-
-        super().__init__(notation, ref_note, pitch_diff)
+        super().__init__(
+            notation,
+            frequency_ratio,
+            pitch_diff,
+            ref_note
+        )
 
         self._acc_vector = acc_vector
         self._nat_diff = nat_diff
@@ -812,37 +694,76 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
     @classmethod
     def from_notes(cls, note_a: NatAccNote, note_b: NatAccNote) -> Self:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`from_source_and_target` instead.
+
         Creates a note interval from two notes
 
-        :raises IncompatibleNotations: If notes belong to different
+        :raises IncompatibleOriginContexts: If notes belong to different
             notations
 
         :param note_a: The source note
         :param note_b: The target note
         """
+        warn(
+            f'{cls.__name__}.from_notes is deprecated and will be '
+            f'removed in 1.0.0. Please use '
+            f'{cls.__name__}.from_source_and_target instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return cls.from_source_and_target(note_a, note_b)
 
-        if note_a.notation is not note_b.notation:
-            raise IncompatibleNotations(
+    @classmethod
+    def from_source_and_target(
+        cls,
+        source: NatAccNote,
+        target: NatAccNote
+    ) -> Self:
+        """
+        Creates a note interval from two notes
+
+        :raises IncompatibleOriginContexts: If notes belong to different
+            notations
+
+        :param source: The source note
+        :param target: The target note
+        """
+
+        if source.notation is not target.notation:
+            raise IncompatibleOriginContexts(
                 'Notes do not originate from the same notation'
             )
 
-        notation = note_a.notation
-        nat_diff = note_b.nat_index - note_a.nat_index
+        notation = source.notation
+        nat_diff = target.nat_index - source.nat_index
         unbalanced_nat_pitch_diff = (
-            note_b.nat_pitch_index - note_a.nat_pitch_index
+            target.nat_pitch_index - source.nat_pitch_index
         )
         unbalanced_acc_vector = tuple(
-            np.subtract(note_b.acc_vector, note_a.acc_vector)
+            np.subtract(target.acc_vector, source.acc_vector)
         )
 
         acc_vector = notation.balance_interval_acc(
             nat_diff, unbalanced_nat_pitch_diff, unbalanced_acc_vector
         )
 
+        frequency_ratio = target.frequency / source.frequency
+        pitch_diff = target.pitch_index - source.pitch_index
+
         symbol = notation.get_interval_symbol(nat_diff, acc_vector)
         number = notation.nat_diff_to_interval_number(nat_diff)
 
-        return cls(notation, note_a, nat_diff, acc_vector, symbol, number)
+        return cls(
+            notation,
+            frequency_ratio,
+            pitch_diff,
+            source,
+            nat_diff,
+            acc_vector,
+            symbol,
+            number,
+        )
 
     def __repr__(self) -> str:
         return (
@@ -850,6 +771,14 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
             f'{self.symbol}, {self.number}, '
             f'{self.tuning.name})'
         )
+
+    @property
+    def short_repr(self) -> str:
+        """
+        A short representation string of the interval
+        (to be shown in collections)
+        """
+        return f'{self.symbol}{self.number}'
 
     @property
     def shorthand_name(self) -> Tuple[str, int]:
