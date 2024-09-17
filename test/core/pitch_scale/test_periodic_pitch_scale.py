@@ -213,7 +213,11 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.union(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a | scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
@@ -242,6 +246,9 @@ def test_union_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.union(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a | scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -268,7 +275,11 @@ def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.intersection(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a & scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
@@ -334,6 +345,9 @@ def test_intersection_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a & scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -360,7 +374,11 @@ def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.difference(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a - scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
@@ -426,6 +444,9 @@ def test_difference_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a - scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -452,7 +473,11 @@ def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.symmetric_difference(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a ^ scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
@@ -518,6 +543,9 @@ def test_symmetric_difference_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a ^ scale_b
 
 
 @pytest.mark.parametrize(

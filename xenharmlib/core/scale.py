@@ -175,6 +175,12 @@ class Scale(Sequence[FreqReprT], ABC):
         elements = list(self) + list(other)
         return self.origin_context.scale(elements)
 
+    def __or__(self, other: Self) -> Self:
+        """
+        operator shortcut for union method
+        """
+        return self.union(other)
+
     def intersection(self, other: Self) -> Self:
         """
         Returns a new scale including all elements that are
@@ -199,6 +205,12 @@ class Scale(Sequence[FreqReprT], ABC):
                     elements.append(element_a)
 
         return self.origin_context.scale(elements)
+
+    def __and__(self, other: Self) -> Self:
+        """
+        operator shortcut for intersection method
+        """
+        return self.intersection(other)
 
     def difference(self, other: Self) -> Self:
         """
@@ -227,6 +239,12 @@ class Scale(Sequence[FreqReprT], ABC):
 
         return self.origin_context.scale(elements)
 
+    def __sub__(self, other: Self) -> Self:
+        """
+        operator shortcut for difference method
+        """
+        return self.difference(other)
+
     def symmetric_difference(self, other: Self) -> Self:
         """
         Returns a scale that includes all the elements from both
@@ -247,6 +265,12 @@ class Scale(Sequence[FreqReprT], ABC):
         diff_a = self.difference(other)
         diff_b = other.difference(self)
         return diff_a.union(diff_b)
+
+    def __xor__(self, other: Self) -> Self:
+        """
+        operator shortcut for symmetric difference method
+        """
+        return self.symmetric_difference(other)
 
     def is_disjoint(self, other: Self) -> bool:
         """
