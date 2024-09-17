@@ -241,7 +241,11 @@ def test_union(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.union(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a | scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -322,7 +326,11 @@ def test_intersection(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.intersection(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a & scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -542,6 +550,9 @@ def test_intersection_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a & scale_b
+
 
 def test_note_intersection_incompatible_origin_contexts():
     """
@@ -618,7 +629,11 @@ def test_difference(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.difference(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a - scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -830,6 +845,9 @@ def test_difference_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a - scale_b
+
 
 def test_note_difference_incompatible_origin_contexts():
     """
@@ -900,7 +918,11 @@ def test_symmetric_difference(notation, input_pairs_a, input_pairs_b, result_pai
     )
 
     scale_c = scale_a.symmetric_difference(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a ^ scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -985,6 +1007,9 @@ def test_symmetric_difference_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a ^ scale_b
 
 
 @pytest.mark.parametrize(
