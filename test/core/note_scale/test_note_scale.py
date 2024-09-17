@@ -52,7 +52,14 @@ def test_pitch_scale(notation, notes, pitch_indices):
     )
 
     tuning = notation.tuning
-    expected = tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        expected = tuning.pitch_scale(
+            [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
+        )
+    note_scale.pitch_scale == expected
+
+    expected = tuning.scale(
         [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
     )
     note_scale.pitch_scale == expected
@@ -941,7 +948,10 @@ def test_to_note_intervals(notation, input_pairs, intervals):
         )
         note_intervals.append(interval)
 
-    assert scale.to_note_intervals() == note_intervals
+    with pytest.deprecated_call():
+        assert scale.to_note_intervals() == note_intervals
+
+    assert scale.to_intervals() == note_intervals
 
 
 @pytest.mark.parametrize(
@@ -989,7 +999,13 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
     )
 
     transposed = scale.transpose(note_interval)
-    assert transposed == notation.note_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
         [notation.note(*pair) for pair in result_pairs]
     )
 
@@ -1034,7 +1050,13 @@ def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
     )
 
     transposed = scale.transpose_bi_index(bi_diff)
-    assert transposed == notation.note_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
         [notation.note(*pair) for pair in result_pairs]
     )
 

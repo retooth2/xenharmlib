@@ -176,11 +176,11 @@ def test_guess_note_scale(divisions, pitch_indices, note_pairs):
     notation.enharm_strategy = strategy
 
     note_scale = notation.guess_note_scale(
-        tuning.pitch_scale(
+        tuning.scale(
             [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
         )
     )
-    expected = notation.note_scale(
+    expected = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs]
     )
     assert note_scale.is_notated_same(expected)
@@ -328,10 +328,10 @@ def test_note_scale_transpose(
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
-    scale_a = notation.note_scale(
+    scale_a = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs_a]
     )
-    scale_b = notation.note_scale(
+    scale_b = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs_b]
     )
     assert scale_a.transpose(pitch_diff).is_notated_same(scale_b)
@@ -426,10 +426,10 @@ def test_note_scale_pcs_complement(
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
-    scale_a = notation.note_scale(
+    scale_a = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs_a]
     )
-    scale_b = notation.note_scale(
+    scale_b = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs_b]
     )
     assert scale_a.pcs_complement().is_notated_same(scale_b)

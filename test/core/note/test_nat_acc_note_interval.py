@@ -39,7 +39,11 @@ def test_note_interval_pitch_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.pitch_diff == pitch_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.pitch_diff == pitch_diff
 
 
@@ -69,7 +73,11 @@ def test_note_interval_nat_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.nat_diff == nat_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.nat_diff == nat_diff
 
 
@@ -100,7 +108,11 @@ def test_note_interval_symbol(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.symbol == symbol
+
+    interval = notation.interval(note_a, note_b)
     assert interval.symbol == symbol
 
 
@@ -131,7 +143,11 @@ def test_note_interval_number(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.number == number
+
+    interval = notation.interval(note_a, note_b)
     assert interval.number == number
 
 
@@ -163,7 +179,11 @@ def test_note_interval_shorthand(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval1 = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval1 = notation.note_interval(note_a, note_b)
+    assert interval1.shorthand_name == shorthand_name
+
+    interval1 = notation.interval(note_a, note_b)
     assert interval1.shorthand_name == shorthand_name
 
     interval2 = notation.shorthand_interval(*shorthand_name)

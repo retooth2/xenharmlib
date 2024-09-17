@@ -29,7 +29,16 @@ def test_init_pitch_diff(tuning,
     correctly when initializing an interval
     """
 
-    interval = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval = PitchInterval.from_pitches(
+            tuning.pitch(pitch_index_a),
+            tuning.pitch(pitch_index_b),
+        )
+
+    interval.ref_pitch == tuning.pitch(pitch_index_a)
+    interval.pitch_diff == pitch_diff
+
+    interval = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
@@ -59,11 +68,26 @@ def test_lt_gt(tuning_ab,
     greater-than also implies inequality
     """
 
-    interval_ab = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval_ab = PitchInterval.from_pitches(
+            tuning_ab.pitch(pitch_index_a),
+            tuning_ab.pitch(pitch_index_b),
+        )
+    with pytest.deprecated_call():
+        interval_cd = PitchInterval.from_pitches(
+            tuning_cd.pitch(pitch_index_c),
+            tuning_cd.pitch(pitch_index_d),
+        )
+    assert interval_ab < interval_cd
+    assert interval_cd > interval_ab
+    assert interval_ab != interval_cd
+    assert interval_cd != interval_ab
+
+    interval_ab = PitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
         tuning_ab.pitch(pitch_index_b),
     )
-    interval_cd = PitchInterval.from_pitches(
+    interval_cd = PitchInterval.from_source_and_target(
         tuning_cd.pitch(pitch_index_c),
         tuning_cd.pitch(pitch_index_d),
     )
@@ -93,11 +117,23 @@ def test_eq(tuning_ab,
     equal if they have the same frequency ratio
     """
 
-    interval_ab = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval_ab = PitchInterval.from_pitches(
+            tuning_ab.pitch(pitch_index_a),
+            tuning_ab.pitch(pitch_index_b),
+        )
+    with pytest.deprecated_call():
+        interval_cd = PitchInterval.from_pitches(
+            tuning_cd.pitch(pitch_index_c),
+            tuning_cd.pitch(pitch_index_d),
+        )
+    assert interval_ab == interval_cd
+
+    interval_ab = PitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
         tuning_ab.pitch(pitch_index_b),
     )
-    interval_cd = PitchInterval.from_pitches(
+    interval_cd = PitchInterval.from_source_and_target(
         tuning_cd.pitch(pitch_index_c),
         tuning_cd.pitch(pitch_index_d),
     )
@@ -119,11 +155,24 @@ def test_abs(tuning,
     Test if abs() value of interval is implemented correctly
     """
 
-    interval_a = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval_a = PitchInterval.from_pitches(
+            tuning.pitch(pitch_index_a),
+            tuning.pitch(pitch_index_b),
+        )
+    with pytest.deprecated_call():
+        interval_b = PitchInterval.from_pitches(
+            tuning.pitch(pitch_index_b),
+            tuning.pitch(pitch_index_a),
+        )
+    assert abs(interval_a) == abs(interval_b)
+    assert abs(interval_b) == interval_a
+
+    interval_a = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
-    interval_b = PitchInterval.from_pitches(
+    interval_b = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_b),
         tuning.pitch(pitch_index_a),
     )
@@ -147,7 +196,14 @@ def test_cents(tuning,
     Test if cent calculation works correctly
     """
 
-    interval = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval = PitchInterval.from_pitches(
+            tuning.pitch(pitch_index_a),
+            tuning.pitch(pitch_index_b),
+        )
+    assert interval.cents == cents
+
+    interval = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
@@ -163,7 +219,13 @@ def test_init_incompatible_origin_contexts():
     edo12_2 = EDTuning(12, FrequencyRatio(2))
 
     with pytest.raises(IncompatibleOriginContexts):
-        PitchInterval.from_pitches(
+        with pytest.deprecated_call():
+            PitchInterval.from_pitches(
+                edo12.pitch(0),
+                edo12_2.pitch(0),
+            )
+    with pytest.raises(IncompatibleOriginContexts):
+        PitchInterval.from_source_and_target(
             edo12.pitch(0),
             edo12_2.pitch(0),
         )
@@ -184,9 +246,15 @@ def test_repr(tuning,
     Test if pitch interval is represented correctly
     """
 
-    interval = PitchInterval.from_pitches(
+    with pytest.deprecated_call():
+        interval = PitchInterval.from_pitches(
+            tuning.pitch(pitch_index_a),
+            tuning.pitch(pitch_index_b),
+        )
+    assert repr(interval) == repr_result
+
+    interval = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
-
     assert repr(interval) == repr_result

@@ -229,10 +229,20 @@ def test_getitem_slice(tuning, input_pi, start, stop, result_pi):
     Test if slicing of scales works correctly
     """
 
-    scale = tuning.pitch_scale(
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[start:stop] == scale_b
+
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[start:stop] == scale_b
@@ -254,10 +264,20 @@ def test_getitem_slice_omit_stop(tuning, input_pi, start, result_pi):
     stop parameter is omitted
     """
 
-    scale = tuning.pitch_scale(
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[start:] == scale_b
+
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[start:] == scale_b
@@ -279,11 +299,20 @@ def test_getitem_slice_omit_start(tuning, input_pi, stop, result_pi):
     Test if slicing of scales works correctly when
     start parameter is omitted
     """
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[:stop] == scale_b
 
-    scale = tuning.pitch_scale(
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[:stop] == scale_b
@@ -494,7 +523,7 @@ def test_pitch_indices(tuning, input_pi, result_pi):
 )
 def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     """
-    Test if to_pitch_intervals method works correctly
+    Test if to_intervals method works correctly
     """
 
     scale = PitchScale(
@@ -504,12 +533,28 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
 
     intervals = []
     for pi_a, pi_b in interval_pi:
-        interval = tuning.pitch_interval(
+        with pytest.deprecated_call():
+            interval = tuning.pitch_interval(
+                tuning.pitch(pi_a), tuning.pitch(pi_b)
+            )
+        intervals.append(interval)
+
+    with pytest.deprecated_call():
+        assert scale.to_pitch_intervals() == intervals
+
+    assert scale.to_intervals() == intervals
+
+    intervals = []
+    for pi_a, pi_b in interval_pi:
+        interval = tuning.interval(
             tuning.pitch(pi_a), tuning.pitch(pi_b)
         )
         intervals.append(interval)
 
-    assert scale.to_pitch_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_pitch_intervals() == intervals
+
+    assert scale.to_intervals() == intervals
 
 
 @pytest.mark.parametrize(
@@ -532,7 +577,12 @@ def test_transpose_int(tuning, input_pi, diff, result_pi):
     )
 
     transposed = scale.transpose(diff)
-    assert transposed == tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert transposed == tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
 
@@ -562,7 +612,12 @@ def test_transpose_interval(tuning, input_pi, interval_pi, result_pi):
     )
 
     transposed = scale.transpose(interval)
-    assert transposed == tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert transposed == tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
 
@@ -581,16 +636,28 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
     Test if retune method works correctly
     """
 
-    scale_a = tuning_a.pitch_scale(
+    with pytest.deprecated_call():
+        scale_a = tuning_a.pitch_scale(
+            [tuning_a.pitch(pi) for pi in input_pi]
+        )
+
+    scale_b = scale_a.retune(tuning_b)
+
+    with pytest.deprecated_call():
+        expected_scale_b = tuning_b.pitch_scale(
+            [tuning_b.pitch(pi) for pi in result_pi]
+        )
+    assert scale_b == expected_scale_b
+
+    scale_a = tuning_a.scale(
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
     scale_b = scale_a.retune(tuning_b)
-    expected_scale_b = tuning_b.pitch_scale(
+    expected_scale_b = tuning_b.scale(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
     assert scale_b == expected_scale_b
-
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',

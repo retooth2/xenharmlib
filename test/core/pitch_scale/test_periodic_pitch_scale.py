@@ -73,7 +73,15 @@ def test_rotated_up(tuning, original_pi, rotated_pi):
     pitches = [
         tuning.pitch(pi) for pi in original_pi
     ]
-    scale = tuning.pitch_scale(
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            pitches
+        )
+    rotated = scale.rotated_up()
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
+
+    scale = tuning.scale(
         pitches
     )
     rotated = scale.rotated_up()
@@ -99,7 +107,16 @@ def test_rotated_down(tuning, original_pi, rotated_pi):
     pitches = [
         tuning.pitch(pi) for pi in original_pi
     ]
-    scale = tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            pitches
+        )
+    rotated = scale.rotated_down()
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
+
+    scale = tuning.scale(
         pitches
     )
     rotated = scale.rotated_down()
@@ -130,7 +147,16 @@ def test_rotation(tuning, original_pi, order, rotated_pi):
     pitches = [
         tuning.pitch(pi) for pi in original_pi
     ]
-    scale = tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            pitches
+        )
+    rotated = scale.rotation(order)
+    for i, pi in enumerate(rotated_pi):
+        assert rotated[i] == tuning.pitch(pi)
+
+    scale = tuning.scale(
         pitches
     )
     rotated = scale.rotation(order)
@@ -153,7 +179,12 @@ def test_pc_indices(tuning, pitch_indices, pc_indices):
     pitches = [
         tuning.pitch(pi) for pi in pitch_indices
     ]
-    scale = tuning.pitch_scale(pitches)
+
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(pitches)
+    assert scale.pc_indices == pc_indices
+
+    scale = tuning.scale(pitches)
     assert scale.pc_indices == pc_indices
 
 

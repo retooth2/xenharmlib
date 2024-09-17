@@ -17,8 +17,16 @@ def test_init_incompatible_origin_contexts():
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
+
     with pytest.raises(IncompatibleOriginContexts):
-        EDPitchInterval.from_pitches(
+        with pytest.deprecated_call():
+            EDPitchInterval.from_pitches(
+                edo12.pitch(0),
+                edo12_2.pitch(0),
+            )
+
+    with pytest.raises(IncompatibleOriginContexts):
+        EDPitchInterval.from_source_and_target(
             edo12.pitch(0),
             edo12_2.pitch(0),
         )

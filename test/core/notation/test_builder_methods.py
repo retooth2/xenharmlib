@@ -18,7 +18,11 @@ def test_note_interval_incompatible_origin_contexts():
     note_b = n_edo12.note('B', 0)
 
     with pytest.raises(IncompatibleOriginContexts):
-        n_edo24.note_interval(note_a, note_b)
+        with pytest.deprecated_call():
+            n_edo24.note_interval(note_a, note_b)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        n_edo24.interval(note_a, note_b)
 
 
 def test_note_scale_incompatible_origin_contexts():
@@ -28,14 +32,27 @@ def test_note_scale_incompatible_origin_contexts():
     note_c = n_edo24.note('B', 0)
 
     with pytest.raises(IncompatibleOriginContexts):
-        n_edo12.note_scale(
+        with pytest.deprecated_call():
+            n_edo12.note_scale(
+                [note_a, note_b, note_c]
+            )
+
+    with pytest.raises(IncompatibleOriginContexts):
+        n_edo12.scale(
             [note_a, note_b, note_c]
         )
 
 
 def test_natural_scale():
 
-    natural_scale = n_edo12.note_scale(
+    with pytest.deprecated_call():
+        natural_scale = n_edo12.note_scale(
+            [n_edo12.note(s, 0) for s in ['A', 'B', 'C', 'D', 'E', 'F']]
+        )
+
+    assert n_edo12.natural_scale().is_notated_same(natural_scale)
+
+    natural_scale = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['A', 'B', 'C', 'D', 'E', 'F']]
     )
 

@@ -270,7 +270,13 @@ def test_flat_sharp_interval_names_imperfect_edos(edo_divisions,
     note_a = n_edo12.note(pc_symbol_a, bi_index_a)
     note_b = n_edo12.note(pc_symbol_b, bi_index_b)
 
-    interval = n_edo12.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = n_edo12.note_interval(note_a, note_b)
+
+    assert interval.shorthand_name == (ic_symbol, numeral)
+    assert note_a.transpose(interval) == note_b
+
+    interval = n_edo12.interval(note_a, note_b)
 
     assert interval.shorthand_name == (ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
@@ -353,7 +359,13 @@ def test_up_down_interval_names_imperfect_edos(
     note_a = n_edo.note(pc_symbol_a, bi_index_a)
     note_b = n_edo.note(pc_symbol_b, bi_index_b)
 
-    interval = n_edo.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = n_edo.note_interval(note_a, note_b)
+
+    assert interval.shorthand_name == (ic_symbol, numeral)
+    assert note_a.transpose(interval) == note_b
+
+    interval = n_edo.interval(note_a, note_b)
 
     assert interval.shorthand_name == (ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
@@ -434,7 +446,13 @@ def test_interval_names_perfect_edos(
     note_a = n_edo.note(pc_symbol_a, bi_index_a)
     note_b = n_edo.note(pc_symbol_b, bi_index_b)
 
-    interval = n_edo.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = n_edo.note_interval(note_a, note_b)
+
+    assert interval.shorthand_name == (ic_symbol, numeral)
+    assert note_a.transpose(interval) == note_b
+
+    interval = n_edo.interval(note_a, note_b)
 
     assert interval.shorthand_name == (ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b

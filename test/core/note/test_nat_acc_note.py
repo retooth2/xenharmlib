@@ -936,8 +936,15 @@ def test_note_transpose_incompatible_origin_contexts():
 
     note_a = n_edo12.note('A', 0)
     note_b = n_edo12.note('B+', 0)
-    interval = n_edo12.note_interval(note_a, note_b)
     note_c = n_edo24.note('B+', 0)
+
+    with pytest.deprecated_call():
+        interval = n_edo12.note_interval(note_a, note_b)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        note_c.transpose(interval)
+
+    interval = n_edo12.interval(note_a, note_b)
 
     with pytest.raises(IncompatibleOriginContexts):
         note_c.transpose(interval)
