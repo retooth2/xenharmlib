@@ -802,6 +802,43 @@ class NatAccNotation(
 
         return self.scale(notes)
 
+    def pc_scale(
+        self,
+        pc_symbols: Optional[List[str]] = None
+    ) -> NatAccNoteScale:
+        """
+        Constructs a note scale from a list of pitch class symbols.
+        The pitch class symbols are assumed to be in the order they
+        appear in the scale meaning that e.g. in 12-EDO the provided
+        argument ['G', 'D', 'E'] will result in a scale with notes
+        G0, D1, E1. The base interval of the first provided pc symbol
+        will always assumed to be 0.
+
+        :raises UnknownNoteSymbol: If one of the pc symbols is not
+            valid in the definition of this notation
+
+        :param pc_symbols: A list of pitch class symbols.
+        """
+
+        notes = []
+        current_bi_index = 0
+
+        if not pc_symbols:
+            return self.scale()
+
+        notes.append(
+            self.note(pc_symbols[0], 0)
+        )
+
+        for prev_pcsym, current_pcsym in zip(pc_symbols, pc_symbols[1:]):
+            note = self.note(current_pcsym, current_bi_index)
+            if note <= notes[-1]:
+                current_bi_index += 1
+                note = note.transpose_bi_index(1)
+            notes.append(note)
+
+        return self.scale(notes)
+
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
 
