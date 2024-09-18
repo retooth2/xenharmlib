@@ -1,6 +1,7 @@
 import pytest
 from xenharmlib import EDOTuning
 from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import UnknownNoteSymbol
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -57,3 +58,66 @@ def test_natural_scale():
     )
 
     assert n_edo12.natural_scale().is_notated_same(natural_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbols, expected_pairs',
+    [
+        (
+            n_edo12,
+            [],
+            []
+        ),
+        (
+            n_edo12,
+            ['E'],
+            [('E', 0)]
+        ),
+        (
+            n_edo12,
+            ['E', 'F+', 'A', 'C'],
+            [('E', 0), ('F+', 0), ('A', 1), ('C', 1)]
+        ),
+        (
+            n_edo24,
+            ['E', 'E', 'E', 'E'],
+            [('E', 0), ('E', 1), ('E', 2), ('E', 3)]
+        ),
+        (
+            n_edo24,
+            ['A', 'B', 'C', 'E'],
+            [('A', 0), ('B', 0), ('C', 0), ('E', 0)]
+        ),
+    ]
+)
+def test_pc_scale(notation, pc_symbols, expected_pairs):
+
+    scale = notation.pc_scale(pc_symbols)
+    expected = notation.scale(
+        [notation.note(*pair) for pair in expected_pairs]
+    )
+
+    assert scale.is_notated_same(expected)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbols',
+    [
+        (
+            n_edo12,
+            ['X']
+        ),
+        (
+            n_edo12,
+            ['E', 'F+', 'X', 'C'],
+        ),
+        (
+            n_edo24,
+            ['E', 'E', 'E', 'X+']
+        ),
+    ]
+)
+def test_pc_scale_unknown_note_symbol(notation, pc_symbols):
+
+    with pytest.raises(UnknownNoteSymbol):
+        notation.pc_scale(pc_symbols)

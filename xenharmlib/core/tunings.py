@@ -53,6 +53,7 @@ from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
 from ..exc import IncompatibleOriginContexts
+from ..exc import InvalidPitchClassIndex
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
@@ -151,6 +152,22 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitches: A list of pitches
         """
         return self._pitch_scale_cls(self, pitches)
+
+    def index_scale(self, pitch_indices: Optional[List[int]] = None) -> ScaleT:
+        """
+        Constructs a pitch scale from a list of pitch indices.
+        According to the definition of a scale indices occuring
+        multiple times will only be considered once. The list
+        of indices will also be sorted automatically.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        pitches = []
+        for index in pitch_indices:
+            pitches.append(self.pitch(index))
+
+        return self.scale(pitches)
 
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
@@ -342,6 +359,49 @@ class PeriodicTuning(
 
     def __len__(self):
         return self._period_length
+
+    def pc_scale(self, pc_indices: Optional[List[int]] = None) -> ScaleT:
+        """
+        Constructs a pitch scale from a list of pitch class indices.
+        The pitch class indices are assumed to be in the order they
+        appear in the scale meaning that e.g. in 12-EDO the provided
+        argument [7, 3, 4] will result in a scale with pitch indices
+        [7, 15, 16]. The base interval of the first provided pc index
+        will always assumed to be 0.
+
+        :raises InvalidPitchClassIndex: If one of the indices in the
+            list is not a valid pitch class index in this tuning
+
+        :param pc_indices: A list of pitch class indices.
+        """
+
+        pitches = []
+        current_bi_index = 0
+        tuning_len = len(self)
+
+        if not pc_indices:
+            return self.scale()
+
+        head = pc_indices[0]
+        if head >= tuning_len:
+            raise InvalidPitchClassIndex(
+                f'Pitch class index must be between 0 and {tuning_len}'
+                f'(exclusive). {head} did not meet that boundary.'
+            )
+        pitches.append(self.pitch(head))
+
+        for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
+            if current_pci >= tuning_len:
+                raise InvalidPitchClassIndex(
+                    f'Pitch class index must be between 0 and {tuning_len}'
+                    f'(exclusive). {current_pci} did not meet that boundary.'
+                )
+            if current_pci <= prev_pci:
+                current_bi_index += 1
+            pitch_index = current_pci + (tuning_len * current_bi_index)
+            pitches.append(self.pitch(pitch_index))
+
+        return self.scale(pitches)
 
     def get_ring_number(self, pitch: PeriodicPitchT) -> int:
         """
