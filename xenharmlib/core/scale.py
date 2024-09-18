@@ -28,9 +28,11 @@ from typing import Iterable
 from typing import TypeVar
 from typing import List
 from typing import Self
+from typing import Tuple
 from .interval import Interval
 from .freq_repr import FreqRepr
 from .protocols import PeriodicPitchLike
+from .masks import mask_select
 from ..exc import IncompatibleOriginContexts
 
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
@@ -129,6 +131,125 @@ class Scale(Sequence[FreqReprT], ABC):
             if a != b:
                 return False
         return True
+
+    def partial(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+        """
+        Returns a new scale consisting of a selection of indices
+        of this scale. The selection is defined by an index mask
+        expression.
+
+        An index mask can be defined as a tuple of consecutive
+        indices, e.g. (1, 2, 5) gives a scale including the
+        second, third and sixth element of this one.
+
+        An ellipsis between two indices indicates that all
+        indices between them should be selected as well, e.g.
+        (1, ..., 5, 9) is equivalent to (1, 2, 3, 4, 5, 9).
+
+        If a mask begins with an ellipsis all indices from
+        0 to the next index are added to the selection, e.g.
+        (..., 3, 5) is equivalent to (0, 1, 2, 3, 5).
+
+        A mask without a last index is called right-open and will
+        select all indices from the last index to the end of the
+        scale, for example (2, ...) will select all elements of
+        the scale except the first two.
+
+        If only one element should be selected a simple integer
+        can be used
+
+        :param mask_expr: An index mask expression which defines
+            the selection of indices from this scale.
+        """
+
+        elements = []
+        for selected, element in mask_select(mask_expr, self):
+            if selected:
+                elements.append(element)
+        return self.origin_context.scale(elements)
+
+    def partial_not(
+        self,
+        mask_expr: int | Tuple[int | type(...), ...]
+    ) -> Self:
+        """
+        Returns a new scale consisting of a selection of indices
+        of this scale. The selection will be determined by an
+        index mask and will hold all elements whose index is
+        NOT covered by the mask.
+
+        An index mask can be defined as a tuple of consecutive
+        indices, e.g. (1, 2, 5) gives a scale including the
+        second, third and sixth element of this one.
+
+        An ellipsis between two indices indicates that all
+        indices between them should be selected as well, e.g.
+        (1, ..., 5, 9) is equivalent to (1, 2, 3, 4, 5, 9).
+
+        If a mask begins with an ellipsis all indices from
+        0 to the next index are added to the selection, e.g.
+        (..., 3, 5) is equivalent to (0, 1, 2, 3, 5).
+
+        A mask without a last index is called right-open and will
+        select all indices from the last index to the end of the
+        scale, for example (2, ...) will select all elements of
+        the scale except the first two.
+
+        If only one element should be selected a simple integer
+        can be used
+
+        :param mask_expr: An index mask expression which defines
+            the selection of indices from this scale.
+        """
+
+        elements = []
+        for selected, element in mask_select(mask_expr, self):
+            if not selected:
+                elements.append(element)
+        return self.origin_context.scale(elements)
+
+    def partition(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+        """
+        Partitions the scale into two parts using an index mask.
+        The function will return a tuple of two scales with the
+        first scale including all indices that are covered by
+        the index mask and the second one including all indices
+        that are not.
+
+        An index mask can be defined as a tuple of consecutive
+        indices, e.g. (1, 2, 5) gives a scale including the
+        second, third and sixth element of this one.
+
+        An ellipsis between two indices indicates that all
+        indices between them should be selected as well, e.g.
+        (1, ..., 5, 9) is equivalent to (1, 2, 3, 4, 5, 9).
+
+        If a mask begins with an ellipsis all indices from
+        0 to the next index are added to the selection, e.g.
+        (..., 3, 5) is equivalent to (0, 1, 2, 3, 5).
+
+        A mask without a last index is called right-open and will
+        select all indices from the last index to the end of the
+        scale, for example (2, ...) will select all elements of
+        the scale except the first two.
+
+        If only one element should be selected a simple integer
+        can be used
+
+        :param mask_expr: An index mask expression which defines
+            the selection of indices from this scale.
+        """
+
+        elements_a = []
+        elements_b = []
+        for selected, element in mask_select(mask_expr, self):
+            if selected:
+                elements_a.append(element)
+            else:
+                elements_b.append(element)
+        scale_a = self.origin_context.scale(elements_a)
+        scale_b = self.origin_context.scale(elements_b)
+        return scale_a, scale_b
 
     @abstractmethod
     def transpose(self, diff) -> Self:

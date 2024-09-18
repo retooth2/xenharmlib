@@ -4,6 +4,7 @@ from xenharmlib import EDTuning
 from xenharmlib import FrequencyRatio
 from xenharmlib.core.note_scale import NoteScale
 from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import InvalidIndexMask
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -485,6 +486,154 @@ def test_getitem_slice_omit_start(notation,
         [notation.note(*pair) for pair in result_pairs]
     )
     assert scale[:stop] == scale_b
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask, exp_pcsym',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1,              ['B']),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...,            ['A+', 'C', 'F+']),
+        (n_edo12,  ['A', 'B', 'C'],              (1,),           ['B']),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,),         ['A+', 'C', 'F+']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, 2),         ['C+', 'G+']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...),       ['C+', 'G+', 'C']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4),      ['E+', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4),    ['E+', 'F', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4), ['E+', 'F', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4), ['E+', 'H', 'I+', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100),  ['H', 'I+', 'J']),
+    ]
+)
+def test_partial(notation, input_pcsym, mask, exp_pcsym):
+    """
+    Test if partial function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+    expected_scale = notation.pc_scale(exp_pcsym)
+    assert scale.partial(mask).is_notated_same(expected_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_invalid_mask(notation, mask):
+    """
+    Test if partial function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial(mask)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask, exp_pcsym',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1,              ['A', 'C']),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...,            []),
+        (n_edo12,  ['A', 'B', 'C'],              (1,),           ['A', 'C']),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,),         []),
+        (n_edo31,  ['B', 'C+', 'G+', 'H'],       (1, 2),         ['B', 'H']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...),       ['B']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4),      ['F', 'I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4),    ['I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4), ['I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4), ['F']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100),  ['E+', 'F']),
+    ]
+)
+def test_partial_not(notation, input_pcsym, mask, exp_pcsym):
+    """
+    Test if partial_not function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+    expected_scale = notation.pc_scale(exp_pcsym)
+    assert scale.partial_not(mask).is_notated_same(expected_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_not_invalid_mask(notation, mask):
+    """
+    Test if partial_not function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial_not(mask)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...),
+        (n_edo12,  ['A', 'B', 'C'],              (1,)),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,)),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, 2)),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100))
+    ]
+)
+def test_partition(notation, input_pcsym, mask):
+    """
+    Test if partition function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+
+    positive = scale.partial(mask)
+    complement = scale.partial_not(mask)
+    a, b = scale.partition(mask)
+    assert a.is_notated_same(positive)
+    assert b.is_notated_same(complement)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partition_invalid_mask(notation, mask):
+    """
+    Test if partition function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partition(mask)
 
 
 @pytest.mark.parametrize(
