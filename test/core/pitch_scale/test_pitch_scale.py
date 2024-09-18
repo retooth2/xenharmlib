@@ -5,6 +5,7 @@ from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch_scale import PitchScale
 from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import InvalidIndexMask
 
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)
@@ -316,6 +317,163 @@ def test_getitem_slice_omit_start(tuning, input_pi, stop, result_pi):
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[:stop] == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask, result_pi',
+    [
+        (edo12,  [3, 7, 8],             1,              [7]),
+        (edo31,  [16, 33, 39],          ...,            [16, 33, 39]),
+        (edo12,  [3, 7, 8],             (1,),           [7]),
+        (edo31,  [16, 33, 39],          (...,),         [16, 33, 39]),
+        (edo12,  [3, 7, 8],             (1, 2),         [7, 8]),
+        (edo24,  [1, 4, 9, 22],         (1, ...),       [4, 9, 22]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4),      [16, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4),    [16, 17, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4), [16, 17, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4), [16, 33, 39, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100),  [33, 39, 50]),
+    ]
+)
+def test_partial(tuning, input_pi, mask, result_pi):
+    """
+    Test if partial function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    scale_b = tuning.scale(
+        [tuning.pitch(pi) for pi in result_pi]
+    )
+    assert scale.partial(mask) == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_invalid_mask(tuning, mask):
+    """
+    Test if partial function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial(mask)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask, result_pi',
+    [
+        (edo12,  [3, 7, 8],             1,              [3, 8]),
+        (edo31,  [16, 33, 39],          ...,            []),
+        (edo12,  [3, 7, 8],             (1,),           [3, 8]),
+        (edo31,  [16, 33, 39],          (...,),         []),
+        (edo12,  [3, 7, 8],             (1, 2),         [3]),
+        (edo24,  [1, 4, 9, 22],         (1, ...),       [1]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4),      [17, 39]),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4),    [39]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4), [39]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4), [17]),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100),  [16, 17]),
+    ]
+)
+def test_partial_not(tuning, input_pi, mask, result_pi):
+    """
+    Test if partial_not function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    scale_b = tuning.scale(
+        [tuning.pitch(pi) for pi in result_pi]
+    )
+    assert scale.partial_not(mask) == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_not_invalid_mask(tuning, mask):
+    """
+    Test if partial_not function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial_not(mask)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask',
+    [
+        (edo12,  [3, 7, 8],             1),
+        (edo31,  [16, 33, 39],          ...),
+        (edo12,  [3, 7, 8],             (1,)),
+        (edo31,  [16, 33, 39],          (...,)),
+        (edo12,  [3, 7, 8],             (1, 2)),
+        (edo24,  [1, 4, 9, 22],         (1, ...)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100)),
+    ]
+)
+def test_partition(tuning, input_pi, mask):
+    """
+    Test if partition function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+
+    positive = scale.partial(mask)
+    complement = scale.partial_not(mask)
+
+    assert scale.partition(mask) == (positive, complement)
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partition_invalid_mask(tuning, mask):
+    """
+    Test if partition function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partition(mask)
 
 
 @pytest.mark.parametrize(

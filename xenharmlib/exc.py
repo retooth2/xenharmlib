@@ -112,3 +112,9 @@ class InvalidIntervalNumber(Exception):
     """
     Gets raised when an interval number is not valid
     """
+
+
+class InvalidIndexMask(Exception):
+    """
+    Gets raised when an index mask expression is invalid
+    """
