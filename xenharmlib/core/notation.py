@@ -38,6 +38,7 @@ from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
+from .origin_context import OriginContext
 from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
@@ -49,7 +50,7 @@ IntervalT = TypeVar('IntervalT')
 ScaleT = TypeVar('ScaleT')
 
 
-class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
+class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
@@ -77,11 +78,8 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
     ):
-
+        super().__init__(note_cls, note_interval_cls, note_scale_cls)
         self._tuning = tuning
-        self._note_cls = note_cls
-        self._note_interval_cls = note_interval_cls
-        self._note_scale_cls = note_scale_cls
         self._enharm_strategy = None
 
     @property
@@ -125,16 +123,6 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
         :param note_a: The source note
         :param note_b: The target note
-        """
-
-    @abstractmethod
-    def interval(self, source: NoteT, target: NoteT) -> IntervalT:
-        """
-        Returns a note interval of the note interval type this
-        notation was initialized with
-
-        :param source: The source note
-        :param target: The target note
         """
 
     @abstractmethod
@@ -438,6 +426,24 @@ class NatAccNotation(
         self._acc_symbol_code: Optional[SymbolCode] = None
         self._interval_symbol_codes: Dict[int, SymbolCode] = {}
 
+    @property
+    def zero_element(self) -> NatAccNote:
+        """
+        The 'standard note' with pitch_index 0
+        """
+
+        natc_symbol, pitch_index = self._naturals[0]
+        note = self.note(natc_symbol, 0)
+
+        if note.pitch_index != 0:
+            raise IncompleteNotation(
+                'First defined natural did not point to pitch index 0.'
+                'Please overwrite the zero_element property to return '
+                'a correct result'
+            )
+
+        return note
+
     # start with the definition of functions for the formal system
     # defined above the class
 
@@ -577,7 +583,7 @@ class NatAccNotation(
         ) + acc_value
         frequency = tuning.get_frequency_for_index(pitch_index)
 
-        chosen_note = self._note_cls(
+        chosen_note = self._freq_repr_cls(
             self,
             frequency,
             pitch_index,
@@ -613,7 +619,7 @@ class NatAccNotation(
         natc_symbol = result[1]
         acc_symbol = result[2]
 
-        chosen_note = self._note_cls(
+        chosen_note = self._freq_repr_cls(
             self,
             frequency,
             pitch_index,
@@ -651,30 +657,6 @@ class NatAccNotation(
         )
         return self.interval(note_a, note_b)
 
-    def interval(
-        self,
-        source: NatAccNote,
-        target: NatAccNote
-    ) -> NatAccNoteInterval:
-        """
-        Creates a note interval between two notes created by
-        this notation
-
-        :raises IncompatibleOriginContexts: If one of the notes has
-            a different notation than this one
-
-        :param source: The source note
-        :param target: The target note
-        """
-
-        if source.notation is not self or target.notation is not self:
-            raise IncompatibleOriginContexts(
-                'At least one of the given notes does not '
-                'originate from this notation'
-            )
-
-        return self._note_interval_cls.from_source_and_target(source, target)
-
     def note_scale(
         self, notes: Optional[List[NatAccNote]] = None
     ) -> NatAccNoteScale:
@@ -698,31 +680,6 @@ class NatAccNotation(
             stacklevel=2
         )
         return self.scale(notes)
-
-    def scale(
-        self, notes: Optional[List[NatAccNote]] = None
-    ) -> NatAccNoteScale:
-        """
-        Creates a note scale from a list of notes
-
-        :raises IncompatibleOriginContexts: If one of the notes has
-            a different notation than this one
-
-        :param notes: A list of notes created by this
-            notation
-        """
-
-        if notes is None:
-            notes = []
-
-        for note in notes:
-            if note.notation is not self:
-                raise IncompatibleOriginContexts(
-                    'At least one of the given notes does not '
-                    'originate from this notation'
-                )
-
-        return self._note_scale_cls(self, notes)
 
     def shorthand_interval(
         self, symbol: str, number: int
@@ -773,7 +730,7 @@ class NatAccNotation(
             tuning.pitch(pitch_diff_zero)
         ).frequency_ratio
 
-        return self._note_interval_cls(
+        return self._interval_cls(
             self,
             frequency_ratio,
             pitch_diff,
