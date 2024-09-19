@@ -52,6 +52,7 @@ from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
+from .origin_context import OriginContext
 from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidPitchClassIndex
 
@@ -60,7 +61,7 @@ IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
 
-class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
+class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -98,10 +99,12 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         ref_frequency: Frequency,
     ):
 
+        super().__init__(pitch_cls, pitch_interval_cls, pitch_scale_cls)
         self.ref_frequency = ref_frequency
-        self._pitch_cls = pitch_cls
-        self._pitch_interval_cls = pitch_interval_cls
-        self._pitch_scale_cls = pitch_scale_cls
+
+    @property
+    def zero_element(self) -> PitchT:
+        return self.pitch(0)
 
     def pitch(self, pitch_index: int) -> PitchT:
         """
@@ -112,17 +115,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
             number of steps from the zero pitch.
         """
         frequency = self.get_frequency_for_index(pitch_index)
-        return self._pitch_cls(self, frequency, pitch_index)
-
-    def interval(self, source: PitchT, target: PitchT) -> IntervalT:
-        """
-        Returns a pitch interval having the pitch intervals type
-        this tuning was configured with
-
-        :param source: The starting pitch
-        :param target: The target pitch
-        """
-        return self._pitch_interval_cls.from_source_and_target(source, target)
+        return self._freq_repr_cls(self, frequency, pitch_index)
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
@@ -143,15 +136,6 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
             stacklevel=2
         )
         return self.interval(pitch_a, pitch_b)
-
-    def scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
-        """
-        Returns a pitch scale having the pitch scale type
-        this tuning was configured with
-
-        :param pitches: A list of pitches
-        """
-        return self._pitch_scale_cls(self, pitches)
 
     def index_scale(self, pitch_indices: Optional[List[int]] = None) -> ScaleT:
         """
@@ -186,7 +170,7 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
             DeprecationWarning,
             stacklevel=2
         )
-        return self._pitch_scale_cls(self, pitches)
+        return self.scale(pitches)
 
     def pitch_range(self, start, stop=None, step=1):
         """
