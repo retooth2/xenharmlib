@@ -56,6 +56,22 @@ class NoteScale(Scale[NoteT]):
         return self.notation.tuning
 
     @property
+    def is_zero_normalized(self) -> bool:
+        """
+        Returns True if this function is zero normalized, meaning
+        that the first element of the scale is notated the same
+        as the zero element of the origin context (typically C0
+        in western-like notations)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_zero_normalized is not defined on empty scale'
+            )
+
+        return self[0].is_notated_same(self.origin_context.zero_element)
+
+    @property
     def enharm_strategy(self):
         """
         A proxy property to the enharmonic strategy of the notation

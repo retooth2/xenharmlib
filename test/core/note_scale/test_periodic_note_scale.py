@@ -2441,3 +2441,276 @@ def test_is_note_superset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_superset(scale_b)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [],
+            [],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo12,
+            [('C', 2), ('C+', 1), ('D+', 0)],
+            [('C', 0), ('C+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 0), ('C', 0)],
+            [('A+', 0), ('B+', 0), ('C', 0)],
+        ),
+    ]
+)
+def test_pcs_normalized(notation, input_pairs, result_pairs):
+    """
+    Test if pcs_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    result_scale = notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+    n_scale = input_scale.pcs_normalized()
+    assert n_scale.is_notated_same(result_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, expected',
+    [
+        (
+            n_edo12,
+            [],
+            True
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            False
+        ),
+        (
+            n_edo12,
+            [('C', 2), ('C+', 1), ('D+', 0)],
+            False
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 0), ('C', 0)],
+            True
+        ),
+    ]
+)
+def test_is_pcs_normalized(notation, input_pairs, expected):
+    """
+    Test if is_pcs_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    assert input_scale.is_pcs_normalized == expected
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [('C+', 0), ('B+', 2), ('D+', 3)],
+            [('C+', 0), ('D+', 0), ('B+', 1)],
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1)],
+            [('C', 1), ('D', 1), ('E', 1)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('A+', 4)],
+            [('A+', 0), ('B+', 0)],
+        ),
+    ]
+)
+def test_period_normalized(notation, input_pairs, result_pairs):
+    """
+    Test if period_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    result_scale = notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+    n_scale = input_scale.period_normalized()
+    assert n_scale.is_notated_same(result_scale)
+
+
+def test_period_normalized_value_error():
+    """
+    Test if period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.period_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, expected',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            False
+        ),
+        (
+            n_edo12,
+            [('C', 2), ('C+', 1), ('D+', 0)],
+            False
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 0), ('L', 0)],
+            True
+        ),
+    ]
+)
+def test_is_period_normalized(notation, input_pairs, expected):
+    """
+    Test if is_period_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    assert input_scale.is_period_normalized == expected
+
+
+def test_is_period_normalized_value_error():
+    """
+    Test if is_period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_period_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [('C+', 0), ('B+', 2), ('D+', 3)],
+            [('A', 0), ('B', 0), ('F', 0)],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('D', 0), ('E', 0)],
+            [('A', 0), ('D', 0), ('E', 0)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('A+', 4)],
+            [('A', 0), ('B', 0)],
+        ),
+    ]
+)
+def test_zp_normalized(notation, input_pairs, result_pairs):
+    """
+    Test if zp_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    result_scale = notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+    n_scale = input_scale.zp_normalized()
+    assert n_scale.is_notated_same(result_scale)
+
+
+def test_zp_normalized_value_error():
+    """
+    Test if zp_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.zp_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'zp_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, expected',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            False
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('D+', 0), ('A', 1)],
+            False
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('B', 0), ('L', 0)],
+            True
+        ),
+    ]
+)
+def test_is_zp_normalized(notation, input_pairs, expected):
+    """
+    Test if is_zp_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    assert input_scale.is_zp_normalized == expected
+
+
+def test_is_zp_normalized_value_error():
+    """
+    Test if is_zp_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_zp_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_zp_normalized is not defined on empty scale'
+    )

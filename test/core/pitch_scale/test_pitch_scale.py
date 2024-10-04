@@ -1276,3 +1276,69 @@ def test_is_superset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, result_pi',
+    [
+        (edo12, [3, 5, 7, 8, 10], [0, 2, 4, 5, 7]),
+        (edo12, [5, 7, 8, 15, 19], [0, 2, 3, 10, 14]),
+        (edo31, [10, 19, 23, 36, 37], [0, 9, 13, 26, 27]),
+        (edo31, [0, 12, 16, 19, 22, 34, 36], [0, 12, 16, 19, 22, 34, 36]),
+    ]
+)
+def test_zero_normalized(tuning, input_pi, result_pi):
+    """
+    Test if zero_normalized works correctly
+    """
+
+    input_scale = tuning.index_scale(input_pi)
+    result_scale = tuning.index_scale(result_pi)
+    assert input_scale.zero_normalized() == result_scale
+
+
+def test_zero_normalized_value_error():
+    """
+    Test if zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.zero_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'zero_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, expected',
+    [
+        (edo12, [3, 5, 7, 8, 10], False),
+        (edo12, [5, 7, 8, 15, 19], False),
+        (edo31, [10, 19, 23, 36, 37], False),
+        (edo31, [0, 12, 16, 19, 22, 34, 36], True),
+        (edo31, [0, 9, 12, 14, 17], True),
+    ]
+)
+def test_is_zero_normalized(tuning, input_pi, expected):
+    """
+    Test if is_zero_normalized works correctly
+    """
+
+    input_scale = tuning.index_scale(input_pi)
+    assert input_scale.is_zero_normalized == expected
+
+
+def test_is_zero_normalized_value_error():
+    """
+    Test if is_zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_zero_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_zero_normalized is not defined on empty scale'
+    )

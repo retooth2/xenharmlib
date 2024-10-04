@@ -10,6 +10,7 @@ edo24 = EDTuning(24, FrequencyRatio(2))
 edo31 = EDTuning(31, FrequencyRatio(2))
 ed13_3 = EDTuning(13, FrequencyRatio(3))
 
+
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
@@ -31,6 +32,148 @@ def test_pcs_normalized(tuning, pi_list, n_pi_list):
     normalized = scale.pcs_normalized()
     for i, n_pi in enumerate(n_pi_list):
         assert normalized[i] == tuning.pitch(n_pi)
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo31, [], True),
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [1, 5, 18, 22], True)
+    ]
+)
+def test_is_pcs_normalized(tuning, pi_list, expected):
+    """
+    Test if is_pcs_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_pcs_normalized == expected
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list',
+    [
+        (edo12, [7, 13, 19, 24], [7, 13, 12]),
+        (edo31, [13, 39, 48, 65], [13, 17, 34, 39])
+    ]
+)
+def test_period_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if period_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.period_normalized() == expected
+
+
+def test_period_normalized_value_error():
+    """
+    Test if period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.period_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [9, 15, 18, 22, 37], True)
+    ]
+)
+def test_is_period_normalized(tuning, pi_list, expected):
+    """
+    Test if is_period_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_period_normalized == expected
+
+
+def test_is_period_normalized_value_error():
+    """
+    Test if is_period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_period_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list',
+    [
+        (edo12, [7, 13, 19, 24], [0, 5, 6]),
+        (edo31, [13, 39, 48, 65], [0, 4, 21, 26])
+    ]
+)
+def test_zp_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if zp_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.zp_normalized() == expected
+
+
+def test_zp_normalized_value_error():
+    """
+    Test if zp_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.zp_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'zp_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [0, 16, 22, 32], False),
+        (edo31, [0, 15, 19, 22, 30], True)
+    ]
+)
+def test_is_zp_normalized(tuning, pi_list, expected):
+    """
+    Test if is_zp_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_zp_normalized == expected
+
+
+def test_is_zp_normalized_value_error():
+    """
+    Test if is_zp_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_zp_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_zp_normalized is not defined on empty scale'
+    )
 
 
 @pytest.mark.parametrize(

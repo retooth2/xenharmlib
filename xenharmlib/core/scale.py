@@ -258,6 +258,37 @@ class Scale(Sequence[FreqReprT], ABC):
         # and scales containing multi-dimensional elements
         ...
 
+    def zero_normalized(self) -> Self:
+        """
+        Returns the scale transposed in a way so the root has pitch
+        index 0. In notations with enharmonic ambiguity a designated
+        zero note is used (in western-like notations typically C0)
+        """
+
+        if len(self) == 0:
+            raise ValueError('zero_normalized is not defined on empty scale')
+
+        if self.is_zero_normalized:
+            return self
+
+        ze = self.origin_context.zero_element
+        interval = self[0].interval(ze)
+        return self.transpose(interval)
+
+    @property
+    @abstractmethod
+    def is_zero_normalized(self) -> bool:
+        """
+        Returns True if this function is zero normalized, meaning
+        that the first element of the scale is identical to the
+        zero element of the origin context (pitch 0 in tunings,
+        typically C0 in western-like notations)
+
+        (must be implemented by subclass, since comparison to the
+        the zero note should be done according to notational identity)
+        """
+        ...
+
     @property
     def frequencies(self):
         """
@@ -492,6 +523,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         the normalized scale will be smaller in cardinality.
         """
 
+        if self.is_pcs_normalized:
+            return self
+
         elements = []
 
         for element in self._sorted_elements:
@@ -499,6 +533,102 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
             elements.append(n_element)
 
         return self.origin_context.scale(elements)
+
+    @property
+    def is_pcs_normalized(self) -> bool:
+        """
+        Returns bool if this scale is pcs normalized. A pcs
+        normalized scale only contains elements with base
+        interval index 0.
+        """
+
+        if len(self) == 0:
+            return True
+
+        return self[0].bi_index == 0 and self[-1].bi_index == 0
+
+    def period_normalized(self) -> Self:
+        """
+        Returns a version of the scale in which each element that
+        is above the root element will be transposed to the
+        interval between the root element and its equivalent
+        in the next base interval. For example the scale of the
+        Fm7/11 chord with notes (F0, Ab0, C1, Eb1, Bb1) will
+        become the scale (F0, Ab0, Bb0, C1, Eb1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'period_normalized is not defined on empty scale'
+            )
+
+        if self.is_period_normalized:
+            return self
+
+        root = self[0]
+        elements = [root]
+
+        for subseq_element in self[1:]:
+            bi_diff = root.bi_index - subseq_element.bi_index
+            element = subseq_element.transpose_bi_index(bi_diff)
+            if element == root:
+                continue
+            if element < root:
+                element = element.transpose_bi_index(1)
+            elements.append(element)
+
+        return self.origin_context.scale(elements)
+
+    @property
+    def is_period_normalized(self) -> bool:
+        """
+        Returns bool if this scale is period normalized. A period
+        normalized scale only contains elements smaller than the
+        equivalent of the root note, meaning if the scale starts
+        with F3, all subsequent notes are smaller than F4.
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_period_normalized is not defined on empty scale'
+            )
+
+        return self[-1] < self[0].transpose_bi_index(1)
+
+    def zp_normalized(self) -> Self:
+        """
+        Returns the scale transposed in a way so the root has pitch
+        index 0 and all elements reside in the first base interval.
+        In notations with enharmonic ambiguity a designated
+        zero note is used (in western-like notations typically C0)
+
+        The function is equivalent to successively invoking
+        zero_normalized + period_normalized or (which is the
+        same) zero_normalized + pcs_normalized
+        """
+
+        if len(self) == 0:
+            raise ValueError('zp_normalized is not defined on empty scale')
+
+        if self.is_zp_normalized:
+            return self
+
+        # use pcs_normalized since it can be calculated faster
+        return self.zero_normalized().pcs_normalized()
+
+    @property
+    def is_zp_normalized(self) -> bool:
+        """
+        Returns bool if the first element is the zero element of
+        the origin context (pitch 0 in tunings, in western-like
+        notations typically C0) and all elements reside in the
+        first base interval.
+        """
+
+        if len(self) == 0:
+            raise ValueError('is_zp_normalized is not defined on empty scale')
+
+        return self.is_zero_normalized and self.is_pcs_normalized
 
     def rotated_up(self) -> Self:
         """
