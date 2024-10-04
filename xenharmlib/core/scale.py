@@ -94,7 +94,7 @@ class Scale(Sequence[FreqReprT], ABC):
         if isinstance(o, FreqRepr):
             return o in self._sorted_elements
 
-        elif isinstance(o, Interval):
+        if isinstance(o, Interval):
             for element_a in self._sorted_elements:
                 for element_b in self._sorted_elements:
                     interval_u = element_a.interval(element_b)

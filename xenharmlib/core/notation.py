@@ -478,8 +478,8 @@ class NatAccNotation(
 
         if nat_diff >= 0:
             return abs_pitch_diff
-        else:
-            return (-1) * abs_pitch_diff
+
+        return (-1) * abs_pitch_diff
 
     def balance_note_acc_vector(
         self,
@@ -1051,12 +1051,12 @@ class NatAccNotation(
         """
         if interval_number > 0:
             return interval_number - 1
-        elif interval_number < 0:
+        if interval_number < 0:
             return interval_number + 1
-        else:
-            raise InvalidIntervalNumber(
-                "Interval number must be strictly positive or negative"
-            )
+
+        raise InvalidIntervalNumber(
+            "Interval number must be strictly positive or negative"
+        )
 
     def parse_pc_symbol(
         self, pc_symbol: str
