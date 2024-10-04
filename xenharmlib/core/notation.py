@@ -26,10 +26,8 @@ from typing import Tuple
 from typing import Dict
 from typing import Optional
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from warnings import warn
-from abc import ABC
 from abc import abstractmethod
 from ..exc import UnknownNoteSymbol
 from .notes import NatAccNote

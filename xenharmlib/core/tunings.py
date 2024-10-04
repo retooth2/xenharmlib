@@ -26,14 +26,11 @@ that need a couple of methods implemented by a subclass.
 from __future__ import annotations
 import os
 import sympy as sp
-from abc import ABC
 from abc import abstractmethod
 from fractions import Fraction
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from typing import Optional
-from unittest import mock
 from warnings import warn
 
 from .pitch import Pitch

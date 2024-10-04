@@ -31,7 +31,6 @@ from typing import List
 from typing import Optional
 from functools import total_ordering
 from fractions import Fraction
-from unittest import mock
 from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
