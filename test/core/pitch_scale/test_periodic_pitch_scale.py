@@ -55,6 +55,68 @@ def test_is_pcs_normalized(tuning, pi_list, expected):
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
+        (edo12, [7, 13, 19, 24], [7, 13, 12]),
+        (edo31, [13, 39, 48, 65], [13, 17, 34, 39])
+    ]
+)
+def test_period_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if period_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.period_normalized() == expected
+
+
+def test_period_normalized_value_error():
+    """
+    Test if period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.period_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [9, 15, 18, 22, 37], True)
+    ]
+)
+def test_is_period_normalized(tuning, pi_list, expected):
+    """
+    Test if is_period_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_period_normalized == expected
+
+
+def test_is_period_normalized_value_error():
+    """
+    Test if is_period_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_period_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_period_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list',
+    [
         (edo12, [7, 12, 19, 24], [1, 2, 3, 4, 5, 6, 8, 9, 10, 11]),
         (edo12, [0, 2, 4, 17, 7, 13, 11], [3, 6, 8, 9, 10])
     ]

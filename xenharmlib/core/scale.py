@@ -547,6 +547,54 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         return self[0].bi_index == 0 and self[-1].bi_index == 0
 
+    def period_normalized(self) -> Self:
+        """
+        Returns a version of the scale in which each element that
+        is above the root element will be transposed to the
+        interval between the root element and its equivalent
+        in the next base interval. For example the scale of the
+        Fm7/11 chord with notes (F0, Ab0, C1, Eb1, Bb1) will
+        become the scale (F0, Ab0, Bb0, C1, Eb1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'period_normalized is not defined on empty scale'
+            )
+
+        if self.is_period_normalized:
+            return self
+
+        root = self[0]
+        elements = [root]
+
+        for subseq_element in self[1:]:
+            bi_diff = root.bi_index - subseq_element.bi_index
+            element = subseq_element.transpose_bi_index(bi_diff)
+            if element == root:
+                continue
+            if element < root:
+                element = element.transpose_bi_index(1)
+            elements.append(element)
+
+        return self.origin_context.scale(elements)
+
+    @property
+    def is_period_normalized(self) -> bool:
+        """
+        Returns bool if this scale is period normalized. A period
+        normalized scale only contains elements smaller than the
+        equivalent of the root note, meaning if the scale starts
+        with F3, all subsequent notes are smaller than F4.
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_period_normalized is not defined on empty scale'
+            )
+
+        return self[-1] < self[0].transpose_bi_index(1)
+
     def rotated_up(self) -> Self:
         """
         Create a new scale by transposing the base interval of the
