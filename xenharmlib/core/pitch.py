@@ -248,9 +248,6 @@ class EDPitch(PeriodicPitch):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, frequency, pitch_index: int):
-        super().__init__(tuning, frequency, pitch_index)
-
     @property
     def short_repr(self) -> str:
         return f'{self.pitch_index}'
