@@ -25,13 +25,14 @@ that need a couple of methods implemented by a subclass.
 
 from __future__ import annotations
 import os
-import sympy as sp
 from abc import abstractmethod
 from fractions import Fraction
 from typing import TypeVar
 from typing import List
 from typing import Optional
 from warnings import warn
+
+import sympy as sp
 
 from .pitch import Pitch
 from .pitch import PitchInterval

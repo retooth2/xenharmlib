@@ -20,8 +20,6 @@ tuning that provides a human-friendly string interface to all the
 lower-level objects (pitch, pitch interval, pitch scale)
 """
 
-import numpy as np
-
 from typing import Tuple
 from typing import Dict
 from typing import Optional
@@ -29,6 +27,8 @@ from typing import TypeVar
 from typing import List
 from warnings import warn
 from abc import abstractmethod
+import numpy as np
+
 from ..exc import UnknownNoteSymbol
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval

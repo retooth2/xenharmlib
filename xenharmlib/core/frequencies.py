@@ -23,7 +23,6 @@ useful representations for frequencies and frequency ratios.
 from __future__ import annotations
 
 import os
-import sympy as sp
 from typing import overload
 from typing import Self
 from typing import TypeAlias
@@ -31,6 +30,8 @@ from typing import List
 from typing import Optional
 from functools import total_ordering
 from fractions import Fraction
+import sympy as sp
+
 from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
