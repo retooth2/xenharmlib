@@ -45,11 +45,7 @@ class Interval(Generic[FreqReprT], ABC):
     :param frequency_ratio: A frequency ratio object
     """
 
-    def __init__(
-        self,
-        origin_context,
-        frequency_ratio: FrequencyRatio
-    ):
+    def __init__(self, origin_context, frequency_ratio: FrequencyRatio):
         self._origin_context = origin_context
         self._frequency_ratio = frequency_ratio
 
@@ -111,9 +107,7 @@ class Interval(Generic[FreqReprT], ABC):
     @classmethod
     @abstractmethod
     def from_source_and_target(
-        cls,
-        source: FreqReprT,
-        target: FreqReprT
+        cls, source: FreqReprT, target: FreqReprT
     ) -> Self:
         """
         Constructs an interval from two frequency representations

@@ -254,8 +254,7 @@ class Frequency:
     def __truediv__(self, other: ScalarLike) -> Frequency: ...
 
     def __truediv__(
-        self,
-        other: Self | ScalarLike
+        self, other: Self | ScalarLike
     ) -> Frequency | FrequencyRatio:
 
         if isinstance(other, Frequency):
@@ -527,8 +526,7 @@ class FrequencyRatio:
         return FrequencyRatio(other_sp_expr - self.sp_expr)
 
     def __mul__(
-        self,
-        other: Frequency | ScalarLike
+        self, other: Frequency | ScalarLike
     ) -> Frequency | FrequencyRatio:
 
         if isinstance(other, Frequency):
@@ -544,10 +542,7 @@ class FrequencyRatio:
             )
         return FrequencyRatio(self.sp_expr * other_sp_expr)
 
-    def __rmul__(
-        self,
-        other: ScalarLike
-    ) -> FrequencyRatio:
+    def __rmul__(self, other: ScalarLike) -> FrequencyRatio:
         # we don't need to implement frequency * ratio here
         # because Frequency implements __mul__ for this
         try:

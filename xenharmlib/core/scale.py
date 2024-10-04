@@ -51,9 +51,7 @@ class Scale(Sequence[FreqReprT], ABC):
     """
 
     def __init__(
-        self,
-        origin_context,
-        elements: Optional[Iterable[FreqReprT]] = None
+        self, origin_context, elements: Optional[Iterable[FreqReprT]] = None
     ):
 
         self._origin_context = origin_context
@@ -168,10 +166,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 elements.append(element)
         return self.origin_context.scale(elements)
 
-    def partial_not(
-        self,
-        mask_expr: int | Tuple[int | type(...), ...]
-    ) -> Self:
+    def partial_not(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
         of this scale. The selection will be determined by an
@@ -486,10 +481,7 @@ class Scale(Sequence[FreqReprT], ABC):
         return is_superset and not (self == other)
 
 
-PeriodicFreqReprT = TypeVar(
-    'PeriodicFreqReprT',
-    bound=PeriodicPitchLike
-)
+PeriodicFreqReprT = TypeVar('PeriodicFreqReprT', bound=PeriodicPitchLike)
 
 
 class PeriodicScale(Scale[PeriodicFreqReprT]):
@@ -558,9 +550,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         """
 
         if len(self) == 0:
-            raise ValueError(
-                'period_normalized is not defined on empty scale'
-            )
+            raise ValueError('period_normalized is not defined on empty scale')
 
         if self.is_period_normalized:
             return self
@@ -848,9 +838,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
             from a different origin context
         """
 
-        intersection = self.intersection(
-            other, ignore_bi_index=ignore_bi_index
-        )
+        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
 
         return len(intersection) == 0
 

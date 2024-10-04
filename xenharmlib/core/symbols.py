@@ -273,8 +273,7 @@ class SymbolArithmetic(SymbolCode):
         return self.get_vector_from_symbols(symbols)
 
     def get_vector_from_symbols(
-        self,
-        symbols: Tuple[str, ...]
+        self, symbols: Tuple[str, ...]
     ) -> Tuple[int, ...]:
         """
         Returns the vector integer sum (adjusted for offset,
@@ -457,7 +456,7 @@ class SymbolArithmetic(SymbolCode):
         result = milp(
             c,
             integrality=integrality,
-            constraints=LinearConstraint(A, lb_array, ub_array)
+            constraints=LinearConstraint(A, lb_array, ub_array),
         )
 
         if not result.success:
@@ -580,8 +579,7 @@ class SymbolArithmeticSet(SymbolCode):
         return best
 
     def parse(
-        self,
-        symbol_str: str
+        self, symbol_str: str
     ) -> Tuple[SymbolArithmetic, Tuple[str, ...]]:
         """
         Tries to parse a symbol string by each arithmetic in the

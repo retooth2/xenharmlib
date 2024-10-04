@@ -438,10 +438,7 @@ class NatAccNote(PeriodicNoteABC):
         acc_vector = tuple(np.add(self.acc_vector, acc_diff))
         return self.notation.note_by_numdef(self.nat_index, acc_vector)
 
-    def transpose(
-        self,
-        diff: int | NatAccNoteInterval
-    ) -> NatAccNote:
+    def transpose(self, diff: int | NatAccNoteInterval) -> NatAccNote:
         """
         Transposes the note to another one by a natural/accidental
         note interval.
@@ -645,12 +642,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
         number: int,
     ):
 
-        super().__init__(
-            notation,
-            frequency_ratio,
-            pitch_diff,
-            ref_note
-        )
+        super().__init__(notation, frequency_ratio, pitch_diff, ref_note)
 
         self._acc_vector = acc_vector
         self._nat_diff = nat_diff
@@ -710,15 +702,13 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
             f'removed in 1.0.0. Please use '
             f'{cls.__name__}.from_source_and_target instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return cls.from_source_and_target(note_a, note_b)
 
     @classmethod
     def from_source_and_target(
-        cls,
-        source: NatAccNote,
-        target: NatAccNote
+        cls, source: NatAccNote, target: NatAccNote
     ) -> Self:
         """
         Creates a note interval from two notes

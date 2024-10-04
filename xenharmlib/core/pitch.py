@@ -306,7 +306,7 @@ class PitchInterval(SDInterval[PitchT]):
         tuning,
         frequency_ratio: FrequencyRatio,
         pitch_diff: int,
-        ref_pitch: PitchT
+        ref_pitch: PitchT,
     ):
         super().__init__(tuning, frequency_ratio, pitch_diff)
         self.ref_pitch = ref_pitch
@@ -347,7 +347,7 @@ class PitchInterval(SDInterval[PitchT]):
             f'removed in 1.0.0. Please use '
             f'{cls.__name__}.from_source_and_target instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return cls.from_source_and_target(pitch_a, pitch_b)
 

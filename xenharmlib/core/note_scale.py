@@ -65,9 +65,7 @@ class NoteScale(Scale[NoteT]):
         """
 
         if len(self) == 0:
-            raise ValueError(
-                'is_zero_normalized is not defined on empty scale'
-            )
+            raise ValueError('is_zero_normalized is not defined on empty scale')
 
         return self[0].is_notated_same(self.origin_context.zero_element)
 
@@ -104,7 +102,7 @@ class NoteScale(Scale[NoteT]):
             f'will be removed in 1.0.0. As per design philosophy '
             f'scales should be immutable',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         if note.notation is not self.notation:
@@ -169,7 +167,7 @@ class NoteScale(Scale[NoteT]):
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_intervals instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.to_intervals()
 
@@ -330,9 +328,7 @@ class NoteScale(Scale[NoteT]):
 PeriodicNoteT = TypeVar('PeriodicNoteT', bound=PeriodicNoteABC)
 
 
-class PeriodicNoteScale(
-    NoteScale[PeriodicNoteT], PeriodicScale[PeriodicNoteT]
-):
+class PeriodicNoteScale(NoteScale[PeriodicNoteT], PeriodicScale[PeriodicNoteT]):
     """
     Note scale class for periodic notations. Implements
     customized set operations (for when you want to treat

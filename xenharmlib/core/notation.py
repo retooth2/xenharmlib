@@ -597,9 +597,7 @@ class NatAccNotation(
         return chosen_note
 
     def note_by_numdef(
-        self,
-        nat_index: int,
-        acc_vector: Tuple[int, ...]
+        self, nat_index: int, acc_vector: Tuple[int, ...]
     ) -> NatAccNote:
         """
         Creates a natural/accidental note by its numerical definition.
@@ -653,7 +651,7 @@ class NatAccNotation(
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.interval instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.interval(note_a, note_b)
 
@@ -677,7 +675,7 @@ class NatAccNotation(
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.scale instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.scale(notes)
 
@@ -738,7 +736,7 @@ class NatAccNotation(
             nat_diff,
             acc_vector,
             symbol,
-            number
+            number,
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
@@ -760,8 +758,7 @@ class NatAccNotation(
         return self.scale(notes)
 
     def pc_scale(
-        self,
-        pc_symbols: Optional[List[str]] = None
+        self, pc_symbols: Optional[List[str]] = None
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
@@ -783,9 +780,7 @@ class NatAccNotation(
         if not pc_symbols:
             return self.scale()
 
-        notes.append(
-            self.note(pc_symbols[0], 0)
-        )
+        notes.append(self.note(pc_symbols[0], 0))
 
         for prev_pcsym, current_pcsym in zip(pc_symbols, pc_symbols[1:]):
             note = self.note(current_pcsym, current_bi_index)
@@ -936,9 +931,7 @@ class NatAccNotation(
 
     # interval symbol processing
 
-    def set_interval_symbol_code(
-        self, nat_diffc: int, symbol_code: SymbolCode
-    ):
+    def set_interval_symbol_code(self, nat_diffc: int, symbol_code: SymbolCode):
         """
         Sets an interval class symbol for a natural index difference
         class. The natural index difference class is a number between
@@ -980,9 +973,7 @@ class NatAccNotation(
 
         self._interval_symbol_codes[nat_diffc] = symbol_code
 
-    def get_interval_symbol(
-        self, nat_diff: int, acc_vector: Tuple[int]
-    ) -> str:
+    def get_interval_symbol(self, nat_diff: int, acc_vector: Tuple[int]) -> str:
         """
         Returns the interval symbol for a natural/accidental note
         interval. Interval symbols depend on the natural index

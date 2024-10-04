@@ -180,9 +180,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
         # exactly as much unique notes in the first base interval
         # as the period length of the tuning
 
-        self.pc_blueprint = notation.scale(
-            pc_blueprint
-        ).pcs_normalized()
+        self.pc_blueprint = notation.scale(pc_blueprint).pcs_normalized()
 
         if len(self.pc_blueprint) != len(notation.tuning):
             # pick out the missing pitch class representative
