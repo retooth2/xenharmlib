@@ -2441,3 +2441,45 @@ def test_is_note_superset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_superset(scale_b)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [],
+            [],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo12,
+            [('C', 2), ('C+', 1), ('D+', 0)],
+            [('C', 0), ('C+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 0), ('C', 0)],
+            [('A+', 0), ('B+', 0), ('C', 0)],
+        ),
+    ]
+)
+def test_pcs_normalized(notation, input_pairs, result_pairs):
+    """
+    Test if pcs_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    result_scale = notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+    n_scale = input_scale.pcs_normalized()
+    assert n_scale.is_notated_same(result_scale)
