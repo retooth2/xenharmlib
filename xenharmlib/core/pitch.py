@@ -15,7 +15,8 @@
 
 from __future__ import annotations
 
-from typing import *
+from typing import Self
+from typing import TypeVar
 from warnings import warn
 from .frequencies import FrequencyRatio
 from .protocols import PeriodicPitchLike
@@ -90,7 +91,7 @@ class Pitch(SDFreqRepr):
             f'{self.tuning.name})'
         )
 
-    def transpose(self, diff: Union[int, PitchInterval]) -> Pitch:
+    def transpose(self, diff: int | PitchInterval) -> Pitch:
         """
         Transposes the pitch to a different one
 
