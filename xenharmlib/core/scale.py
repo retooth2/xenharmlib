@@ -282,7 +282,6 @@ class Scale(Sequence[FreqReprT], ABC):
         (must be implemented by subclass, since comparison to the
         the zero note should be done according to notational identity)
         """
-        ...
 
     @property
     def frequencies(self):

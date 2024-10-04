@@ -68,7 +68,6 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
         it is the element with index 0, in western notation typically C-0,
         etc
         """
-        ...
 
     def interval(self, source: FreqReprT, target: FreqReprT) -> IntervalT:
         """

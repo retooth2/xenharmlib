@@ -102,7 +102,6 @@ class Interval(Generic[FreqReprT], ABC):
         A short string representation of the interval
         (must be implemented by subclass)
         """
-        ...
 
     @classmethod
     @abstractmethod
@@ -116,7 +115,6 @@ class Interval(Generic[FreqReprT], ABC):
         :param source: The starting point of the interval
         :param target: The end point of the interval
         """
-        ...
 
 
 SDFreqReprT = TypeVar('SDFreqReprT', bound=SDFreqRepr)
