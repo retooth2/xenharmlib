@@ -279,9 +279,6 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
 
         return higher_pitch
 
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.name})'
-
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
