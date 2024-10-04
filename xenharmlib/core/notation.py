@@ -432,7 +432,7 @@ class NatAccNotation(
         The 'standard note' with pitch_index 0
         """
 
-        natc_symbol, pitch_index = self._naturals[0]
+        natc_symbol = self._naturals[0][0]
         note = self.note(natc_symbol, 0)
 
         if note.pitch_index != 0:
