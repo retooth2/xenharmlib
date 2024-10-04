@@ -595,6 +595,41 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         return self[-1] < self[0].transpose_bi_index(1)
 
+    def zp_normalized(self) -> Self:
+        """
+        Returns the scale transposed in a way so the root has pitch
+        index 0 and all elements reside in the first base interval.
+        In notations with enharmonic ambiguity a designated
+        zero note is used (in western-like notations typically C0)
+
+        The function is equivalent to successively invoking
+        zero_normalized + period_normalized or (which is the
+        same) zero_normalized + pcs_normalized
+        """
+
+        if len(self) == 0:
+            raise ValueError('zp_normalized is not defined on empty scale')
+
+        if self.is_zp_normalized:
+            return self
+
+        # use pcs_normalized since it can be calculated faster
+        return self.zero_normalized().pcs_normalized()
+
+    @property
+    def is_zp_normalized(self) -> bool:
+        """
+        Returns bool if the first element is the zero element of
+        the origin context (pitch 0 in tunings, in western-like
+        notations typically C0) and all elements reside in the
+        first base interval.
+        """
+
+        if len(self) == 0:
+            raise ValueError('is_zp_normalized is not defined on empty scale')
+
+        return self.is_zero_normalized and self.is_pcs_normalized
+
     def rotated_up(self) -> Self:
         """
         Create a new scale by transposing the base interval of the
