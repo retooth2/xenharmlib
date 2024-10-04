@@ -114,6 +114,21 @@ class PitchScale(Scale[PitchT]):
         super().__init__(tuning, pitches)
         self.tuning = tuning
 
+    @property
+    def is_zero_normalized(self) -> bool:
+        """
+        Returns True if this function is zero normalized, meaning
+        that the first element of the scale is identical to the
+        pitch with index 0
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_zero_normalized is not defined on empty scale'
+            )
+
+        return self[0] == self.tuning.pitch(0)
+
     def add_pitch(self, pitch: PitchT):
         """
         .. deprecated:: 0.2.0

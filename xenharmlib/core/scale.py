@@ -258,6 +258,37 @@ class Scale(Sequence[FreqReprT], ABC):
         # and scales containing multi-dimensional elements
         ...
 
+    def zero_normalized(self) -> Self:
+        """
+        Returns the scale transposed in a way so the root has pitch
+        index 0. In notations with enharmonic ambiguity a designated
+        zero note is used (in western-like notations typically C0)
+        """
+
+        if len(self) == 0:
+            raise ValueError('zero_normalized is not defined on empty scale')
+
+        if self.is_zero_normalized:
+            return self
+
+        ze = self.origin_context.zero_element
+        interval = self[0].interval(ze)
+        return self.transpose(interval)
+
+    @property
+    @abstractmethod
+    def is_zero_normalized(self) -> bool:
+        """
+        Returns True if this function is zero normalized, meaning
+        that the first element of the scale is identical to the
+        zero element of the origin context (pitch 0 in tunings,
+        typically C0 in western-like notations)
+
+        (must be implemented by subclass, since comparison to the
+        the zero note should be done according to notational identity)
+        """
+        ...
+
     @property
     def frequencies(self):
         """
