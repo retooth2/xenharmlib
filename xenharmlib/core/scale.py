@@ -523,6 +523,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         the normalized scale will be smaller in cardinality.
         """
 
+        if self.is_pcs_normalized:
+            return self
+
         elements = []
 
         for element in self._sorted_elements:
@@ -530,6 +533,19 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
             elements.append(n_element)
 
         return self.origin_context.scale(elements)
+
+    @property
+    def is_pcs_normalized(self) -> bool:
+        """
+        Returns bool if this scale is pcs normalized. A pcs
+        normalized scale only contains elements with base
+        interval index 0.
+        """
+
+        if len(self) == 0:
+            return True
+
+        return self[0].bi_index == 0 and self[-1].bi_index == 0
 
     def rotated_up(self) -> Self:
         """

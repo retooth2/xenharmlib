@@ -2483,3 +2483,40 @@ def test_pcs_normalized(notation, input_pairs, result_pairs):
 
     n_scale = input_scale.pcs_normalized()
     assert n_scale.is_notated_same(result_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, expected',
+    [
+        (
+            n_edo12,
+            [],
+            True
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('D+', 3)],
+            False
+        ),
+        (
+            n_edo12,
+            [('C', 2), ('C+', 1), ('D+', 0)],
+            False
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 0), ('C', 0)],
+            True
+        ),
+    ]
+)
+def test_is_pcs_normalized(notation, input_pairs, expected):
+    """
+    Test if is_pcs_normalized operation works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    assert input_scale.is_pcs_normalized == expected

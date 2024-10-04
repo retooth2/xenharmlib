@@ -10,6 +10,7 @@ edo24 = EDTuning(24, FrequencyRatio(2))
 edo31 = EDTuning(31, FrequencyRatio(2))
 ed13_3 = EDTuning(13, FrequencyRatio(3))
 
+
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
@@ -31,6 +32,24 @@ def test_pcs_normalized(tuning, pi_list, n_pi_list):
     normalized = scale.pcs_normalized()
     for i, n_pi in enumerate(n_pi_list):
         assert normalized[i] == tuning.pitch(n_pi)
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo31, [], True),
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [1, 5, 18, 22], True)
+    ]
+)
+def test_is_pcs_normalized(tuning, pi_list, expected):
+    """
+    Test if is_pcs_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_pcs_normalized == expected
 
 
 @pytest.mark.parametrize(
