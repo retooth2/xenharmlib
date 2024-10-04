@@ -1,0 +1,9 @@
+[MESSAGES CONTROL]
+
+disable=raise-missing-from,
+        superfluous-parens
+
+[DESIGN]
+
+max-args=10
+max-public-methods=50
