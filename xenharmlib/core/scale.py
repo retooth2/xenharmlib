@@ -208,7 +208,7 @@ class Scale(Sequence[FreqReprT], ABC):
 
     def partition(
         self, mask_expr: int | Tuple[int | EllipsisType, ...]
-    ) -> Self:
+    ) -> Tuple[Self, Self]:
         """
         Partitions the scale into two parts using an index mask.
         The function will return a tuple of two scales with the
