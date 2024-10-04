@@ -847,7 +847,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
             from a different origin context
         """
 
-        intersection = self.intersection(other, ignore_bi_index=ignore_bi_index)
+        intersection = self.intersection(
+            other, ignore_bi_index=ignore_bi_index
+        )
 
         return len(intersection) == 0
 

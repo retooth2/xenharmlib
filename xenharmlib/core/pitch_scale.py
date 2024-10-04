@@ -123,7 +123,9 @@ class PitchScale(Scale[PitchT]):
         """
 
         if len(self) == 0:
-            raise ValueError('is_zero_normalized is not defined on empty scale')
+            raise ValueError(
+                'is_zero_normalized is not defined on empty scale'
+            )
 
         return self[0] == self.tuning.pitch(0)
 
