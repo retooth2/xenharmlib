@@ -782,8 +782,8 @@ class NatAccNotation(
 
         notes.append(self.note(pc_symbols[0], 0))
 
-        for prev_pcsym, current_pcsym in zip(pc_symbols, pc_symbols[1:]):
-            note = self.note(current_pcsym, current_bi_index)
+        for pc_symbol in pc_symbols[1:]:
+            note = self.note(pc_symbol, current_bi_index)
             if note <= notes[-1]:
                 current_bi_index += 1
                 note = note.transpose_bi_index(1)
