@@ -29,6 +29,7 @@ from typing import TypeVar
 from typing import List
 from typing import Self
 from typing import Tuple
+from types import EllipsisType
 from .interval import Interval
 from .freq_repr import FreqRepr
 from .protocols import PeriodicPitchLike
@@ -130,7 +131,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
-    def partial(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+    def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
         of this scale. The selection is defined by an index mask
@@ -166,7 +167,9 @@ class Scale(Sequence[FreqReprT], ABC):
                 elements.append(element)
         return self.origin_context.scale(elements)
 
-    def partial_not(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+    def partial_not(
+        self, mask_expr: int | Tuple[int | EllipsisType, ...]
+    ) -> Self:
         """
         Returns a new scale consisting of a selection of indices
         of this scale. The selection will be determined by an
@@ -203,7 +206,9 @@ class Scale(Sequence[FreqReprT], ABC):
                 elements.append(element)
         return self.origin_context.scale(elements)
 
-    def partition(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+    def partition(
+        self, mask_expr: int | Tuple[int | EllipsisType, ...]
+    ) -> Self:
         """
         Partitions the scale into two parts using an index mask.
         The function will return a tuple of two scales with the
