@@ -178,7 +178,7 @@ class NoteScale(Scale[NoteT]):
         """
         Transposes the scale by the given interval
 
-        :param interval: A note interval or pitch difference given
+        :param diff: A note interval or pitch difference given
             as an integer
         """
 
