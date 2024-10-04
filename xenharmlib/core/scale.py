@@ -248,10 +248,15 @@ class Scale(Sequence[FreqReprT], ABC):
 
     @abstractmethod
     def transpose(self, diff) -> Self:
+        """
+        Transposes the scale by the given difference
+        (must be overwritten by subclass)
+
+        :param diff: An interval or interval-like object
+        """
         # argument diff is not type annotated because it can differ
         # greatly for scales containing single dimensional elements
         # and scales containing multi-dimensional elements
-        ...
 
     def zero_normalized(self) -> Self:
         """

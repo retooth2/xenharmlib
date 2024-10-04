@@ -53,6 +53,9 @@ class NoteScale(Scale[NoteT]):
 
     @property
     def tuning(self):
+        """
+        The tuning the origin notation of this scale relies upon
+        """
         return self.notation.tuning
 
     @property

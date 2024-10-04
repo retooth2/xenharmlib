@@ -113,6 +113,9 @@ class SDFreqRepr(FreqRepr):
 
     @property
     def pitch_index(self) -> int:
+        """
+        The pitch index of this object
+        """
         return self._pitch_index
 
     def __eq__(self, other) -> bool:

@@ -498,6 +498,9 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
     @property
     def name(self) -> str:
+        """
+        The name of this tuning
+        """
         expr = f'{self.eq_ratio.sp_expr}'
         return f'{self.divisions}ed{expr}'
 

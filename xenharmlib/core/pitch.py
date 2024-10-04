@@ -56,6 +56,9 @@ class Pitch(SDFreqRepr):
 
     @property
     def tuning(self):
+        """
+        The origin tuning of this pitch
+        """
         return self._tuning
 
     # arithmetic
