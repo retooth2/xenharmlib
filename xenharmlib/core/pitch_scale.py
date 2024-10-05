@@ -147,7 +147,7 @@ class PitchScale(Scale[PitchT]):
             f'will be removed in 1.0.0. As per design philosophy '
             f'scales should be immutable',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         if pitch.tuning is not self.tuning:
@@ -174,7 +174,7 @@ class PitchScale(Scale[PitchT]):
             f'will be removed in 1.0.0. As per design philosophy '
             f'scales should be immutable',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         pitch = self.tuning.pitch(pitch_index)
@@ -233,7 +233,7 @@ class PitchScale(Scale[PitchT]):
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_intervals instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.to_intervals()
 
@@ -280,8 +280,7 @@ PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
 
 class PeriodicPitchScale(
-    PitchScale[PeriodicPitchT],
-    PeriodicScale[PeriodicPitchT]
+    PitchScale[PeriodicPitchT], PeriodicScale[PeriodicPitchT]
 ):
     """
     Pitch scale class for periodic tunings. Implements

@@ -46,8 +46,7 @@ class FreqRepr(ABC):
         self._frequency = frequency
 
     @abstractmethod
-    def __hash__(self):
-        ...
+    def __hash__(self): ...
 
     @property
     def origin_context(self):
@@ -105,12 +104,7 @@ class SDFreqRepr(FreqRepr):
     Demands that subclasses implement a transpose method
     """
 
-    def __init__(
-        self,
-        origin_context,
-        frequency: Frequency,
-        pitch_index: int
-    ):
+    def __init__(self, origin_context, frequency: Frequency, pitch_index: int):
         super().__init__(origin_context, frequency)
         self._pitch_index = pitch_index
 
@@ -119,21 +113,28 @@ class SDFreqRepr(FreqRepr):
 
     @property
     def pitch_index(self) -> int:
+        """
+        The pitch index of this object
+        """
         return self._pitch_index
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, FreqRepr):
             return False
-        if isinstance(other, SDFreqRepr) and \
-           self.origin_context is other.origin_context:
+        if (
+            isinstance(other, SDFreqRepr)
+            and self.origin_context is other.origin_context
+        ):
             return self.pitch_index == other.pitch_index
         return self.frequency == other.frequency
 
     def __lt__(self, other) -> bool:
         if not isinstance(other, FreqRepr):
             return NotImplemented
-        if isinstance(other, SDFreqRepr) and \
-           self.origin_context is other.origin_context:
+        if (
+            isinstance(other, SDFreqRepr)
+            and self.origin_context is other.origin_context
+        ):
             return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
 

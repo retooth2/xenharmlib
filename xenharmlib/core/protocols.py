@@ -155,11 +155,7 @@ class HasFrequencyRatios(Protocol):
 
 
 @runtime_checkable
-class PitchScaleLike(
-    HasFrequencies,
-    HasFrequencyRatios,
-    Protocol
-):
+class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
     """
     Extension protocol that builds both on HasFrequencies and
     HasFrequencyRatios. Demands in addition that the properties

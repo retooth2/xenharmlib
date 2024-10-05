@@ -20,17 +20,15 @@ tuning that provides a human-friendly string interface to all the
 lower-level objects (pitch, pitch interval, pitch scale)
 """
 
-import numpy as np
-
 from typing import Tuple
 from typing import Dict
 from typing import Optional
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from warnings import warn
-from abc import ABC
 from abc import abstractmethod
+import numpy as np
+
 from ..exc import UnknownNoteSymbol
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
@@ -432,7 +430,7 @@ class NatAccNotation(
         The 'standard note' with pitch_index 0
         """
 
-        natc_symbol, pitch_index = self._naturals[0]
+        natc_symbol = self._naturals[0][0]
         note = self.note(natc_symbol, 0)
 
         if note.pitch_index != 0:
@@ -480,8 +478,8 @@ class NatAccNotation(
 
         if nat_diff >= 0:
             return abs_pitch_diff
-        else:
-            return (-1) * abs_pitch_diff
+
+        return (-1) * abs_pitch_diff
 
     def balance_note_acc_vector(
         self,
@@ -597,9 +595,7 @@ class NatAccNotation(
         return chosen_note
 
     def note_by_numdef(
-        self,
-        nat_index: int,
-        acc_vector: Tuple[int, ...]
+        self, nat_index: int, acc_vector: Tuple[int, ...]
     ) -> NatAccNote:
         """
         Creates a natural/accidental note by its numerical definition.
@@ -653,7 +649,7 @@ class NatAccNotation(
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.interval instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.interval(note_a, note_b)
 
@@ -677,7 +673,7 @@ class NatAccNotation(
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.scale instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.scale(notes)
 
@@ -738,7 +734,7 @@ class NatAccNotation(
             nat_diff,
             acc_vector,
             symbol,
-            number
+            number,
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
@@ -760,8 +756,7 @@ class NatAccNotation(
         return self.scale(notes)
 
     def pc_scale(
-        self,
-        pc_symbols: Optional[List[str]] = None
+        self, pc_symbols: Optional[List[str]] = None
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
@@ -783,12 +778,10 @@ class NatAccNotation(
         if not pc_symbols:
             return self.scale()
 
-        notes.append(
-            self.note(pc_symbols[0], 0)
-        )
+        notes.append(self.note(pc_symbols[0], 0))
 
-        for prev_pcsym, current_pcsym in zip(pc_symbols, pc_symbols[1:]):
-            note = self.note(current_pcsym, current_bi_index)
+        for pc_symbol in pc_symbols[1:]:
+            note = self.note(pc_symbol, current_bi_index)
             if note <= notes[-1]:
                 current_bi_index += 1
                 note = note.transpose_bi_index(1)
@@ -1062,12 +1055,12 @@ class NatAccNotation(
         """
         if interval_number > 0:
             return interval_number - 1
-        elif interval_number < 0:
+        if interval_number < 0:
             return interval_number + 1
-        else:
-            raise InvalidIntervalNumber(
-                "Interval number must be strictly positive or negative"
-            )
+
+        raise InvalidIntervalNumber(
+            "Interval number must be strictly positive or negative"
+        )
 
     def parse_pc_symbol(
         self, pc_symbol: str

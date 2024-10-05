@@ -53,6 +53,9 @@ class NoteScale(Scale[NoteT]):
 
     @property
     def tuning(self):
+        """
+        The tuning the origin notation of this scale relies upon
+        """
         return self.notation.tuning
 
     @property
@@ -104,7 +107,7 @@ class NoteScale(Scale[NoteT]):
             f'will be removed in 1.0.0. As per design philosophy '
             f'scales should be immutable',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         if note.notation is not self.notation:
@@ -169,7 +172,7 @@ class NoteScale(Scale[NoteT]):
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_intervals instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.to_intervals()
 
@@ -177,7 +180,7 @@ class NoteScale(Scale[NoteT]):
         """
         Transposes the scale by the given interval
 
-        :param interval: A note interval or pitch difference given
+        :param diff: A note interval or pitch difference given
             as an integer
         """
 

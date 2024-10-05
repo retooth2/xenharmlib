@@ -25,16 +25,14 @@ that need a couple of methods implemented by a subclass.
 
 from __future__ import annotations
 import os
-import sympy as sp
-from abc import ABC
 from abc import abstractmethod
 from fractions import Fraction
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from typing import Optional
-from unittest import mock
 from warnings import warn
+
+import sympy as sp
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -133,7 +131,7 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.interval instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.interval(pitch_a, pitch_b)
 
@@ -168,7 +166,7 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.scale instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self.scale(pitches)
 
@@ -278,9 +276,6 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
             return lower_pitch
 
         return higher_pitch
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.name})'
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
@@ -497,15 +492,16 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         )
 
         if not isinstance(eq_ratio, FrequencyRatio):
-            raise TypeError(
-                'eq_ratio must be a FrequencyRatio'
-            )
+            raise TypeError('eq_ratio must be a FrequencyRatio')
 
         self.divisions = divisions
         self.eq_ratio = eq_ratio
 
     @property
     def name(self) -> str:
+        """
+        The name of this tuning
+        """
         expr = f'{self.eq_ratio.sp_expr}'
         return f'{self.divisions}ed{expr}'
 
@@ -519,7 +515,9 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         """
 
         if pitch.tuning is not self:
-            raise IncompatibleOriginContexts('Given pitch has a different tuning')
+            raise IncompatibleOriginContexts(
+                'Given pitch has a different tuning'
+            )
 
         index = pitch.pitch_index
         return self.get_frequency_for_index(index)
@@ -533,7 +531,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
 
         scale_size = len(self)
         exp = sp.Rational(1, scale_size)
-        ratio = (self.eq_ratio**exp)**pitch_index
+        ratio = (self.eq_ratio**exp) ** pitch_index
         return self.ref_frequency * ratio
 
 
@@ -590,9 +588,7 @@ class EDOTuning(EDTuning):
         Returns the pitch that best approximates the pure fifth
         (frequency ratio 3/2) in this tuning.
         """
-        return self.get_approx_pitch(
-            self.ref_frequency * FrequencyRatio(3, 2)
-        )
+        return self.get_approx_pitch(self.ref_frequency * FrequencyRatio(3, 2))
 
     @property
     def fifth(self):

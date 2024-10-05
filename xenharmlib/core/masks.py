@@ -136,7 +136,7 @@ class IndexMask:
                 _append_index(indices, e1)
             if e1 is ... and e2 is not ...:
                 last = indices[-1]
-                _extend_indices(indices, range(last+1, e2))
+                _extend_indices(indices, range(last + 1, e2))
 
         # for-loop only considers elements up until to the last
         # (excluding) so we need to look at the last element

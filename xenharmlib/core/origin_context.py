@@ -34,10 +34,7 @@ IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
 
 
-class OriginContext(
-    Generic[FreqReprT, IntervalT, ScaleT],
-    ABC
-):
+class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
     """
     OriginContext is the abstract base class for both tunings and notations.
     It defines a unified interface for collection and interval builder
@@ -56,7 +53,7 @@ class OriginContext(
         self,
         freq_repr_cls: type[FreqReprT],
         interval_cls: type[IntervalT],
-        scale_cls: type[ScaleT]
+        scale_cls: type[ScaleT],
     ):
 
         self._freq_repr_cls = freq_repr_cls
@@ -71,13 +68,8 @@ class OriginContext(
         it is the element with index 0, in western notation typically C-0,
         etc
         """
-        ...
 
-    def interval(
-        self,
-        source: FreqReprT,
-        target: FreqReprT
-    ) -> IntervalT:
+    def interval(self, source: FreqReprT, target: FreqReprT) -> IntervalT:
         """
         Returns an interval having the interval type
         this origin context was configured with
@@ -103,10 +95,7 @@ class OriginContext(
 
         return self._interval_cls.from_source_and_target(source, target)
 
-    def scale(
-        self,
-        elements: Optional[Iterable[FreqReprT]] = None
-    ) -> ScaleT:
+    def scale(self, elements: Optional[Iterable[FreqReprT]] = None) -> ScaleT:
         """
         Returns a scale having the scale type this origin context
         was configured with

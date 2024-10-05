@@ -29,6 +29,7 @@ from typing import TypeVar
 from typing import List
 from typing import Self
 from typing import Tuple
+from types import EllipsisType
 from .interval import Interval
 from .freq_repr import FreqRepr
 from .protocols import PeriodicPitchLike
@@ -51,9 +52,7 @@ class Scale(Sequence[FreqReprT], ABC):
     """
 
     def __init__(
-        self,
-        origin_context,
-        elements: Optional[Iterable[FreqReprT]] = None
+        self, origin_context, elements: Optional[Iterable[FreqReprT]] = None
     ):
 
         self._origin_context = origin_context
@@ -96,7 +95,7 @@ class Scale(Sequence[FreqReprT], ABC):
         if isinstance(o, FreqRepr):
             return o in self._sorted_elements
 
-        elif isinstance(o, Interval):
+        if isinstance(o, Interval):
             for element_a in self._sorted_elements:
                 for element_b in self._sorted_elements:
                     interval_u = element_a.interval(element_b)
@@ -132,7 +131,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
-    def partial(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+    def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
         of this scale. The selection is defined by an index mask
@@ -169,8 +168,7 @@ class Scale(Sequence[FreqReprT], ABC):
         return self.origin_context.scale(elements)
 
     def partial_not(
-        self,
-        mask_expr: int | Tuple[int | type(...), ...]
+        self, mask_expr: int | Tuple[int | EllipsisType, ...]
     ) -> Self:
         """
         Returns a new scale consisting of a selection of indices
@@ -208,7 +206,9 @@ class Scale(Sequence[FreqReprT], ABC):
                 elements.append(element)
         return self.origin_context.scale(elements)
 
-    def partition(self, mask_expr: int | Tuple[int | type(...), ...]) -> Self:
+    def partition(
+        self, mask_expr: int | Tuple[int | EllipsisType, ...]
+    ) -> Tuple[Self, Self]:
         """
         Partitions the scale into two parts using an index mask.
         The function will return a tuple of two scales with the
@@ -253,10 +253,15 @@ class Scale(Sequence[FreqReprT], ABC):
 
     @abstractmethod
     def transpose(self, diff) -> Self:
+        """
+        Transposes the scale by the given difference
+        (must be overwritten by subclass)
+
+        :param diff: An interval or interval-like object
+        """
         # argument diff is not type annotated because it can differ
         # greatly for scales containing single dimensional elements
         # and scales containing multi-dimensional elements
-        ...
 
     def zero_normalized(self) -> Self:
         """
@@ -287,7 +292,6 @@ class Scale(Sequence[FreqReprT], ABC):
         (must be implemented by subclass, since comparison to the
         the zero note should be done according to notational identity)
         """
-        ...
 
     @property
     def frequencies(self):
@@ -486,10 +490,7 @@ class Scale(Sequence[FreqReprT], ABC):
         return is_superset and not (self == other)
 
 
-PeriodicFreqReprT = TypeVar(
-    'PeriodicFreqReprT',
-    bound=PeriodicPitchLike
-)
+PeriodicFreqReprT = TypeVar('PeriodicFreqReprT', bound=PeriodicPitchLike)
 
 
 class PeriodicScale(Scale[PeriodicFreqReprT]):
@@ -558,9 +559,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         """
 
         if len(self) == 0:
-            raise ValueError(
-                'period_normalized is not defined on empty scale'
-            )
+            raise ValueError('period_normalized is not defined on empty scale')
 
         if self.is_period_normalized:
             return self

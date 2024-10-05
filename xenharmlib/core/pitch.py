@@ -15,7 +15,8 @@
 
 from __future__ import annotations
 
-from typing import *
+from typing import Self
+from typing import TypeVar
 from warnings import warn
 from .frequencies import FrequencyRatio
 from .protocols import PeriodicPitchLike
@@ -56,6 +57,9 @@ class Pitch(SDFreqRepr):
 
     @property
     def tuning(self):
+        """
+        The origin tuning of this pitch
+        """
         return self._tuning
 
     # arithmetic
@@ -87,7 +91,7 @@ class Pitch(SDFreqRepr):
             f'{self.tuning.name})'
         )
 
-    def transpose(self, diff: Union[int, PitchInterval]) -> Pitch:
+    def transpose(self, diff: int | PitchInterval) -> Pitch:
         """
         Transposes the pitch to a different one
 
@@ -244,9 +248,6 @@ class EDPitch(PeriodicPitch):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, frequency, pitch_index: int):
-        super().__init__(tuning, frequency, pitch_index)
-
     @property
     def short_repr(self) -> str:
         return f'{self.pitch_index}'
@@ -306,7 +307,7 @@ class PitchInterval(SDInterval[PitchT]):
         tuning,
         frequency_ratio: FrequencyRatio,
         pitch_diff: int,
-        ref_pitch: PitchT
+        ref_pitch: PitchT,
     ):
         super().__init__(tuning, frequency_ratio, pitch_diff)
         self.ref_pitch = ref_pitch
@@ -347,7 +348,7 @@ class PitchInterval(SDInterval[PitchT]):
             f'removed in 1.0.0. Please use '
             f'{cls.__name__}.from_source_and_target instead.',
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return cls.from_source_and_target(pitch_a, pitch_b)
 
