@@ -32,7 +32,7 @@ class EnharmonicStrategy:
     >>> from xenharmlib import EDOTuning
     >>> edo12 = EDOTuning(12)
     >>> edo12.pitch(0).transpose(1)
-    edo12.pitch(1)
+    EDOPitch(1, 12-EDO)
 
     However on the notation layer it is unclear, if "C + 1" should
     result in C# or Db, if "C + 2" should result in "D" or "C##", etc.
@@ -154,21 +154,21 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
     >>> from xenharmlib import EDOTuning
     >>> from xenharmlib import UpDownNotation
-    >>> from xenharmlib import PCBlueprintStrategy
+    >>> from xenharmlib.core.enharm_strategies import PCBlueprintStrategy
     >>>
     >>> edo12 = EDOTuning(12)
     >>> n_edo12 = UpDownNotation(edo12)
     >>>
     >>> S = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     >>> strategy = PCBlueprintStrategy(
-    >>>     [n_edo12.note(symbol, 0) for symbol in S]
-    >>> )
+    ...     [n_edo12.note(symbol, 0) for symbol in S]
+    ... )
     >>> n_edo12.enharmonic_strategy = strategy
     >>>
     >>> n_edo12.guess_note(edo12.pitch(13))
-    UpDownNote(C#, 1)
+    UpDownNote(C#, 1, 12-EDO)
     >>> n_edo12.note('D#', 2).transpose(1)
-    UpDownNote(E, 2)
+    UpDownNote(E, 2, 12-EDO)
     """
 
     def __init__(self, pc_blueprint: Sequence[PeriodicNoteABC]):
