@@ -1,10 +1,10 @@
-Advanced notation features
+Advanced Notation Features
 ======================================
 
 This section talks about general features of the notation layer that have not
 been covered in the quickstart.
 
-Enharmonic strategies
+Enharmonic Strategies
 -------------------------------
 
 As you already know each notation layer object has a unique counterpart in
