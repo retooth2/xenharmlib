@@ -76,7 +76,37 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch(
+    with pytest.deprecated_call():
+        scale.add_pitch(
+            tuning.pitch(new_pi)
+        )
+
+    assert len(scale) == len(result_pi)
+    pitches = list(scale)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, new_pi, result_pi',
+    [
+        (edo12, [8, 3, 7], 5, [3, 5, 7, 8]),
+        (edo24, [22, 4, 1, 9], 20, [1, 4, 9, 20, 22]),
+        (edo31, [16, 33, 39], 22, [16, 22, 33, 39]),
+        (edo31, [16, 33, 39], 33, [16, 33, 39]),
+        (ed13_3, [100, 50, 0], -1, [-1, 0, 50, 100]),
+    ]
+)
+def test_with_element(tuning, input_pi, new_pi, result_pi):
+    """
+    Test if with_element correctly insorts new pitch
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+
+    scale = scale.with_element(
         tuning.pitch(new_pi)
     )
 
@@ -103,9 +133,10 @@ def test_add_pitch_incompatible_origin_contexts():
             )
 
             with pytest.raises(IncompatibleOriginContexts):
-                scale.add_pitch(
-                    tuning_b.pitch(4)
-                )
+                with pytest.deprecated_call():
+                    scale.add_pitch(
+                        tuning_b.pitch(4)
+                    )
 
 
 @pytest.mark.parametrize(
@@ -128,7 +159,8 @@ def test_add_pitch_index(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch_index(new_pi)
+    with pytest.deprecated_call():
+        scale.add_pitch_index(new_pi)
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)

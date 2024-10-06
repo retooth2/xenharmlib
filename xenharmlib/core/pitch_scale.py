@@ -146,7 +146,8 @@ class PitchScale(Scale[PitchT]):
         warn(
             f'{self.__class__.__name__}.add_pitch is deprecated and '
             f'will be removed in 1.0.0. As per design philosophy '
-            f'scales should be immutable',
+            f'scales should be immutable. To gradually construct '
+            f'a scale by single elements use .with_element',
             DeprecationWarning,
             stacklevel=2,
         )
@@ -173,7 +174,8 @@ class PitchScale(Scale[PitchT]):
         warn(
             f'{self.__class__.__name__}.add_pitch_index is deprecated and '
             f'will be removed in 1.0.0. As per design philosophy '
-            f'scales should be immutable',
+            f'scales should be immutable. To gradually construct '
+            f'a scale by single elements use .with_element',
             DeprecationWarning,
             stacklevel=2,
         )

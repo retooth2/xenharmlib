@@ -131,6 +131,26 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
+    def with_element(self, element: FreqReprT) -> Self[FreqRepr]:
+        """
+        Returns a new scale containing all elements from this scale
+        and the additional one given as a parameter.
+
+        :param element: The new element to be added to the result
+
+        :raises IncompatibleOriginContexts: If element has a different
+            origin context than this scale
+        """
+
+        if element.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scale and new element have a different origin context'
+            )
+
+        elements = list(self)
+        elements.append(element)
+        return self.origin_context.scale(elements)
+
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
