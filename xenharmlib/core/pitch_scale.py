@@ -41,6 +41,7 @@ from .pitch import Pitch
 from .pitch import PeriodicPitch
 from .pitch import EDPitch
 from .pitch import PitchInterval
+from .interval import Interval
 from .scale import Scale
 from .scale import PeriodicScale
 from ..exc import IncompatibleOriginContexts
@@ -221,7 +222,7 @@ class PitchScale(Scale[PitchT]):
         """
         return [pitch.pitch_index for pitch in self]
 
-    def to_pitch_intervals(self) -> List[PitchInterval[PitchT]]:
+    def to_pitch_intervals(self) -> List[Interval[PitchT]]:
         """
         .. deprecated:: 0.2.0
            Use :py:meth:`to_intervals` instead.
