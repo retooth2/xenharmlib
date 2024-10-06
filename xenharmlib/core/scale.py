@@ -131,6 +131,26 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
+    def with_element(self, element: FreqReprT) -> Self[FreqRepr]:
+        """
+        Returns a new scale containing all elements from this scale
+        and the additional one given as a parameter.
+
+        :param element: The new element to be added to the result
+
+        :raises IncompatibleOriginContexts: If element has a different
+            origin context than this scale
+        """
+
+        if element.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scale and new element have a different origin context'
+            )
+
+        elements = list(self)
+        elements.append(element)
+        return self.origin_context.scale(elements)
+
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
@@ -531,6 +551,20 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
     :param origin_context: An origin context (like a tuning or a notation)
     :param elements: A list of frequency representations
     """
+
+    def transpose_bi_index(self, bi_diff: int) -> Self:
+        """
+        Returns a scale with the same pitch class indices
+        and symbols, but with a transposed base interval
+
+        :param bi_diff: The difference in base interval
+            between this scale and the resulting one
+        """
+
+        elements = []
+        for element in self:
+            elements.append(element.transpose_bi_index(bi_diff))
+        return self.origin_context.scale(elements)
 
     def pcs_normalized(self) -> Self:
         """

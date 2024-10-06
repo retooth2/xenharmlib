@@ -105,7 +105,8 @@ class NoteScale(Scale[NoteT]):
         warn(
             f'{self.__class__.__name__}.add_note is deprecated and '
             f'will be removed in 1.0.0. As per design philosophy '
-            f'scales should be immutable',
+            f'scales should be immutable. To gradually construct '
+            f'a scale by single elements use .with_element',
             DeprecationWarning,
             stacklevel=2,
         )
@@ -193,20 +194,6 @@ class NoteScale(Scale[NoteT]):
             transposed.append(notes.transpose(interval))
 
         return self.notation.scale(transposed)
-
-    def transpose_bi_index(self, bi_diff: int) -> Self:
-        """
-        Returns a note scale with the same pitch class indices
-        and symbols, but with a transposed base interval
-
-        :param bi_diff: The difference in base interval
-            between this note scale and the resulting one
-        """
-
-        notes = []
-        for note in self:
-            notes.append(note.transpose_bi_index(bi_diff))
-        return self.notation.scale(notes)
 
     def note_intersection(self, other: Self) -> Self:
         """
@@ -351,24 +338,6 @@ class PeriodicNoteScale(
         notes of the same pitch class
         """
         return [note.pc_index for note in self]
-
-    def pcs_normalized(self) -> Self:
-        """
-        Returns a normalized version of this scale where
-        all the notes of the scale are put into the first
-        base interval of the tuning
-
-        Note: If the original scale has equivalent note pairs
-        the normalized scale will be smaller in cardinality.
-        """
-
-        notes = []
-
-        for note in self:
-            n_note = note.pcs_normalized()
-            notes.append(n_note)
-
-        return self.notation.scale(notes)
 
     def pcs_complement(self) -> Self:
         """

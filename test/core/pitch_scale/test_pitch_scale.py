@@ -76,7 +76,37 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch(
+    with pytest.deprecated_call():
+        scale.add_pitch(
+            tuning.pitch(new_pi)
+        )
+
+    assert len(scale) == len(result_pi)
+    pitches = list(scale)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, new_pi, result_pi',
+    [
+        (edo12, [8, 3, 7], 5, [3, 5, 7, 8]),
+        (edo24, [22, 4, 1, 9], 20, [1, 4, 9, 20, 22]),
+        (edo31, [16, 33, 39], 22, [16, 22, 33, 39]),
+        (edo31, [16, 33, 39], 33, [16, 33, 39]),
+        (ed13_3, [100, 50, 0], -1, [-1, 0, 50, 100]),
+    ]
+)
+def test_with_element(tuning, input_pi, new_pi, result_pi):
+    """
+    Test if with_element correctly insorts new pitch
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+
+    scale = scale.with_element(
         tuning.pitch(new_pi)
     )
 
@@ -103,9 +133,10 @@ def test_add_pitch_incompatible_origin_contexts():
             )
 
             with pytest.raises(IncompatibleOriginContexts):
-                scale.add_pitch(
-                    tuning_b.pitch(4)
-                )
+                with pytest.deprecated_call():
+                    scale.add_pitch(
+                        tuning_b.pitch(4)
+                    )
 
 
 @pytest.mark.parametrize(
@@ -128,7 +159,8 @@ def test_add_pitch_index(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch_index(new_pi)
+    with pytest.deprecated_call():
+        scale.add_pitch_index(new_pi)
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)
@@ -151,9 +183,10 @@ def test_from_pitch_indices(tuning, input_pi, result_pi):
     correctly
     """
 
-    scale = PitchScale.from_pitch_indices(
-        input_pi, tuning=tuning
-    )
+    with pytest.deprecated_call():
+        scale = PitchScale.from_pitch_indices(
+            input_pi, tuning=tuning
+        )
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)
@@ -165,21 +198,12 @@ def test_eq():
     Test if scale equalities and inequalities work correctly
     """
 
-    scale_a = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_b = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_c = PitchScale.from_pitch_indices(
-        [1, 2, 3, 4], tuning=edo12
-    )
-    scale_d = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo31
-    )
-    scale_e = PitchScale.from_pitch_indices(
-        [2, 4, 6], tuning=edo24
-    )
+    scale_a = edo12.index_scale([1, 2, 3])
+    scale_b = edo12.index_scale([1, 2, 3])
+    scale_c = edo12.index_scale([1, 2, 3, 4])
+
+    scale_d = edo31.index_scale([1, 2, 3])
+    scale_e = edo24.index_scale([2, 4, 6])
 
     assert scale_a == scale_a
     assert scale_a == scale_b

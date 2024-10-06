@@ -89,9 +89,10 @@ def test_add_note(notation, notes, ordered_notes):
     note_scale = NoteScale(notation)
 
     for pc_symbol, nat_bi_index in notes:
-        note_scale.add_note(
-            notation.note(pc_symbol, nat_bi_index)
-        )
+        with pytest.deprecated_call():
+            note_scale.add_note(
+                notation.note(pc_symbol, nat_bi_index)
+            )
 
     ordered_note_list = []
 
@@ -116,7 +117,46 @@ def test_add_note_incompatible_origin_contexts():
 
     with pytest.raises(IncompatibleOriginContexts):
         note_scale = NoteScale(n_edo12)
-        note_scale.add_note(n_edo12_2.note('A', 0))
+        with pytest.deprecated_call():
+            note_scale.add_note(n_edo12_2.note('A', 0))
+
+
+@pytest.mark.parametrize(
+    'notation, notes, ordered_notes',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B', 1)],
+            [('A', 0), ('C+', 0), ('B', 1)],
+        ),
+        (
+            n_edo12,
+            [('B', 1), ('C+', 0), ('A', 0)],
+            [('A', 0), ('C+', 0), ('B', 1)],
+        ),
+    ]
+)
+def test_with_element(notation, notes, ordered_notes):
+    """
+    Test that with_element insorts notes correctly
+    """
+
+    note_scale = NoteScale(notation)
+
+    for pc_symbol, nat_bi_index in notes:
+        note_scale = note_scale.with_element(
+            notation.note(pc_symbol, nat_bi_index)
+        )
+
+    ordered_note_list = []
+
+    for pc_symbol, nat_bi_index in ordered_notes:
+        ordered_note_list.append(
+            notation.note(pc_symbol, nat_bi_index)
+        )
+
+    note_list = list(note_scale)
+    assert note_list == ordered_note_list
 
 
 @pytest.mark.parametrize(
@@ -1148,57 +1188,6 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
     )
 
     transposed = scale.transpose(note_interval)
-
-    with pytest.deprecated_call():
-        assert transposed == notation.note_scale(
-            [notation.note(*pair) for pair in result_pairs]
-        )
-
-    assert transposed == notation.scale(
-        [notation.note(*pair) for pair in result_pairs]
-    )
-
-
-@pytest.mark.parametrize(
-    'notation, input_pairs, bi_diff, result_pairs',
-    [
-        (
-            n_edo12,
-            [('A+', 0), ('B+', 0), ('D+', 0)],
-            2,
-            [('A+', 2), ('B+', 2), ('D+', 2)],
-        ),
-        (
-            n_edo12,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            0,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-        ),
-        (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            -1,
-            [('A+', -1), ('B+', 0), ('F', 1)],
-        ),
-        (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            5,
-            [('A+', 5), ('B+', 6), ('F', 7)],
-        ),
-    ]
-)
-def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
-    """
-    Test if transpose method works correctly when given an interval
-    """
-
-    scale = NoteScale(
-        notation,
-        [notation.note(*pair) for pair in input_pairs]
-    )
-
-    transposed = scale.transpose_bi_index(bi_diff)
 
     with pytest.deprecated_call():
         assert transposed == notation.note_scale(

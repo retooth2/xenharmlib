@@ -56,6 +56,13 @@ class FreqRepr(ABC):
         """
         return self._origin_context
 
+    @abstractmethod
+    def transpose(self, diff) -> Self:
+        """
+        (Must be implemented by subclasses)
+        Transposes the frequency representation
+        """
+
     def interval(self, other: Self):
         """
         Returns an interval between this frequency representation and
@@ -158,12 +165,3 @@ class SDFreqRepr(FreqRepr):
         ):
             return self.pitch_index < other.pitch_index
         return self.frequency < other.frequency
-
-    @abstractmethod
-    def transpose(self, diff) -> Self:
-        # FIXME: type hint for diff should be
-        # int | Interval[Self]
-        """
-        (Must be implemented by subclasses)
-        Transposes the frequency representation
-        """

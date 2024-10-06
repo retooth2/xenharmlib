@@ -40,13 +40,64 @@ def test_pc_indices(notation, input_pairs, result_pci):
     """
     Test if pc_indices property is correct
     """
- 
+
     scale = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs]
     )
- 
+
     assert scale.pc_indices == result_pci
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, bi_diff, result_pairs',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            2,
+            [('A+', 2), ('B+', 2), ('D+', 2)],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            0,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            -1,
+            [('A+', -1), ('B+', 0), ('F', 1)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            5,
+            [('A+', 5), ('B+', 6), ('F', 7)],
+        ),
+    ]
+)
+def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
+    """
+    Test if transpose method works correctly when given an interval
+    """
+
+    scale = PeriodicNoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    transposed = scale.transpose_bi_index(bi_diff)
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
 
 
 @pytest.mark.parametrize(
@@ -75,7 +126,7 @@ def test_rotated_up(notation, input_pairs, result_pairs):
     """
 
     scale = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs]
     )
 
@@ -111,7 +162,7 @@ def test_rotated_down(notation, input_pairs, result_pairs):
     """
 
     scale = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs]
     )
 
@@ -186,7 +237,7 @@ def test_rotation(notation, input_pairs, order, result_pairs):
     """
 
     scale = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs]
     )
 
@@ -231,12 +282,12 @@ def test_union(notation, input_pairs_a, input_pairs_b, result_pairs):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -316,12 +367,12 @@ def test_intersection(notation, input_pairs_a, input_pairs_b, result_pairs):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -445,12 +496,12 @@ def test_intersection_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -508,12 +559,12 @@ def test_note_intersection_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -619,12 +670,12 @@ def test_difference(notation, input_pairs_a, input_pairs_b, result_pairs):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -681,12 +732,12 @@ def test_difference_ignore_bi_index(notation, input_pairs_a, input_pairs_b, resu
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -803,12 +854,12 @@ def test_note_difference_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -908,12 +959,12 @@ def test_symmetric_difference(notation, input_pairs_a, input_pairs_b, result_pai
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -969,12 +1020,12 @@ def test_symmetric_difference_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1053,12 +1104,12 @@ def test_is_disjoint(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1107,12 +1158,12 @@ def test_is_disjoint_ignore_bi_index(notation, input_pairs_a, input_pairs_b, exp
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1160,12 +1211,12 @@ def test_is_notated_disjoint(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1219,12 +1270,12 @@ def test_is_notated_disjoint_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1329,12 +1380,12 @@ def test_is_subset(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1389,12 +1440,12 @@ def test_is_subset_ignore_bi_index(notation, input_pairs_a, input_pairs_b, expec
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1449,12 +1500,12 @@ def test_is_subset_proper(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1509,12 +1560,12 @@ def test_is_subset_proper_ignore_bi_index(notation, input_pairs_a, input_pairs_b
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1578,12 +1629,12 @@ def test_is_note_subset(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1649,12 +1700,12 @@ def test_is_note_subset_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1723,17 +1774,17 @@ def test_is_note_subset_proper(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
     assert scale_a.is_note_subset(
-        scale_b, 
+        scale_b,
         proper=True
     ) == expected
 
@@ -1797,17 +1848,17 @@ def test_is_note_subset_proper_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
     assert scale_a.is_note_subset(
-        scale_b, 
+        scale_b,
         proper=True,
         ignore_bi_index=True
     ) == expected
@@ -1908,12 +1959,12 @@ def test_is_superset(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -1968,12 +2019,12 @@ def test_is_superset_ignore_bi_index(notation, input_pairs_a, input_pairs_b, exp
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -2031,12 +2082,12 @@ def test_is_superset_proper(notation, input_pairs_a, input_pairs_b, expected):
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -2091,12 +2142,12 @@ def test_is_superset_proper_ignore_bi_index(notation, input_pairs_a, input_pairs
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 
@@ -2231,12 +2282,12 @@ def test_is_note_superset_ignore_bi_index(
     """
 
     scale_a = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_a]
     )
 
     scale_b = PeriodicNoteScale(
-        notation, 
+        notation,
         [notation.note(*pair) for pair in input_pairs_b]
     )
 

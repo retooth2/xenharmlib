@@ -30,8 +30,11 @@ from abc import abstractmethod
 import numpy as np
 
 from ..exc import UnknownNoteSymbol
+from .notes import NoteABC
+from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
@@ -43,9 +46,9 @@ from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
 from .symbols import AmbiguousSymbol
 
-NoteT = TypeVar('NoteT')
-IntervalT = TypeVar('IntervalT')
-ScaleT = TypeVar('ScaleT')
+NoteT = TypeVar('NoteT', bound=NoteABC)
+IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
+ScaleT = TypeVar('ScaleT', bound=NoteScale)
 
 
 class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):

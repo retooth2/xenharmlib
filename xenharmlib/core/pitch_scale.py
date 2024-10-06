@@ -41,6 +41,7 @@ from .pitch import Pitch
 from .pitch import PeriodicPitch
 from .pitch import EDPitch
 from .pitch import PitchInterval
+from .interval import Interval
 from .scale import Scale
 from .scale import PeriodicScale
 from ..exc import IncompatibleOriginContexts
@@ -145,7 +146,8 @@ class PitchScale(Scale[PitchT]):
         warn(
             f'{self.__class__.__name__}.add_pitch is deprecated and '
             f'will be removed in 1.0.0. As per design philosophy '
-            f'scales should be immutable',
+            f'scales should be immutable. To gradually construct '
+            f'a scale by single elements use .with_element',
             DeprecationWarning,
             stacklevel=2,
         )
@@ -172,7 +174,8 @@ class PitchScale(Scale[PitchT]):
         warn(
             f'{self.__class__.__name__}.add_pitch_index is deprecated and '
             f'will be removed in 1.0.0. As per design philosophy '
-            f'scales should be immutable',
+            f'scales should be immutable. To gradually construct '
+            f'a scale by single elements use .with_element',
             DeprecationWarning,
             stacklevel=2,
         )
@@ -193,6 +196,13 @@ class PitchScale(Scale[PitchT]):
         :param tuning: The tuning through which these indices
             should be interpreted
         """
+        warn(
+            f'{cls.__name__}.from_pitch_indices is deprecated and '
+            f'will be removed in 1.0.0. Please use the .index_scale '
+            f'method of the tuning',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         pitches = []
         for pitch_index in pitch_indices:
@@ -221,7 +231,7 @@ class PitchScale(Scale[PitchT]):
         """
         return [pitch.pitch_index for pitch in self]
 
-    def to_pitch_intervals(self) -> List[PitchInterval[PitchT]]:
+    def to_pitch_intervals(self) -> List[Interval[PitchT]]:
         """
         .. deprecated:: 0.2.0
            Use :py:meth:`to_intervals` instead.
