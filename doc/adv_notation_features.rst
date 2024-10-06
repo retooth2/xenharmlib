@@ -4,6 +4,8 @@ Advanced Notation Features
 This section talks about general features of the notation layer that have not
 been covered in the quickstart.
 
+.. _enharmonic_strategies:
+
 Enharmonic Strategies
 -------------------------------
 
