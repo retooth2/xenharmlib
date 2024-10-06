@@ -199,6 +199,7 @@ features.
    core_api
    export_api
    notation_api
+   changelog
 
 Contributor Guide
 ---------------------
