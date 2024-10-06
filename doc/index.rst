@@ -211,10 +211,11 @@ prerequisites for a pull request to be accepted that you should know:
   `conventional commits <https://www.conventionalcommits.org/>`_
 * To format your code please use the
   `black code formatter <https://black.readthedocs.io/en/stable/>`_
-  with string normalization turned off. In regards to strings, xemharmlib
-  follows the principle single quotes (') for data, double quotes (") for
-  information meant to be read only by humans (like exception descriptions)
-  and triple-double quotes (""") for docstrings.
+  with string normalization turned off and maximum line length 79.
+  In regards to strings, xemharmlib follows the principle single quotes
+  (') for data, double quotes (") for information meant to be read only
+  by humans (like exception descriptions) and triple-double quotes (""")
+  for docstrings.
 * Your code should come with tests that cover everything you have done.
   (This includes branch coverage). Xenharmlib's test framework is
   `pytest <https://docs.pytest.org/>`_
