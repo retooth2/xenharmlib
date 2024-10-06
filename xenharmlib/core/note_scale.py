@@ -339,24 +339,6 @@ class PeriodicNoteScale(
         """
         return [note.pc_index for note in self]
 
-    def pcs_normalized(self) -> Self:
-        """
-        Returns a normalized version of this scale where
-        all the notes of the scale are put into the first
-        base interval of the tuning
-
-        Note: If the original scale has equivalent note pairs
-        the normalized scale will be smaller in cardinality.
-        """
-
-        notes = []
-
-        for note in self:
-            n_note = note.pcs_normalized()
-            notes.append(n_note)
-
-        return self.notation.scale(notes)
-
     def pcs_complement(self) -> Self:
         """
         Returns a complement version of this scale that includes
