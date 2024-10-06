@@ -25,10 +25,10 @@ n_edo31 = make_nat_acc_test_notation(edo31)
     ]
 )
 def test_note_interval_pitch_diff(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     pitch_diff
 ):
@@ -59,10 +59,10 @@ def test_note_interval_pitch_diff(
     ]
 )
 def test_note_interval_nat_diff(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     nat_diff
 ):
@@ -94,10 +94,10 @@ def test_note_interval_nat_diff(
     ]
 )
 def test_note_interval_symbol(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     symbol
 ):
@@ -129,10 +129,10 @@ def test_note_interval_symbol(
     ]
 )
 def test_note_interval_number(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     number
 ):
@@ -164,10 +164,10 @@ def test_note_interval_number(
     ]
 )
 def test_note_interval_shorthand(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     shorthand_name
 ):
@@ -207,15 +207,15 @@ def test_note_interval_shorthand(
     ]
 )
 def test_note_interval_lt(
-    notation_ab, 
-    pc_symbol_a, 
+    notation_ab,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    notation_cd, 
-    pc_symbol_c, 
+    notation_cd,
+    pc_symbol_c,
     nat_bi_index_c,
-    pc_symbol_d, 
+    pc_symbol_d,
     nat_bi_index_d,
 ):
     """
@@ -250,15 +250,15 @@ def test_note_interval_lt(
     ]
 )
 def test_note_interval_eq(
-    notation_ab, 
-    pc_symbol_a, 
+    notation_ab,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    notation_cd, 
-    pc_symbol_c, 
+    notation_cd,
+    pc_symbol_c,
     nat_bi_index_c,
-    pc_symbol_d, 
+    pc_symbol_d,
     nat_bi_index_d,
 ):
     """
@@ -304,10 +304,10 @@ def test_note_interval_default_not_eq(not_an_interval):
     ]
 )
 def test_note_interval_lt_pitch(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -345,10 +345,10 @@ def test_note_interval_lt_pitch(
     ]
 )
 def test_note_interval_eq_pitch(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -381,10 +381,10 @@ def test_note_interval_eq_pitch(
     ]
 )
 def test_note_interval_eq_abs(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
 ):
     """
@@ -414,10 +414,10 @@ def test_note_interval_eq_abs(
     ]
 )
 def test_note_interval_eq_pitch_abs(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -453,12 +453,12 @@ def test_note_interval_eq_pitch_abs(
     ]
 )
 def test_note_interval_get_generator_distance(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    gen_pc_symbol, 
+    gen_pc_symbol,
     gen_nat_bi_index,
     gen_dist
 ):
@@ -486,12 +486,12 @@ def test_note_interval_get_generator_distance(
     ]
 )
 def test_note_interval_get_generator_distance_invalid_generator(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    gen_pc_symbol, 
+    gen_pc_symbol,
     gen_nat_bi_index
 ):
     """
@@ -519,7 +519,7 @@ def test_get_generator_distance_incompatible_origin_contexts():
         n_edo12.note('F', 0)
     )
     gen_note = n_edo31.note('A', 0)
-    
+
     with pytest.raises(IncompatibleOriginContexts):
         interval.get_generator_distance(gen_note)
 
