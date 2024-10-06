@@ -194,6 +194,7 @@ features.
    :caption: Contents:
 
    quickstart
+   adv_scale_features
    adv_notation_features
    core_api
    export_api
