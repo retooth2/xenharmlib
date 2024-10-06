@@ -567,4 +567,5 @@ def test_from_notes_incompatible_origin_contexts():
     note_b = n_edo24.note('B', 1)
 
     with pytest.raises(IncompatibleOriginContexts):
-        NatAccNoteInterval.from_notes(note_a, note_b)
+        with pytest.deprecated_call():
+            NatAccNoteInterval.from_notes(note_a, note_b)
