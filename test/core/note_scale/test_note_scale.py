@@ -1211,6 +1211,100 @@ def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
 
 
 @pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('A', 0), ('E-', -1), ('F-', -2)],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('E-', -1), ('F-', -2)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
+        ),
+        (
+            n_edo12,
+            [('B',  0), ('C', 0), ('Bx', 2)],
+            [('F', -1), ('E', -1), ('F.', -3)],
+        ),
+        (
+            n_edo12,
+            [('F', -1), ('E', -1), ('F.', -3)],
+            [('B',  0), ('C', 0), ('Bx', 2)],
+        ),
+    ]
+)
+def test_reflection_no_param(notation, input_pairs, result_pairs):
+    """
+    Test if reflection method works correctly
+    without parameters
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    result = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in result_pairs]
+    )
+    assert scale.reflection().is_notated_same(result)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs, axis_pair',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('C', 0), ('A-', 0), ('B-', -1)],
+            ('B', 0)
+        ),
+        (
+            n_edo12,
+            [('C', 0), ('A-', 0), ('B-', -1)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            ('B', 0)
+        ),
+        (
+            n_edo12,
+            [('F', -1), ('C', 0), ('A-', 0)],
+            [('F', -1), ('C', -1), ('E+', -1)],
+            ('F', -1)
+        ),
+        (
+            n_edo12,
+            [('F', -1), ('C', -1), ('E+', -1)],
+            [('F', -1), ('C', 0), ('A-', 0)],
+            ('F', -1)
+        ),
+    ]
+)
+def test_reflection_custom_axis(
+    notation,
+    input_pairs,
+    result_pairs,
+    axis_pair
+):
+    """
+    Test if reflection method works correctly
+    with custom axis
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    result = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in result_pairs]
+    )
+    axis = notation.note(*axis_pair)
+    assert scale.reflection(axis).is_notated_same(result)
+
+
+@pytest.mark.parametrize(
     'notation, input_pairs_a, input_pairs_b, result_pairs',
     [
         (

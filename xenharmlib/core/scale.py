@@ -263,6 +263,24 @@ class Scale(Sequence[FreqReprT], ABC):
         # greatly for scales containing single dimensional elements
         # and scales containing multi-dimensional elements
 
+    def reflection(self, axis: Optional[FreqReprT] = None) -> Self:
+        """
+        A reflection of each pitch/note across a pitch/note axis.
+        In technical terms the method calculates the interval from
+        each element to the axis and then applies that interval to
+        to the axis.
+
+        :param axis: The element across which this object is
+            reflected (optional, defaults to the zero element
+            of the origin context)
+
+        If scale is reflected across the zero element, reflection
+        is equivalent to inversion of the pitch class set
+        """
+
+        elements = [element.reflection(axis) for element in self]
+        return self.origin_context.scale(elements)
+
     def zero_normalized(self) -> Self:
         """
         Returns the scale transposed in a way so the root has pitch

@@ -781,6 +781,45 @@ def test_transpose_interval(tuning, input_pi, interval_pi, result_pi):
 
 
 @pytest.mark.parametrize(
+    'tuning, input_pi, result_pi',
+    [
+        (edo12, [3, 7, 8], [-3, -7, -8]),
+        (edo24, [1, 16, 25], [-1, -16, -25]),
+        (edo31, [0, 11, 64], [0, -11, -64]),
+    ]
+)
+def test_reflection_without_param(tuning, input_pi, result_pi):
+    """
+    Test if reflection operation works correctly
+    when given no axis parameter
+    """
+
+    scale = tuning.index_scale(input_pi)
+    result = tuning.index_scale(result_pi)
+    assert scale.reflection() == result
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, result_pi, axis_pi',
+    [
+        (edo12, [3, 7, 8], [6, 7, 11], 7),
+        (edo24, [1, 16, 25], [5, 14, 29], 15),
+        (edo31, [0, 11, 64], [-4, -15, -68], -2),
+    ]
+)
+def test_reflection_custom_axis(tuning, input_pi, result_pi, axis_pi):
+    """
+    Test if reflection operation works correctly
+    with custom axis
+    """
+
+    scale = tuning.index_scale(input_pi)
+    result = tuning.index_scale(result_pi)
+    axis = tuning.pitch(axis_pi)
+    assert scale.reflection(axis) == result
+
+
+@pytest.mark.parametrize(
     'tuning_a, input_pi, tuning_b, result_pi',
     [
         (edo12, [0, 3, 7, 8, 10], edo31, [0, 8, 18, 21, 26]),

@@ -948,3 +948,63 @@ def test_note_transpose_incompatible_origin_contexts():
 
     with pytest.raises(IncompatibleOriginContexts):
         note_c.transpose(interval)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol_a, nat_bi_index_a, pc_symbol_b, nat_bi_index_b',
+    [
+        (n_edo12, 'A',     0,  'A',     0),
+        (n_edo12, 'B',     0,  'F',    -1),
+        (n_edo12, 'F',    -1,  'B',     0),
+        (n_edo12, 'B+',    1,  'F-',   -2),
+        (n_edo12, 'F-',   -2,  'B+',    1),
+    ]
+)
+def test_note_reflection_without_param(
+    notation,
+    pc_symbol_a,
+    nat_bi_index_a,
+    pc_symbol_b,
+    nat_bi_index_b,
+):
+    """
+    Test if reflection of note is calculated correctly
+    without parameter given
+    """
+
+    note_a = notation.note(pc_symbol_a, nat_bi_index_a)
+    note_b = notation.note(pc_symbol_b, nat_bi_index_b)
+    assert note_a.reflection() == note_b
+
+
+@pytest.mark.parametrize(
+    'notation, '
+    'pc_symbol_a, nat_bi_index_a, '
+    'pc_symbol_b, nat_bi_index_b, '
+    'pc_symbol_axis, nat_bi_index_axis, ',
+    [
+        (n_edo12, 'A',   0,  'C',   0, 'B',   0),
+        (n_edo12, 'C',   0,  'A',   0, 'B',   0),
+        (n_edo12, 'A+',  0,  'C-',  0, 'B',   0),
+        (n_edo12, 'A+',  0,  'E-', -1, 'F',  -1),
+        (n_edo12, 'E-', -1,  'A+',  0, 'F',  -1),
+    ]
+)
+def test_note_reflection_custom_axis(
+    notation,
+    pc_symbol_a,
+    nat_bi_index_a,
+    pc_symbol_b,
+    nat_bi_index_b,
+    pc_symbol_axis,
+    nat_bi_index_axis,
+):
+    """
+    Test if reflection of note is calculated correctly
+    with custom axis
+    """
+
+    note_a = notation.note(pc_symbol_a, nat_bi_index_a)
+    note_b = notation.note(pc_symbol_b, nat_bi_index_b)
+    axis = notation.note(pc_symbol_axis, nat_bi_index_axis)
+    assert note_a.reflection(axis) == note_b

@@ -21,6 +21,7 @@ This module implements base classes for frequency representations
 from __future__ import annotations
 
 from typing import Self
+from typing import Optional
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
@@ -90,6 +91,26 @@ class FreqRepr(ABC):
         A shortened representation of this note
         (to be used in collection objects like scales)
         """
+
+    def reflection(self, axis: Optional[Self] = None) -> Self:
+        """
+        A reflection of this pitch/note across a pitch/note axis.
+        In technical terms the method calculates the interval from
+        this object to the axis and then applies that interval to
+        to the axis.
+
+        :param axis: The element across which this object is
+            reflected (optional, defaults to the zero element
+            of the origin context)
+        """
+
+        if axis is None:
+            _axis = self.origin_context.zero_element
+        else:
+            _axis = axis
+
+        interval = self.interval(_axis)
+        return _axis.transpose(interval)
 
 
 class SDFreqRepr(FreqRepr):
