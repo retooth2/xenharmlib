@@ -867,73 +867,73 @@ the same as 'b')
      - unicode flat
      - ascii flat
    * - C |acc_^|
-     - C^
+     - ^C
      - C |acc_v|
-     - Cv
+     - vC
    * - C |acc_^^|
-     - C^^
+     - ^^C
      - C |acc_vv|
-     - Cvv
+     - vvC
    * - C |acc_^^^|
-     - C^^^
+     - ^^^C
      - C |acc_vvv|
-     - Cvvv
+     - vvvC
    * - C |acc_#vvv|
-     - C#vvv
+     - vvvC#
      - C |acc_b^^^|
-     - Cb^^^
+     - ^^^Cb
    * - C |acc_#vv|
-     - C#vv
+     - vvC#
      - C |acc_b^^|
-     - Cb^^
+     - ^^Cb
    * - C |acc_#v|
-     - C#v
+     - vC#
      - C |acc_b^|
-     - Cb^
+     - ^Cb
    * - C |acc_#|
      - C#
      - C |acc_b|
      - Cb
    * - C |acc_#^|
-     - C#^
+     - ^C#
      - C |acc_bv|
-     - Cbv
+     - vCb
    * - C |acc_#^^|
-     - C#^^
+     - ^^C#
      - C |acc_bvv|
-     - Cbvv
+     - vvCb
    * - C |acc_#^^^|
-     - C#^^^
+     - ^^^C#
      - C |acc_bvvv|
-     - Cbvvv
+     - vvvCb
    * - C |acc_xvvv|
-     - Cxvvv
+     - vvvCx
      - C |acc_bb^^^|
-     - Cbb^^^
+     - ^^^Cbb
    * - C |acc_xvv|
-     - Cxvv
+     - vvCx
      - C |acc_bb^^|
-     - Cbb^^
+     - ^^Cbb
    * - C |acc_xv|
-     - Cxv
+     - vCx
      - C |acc_bb^|
-     - Cbb^
+     - ^Cbb
    * - C |acc_x|
      - Cx
      - C |acc_bb|
      - Cbb
    * - C |acc_x^|
-     - Cx^
+     - ^Cx
      - C |acc_bbv|
-     - Cbbv
+     - vCbb
    * - C |acc_x^^|
-     - Cx^^
+     - ^^Cx
      - C |acc_bbvv|
-     - Cbbvv
+     - vvCbb
    * - C |acc_x^^^|
-     - Cx^^^
+     - ^^^Cx
      - C |acc_bbvvv|
-     - Cbbvvv
+     - vvvCbb
 
 .. |acc_^| replace:: :smufl:``
 .. |acc_^^| replace:: :smufl:``
