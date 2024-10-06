@@ -183,9 +183,10 @@ def test_from_pitch_indices(tuning, input_pi, result_pi):
     correctly
     """
 
-    scale = PitchScale.from_pitch_indices(
-        input_pi, tuning=tuning
-    )
+    with pytest.deprecated_call():
+        scale = PitchScale.from_pitch_indices(
+            input_pi, tuning=tuning
+        )
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)
@@ -197,21 +198,12 @@ def test_eq():
     Test if scale equalities and inequalities work correctly
     """
 
-    scale_a = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_b = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_c = PitchScale.from_pitch_indices(
-        [1, 2, 3, 4], tuning=edo12
-    )
-    scale_d = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo31
-    )
-    scale_e = PitchScale.from_pitch_indices(
-        [2, 4, 6], tuning=edo24
-    )
+    scale_a = edo12.index_scale([1, 2, 3])
+    scale_b = edo12.index_scale([1, 2, 3])
+    scale_c = edo12.index_scale([1, 2, 3, 4])
+
+    scale_d = edo31.index_scale([1, 2, 3])
+    scale_e = edo24.index_scale([2, 4, 6])
 
     assert scale_a == scale_a
     assert scale_a == scale_b

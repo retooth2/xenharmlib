@@ -196,6 +196,13 @@ class PitchScale(Scale[PitchT]):
         :param tuning: The tuning through which these indices
             should be interpreted
         """
+        warn(
+            f'{cls.__name__}.from_pitch_indices is deprecated and '
+            f'will be removed in 1.0.0. Please use the .index_scale '
+            f'method of the tuning',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         pitches = []
         for pitch_index in pitch_indices:
