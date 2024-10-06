@@ -1,6 +1,11 @@
 Welcome to xenharmlib's documentation!
 ======================================
 
+.. admonition:: New Release
+
+   Xenharmlib 0.2.0 has just been released.
+   :ref:`Find out what's new<whats_new_0_2_0>`
+
 Xenharmlib is a music theory library for the exploration and research of
 microtonality, diatonic set theory, non-standard notations, and many
 more. The library implements a superset of Western classical music theory,
