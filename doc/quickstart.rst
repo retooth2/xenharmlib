@@ -281,7 +281,7 @@ Pitch Intervals
 
 Two pitches can form an interval. Pitch intervals can be either
 created with the
-:meth:`~xenharmlib.core.tunings.TuningABC.interval` method of a
+:meth:`~xenharmlib.core.origin_context.OriginContext.interval` method of a
 tuning or with the interval method of a pitch:
 
 .. testcode::
@@ -564,8 +564,8 @@ Let's look at it in the context of triads:
 
     c_triad = edo12.scale([c0, e0, g0])
 
-We can use the :meth:`rotated_up` method to receive the first inversion
-of the triad:
+We can use the :meth:`~xenharmlib.core.scale.PeriodicScale.rotated_up` method
+to receive the first inversion of the triad:
 
 .. testcode::
 
@@ -576,14 +576,15 @@ of the triad:
 
     EDOPitchScale([4, 7, 12], 12-EDO)
 
-while :meth:`rotated_down` on the other hand can be used to do the
-opposite, making us return to where we started:
+while :meth:`~xenharmlib.core.scale.PeriodicScale.rotated_down` on the other
+hand can be used to do the opposite, making us return to where we started:
 
 .. testcode::
 
     assert c_first_inversion.rotated_down() == c_triad
 
-There is also the more general method :meth:`rotation` at your disposal,
+There is also the more general method
+:meth:`~xenharmlib.core.scale.PeriodicScale.rotation` at your disposal,
 which can be used as a shortcut if you want more than one upward or
 downward rotation:
 
@@ -600,13 +601,13 @@ Pitch scales also support most of the typical set operations that
 you are familiar with from the builtin python sets (with slightly
 different names):
 
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.intersection`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.union`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.difference`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.symmetric_difference`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.is_subset`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.is_superset`
-* :meth:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.is_disjoint`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.intersection`
+* :meth:`~xenharmlib.core.scale.Scale.union`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.difference`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.symmetric_difference`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.is_subset`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.is_superset`
+* :meth:`~xenharmlib.core.scale.PeriodicScale.is_disjoint`
 
 As an illustration of the usefulness of set operations we calculate
 pitches safe for improvisation according to the 'avoid notes' concept in
@@ -866,73 +867,73 @@ the same as 'b')
      - unicode flat
      - ascii flat
    * - C |acc_^|
-     - C^
+     - ^C
      - C |acc_v|
-     - Cv
+     - vC
    * - C |acc_^^|
-     - C^^
+     - ^^C
      - C |acc_vv|
-     - Cvv
+     - vvC
    * - C |acc_^^^|
-     - C^^^
+     - ^^^C
      - C |acc_vvv|
-     - Cvvv
+     - vvvC
    * - C |acc_#vvv|
-     - C#vvv
+     - vvvC#
      - C |acc_b^^^|
-     - Cb^^^
+     - ^^^Cb
    * - C |acc_#vv|
-     - C#vv
+     - vvC#
      - C |acc_b^^|
-     - Cb^^
+     - ^^Cb
    * - C |acc_#v|
-     - C#v
+     - vC#
      - C |acc_b^|
-     - Cb^
+     - ^Cb
    * - C |acc_#|
      - C#
      - C |acc_b|
      - Cb
    * - C |acc_#^|
-     - C#^
+     - ^C#
      - C |acc_bv|
-     - Cbv
+     - vCb
    * - C |acc_#^^|
-     - C#^^
+     - ^^C#
      - C |acc_bvv|
-     - Cbvv
+     - vvCb
    * - C |acc_#^^^|
-     - C#^^^
+     - ^^^C#
      - C |acc_bvvv|
-     - Cbvvv
+     - vvvCb
    * - C |acc_xvvv|
-     - Cxvvv
+     - vvvCx
      - C |acc_bb^^^|
-     - Cbb^^^
+     - ^^^Cbb
    * - C |acc_xvv|
-     - Cxvv
+     - vvCx
      - C |acc_bb^^|
-     - Cbb^^
+     - ^^Cbb
    * - C |acc_xv|
-     - Cxv
+     - vCx
      - C |acc_bb^|
-     - Cbb^
+     - ^Cbb
    * - C |acc_x|
      - Cx
      - C |acc_bb|
      - Cbb
    * - C |acc_x^|
-     - Cx^
+     - ^Cx
      - C |acc_bbv|
-     - Cbbv
+     - vCbb
    * - C |acc_x^^|
-     - Cx^^
+     - ^^Cx
      - C |acc_bbvv|
-     - Cbbvv
+     - vvCbb
    * - C |acc_x^^^|
-     - Cx^^^
+     - ^^^Cx
      - C |acc_bbvvv|
-     - Cbbvvv
+     - vvvCbb
 
 .. |acc_^| replace:: :smufl:``
 .. |acc_^^| replace:: :smufl:``
@@ -1023,7 +1024,7 @@ and periodic notes:
 Because the equality sign tests on frequency it does *not* care for
 enharmonic differences. If you want to be stricter and only consider
 two notes equal if they are functionally equal you can use the
-:meth:`~xenharmlib.core.note.NoteABC.is_notated_same` method:
+:meth:`~xenharmlib.core.note.NatAccNote.is_notated_same` method:
 
 .. testcode::
 
@@ -1504,7 +1505,7 @@ In the context of natural/accidental notations you can use the
 :meth:`~xenharmlib.core.notation.NatAccNotation.natural_scale` method
 to generate a scale consisting of only the naturals in a base interval.
 (In UpDownNotation this is simply the C-Major Scale). Together with the
-:meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.rotation` method
+:meth:`~xenharmlib.core.scale.PeriodicScale.rotation` method
 you can then generate the Gregorian Modes:
 
 .. testcode::
@@ -1601,7 +1602,7 @@ transpose to obtain each chord.
 We're going to follow a common practice for improvising over chords with
 scales: we avoid using scale notes that clash with the chord tones by a
 minor second. To do this, we'll use the scale's
-:meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.difference`
+:meth:`~xenharmlib.core.scale.PeriodicScale.difference`
 operation to filter them out.
 
 .. testcode::
@@ -1635,7 +1636,7 @@ operation to filter them out.
 We aim to determine if the improvisation scales have any notes in
 common, indicating if there are notes we can play safely across two
 consecutive sections. To test this, we're using the
-:meth:`~xenharmlib.core.note_scale.PeriodicNoteScale.is_disjoint`
+:meth:`~xenharmlib.core.scale.PeriodicScale.is_disjoint`
 method with the :code:`ignore_bi_index` flag set to True, treating notes
 that differ only by the base interval as the same:
 
@@ -1658,7 +1659,7 @@ different set of tones on each scale change.
 The mathematical beauty of Coltrane's composition becomes even more
 apparent when we toss all the notes from the improvisation scales
 together by utilizing the
-:meth:`~xenharmlib.core.note_scale.NoteScale.union`
+:meth:`~xenharmlib.core.scale.Scale.union`
 operator.
 
 .. testcode::

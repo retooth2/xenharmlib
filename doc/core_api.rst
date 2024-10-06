@@ -8,6 +8,30 @@ Frequency
 .. automodule:: xenharmlib.core.frequencies
     :members:
 
+Origin Context
+------------------------
+
+.. automodule:: xenharmlib.core.origin_context
+    :members:
+
+Frequency Representations
+---------------------------
+
+.. automodule:: xenharmlib.core.freq_repr
+    :members:
+
+Scales
+---------------------------
+
+.. automodule:: xenharmlib.core.scale
+    :members:
+
+Intervals
+---------------------------
+
+.. automodule:: xenharmlib.core.interval
+    :members:
+
 Tuning
 ------------------------
 
@@ -44,8 +68,21 @@ NoteScale
 .. automodule:: xenharmlib.core.note_scale
     :members:
 
+Enharmonic Strategies
+------------------------
+
+.. automodule:: xenharmlib.core.enharm_strategies
+    :members:
+
+
 Symbol Codes
 ---------------------------
 
 .. automodule:: xenharmlib.core.symbols
+    :members:
+
+Exceptions
+------------------------
+
+.. automodule:: xenharmlib.exc
     :members:

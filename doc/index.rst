@@ -1,6 +1,11 @@
 Welcome to xenharmlib's documentation!
 ======================================
 
+.. admonition:: New Release
+
+   Xenharmlib 0.2.0 has just been released.
+   :ref:`Find out what's new<whats_new_0_2_0>`
+
 Xenharmlib is a music theory library for the exploration and research of
 microtonality, diatonic set theory, non-standard notations, and many
 more. The library implements a superset of Western classical music theory,
@@ -194,10 +199,12 @@ features.
    :caption: Contents:
 
    quickstart
+   adv_scale_features
    adv_notation_features
    core_api
    export_api
    notation_api
+   changelog
 
 Contributor Guide
 ---------------------
@@ -209,10 +216,11 @@ prerequisites for a pull request to be accepted that you should know:
   `conventional commits <https://www.conventionalcommits.org/>`_
 * To format your code please use the
   `black code formatter <https://black.readthedocs.io/en/stable/>`_
-  with string normalization turned off. In regards to strings, xemharmlib
-  follows the principle single quotes (') for data, double quotes (") for
-  information meant to be read only by humans (like exception descriptions)
-  and triple-double quotes (""") for docstrings.
+  with string normalization turned off and maximum line length 79.
+  In regards to strings, xemharmlib follows the principle single quotes
+  (') for data, double quotes (") for information meant to be read only
+  by humans (like exception descriptions) and triple-double quotes (""")
+  for docstrings.
 * Your code should come with tests that cover everything you have done.
   (This includes branch coverage). Xenharmlib's test framework is
   `pytest <https://docs.pytest.org/>`_
