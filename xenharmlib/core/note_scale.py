@@ -194,20 +194,6 @@ class NoteScale(Scale[NoteT]):
 
         return self.notation.scale(transposed)
 
-    def transpose_bi_index(self, bi_diff: int) -> Self:
-        """
-        Returns a note scale with the same pitch class indices
-        and symbols, but with a transposed base interval
-
-        :param bi_diff: The difference in base interval
-            between this note scale and the resulting one
-        """
-
-        notes = []
-        for note in self:
-            notes.append(note.transpose_bi_index(bi_diff))
-        return self.notation.scale(notes)
-
     def note_intersection(self, other: Self) -> Self:
         """
         Returns a new scale including all notes that are

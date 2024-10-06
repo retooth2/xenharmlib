@@ -12,6 +12,24 @@ ed13_3 = EDTuning(13, FrequencyRatio(3))
 
 
 @pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list, bi_diff',
+    [
+        (edo12, [7, 13, 19, 24], [7+24, 13+24, 19+24, 24+24], 2),
+        (edo12, [9, 12, 14, 15], [9, 12, 14, 15], 0),
+        (edo31, [13, 39, 48, 65], [13-31, 39-31, 48-31, 65-31], -1)
+    ]
+)
+def test_transpose_bi_index(tuning, pi_list, n_pi_list, bi_diff):
+    """
+    Test if transpose_bi_index method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.transpose_bi_index(bi_diff) == expected
+
+
+@pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
         (edo12, [7, 13, 19, 24], [0, 1, 7]),

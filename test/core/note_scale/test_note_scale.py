@@ -1160,57 +1160,6 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
 
 
 @pytest.mark.parametrize(
-    'notation, input_pairs, bi_diff, result_pairs',
-    [
-        (
-            n_edo12,
-            [('A+', 0), ('B+', 0), ('D+', 0)],
-            2,
-            [('A+', 2), ('B+', 2), ('D+', 2)],
-        ),
-        (
-            n_edo12,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            0,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-        ),
-        (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            -1,
-            [('A+', -1), ('B+', 0), ('F', 1)],
-        ),
-        (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            5,
-            [('A+', 5), ('B+', 6), ('F', 7)],
-        ),
-    ]
-)
-def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
-    """
-    Test if transpose method works correctly when given an interval
-    """
-
-    scale = NoteScale(
-        notation,
-        [notation.note(*pair) for pair in input_pairs]
-    )
-
-    transposed = scale.transpose_bi_index(bi_diff)
-
-    with pytest.deprecated_call():
-        assert transposed == notation.note_scale(
-            [notation.note(*pair) for pair in result_pairs]
-        )
-
-    assert transposed == notation.scale(
-        [notation.note(*pair) for pair in result_pairs]
-    )
-
-
-@pytest.mark.parametrize(
     'notation, input_pairs, result_pairs',
     [
         (
