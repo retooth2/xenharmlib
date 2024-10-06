@@ -3,76 +3,84 @@ from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch import EDPitchInterval
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))
 edo24 = EDTuning(24, FrequencyRatio(2))
 edo31 = EDTuning(31, FrequencyRatio(2))
 ed13_3 = EDTuning(13, FrequencyRatio(3))
 
-def test_init_incompatible_tunings():
+def test_init_incompatible_origin_contexts():
     """
     Test if interval cannot be initialized from two pitches
     that originate from different tunings
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
-    with pytest.raises(IncompatibleTunings):
-        EDPitchInterval.from_pitches(
-            EDPitch(edo12, 0),
-            EDPitch(edo12_2, 0),
+
+    with pytest.raises(IncompatibleOriginContexts):
+        with pytest.deprecated_call():
+            EDPitchInterval.from_pitches(
+                edo12.pitch(0),
+                edo12_2.pitch(0),
+            )
+
+    with pytest.raises(IncompatibleOriginContexts):
+        EDPitchInterval.from_source_and_target(
+            edo12.pitch(0),
+            edo12_2.pitch(0),
         )
 
 @pytest.mark.parametrize(
     'interval, gen_pitch, distance',
     [
         (
-            EDPitch(edo12, 0).interval(
-                EDPitch(edo12, 14)
+            edo12.pitch(0).interval(
+                edo12.pitch(14)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             2
         ),
         (
-            EDPitch(edo12, 9).interval(
-                EDPitch(edo12, 6)
+            edo12.pitch(9).interval(
+                edo12.pitch(6)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             3
         ),
         (
-            EDPitch(edo12, 6).interval(
-                EDPitch(edo12, 9)
+            edo12.pitch(6).interval(
+                edo12.pitch(9)
             ), 
-            EDPitch(edo12, 7),
+            edo12.pitch(7),
             3
         ),
         (
-            EDPitch(edo31, 12).interval(
-                EDPitch(edo31, 12)
+            edo31.pitch(12).interval(
+                edo31.pitch(12)
             ), 
-            EDPitch(edo31, 7),
+            edo31.pitch(7),
             0
         ),
         (
-            EDPitch(edo31, 8).interval(
-                EDPitch(edo31, 12)
+            edo31.pitch(8).interval(
+                edo31.pitch(12)
             ), 
-            EDPitch(edo31, 1),
+            edo31.pitch(1),
             4
         ),
         (
-            EDPitch(edo31, 12).interval(
-                EDPitch(edo31, 8)
+            edo31.pitch(12).interval(
+                edo31.pitch(8)
             ), 
-            EDPitch(edo31, 1),
+            edo31.pitch(1),
             4
         ),
         (
-            EDPitch(edo31, 0).interval(
-                EDPitch(edo31, 13)
+            edo31.pitch(0).interval(
+                edo31.pitch(13)
             ),
-            EDPitch(edo31, 18),
+            edo31.pitch(18),
             1
         ),
     ]

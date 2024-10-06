@@ -25,15 +25,14 @@ that need a couple of methods implemented by a subclass.
 
 from __future__ import annotations
 import os
-import sympy as sp
-from abc import ABC
 from abc import abstractmethod
 from fractions import Fraction
 from typing import TypeVar
-from typing import Generic
 from typing import List
 from typing import Optional
-from unittest import mock
+from warnings import warn
+
+import sympy as sp
 
 from .pitch import Pitch
 from .pitch import PitchInterval
@@ -51,14 +50,16 @@ from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
-from ..exc import IncompatibleTunings
+from .origin_context import OriginContext
+from ..exc import IncompatibleOriginContexts
+from ..exc import InvalidPitchClassIndex
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
 
-class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
+class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -96,10 +97,12 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         ref_frequency: Frequency,
     ):
 
+        super().__init__(pitch_cls, pitch_interval_cls, pitch_scale_cls)
         self.ref_frequency = ref_frequency
-        self._pitch_cls = pitch_cls
-        self._pitch_interval_cls = pitch_interval_cls
-        self._pitch_scale_cls = pitch_scale_cls
+
+    @property
+    def zero_element(self) -> PitchT:
+        return self.pitch(0)
 
     def pitch(self, pitch_index: int) -> PitchT:
         """
@@ -109,26 +112,63 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         :param pitch_index: An integer denoting the
             number of steps from the zero pitch.
         """
-        return self._pitch_cls(self, pitch_index)
+        frequency = self.get_frequency_for_index(pitch_index)
+        return self._freq_repr_cls(self, frequency, pitch_index)
 
     def pitch_interval(self, pitch_a: PitchT, pitch_b: PitchT) -> IntervalT:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Returns a pitch interval having the pitch intervals type
         this tuning was configured with
 
         :param pitch_a: The starting pitch
         :param pitch_b: The target pitch
         """
-        return self._pitch_interval_cls.from_pitches(pitch_a, pitch_b)
+        warn(
+            f'{self.__class__.__name__}.pitch_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.interval(pitch_a, pitch_b)
+
+    def index_scale(self, pitch_indices: Optional[List[int]] = None) -> ScaleT:
+        """
+        Constructs a pitch scale from a list of pitch indices.
+        According to the definition of a scale indices occuring
+        multiple times will only be considered once. The list
+        of indices will also be sorted automatically.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        pitches = []
+        for index in pitch_indices:
+            pitches.append(self.pitch(index))
+
+        return self.scale(pitches)
 
     def pitch_scale(self, pitches: Optional[List[PitchT]] = None) -> ScaleT:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
         Returns a pitch scale having the pitch scale type
         this tuning was configured with
 
         :param pitches: A list of pitches
         """
-        return self._pitch_scale_cls(self, pitches)
+        warn(
+            f'{self.__class__.__name__}.pitch_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.scale(pitches)
 
     def pitch_range(self, start, stop=None, step=1):
         """
@@ -172,6 +212,13 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
         """
         (Must be overwritten by subclasses)
         Returns the frequency for a given pitch
+        """
+
+    @abstractmethod
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        (Must be overwritten by subclasses)
+        Returns the frequency for a given pitch index
         """
 
     def get_approx_pitch(self, frequency: Frequency) -> PitchT:
@@ -229,9 +276,6 @@ class TuningABC(ABC, Generic[PitchT, IntervalT, ScaleT]):
             return lower_pitch
 
         return higher_pitch
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.name})'
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
@@ -294,6 +338,49 @@ class PeriodicTuning(
 
     def __len__(self):
         return self._period_length
+
+    def pc_scale(self, pc_indices: Optional[List[int]] = None) -> ScaleT:
+        """
+        Constructs a pitch scale from a list of pitch class indices.
+        The pitch class indices are assumed to be in the order they
+        appear in the scale meaning that e.g. in 12-EDO the provided
+        argument [7, 3, 4] will result in a scale with pitch indices
+        [7, 15, 16]. The base interval of the first provided pc index
+        will always assumed to be 0.
+
+        :raises InvalidPitchClassIndex: If one of the indices in the
+            list is not a valid pitch class index in this tuning
+
+        :param pc_indices: A list of pitch class indices.
+        """
+
+        pitches = []
+        current_bi_index = 0
+        tuning_len = len(self)
+
+        if not pc_indices:
+            return self.scale()
+
+        head = pc_indices[0]
+        if head >= tuning_len:
+            raise InvalidPitchClassIndex(
+                f'Pitch class index must be between 0 and {tuning_len}'
+                f'(exclusive). {head} did not meet that boundary.'
+            )
+        pitches.append(self.pitch(head))
+
+        for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
+            if current_pci >= tuning_len:
+                raise InvalidPitchClassIndex(
+                    f'Pitch class index must be between 0 and {tuning_len}'
+                    f'(exclusive). {current_pci} did not meet that boundary.'
+                )
+            if current_pci <= prev_pci:
+                current_bi_index += 1
+            pitch_index = current_pci + (tuning_len * current_bi_index)
+            pitches.append(self.pitch(pitch_index))
+
+        return self.scale(pitches)
 
     def get_ring_number(self, pitch: PeriodicPitchT) -> int:
         """
@@ -405,15 +492,16 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         )
 
         if not isinstance(eq_ratio, FrequencyRatio):
-            raise TypeError(
-                'eq_ratio must be a FrequencyRatio'
-            )
+            raise TypeError('eq_ratio must be a FrequencyRatio')
 
         self.divisions = divisions
         self.eq_ratio = eq_ratio
 
     @property
     def name(self) -> str:
+        """
+        The name of this tuning
+        """
         expr = f'{self.eq_ratio.sp_expr}'
         return f'{self.divisions}ed{expr}'
 
@@ -422,17 +510,28 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         Returns the frequency of a given note
 
         :param note: A note from this tuning
-        :raises IncompatibleTunings: If note is from a different
+        :raises IncompatibleOriginContexts: If note is from a different
             tuning
         """
 
         if pitch.tuning is not self:
-            raise IncompatibleTunings('Given pitch has a different tuning')
+            raise IncompatibleOriginContexts(
+                'Given pitch has a different tuning'
+            )
+
+        index = pitch.pitch_index
+        return self.get_frequency_for_index(index)
+
+    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
+        """
+        Returns the frequency for a given pitch index
+
+        :param pitch_index: A pitch index
+        """
 
         scale_size = len(self)
-        index = pitch.pitch_index
         exp = sp.Rational(1, scale_size)
-        ratio = (self.eq_ratio**exp)**index
+        ratio = (self.eq_ratio**exp) ** pitch_index
         return self.ref_frequency * ratio
 
 
@@ -489,9 +588,7 @@ class EDOTuning(EDTuning):
         Returns the pitch that best approximates the pure fifth
         (frequency ratio 3/2) in this tuning.
         """
-        return self.get_approx_pitch(
-            self.ref_frequency * FrequencyRatio(3, 2)
-        )
+        return self.get_approx_pitch(self.ref_frequency * FrequencyRatio(3, 2))
 
     @property
     def fifth(self):

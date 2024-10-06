@@ -1,12 +1,11 @@
 import pytest
 import sympy as sp
-from fractions import Fraction
 
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.frequencies import Frequency
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.exc import IncompatibleTunings
-from xenharmlib.exc import InvalidFrequency
+from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import InvalidPitchClassIndex
 
 FREQ_EPSILON = 0.1
 
@@ -37,14 +36,14 @@ def test_get_frequency(tuning, pitch_index, freq):
     assert tuning.get_frequency(pitch) == freq
 
 
-def test_get_frequency_incompatible_tunings():
+def test_get_frequency_incompatible_origin_contexts():
 
     edo12 = EDTuning(12, FrequencyRatio(2))
     edo12_2 = EDTuning(12, FrequencyRatio(2))
 
     edo12_pitch = edo12.pitch(8)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         edo12_2.get_frequency(edo12_pitch)
 
 
@@ -107,3 +106,102 @@ def test_generator_pitches(tuning, generator_pitch_indices):
     assert generator_pitch_indices == [
         pitch.pitch_index for pitch in gen_pitches
     ]
+
+
+@pytest.mark.parametrize(
+    'tuning, pc_indices, expected',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [],
+            []
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [3],
+            [3]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [7, 9, 3, 5],
+            [7, 9, 15, 17]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [3, 3, 3, 3],
+            [3, 15, 27, 39]
+        ),
+        (
+            EDTuning(24, FrequencyRatio(2)),
+            [3, 6, 10, 16],
+            [3, 6, 10, 16]
+        ),
+    ]
+)
+def test_pc_scale(tuning, pc_indices, expected):
+
+    scale = tuning.pc_scale(pc_indices)
+    assert scale == tuning.scale(
+        [tuning.pitch(i) for i in expected]
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pc_indices',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [12]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [3, 4, 14, 3],
+        ),
+        (
+            EDTuning(24, FrequencyRatio(2)),
+            [3, 6, 10, 16, 25],
+        ),
+    ]
+)
+def test_pc_scale_invalid_pci(tuning, pc_indices):
+
+    with pytest.raises(InvalidPitchClassIndex):
+        tuning.pc_scale(pc_indices)
+
+
+@pytest.mark.parametrize(
+    'tuning, indices, expected',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [],
+            []
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [3],
+            [3]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [7, 9, 3, 5],
+            [3, 5, 7, 9]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [3, 3, 3, 3],
+            [3]
+        ),
+        (
+            EDTuning(24, FrequencyRatio(2)),
+            [3, 6, 10, 16],
+            [3, 6, 10, 16]
+        ),
+    ]
+)
+def test_index_scale(tuning, indices, expected):
+
+    scale = tuning.index_scale(indices)
+    assert scale == tuning.scale(
+        [tuning.pitch(i) for i in expected]
+    )

@@ -2,7 +2,7 @@ import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 
 edo12 = EDTuning(12, FrequencyRatio(2))
@@ -11,6 +11,7 @@ edo24 = EDTuning(24, FrequencyRatio(2))
 edo31 = EDTuning(31, FrequencyRatio(2))
 ed13_3 = EDTuning(13, FrequencyRatio(3))
 ed17_3 = EDTuning(17, FrequencyRatio(3))
+
 
 @pytest.mark.parametrize(
     'tuning, pitch_index, exp_pc, exp_bi',
@@ -29,10 +30,9 @@ def test_pitch_periodic_indices(tuning, pitch_index, exp_pc, exp_bi):
     are calculated correctly from pitch index
     """
 
-    pitch = EDPitch(tuning, pitch_index)
+    pitch = tuning.pitch(pitch_index)
     assert pitch.pc_index == exp_pc
     assert pitch.bi_index == exp_bi
-
 
 
 @pytest.mark.parametrize(
@@ -49,7 +49,7 @@ def test_transpose_bi_index(tuning, pitch_index, diff, exp_result):
     Test if method transpose_bi_index works correctly
     """
 
-    pitch = EDPitch(tuning, pitch_index)
+    pitch = tuning.pitch(pitch_index)
     transposed = pitch.transpose_bi_index(diff)
     assert transposed.pitch_index == exp_result
 
@@ -104,15 +104,15 @@ def test_transpose_interval(tuning, pitch_index, diff, new_index):
 @pytest.mark.parametrize(
     'pitch, gen_pitch, gen_index',
     [
-        (EDPitch(edo12, 0), EDPitch(edo12, 7), 0),
-        (EDPitch(edo12, 6), EDPitch(edo12, 7), 6),
-        (EDPitch(edo12, 3), EDPitch(edo12, 7), 9),
-        (EDPitch(edo12, 3), EDPitch(edo12, 5), 3),
-        (EDPitch(edo12, 3), EDPitch(edo12, 5+12), 3),
-        (EDPitch(edo31, 9), EDPitch(edo31, 1), 9),
-        (EDPitch(edo31, 5), EDPitch(edo31, 9), 4),
-        (EDPitch(ed13_3, 8), EDPitch(ed13_3, 7), 3),
-        (EDPitch(edo12, -10), EDPitch(edo12, 7), 2),
+        (edo12.pitch(0), edo12.pitch(7), 0),
+        (edo12.pitch(6), edo12.pitch(7), 6),
+        (edo12.pitch(3), edo12.pitch(7), 9),
+        (edo12.pitch(3), edo12.pitch(5), 3),
+        (edo12.pitch(3), edo12.pitch(5+12), 3),
+        (edo31.pitch(9), edo31.pitch(1), 9),
+        (edo31.pitch(5), edo31.pitch(9), 4),
+        (ed13_3.pitch(8), ed13_3.pitch(7), 3),
+        (edo12.pitch(-10), edo12.pitch(7), 2),
     ]
 )
 def test_get_generator_index(pitch, gen_pitch, gen_index):
@@ -130,23 +130,23 @@ def test_get_generator_index_invalid_generator():
     given parameter is not a generator pitch
     """
 
-    pitch = EDPitch(edo12, 8)
+    pitch = edo12.pitch(8)
     with pytest.raises(InvalidGenerator):
         pitch.get_generator_index(
-            EDPitch(edo12, 4)
+            edo12.pitch(4)
         )
 
 
 @pytest.mark.parametrize(
     'pitch',
     [
-        EDPitch(edo12, 0),
-        EDPitch(edo12, 7),
-        EDPitch(edo12, 23),
-        EDPitch(edo31, 0),
-        EDPitch(edo31, 18),
-        EDPitch(edo31, 32),
-        EDPitch(edo31, -9),
+        edo12.pitch(0),
+        edo12.pitch(7),
+        edo12.pitch(23),
+        edo31.pitch(0),
+        edo31.pitch(18),
+        edo31.pitch(32),
+        edo31.pitch(-9),
     ]
 )
 def test_pcs_normalized(pitch):
@@ -154,18 +154,18 @@ def test_pcs_normalized(pitch):
     Test if pcs_normalized method works correctly
     """
 
-    expected = EDPitch(pitch.tuning, pitch.pc_index)
+    expected = pitch.tuning.pitch(pitch.pc_index)
     assert pitch.pcs_normalized() == expected
 
 
 @pytest.mark.parametrize(
     'pitch_a, pitch_b',
     [
-        (EDPitch(edo12, 0), EDPitch(edo31, 0)),
-        (EDPitch(edo12, 24), EDPitch(edo31, 62)),
-        (EDPitch(edo12, 7), EDPitch(edo31, 18)),
-        (EDPitch(edo12, 7), EDPitch(ed13_3, 5)),
-        (EDPitch(edo12, -7), EDPitch(ed13_3, -5)),
+        (edo12.pitch(0), edo31.pitch(0)),
+        (edo12.pitch(24), edo31.pitch(62)),
+        (edo12.pitch(7), edo31.pitch(18)),
+        (edo12.pitch(7), ed13_3.pitch(5)),
+        (edo12.pitch(-7), ed13_3.pitch(-5)),
     ]
 )
 def test_retune(pitch_a, pitch_b):
@@ -180,14 +180,14 @@ def test_retune(pitch_a, pitch_b):
 @pytest.mark.parametrize(
     'pitch_a, pitch_b',
     [
-        (EDPitch(edo12, 0), EDPitch(edo12, 6)),
-        (EDPitch(edo12, 9), EDPitch(edo12, 18)),
-        (EDPitch(edo31, 18), EDPitch(edo31, 19)),
-        (EDPitch(edo31, 18), EDPitch(edo12, 7)),
-        (EDPitch(edo12, 7), EDPitch(ed13_3, 5)),
-        (EDPitch(edo12, -7), EDPitch(ed13_3, 5)),
-        (EDPitch(edo12, -7), EDPitch(ed13_3, -2)),
-        (EDPitch(edo12, -7), EDPitch(edo12, -6)),
+        (edo12.pitch(0), edo12.pitch(6)),
+        (edo12.pitch(9), edo12.pitch(18)),
+        (edo31.pitch(18), edo31.pitch(19)),
+        (edo31.pitch(18), edo12.pitch(7)),
+        (edo12.pitch(7), ed13_3.pitch(5)),
+        (edo12.pitch(-7), ed13_3.pitch(5)),
+        (edo12.pitch(-7), ed13_3.pitch(-2)),
+        (edo12.pitch(-7), edo12.pitch(-6)),
     ]
 )
 def test_lt_gt(pitch_a, pitch_b):
@@ -206,11 +206,11 @@ def test_lt_gt(pitch_a, pitch_b):
 @pytest.mark.parametrize(
     'pitch_a, pitch_b',
     [
-        (EDPitch(edo12, 0), EDPitch(edo12, 0)),
-        (EDPitch(edo31, 9), EDPitch(edo31, 9)),
-        (EDPitch(edo12, 3), EDPitch(edo24, 6)),
-        (EDPitch(edo12, 19), EDPitch(edo24, 38)),
-        (EDPitch(edo12, -13), EDPitch(edo24, -26)),
+        (edo12.pitch(0), edo12.pitch(0)),
+        (edo31.pitch(9), edo31.pitch(9)),
+        (edo12.pitch(3), edo24.pitch(6)),
+        (edo12.pitch(19), edo24.pitch(38)),
+        (edo12.pitch(-13), edo24.pitch(-26)),
     ]
 )
 def test_eq(pitch_a, pitch_b):
@@ -224,10 +224,10 @@ def test_eq(pitch_a, pitch_b):
 @pytest.mark.parametrize(
     'pitch_a, pitch_b',
     [
-        (EDPitch(edo12, 3), EDPitch(edo12, 3)),
-        (EDPitch(edo31, 9), EDPitch(edo31, 40)),
-        (EDPitch(edo24, 3), EDPitch(edo24, 51)),
-        (EDPitch(edo12, 2), EDPitch(edo24, 52)),
+        (edo12.pitch(3), edo12.pitch(3)),
+        (edo31.pitch(9), edo31.pitch(40)),
+        (edo24.pitch(3), edo24.pitch(51)),
+        (edo12.pitch(2), edo24.pitch(52)),
     ]
 )
 def test_is_equivalent(pitch_a, pitch_b):
@@ -242,9 +242,9 @@ def test_is_equivalent(pitch_a, pitch_b):
 @pytest.mark.parametrize(
     'pitch_a, pitch_b',
     [
-        (EDPitch(edo12, 3), EDPitch(edo12, 4)),
-        (EDPitch(edo31, 9), EDPitch(edo31, 43)),
-        (EDPitch(edo24, 3), EDPitch(edo24, 59)),
+        (edo12.pitch(3), edo12.pitch(4)),
+        (edo31.pitch(9), edo31.pitch(43)),
+        (edo24.pitch(3), edo24.pitch(59)),
     ]
 )
 def test_is_not_equivalent(pitch_a, pitch_b):
@@ -259,22 +259,22 @@ def test_is_not_equivalent(pitch_a, pitch_b):
 @pytest.mark.parametrize(
     'pitch_b',
     [
-        EDPitch(edo12, 3),
-        EDPitch(edo31, 0),
-        EDPitch(ed13_3, 7),
+        edo12.pitch(3),
+        edo31.pitch(0),
+        ed13_3.pitch(7),
     ]
 )
-def test_get_generator_index_incompatible_tunings(pitch_b):
+def test_get_generator_index_incompatible_origin_contexts(pitch_b):
     """
-    Test if IncompatibleTunings is raised while calling
+    Test if IncompatibleOriginContexts is raised while calling
     get_generator_index when generator pitch is from a different
     tuning context
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
-    pitch_a = EDPitch(edo12_2, 0)
+    pitch_a = edo12_2.pitch(0)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a.get_generator_index(pitch_b)
 
 
@@ -297,24 +297,18 @@ def test_arithmetic(index_a, index_b):
     diff_result = index_a - index_b
     mul_result = index_a * index_b
 
-    pitch_a = EDPitch(edo12, index_a)
-    pitch_b = EDPitch(edo12, index_b)
+    pitch_a = edo12.pitch(index_a)
+    pitch_b = edo12.pitch(index_b)
 
     sum_pitch = (pitch_a + pitch_b)
     diff_pitch = (pitch_a - pitch_b)
     mul_pitch = index_a * pitch_b
     rmul_pitch = pitch_b * index_a
 
-    assert sum_pitch.pitch_index == EDPitch(
-        edo12, sum_result
-    ).pitch_index
-    assert diff_pitch.pitch_index == EDPitch(
-        edo12, diff_result
-    ).pitch_index
+    assert sum_pitch.pitch_index == edo12.pitch(sum_result).pitch_index
+    assert diff_pitch.pitch_index == edo12.pitch(diff_result).pitch_index
     assert mul_pitch == rmul_pitch
-    assert mul_pitch.pitch_index == EDPitch(
-        edo12, mul_result
-    ).pitch_index
+    assert mul_pitch.pitch_index == edo12.pitch(mul_result).pitch_index
 
 
 @pytest.mark.parametrize(
@@ -326,19 +320,19 @@ def test_arithmetic(index_a, index_b):
         (-9, 2),
     ]
 )
-def test_arithmetic_incompatible_tunings(index_a, index_b):
+def test_arithmetic_incompatible_origin_contexts(index_a, index_b):
     """
-    Test if IncompatibleTunings is raised when addition
+    Test if IncompatibleOriginContexts is raised when addition
     and substraction is done with pitches from different
     tuning contexts
     """
 
     edo12_2 = EDTuning(12, FrequencyRatio(2))
-    pitch_a = EDPitch(edo12, index_a)
-    pitch_b = EDPitch(edo12_2, index_b)
+    pitch_a = edo12.pitch(index_a)
+    pitch_b = edo12_2.pitch(index_b)
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a - pitch_b
 
-    with pytest.raises(IncompatibleTunings):
+    with pytest.raises(IncompatibleOriginContexts):
         pitch_a + pitch_b

@@ -19,23 +19,12 @@ by the user of the library
 """
 
 
-class IncompatibleTunings(Exception):
+class IncompatibleOriginContexts(Exception):
     """
     Gets raised whenever two or more objects are not
     compatible because they are based on different
-    tunings
+    orgin contexts
     """
-
-    pass
-
-
-class IncompatibleNotations(Exception):
-    """
-    Gets raised whenever two or more objects are not
-    compatible because they are based on different
-    notations
-    """
-
     pass
 
 
@@ -122,4 +111,10 @@ class InvalidNaturalDiffClassIndex(Exception):
 class InvalidIntervalNumber(Exception):
     """
     Gets raised when an interval number is not valid
+    """
+
+
+class InvalidIndexMask(Exception):
+    """
+    Gets raised when an index mask expression is invalid
     """

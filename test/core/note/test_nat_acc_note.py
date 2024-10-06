@@ -2,7 +2,7 @@ import pytest
 
 from xenharmlib import EDOTuning
 from xenharmlib.exc import UnknownNoteSymbol
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 from ..utils import make_nat_acc_test_notation
 
@@ -729,7 +729,7 @@ def test_note_get_generator_index_diff_notation(
     note = notation.note(pc_symbol, nat_bi_index)
     generator = diff_notation.note(gen_pc_symbol, gen_nat_bi_index)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         note.get_generator_index(generator)
 
 
@@ -816,7 +816,7 @@ def test_note_is_notated_same_diff_notation(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = diff_notation.note(pc_symbol_b, nat_bi_index_b)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         note_a.is_notated_same(note_b)
 
 
@@ -898,7 +898,7 @@ def test_note_is_notated_equivalent_diff_notation(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = diff_notation.note(pc_symbol_b, nat_bi_index_b)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         note_a.is_notated_equivalent(note_b)
 
 
@@ -928,7 +928,7 @@ def test_note_is_notated_equivalent_neg(
     assert not note_a.is_notated_equivalent(note_b)
 
 
-def test_note_transpose_incompatible_notations():
+def test_note_transpose_incompatible_origin_contexts():
     """
     Test if correct error gets raised when interval is from
     a different notation when calling transpose
@@ -936,8 +936,75 @@ def test_note_transpose_incompatible_notations():
 
     note_a = n_edo12.note('A', 0)
     note_b = n_edo12.note('B+', 0)
-    interval = n_edo12.note_interval(note_a, note_b)
     note_c = n_edo24.note('B+', 0)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.deprecated_call():
+        interval = n_edo12.note_interval(note_a, note_b)
+
+    with pytest.raises(IncompatibleOriginContexts):
         note_c.transpose(interval)
+
+    interval = n_edo12.interval(note_a, note_b)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        note_c.transpose(interval)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol_a, nat_bi_index_a, pc_symbol_b, nat_bi_index_b',
+    [
+        (n_edo12, 'A',     0,  'A',     0),
+        (n_edo12, 'B',     0,  'F',    -1),
+        (n_edo12, 'F',    -1,  'B',     0),
+        (n_edo12, 'B+',    1,  'F-',   -2),
+        (n_edo12, 'F-',   -2,  'B+',    1),
+    ]
+)
+def test_note_reflection_without_param(
+    notation,
+    pc_symbol_a,
+    nat_bi_index_a,
+    pc_symbol_b,
+    nat_bi_index_b,
+):
+    """
+    Test if reflection of note is calculated correctly
+    without parameter given
+    """
+
+    note_a = notation.note(pc_symbol_a, nat_bi_index_a)
+    note_b = notation.note(pc_symbol_b, nat_bi_index_b)
+    assert note_a.reflection() == note_b
+
+
+@pytest.mark.parametrize(
+    'notation, '
+    'pc_symbol_a, nat_bi_index_a, '
+    'pc_symbol_b, nat_bi_index_b, '
+    'pc_symbol_axis, nat_bi_index_axis, ',
+    [
+        (n_edo12, 'A',   0,  'C',   0, 'B',   0),
+        (n_edo12, 'C',   0,  'A',   0, 'B',   0),
+        (n_edo12, 'A+',  0,  'C-',  0, 'B',   0),
+        (n_edo12, 'A+',  0,  'E-', -1, 'F',  -1),
+        (n_edo12, 'E-', -1,  'A+',  0, 'F',  -1),
+    ]
+)
+def test_note_reflection_custom_axis(
+    notation,
+    pc_symbol_a,
+    nat_bi_index_a,
+    pc_symbol_b,
+    nat_bi_index_b,
+    pc_symbol_axis,
+    nat_bi_index_axis,
+):
+    """
+    Test if reflection of note is calculated correctly
+    with custom axis
+    """
+
+    note_a = notation.note(pc_symbol_a, nat_bi_index_a)
+    note_b = notation.note(pc_symbol_b, nat_bi_index_b)
+    axis = notation.note(pc_symbol_axis, nat_bi_index_axis)
+    assert note_a.reflection(axis) == note_b

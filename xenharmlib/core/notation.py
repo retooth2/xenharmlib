@@ -20,35 +20,38 @@ tuning that provides a human-friendly string interface to all the
 lower-level objects (pitch, pitch interval, pitch scale)
 """
 
-import numpy as np
-
 from typing import Tuple
 from typing import Dict
 from typing import Optional
 from typing import TypeVar
-from typing import Generic
 from typing import List
-from abc import ABC
+from warnings import warn
 from abc import abstractmethod
+import numpy as np
+
 from ..exc import UnknownNoteSymbol
+from .notes import NoteABC
+from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
 from .symbols import SymbolValueNotMapped
 from .symbols import UnknownSymbolString
-from ..exc import IncompatibleNotations
+from .origin_context import OriginContext
+from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
 from .symbols import AmbiguousSymbol
 
-NoteT = TypeVar('NoteT')
-IntervalT = TypeVar('IntervalT')
-ScaleT = TypeVar('ScaleT')
+NoteT = TypeVar('NoteT', bound=NoteABC)
+IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
+ScaleT = TypeVar('ScaleT', bound=NoteScale)
 
 
-class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
+class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
@@ -76,11 +79,9 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
     ):
-
+        super().__init__(note_cls, note_interval_cls, note_scale_cls)
         self._tuning = tuning
-        self._note_cls = note_cls
-        self._note_interval_cls = note_interval_cls
-        self._note_scale_cls = note_scale_cls
+        self._enharm_strategy = None
 
     @property
     def tuning(self):
@@ -88,6 +89,24 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
         Returns the tuning this notation was built for
         """
         return self._tuning
+
+    @property
+    def enharm_strategy(self):
+        """
+        The enharmonic strategy of this notation. Enharmonic strategies
+        define different ways to map pitch layer objects to notation layer
+        objects.
+        """
+        if self._enharm_strategy is None:
+            raise IncompleteNotation(
+                'Notation did not define an enharmonic strategy. Without '
+                'it the result of this operation is not well-defined'
+            )
+        return self._enharm_strategy
+
+    @enharm_strategy.setter
+    def enharm_strategy(self, enharm_strategy):
+        self._enharm_strategy = enharm_strategy
 
     @abstractmethod
     def note(self, *args, **kwargs) -> NoteT:
@@ -115,6 +134,56 @@ class NotationABC(ABC, Generic[NoteT, IntervalT, ScaleT]):
 
         :param notes: A list of notes
         """
+
+    def guess_note(self, pitch) -> NoteT:
+        """
+        Guesses a note from a pitch using the preferred enharmonic
+        strategy of this notation
+
+        :pitch: A pitch object originating from the underlying tuning
+        """
+
+        if pitch.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch must originate from the tuning that this '
+                'notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note(self, pitch)
+
+    def guess_note_interval(self, pitch_interval) -> NoteT:
+        """
+        Guesses a note interval from a pitch interval using the preferred
+        enharmonic strategy of this notation
+
+        :pitch_interval: A pitch interval object originating
+            from the underlying tuning
+        """
+
+        if pitch_interval.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval(self, pitch_interval)
+
+    def guess_note_scale(self, pitch_scale) -> NoteT:
+        """
+        Guesses a note scale from a pitch scale using the preferred
+        enharmonic strategy of this notation
+
+        :pitch_scale: A pitch scale object originating
+            from the underlying tuning
+        """
+
+        if pitch_scale.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch scale must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_scale(self, pitch_scale)
 
 
 class IncompleteNotation(Exception):
@@ -358,6 +427,24 @@ class NatAccNotation(
         self._acc_symbol_code: Optional[SymbolCode] = None
         self._interval_symbol_codes: Dict[int, SymbolCode] = {}
 
+    @property
+    def zero_element(self) -> NatAccNote:
+        """
+        The 'standard note' with pitch_index 0
+        """
+
+        natc_symbol = self._naturals[0][0]
+        note = self.note(natc_symbol, 0)
+
+        if note.pitch_index != 0:
+            raise IncompleteNotation(
+                'First defined natural did not point to pitch index 0.'
+                'Please overwrite the zero_element property to return '
+                'a correct result'
+            )
+
+        return note
+
     # start with the definition of functions for the formal system
     # defined above the class
 
@@ -394,8 +481,8 @@ class NatAccNotation(
 
         if nat_diff >= 0:
             return abs_pitch_diff
-        else:
-            return (-1) * abs_pitch_diff
+
+        return (-1) * abs_pitch_diff
 
     def balance_note_acc_vector(
         self,
@@ -488,9 +575,19 @@ class NatAccNotation(
             pc_symbol
         )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
+        natc_pitch_index = self.nat_index_to_pitch_index(natc_index)
+        acc_value = int(sum(acc_vector))
 
-        chosen_note = self._note_cls(
+        tuning = self.tuning
+        pitch_index = (
+            natc_pitch_index + len(tuning) * nat_bi_index
+        ) + acc_value
+        frequency = tuning.get_frequency_for_index(pitch_index)
+
+        chosen_note = self._freq_repr_cls(
             self,
+            frequency,
+            pitch_index,
             nat_index=nat_index,
             acc_vector=acc_vector,
             pc_symbol=pc_symbol,
@@ -500,52 +597,88 @@ class NatAccNotation(
 
         return chosen_note
 
+    def note_by_numdef(
+        self, nat_index: int, acc_vector: Tuple[int, ...]
+    ) -> NatAccNote:
+        """
+        Creates a natural/accidental note by its numerical definition.
+        Autogenerates appropriate symbols
+
+        :param nat_index: The natural index of the note
+        :param acc_vector: The accidental vector of the note
+        """
+
+        acc_value = int(sum(acc_vector))
+        nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
+        pitch_index = nat_pitch_index + acc_value
+        frequency = self.tuning.get_frequency_for_index(pitch_index)
+        result = self.gen_pc_symbol(nat_index, acc_vector)
+
+        pc_symbol = result[0]
+        natc_symbol = result[1]
+        acc_symbol = result[2]
+
+        chosen_note = self._freq_repr_cls(
+            self,
+            frequency,
+            pitch_index,
+            nat_index,
+            acc_vector,
+            pc_symbol,
+            natc_symbol,
+            acc_symbol,
+        )
+
+        return chosen_note
+
     def note_interval(
         self, note_a: NatAccNote, note_b: NatAccNote
     ) -> NatAccNoteInterval:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`interval` instead.
+
         Creates a note interval between two notes created by
         this notation
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param note_a: The source note
         :param note_b: The target note
         """
-
-        if note_a.notation is not self or note_b.notation is not self:
-            raise IncompatibleNotations(
-                'At least one of the given notes does not '
-                'originate from this notation'
-            )
-
-        return self._note_interval_cls.from_notes(note_a, note_b)
+        warn(
+            f'{self.__class__.__name__}.note_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.interval instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.interval(note_a, note_b)
 
     def note_scale(
         self, notes: Optional[List[NatAccNote]] = None
     ) -> NatAccNoteScale:
         """
+        .. deprecated:: 0.2.0
+           Use :py:meth:`scale` instead.
+
         Creates a note scale from a list of notes
 
-        :raises IncompatibleNotations: If one of the notes has
+        :raises IncompatibleOriginContexts: If one of the notes has
             a different notation than this one
 
         :param notes: A list of notes created by this
             notation
         """
-
-        if notes is None:
-            notes = []
-
-        for note in notes:
-            if note.notation is not self:
-                raise IncompatibleNotations(
-                    'At least one of the given notes does not '
-                    'originate from this notation'
-                )
-
-        return self._note_scale_cls(self, notes)
+        warn(
+            f'{self.__class__.__name__}.note_scale is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.scale instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.scale(notes)
 
     def shorthand_interval(
         self, symbol: str, number: int
@@ -587,8 +720,24 @@ class NatAccNotation(
         first_natc_symbol = self.get_natc_symbol(0)
         ref_note = self.note(first_natc_symbol, 0)
 
-        return self._note_interval_cls(
-            self, ref_note, nat_diff, acc_vector, symbol, number
+        nat_pitch_diff = self.std_pitch_diff(nat_diff)
+        pitch_diff_zero = int(sum(acc_vector)) + nat_pitch_diff
+        pitch_diff = pitch_diff_zero - ref_note.pitch_index
+
+        tuning = self.tuning
+        frequency_ratio = ref_note.pitch.interval(
+            tuning.pitch(pitch_diff_zero)
+        ).frequency_ratio
+
+        return self._interval_cls(
+            self,
+            frequency_ratio,
+            pitch_diff,
+            ref_note,
+            nat_diff,
+            acc_vector,
+            symbol,
+            number,
         )
 
     def natural_scale(self, bi_index: int = 0) -> NatAccNoteScale:
@@ -602,11 +751,46 @@ class NatAccNotation(
             reside in
         """
 
-        scale = self.note_scale()
+        notes = []
         for natc_symbol, _ in self._naturals:
             note = self.note(natc_symbol, bi_index)
-            scale.add_note(note)
-        return scale
+            notes.append(note)
+
+        return self.scale(notes)
+
+    def pc_scale(
+        self, pc_symbols: Optional[List[str]] = None
+    ) -> NatAccNoteScale:
+        """
+        Constructs a note scale from a list of pitch class symbols.
+        The pitch class symbols are assumed to be in the order they
+        appear in the scale meaning that e.g. in 12-EDO the provided
+        argument ['G', 'D', 'E'] will result in a scale with notes
+        G0, D1, E1. The base interval of the first provided pc symbol
+        will always assumed to be 0.
+
+        :raises UnknownNoteSymbol: If one of the pc symbols is not
+            valid in the definition of this notation
+
+        :param pc_symbols: A list of pitch class symbols.
+        """
+
+        notes = []
+        current_bi_index = 0
+
+        if not pc_symbols:
+            return self.scale()
+
+        notes.append(self.note(pc_symbols[0], 0))
+
+        for pc_symbol in pc_symbols[1:]:
+            note = self.note(pc_symbol, current_bi_index)
+            if note <= notes[-1]:
+                current_bi_index += 1
+                note = note.transpose_bi_index(1)
+            notes.append(note)
+
+        return self.scale(notes)
 
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
@@ -725,7 +909,7 @@ class NatAccNotation(
     def acc_symbol_code(self, symbol_code: SymbolCode):
         self._acc_symbol_code = symbol_code
 
-    def get_acc_symbol(self, acc_vector: Tuple[int]) -> str:
+    def get_acc_symbol(self, acc_vector: Tuple[int, ...]) -> str:
         """
         Returns a symbol string for an accidental vector,
         like (1, 0) -> '#' or (-1, 1) -> '^b'
@@ -874,16 +1058,16 @@ class NatAccNotation(
         """
         if interval_number > 0:
             return interval_number - 1
-        elif interval_number < 0:
+        if interval_number < 0:
             return interval_number + 1
-        else:
-            raise InvalidIntervalNumber(
-                "Interval number must be strictly positive or negative"
-            )
+
+        raise InvalidIntervalNumber(
+            "Interval number must be strictly positive or negative"
+        )
 
     def parse_pc_symbol(
         self, pc_symbol: str
-    ) -> Tuple[str, str, int, Tuple[int]]:
+    ) -> Tuple[str, str, int, Tuple[int, ...]]:
         """
         Parses a pitch class symbol into its natural class symbol
         part and its accidental symbol part. Returns a 4-tuple
@@ -918,7 +1102,7 @@ class NatAccNotation(
         return (best_natc_symbol, acc_tail, best_natc_index, acc_vector)
 
     def gen_pc_symbol(
-        self, natc_index: int, acc_vector: Tuple[int]
+        self, natc_index: int, acc_vector: Tuple[int, ...]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an

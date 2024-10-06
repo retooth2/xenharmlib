@@ -71,7 +71,7 @@ class SymbolCode(ABC):
     """
 
     @abstractmethod
-    def get_vector(self, symbol_str: str) -> Tuple[int]:
+    def get_vector(self, symbol_str: str) -> Tuple[int, ...]:
         """
         Abstract method placeholder for a specific implementation
         to convert a string of one or more symbols into an integer
@@ -84,7 +84,7 @@ class SymbolCode(ABC):
         """
 
     @abstractmethod
-    def get_symbol_str(self, vector: Tuple[int]) -> str:
+    def get_symbol_str(self, vector: Tuple[int, ...]) -> str:
         """
         Abstract method placeholder for a specific implementation
         to convert an integer vector into a symbol or sequence of
@@ -153,14 +153,16 @@ class SymbolArithmetic(SymbolCode):
     def __init__(
         self,
         dimensions: int = 1,
-        offset: Optional[Tuple[int]] = None,
+        offset: Optional[Tuple[int, ...]] = None,
         allow_empty: bool = False,
     ):
 
         if offset is None:
-            offset = (0,) * dimensions
+            _offset = (0,) * dimensions
+        else:
+            _offset = offset
 
-        if len(offset) != dimensions:
+        if len(_offset) != dimensions:
             raise UnfittingDimensions(
                 'Offset dimensions must match the value '
                 'given in dimensions argument'
@@ -168,12 +170,12 @@ class SymbolArithmetic(SymbolCode):
 
         self._dimensions = dimensions
 
-        self._symbol_vectors: Dict[str, Tuple[int]] = {}
-        self._vector_symbols: Dict[Tuple[int], str] = {}
+        self._symbol_vectors: Dict[str, Tuple[int, ...]] = {}
+        self._vector_symbols: Dict[Tuple[int, ...], str] = {}
         self._symbol_position: Dict[str, int] = {}
         self._symbol_min_occurence: Dict[str, int] = {}
         self._symbol_max_occurence: Dict[str, int] = {}
-        self._offset = offset
+        self._offset = _offset
         self._allow_empty = allow_empty
 
     @property
@@ -181,13 +183,13 @@ class SymbolArithmetic(SymbolCode):
         return self._dimensions
 
     @property
-    def offset(self) -> Tuple[int]:
+    def offset(self) -> Tuple[int, ...]:
         return self._offset
 
     def add_symbol(
         self,
         symbol: str,
-        vector: Tuple[int],
+        vector: Tuple[int, ...],
         position: Optional[int] = None,
         min_occurence: Optional[int] = None,
         max_occurence: Optional[int] = None,
@@ -255,7 +257,7 @@ class SymbolArithmetic(SymbolCode):
         if max_occurence is not None:
             self._symbol_max_occurence[symbol] = max_occurence
 
-    def get_vector(self, symbol_str: str) -> Tuple[int]:
+    def get_vector(self, symbol_str: str) -> Tuple[int, ...]:
         """
         Returns the vector integer sum (adjusted for offset,
         if set) for a given symbol string.
@@ -270,7 +272,9 @@ class SymbolArithmetic(SymbolCode):
         symbols = self.parse(symbol_str)
         return self.get_vector_from_symbols(symbols)
 
-    def get_vector_from_symbols(self, symbols: Tuple[str]) -> Tuple[int]:
+    def get_vector_from_symbols(
+        self, symbols: Tuple[str, ...]
+    ) -> Tuple[int, ...]:
         """
         Returns the vector integer sum (adjusted for offset,
         if set) for a given tuple of parsed symbol literals
@@ -279,7 +283,7 @@ class SymbolArithmetic(SymbolCode):
             symbol literal in this arithmetic
         """
 
-        result = self._offset
+        result = np.array(self._offset)
 
         for symbol in symbols:
             value = self._symbol_vectors[symbol]
@@ -287,7 +291,7 @@ class SymbolArithmetic(SymbolCode):
 
         return tuple(result)
 
-    def parse(self, symbol_str: str) -> Tuple[str]:
+    def parse(self, symbol_str: str) -> Tuple[str, ...]:
         """
         Parses a symbol string into a list of symbols
 
@@ -357,7 +361,7 @@ class SymbolArithmetic(SymbolCode):
 
         return tuple(symbols)
 
-    def get_symbol_str(self, vector: Tuple[int]) -> str:
+    def get_symbol_str(self, vector: Tuple[int, ...]) -> str:
         """
         Partitions the given vector into vector summands that are
         represented by symbols and returns those symbols sorted
@@ -376,7 +380,7 @@ class SymbolArithmetic(SymbolCode):
 
         return ''.join(self.get_symbols(vector))
 
-    def get_symbols(self, vector: Tuple[int]) -> Tuple[str]:
+    def get_symbols(self, vector: Tuple[int, ...]) -> Tuple[str, ...]:
         """
         Returns a sorted, minimal tuple of symbols whose combined
         value together with the offset result in the given sum.
@@ -446,11 +450,13 @@ class SymbolArithmetic(SymbolCode):
             ub_list.append(np.inf)
 
         A = np.array(A_array)
-        lb = np.array(lb_list)
-        ub = np.array(ub_list)
+        lb_array = np.array(lb_list)
+        ub_array = np.array(ub_list)
 
         result = milp(
-            c, integrality=integrality, constraints=LinearConstraint(A, lb, ub)
+            c,
+            integrality=integrality,
+            constraints=LinearConstraint(A, lb_array, ub_array),
         )
 
         if not result.success:
@@ -517,8 +523,8 @@ class SymbolArithmeticSet(SymbolCode):
         dimensions: int = 1,
         pref_func: (
             Callable[
-                [List[Tuple[SymbolArithmetic, Tuple[str]]]],
-                Tuple[SymbolArithmetic, Tuple[str]],
+                [List[Tuple[SymbolArithmetic, Tuple[str, ...]]]],
+                Tuple[SymbolArithmetic, Tuple[str, ...]],
             ]
             | None
         ) = None,
@@ -555,8 +561,8 @@ class SymbolArithmeticSet(SymbolCode):
 
     @staticmethod
     def _default_pref_func(
-        results: List[Tuple[SymbolArithmetic, Tuple[str]]]
-    ) -> Tuple[SymbolArithmetic, Tuple[str]]:
+        results: List[Tuple[SymbolArithmetic, Tuple[str, ...]]]
+    ) -> Tuple[SymbolArithmetic, Tuple[str, ...]]:
         """
         The default preference function. Simply chooses the
         parsing result with the minimum number of symbols
@@ -572,7 +578,9 @@ class SymbolArithmeticSet(SymbolCode):
 
         return best
 
-    def parse(self, symbol_str: str) -> Tuple[SymbolArithmetic, List[str]]:
+    def parse(
+        self, symbol_str: str
+    ) -> Tuple[SymbolArithmetic, Tuple[str, ...]]:
         """
         Tries to parse a symbol string by each arithmetic in the
         set. If an arithmetic returns a result it is added to the
@@ -604,7 +612,7 @@ class SymbolArithmeticSet(SymbolCode):
 
         return self._pref_func(matches)
 
-    def get_vector(self, symbol_str: str) -> Tuple[int]:
+    def get_vector(self, symbol_str: str) -> Tuple[int, ...]:
         """
         Returns the vector sum value for a given string
 
@@ -617,7 +625,7 @@ class SymbolArithmeticSet(SymbolCode):
         arithmetic, symbols = self.parse(symbol_str)
         return arithmetic.get_vector_from_symbols(symbols)
 
-    def get_symbol_str(self, vector: Tuple[int]) -> str:
+    def get_symbol_str(self, vector: Tuple[int, ...]) -> str:
         """
         Returns a minimal symbol string for a given value
 

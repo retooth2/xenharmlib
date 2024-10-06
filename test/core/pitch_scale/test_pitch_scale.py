@@ -4,7 +4,8 @@ from xenharmlib.core.tunings import EDOTuning
 from xenharmlib.core.tunings import EDTuning
 from xenharmlib.core.pitch import EDPitch
 from xenharmlib.core.pitch_scale import PitchScale
-from xenharmlib.exc import IncompatibleTunings
+from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import InvalidIndexMask
 
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)
@@ -75,7 +76,37 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch(
+    with pytest.deprecated_call():
+        scale.add_pitch(
+            tuning.pitch(new_pi)
+        )
+
+    assert len(scale) == len(result_pi)
+    pitches = list(scale)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, new_pi, result_pi',
+    [
+        (edo12, [8, 3, 7], 5, [3, 5, 7, 8]),
+        (edo24, [22, 4, 1, 9], 20, [1, 4, 9, 20, 22]),
+        (edo31, [16, 33, 39], 22, [16, 22, 33, 39]),
+        (edo31, [16, 33, 39], 33, [16, 33, 39]),
+        (ed13_3, [100, 50, 0], -1, [-1, 0, 50, 100]),
+    ]
+)
+def test_with_element(tuning, input_pi, new_pi, result_pi):
+    """
+    Test if with_element correctly insorts new pitch
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+
+    scale = scale.with_element(
         tuning.pitch(new_pi)
     )
 
@@ -84,9 +115,9 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_add_pitch_incompatible_tunings():
+def test_add_pitch_incompatible_origin_contexts():
     """
-    Test if add_pitch raises IncompatibleTunings if argument
+    Test if add_pitch raises IncompatibleOriginContexts if argument
     originates from a different tuning
     """
 
@@ -101,10 +132,11 @@ def test_add_pitch_incompatible_tunings():
                 tuning_a
             )
 
-            with pytest.raises(IncompatibleTunings):
-                scale.add_pitch(
-                    tuning_b.pitch(4)
-                )
+            with pytest.raises(IncompatibleOriginContexts):
+                with pytest.deprecated_call():
+                    scale.add_pitch(
+                        tuning_b.pitch(4)
+                    )
 
 
 @pytest.mark.parametrize(
@@ -127,7 +159,8 @@ def test_add_pitch_index(tuning, input_pi, new_pi, result_pi):
         [tuning.pitch(pi) for pi in input_pi]
     )
 
-    scale.add_pitch_index(new_pi)
+    with pytest.deprecated_call():
+        scale.add_pitch_index(new_pi)
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)
@@ -150,9 +183,10 @@ def test_from_pitch_indices(tuning, input_pi, result_pi):
     correctly
     """
 
-    scale = PitchScale.from_pitch_indices(
-        input_pi, tuning=tuning
-    )
+    with pytest.deprecated_call():
+        scale = PitchScale.from_pitch_indices(
+            input_pi, tuning=tuning
+        )
 
     assert len(scale) == len(result_pi)
     pitches = list(scale)
@@ -164,21 +198,12 @@ def test_eq():
     Test if scale equalities and inequalities work correctly
     """
 
-    scale_a = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_b = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo12
-    )
-    scale_c = PitchScale.from_pitch_indices(
-        [1, 2, 3, 4], tuning=edo12
-    )
-    scale_d = PitchScale.from_pitch_indices(
-        [1, 2, 3], tuning=edo31
-    )
-    scale_e = PitchScale.from_pitch_indices(
-        [2, 4, 6], tuning=edo24
-    )
+    scale_a = edo12.index_scale([1, 2, 3])
+    scale_b = edo12.index_scale([1, 2, 3])
+    scale_c = edo12.index_scale([1, 2, 3, 4])
+
+    scale_d = edo31.index_scale([1, 2, 3])
+    scale_e = edo24.index_scale([2, 4, 6])
 
     assert scale_a == scale_a
     assert scale_a == scale_b
@@ -229,10 +254,20 @@ def test_getitem_slice(tuning, input_pi, start, stop, result_pi):
     Test if slicing of scales works correctly
     """
 
-    scale = tuning.pitch_scale(
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[start:stop] == scale_b
+
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[start:stop] == scale_b
@@ -254,10 +289,20 @@ def test_getitem_slice_omit_stop(tuning, input_pi, start, result_pi):
     stop parameter is omitted
     """
 
-    scale = tuning.pitch_scale(
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[start:] == scale_b
+
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[start:] == scale_b
@@ -279,14 +324,180 @@ def test_getitem_slice_omit_start(tuning, input_pi, stop, result_pi):
     Test if slicing of scales works correctly when
     start parameter is omitted
     """
+    with pytest.deprecated_call():
+        scale = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in input_pi]
+        )
+    with pytest.deprecated_call():
+        scale_b = tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert scale[:stop] == scale_b
 
-    scale = tuning.pitch_scale(
+    scale = tuning.scale(
         [tuning.pitch(pi) for pi in input_pi]
     )
-    scale_b = tuning.pitch_scale(
+    scale_b = tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
     assert scale[:stop] == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask, result_pi',
+    [
+        (edo12,  [3, 7, 8],             1,              [7]),
+        (edo31,  [16, 33, 39],          ...,            [16, 33, 39]),
+        (edo12,  [3, 7, 8],             (1,),           [7]),
+        (edo31,  [16, 33, 39],          (...,),         [16, 33, 39]),
+        (edo12,  [3, 7, 8],             (1, 2),         [7, 8]),
+        (edo24,  [1, 4, 9, 22],         (1, ...),       [4, 9, 22]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4),      [16, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4),    [16, 17, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4), [16, 17, 33, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4), [16, 33, 39, 50]),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100),  [33, 39, 50]),
+    ]
+)
+def test_partial(tuning, input_pi, mask, result_pi):
+    """
+    Test if partial function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    scale_b = tuning.scale(
+        [tuning.pitch(pi) for pi in result_pi]
+    )
+    assert scale.partial(mask) == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_invalid_mask(tuning, mask):
+    """
+    Test if partial function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial(mask)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask, result_pi',
+    [
+        (edo12,  [3, 7, 8],             1,              [3, 8]),
+        (edo31,  [16, 33, 39],          ...,            []),
+        (edo12,  [3, 7, 8],             (1,),           [3, 8]),
+        (edo31,  [16, 33, 39],          (...,),         []),
+        (edo12,  [3, 7, 8],             (1, 2),         [3]),
+        (edo24,  [1, 4, 9, 22],         (1, ...),       [1]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4),      [17, 39]),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4),    [39]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4), [39]),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4), [17]),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100),  [16, 17]),
+    ]
+)
+def test_partial_not(tuning, input_pi, mask, result_pi):
+    """
+    Test if partial_not function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    scale_b = tuning.scale(
+        [tuning.pitch(pi) for pi in result_pi]
+    )
+    assert scale.partial_not(mask) == scale_b
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_not_invalid_mask(tuning, mask):
+    """
+    Test if partial_not function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial_not(mask)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, mask',
+    [
+        (edo12,  [3, 7, 8],             1),
+        (edo31,  [16, 33, 39],          ...),
+        (edo12,  [3, 7, 8],             (1,)),
+        (edo31,  [16, 33, 39],          (...,)),
+        (edo12,  [3, 7, 8],             (1, 2)),
+        (edo24,  [1, 4, 9, 22],         (1, ...)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (..., 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, ..., 2, 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (0, 2, ..., 4)),
+        (edo31,  [16, 17, 33, 39, 50],  (2, ..., 100)),
+    ]
+)
+def test_partition(tuning, input_pi, mask):
+    """
+    Test if partition function of scales works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+
+    positive = scale.partial(mask)
+    complement = scale.partial_not(mask)
+
+    assert scale.partition(mask) == (positive, complement)
+
+
+@pytest.mark.parametrize(
+    'tuning, mask',
+    [
+        (edo31,  (-1, ..., 2, 4)),
+        (edo31,  (..., 4, 3)),
+        (edo31,  (..., 4, 3, ...)),
+        (edo31,  (3, 2, ...)),
+        (edo31,  (1, 2, -1)),
+    ]
+)
+def test_partition_invalid_mask(tuning, mask):
+    """
+    Test if partition function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = tuning.index_scale([2, 23, 14, 5, 1, 7])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partition(mask)
 
 
 @pytest.mark.parametrize(
@@ -494,7 +705,7 @@ def test_pitch_indices(tuning, input_pi, result_pi):
 )
 def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     """
-    Test if to_pitch_intervals method works correctly
+    Test if to_intervals method works correctly
     """
 
     scale = PitchScale(
@@ -504,12 +715,28 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
 
     intervals = []
     for pi_a, pi_b in interval_pi:
-        interval = tuning.pitch_interval(
+        with pytest.deprecated_call():
+            interval = tuning.pitch_interval(
+                tuning.pitch(pi_a), tuning.pitch(pi_b)
+            )
+        intervals.append(interval)
+
+    with pytest.deprecated_call():
+        assert scale.to_pitch_intervals() == intervals
+
+    assert scale.to_intervals() == intervals
+
+    intervals = []
+    for pi_a, pi_b in interval_pi:
+        interval = tuning.interval(
             tuning.pitch(pi_a), tuning.pitch(pi_b)
         )
         intervals.append(interval)
 
-    assert scale.to_pitch_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_pitch_intervals() == intervals
+
+    assert scale.to_intervals() == intervals
 
 
 @pytest.mark.parametrize(
@@ -532,7 +759,12 @@ def test_transpose_int(tuning, input_pi, diff, result_pi):
     )
 
     transposed = scale.transpose(diff)
-    assert transposed == tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert transposed == tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
 
@@ -562,9 +794,53 @@ def test_transpose_interval(tuning, input_pi, interval_pi, result_pi):
     )
 
     transposed = scale.transpose(interval)
-    assert transposed == tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == tuning.pitch_scale(
+            [tuning.pitch(pi) for pi in result_pi]
+        )
+    assert transposed == tuning.scale(
         [tuning.pitch(pi) for pi in result_pi]
     )
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, result_pi',
+    [
+        (edo12, [3, 7, 8], [-3, -7, -8]),
+        (edo24, [1, 16, 25], [-1, -16, -25]),
+        (edo31, [0, 11, 64], [0, -11, -64]),
+    ]
+)
+def test_reflection_without_param(tuning, input_pi, result_pi):
+    """
+    Test if reflection operation works correctly
+    when given no axis parameter
+    """
+
+    scale = tuning.index_scale(input_pi)
+    result = tuning.index_scale(result_pi)
+    assert scale.reflection() == result
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, result_pi, axis_pi',
+    [
+        (edo12, [3, 7, 8], [6, 7, 11], 7),
+        (edo24, [1, 16, 25], [5, 14, 29], 15),
+        (edo31, [0, 11, 64], [-4, -15, -68], -2),
+    ]
+)
+def test_reflection_custom_axis(tuning, input_pi, result_pi, axis_pi):
+    """
+    Test if reflection operation works correctly
+    with custom axis
+    """
+
+    scale = tuning.index_scale(input_pi)
+    result = tuning.index_scale(result_pi)
+    axis = tuning.pitch(axis_pi)
+    assert scale.reflection(axis) == result
 
 
 @pytest.mark.parametrize(
@@ -581,16 +857,28 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
     Test if retune method works correctly
     """
 
-    scale_a = tuning_a.pitch_scale(
+    with pytest.deprecated_call():
+        scale_a = tuning_a.pitch_scale(
+            [tuning_a.pitch(pi) for pi in input_pi]
+        )
+
+    scale_b = scale_a.retune(tuning_b)
+
+    with pytest.deprecated_call():
+        expected_scale_b = tuning_b.pitch_scale(
+            [tuning_b.pitch(pi) for pi in result_pi]
+        )
+    assert scale_b == expected_scale_b
+
+    scale_a = tuning_a.scale(
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
     scale_b = scale_a.retune(tuning_b)
-    expected_scale_b = tuning_b.pitch_scale(
+    expected_scale_b = tuning_b.scale(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
     assert scale_b == expected_scale_b
-
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -617,13 +905,17 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.union(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a | scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_union_incompatible_tunings():
+def test_union_incompatible_origin_contexts():
     """
     Test if union operation fails if scales originate from
     different tunings
@@ -643,8 +935,11 @@ def test_union_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.union(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a | scale_b
 
 
 @pytest.mark.parametrize(
@@ -672,13 +967,17 @@ def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.intersection(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a & scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_intersection_incompatible_tunings():
+def test_intersection_incompatible_origin_contexts():
     """
     Test if intersection operation fails if scales originate from
     different tunings
@@ -698,8 +997,11 @@ def test_intersection_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a & scale_b
 
 
 @pytest.mark.parametrize(
@@ -727,13 +1029,17 @@ def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.difference(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a - scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_difference_incompatible_tunings():
+def test_difference_incompatible_origin_contexts():
     """
     Test if difference operation fails if scales originate from
     different tunings
@@ -753,8 +1059,11 @@ def test_difference_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a - scale_b
 
 
 @pytest.mark.parametrize(
@@ -782,13 +1091,17 @@ def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
     )
 
     scale_c = scale_a.symmetric_difference(scale_b)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_a ^ scale_b
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
 
-def test_symmetric_difference_incompatible_tunings():
+def test_symmetric_difference_incompatible_origin_contexts():
     """
     Test if symmetric difference operation fails if scales originate
     from different tunings
@@ -808,8 +1121,11 @@ def test_symmetric_difference_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a ^ scale_b
 
 
 @pytest.mark.parametrize(
@@ -839,7 +1155,7 @@ def test_is_disjoint(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_disjoint(scale_b) == expected
 
 
-def test_is_disjoint_incompatible_tunings():
+def test_is_disjoint_incompatible_origin_contexts():
     """
     Test if is_disjoint set test fails if scales originate
     from different tunings
@@ -859,7 +1175,7 @@ def test_is_disjoint_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_disjoint(scale_b)
 
 
@@ -920,7 +1236,7 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_subset(scale_b, proper=True) == expected
 
 
-def test_is_subset_incompatible_tunings():
+def test_is_subset_incompatible_origin_contexts():
     """
     Test if is_subset test fails if scales originate
     from different tunings
@@ -940,7 +1256,7 @@ def test_is_subset_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
 
 
@@ -1001,7 +1317,7 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     assert scale_a.is_superset(scale_b, proper=True) == expected
 
 
-def test_is_superset_incompatible_tunings():
+def test_is_superset_incompatible_origin_contexts():
     """
     Test if is_subset test fails if scales originate
     from different tunings
@@ -1021,5 +1337,71 @@ def test_is_superset_incompatible_tunings():
                 tuning_b
             )
 
-            with pytest.raises(IncompatibleTunings):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, result_pi',
+    [
+        (edo12, [3, 5, 7, 8, 10], [0, 2, 4, 5, 7]),
+        (edo12, [5, 7, 8, 15, 19], [0, 2, 3, 10, 14]),
+        (edo31, [10, 19, 23, 36, 37], [0, 9, 13, 26, 27]),
+        (edo31, [0, 12, 16, 19, 22, 34, 36], [0, 12, 16, 19, 22, 34, 36]),
+    ]
+)
+def test_zero_normalized(tuning, input_pi, result_pi):
+    """
+    Test if zero_normalized works correctly
+    """
+
+    input_scale = tuning.index_scale(input_pi)
+    result_scale = tuning.index_scale(result_pi)
+    assert input_scale.zero_normalized() == result_scale
+
+
+def test_zero_normalized_value_error():
+    """
+    Test if zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.zero_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'zero_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, expected',
+    [
+        (edo12, [3, 5, 7, 8, 10], False),
+        (edo12, [5, 7, 8, 15, 19], False),
+        (edo31, [10, 19, 23, 36, 37], False),
+        (edo31, [0, 12, 16, 19, 22, 34, 36], True),
+        (edo31, [0, 9, 12, 14, 17], True),
+    ]
+)
+def test_is_zero_normalized(tuning, input_pi, expected):
+    """
+    Test if is_zero_normalized works correctly
+    """
+
+    input_scale = tuning.index_scale(input_pi)
+    assert input_scale.is_zero_normalized == expected
+
+
+def test_is_zero_normalized_value_error():
+    """
+    Test if is_zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_zero_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_zero_normalized is not defined on empty scale'
+    )

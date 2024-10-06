@@ -3,7 +3,8 @@ from xenharmlib import EDOTuning
 from xenharmlib import EDTuning
 from xenharmlib import FrequencyRatio
 from xenharmlib.core.note_scale import NoteScale
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
+from xenharmlib.exc import InvalidIndexMask
 from ..utils import make_nat_acc_test_notation
 
 edo12 = EDOTuning(12)
@@ -16,9 +17,9 @@ ed13_3 = EDTuning(13, FrequencyRatio(3))
 n_ed13_3 = make_nat_acc_test_notation(ed13_3)
 
 
-def test_init_incompatible_notation():
+def test_init_incompatible_origin_contexts():
     """
-    Test that IncompatibleNotations exception is raised
+    Test that IncompatibleOriginContexts exception is raised
     in constructor when given notes are not from the
     given notational context
     """
@@ -26,7 +27,7 @@ def test_init_incompatible_notation():
     n_edo12 = make_nat_acc_test_notation(edo12)
     n_edo12_2 = make_nat_acc_test_notation(edo12)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         NoteScale(
             n_edo12,
             [n_edo12_2.note('A', 0)]
@@ -52,7 +53,14 @@ def test_pitch_scale(notation, notes, pitch_indices):
     )
 
     tuning = notation.tuning
-    expected = tuning.pitch_scale(
+
+    with pytest.deprecated_call():
+        expected = tuning.pitch_scale(
+            [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
+        )
+    note_scale.pitch_scale == expected
+
+    expected = tuning.scale(
         [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
     )
     note_scale.pitch_scale == expected
@@ -81,9 +89,10 @@ def test_add_note(notation, notes, ordered_notes):
     note_scale = NoteScale(notation)
 
     for pc_symbol, nat_bi_index in notes:
-        note_scale.add_note(
-            notation.note(pc_symbol, nat_bi_index)
-        )
+        with pytest.deprecated_call():
+            note_scale.add_note(
+                notation.note(pc_symbol, nat_bi_index)
+            )
 
     ordered_note_list = []
 
@@ -96,9 +105,9 @@ def test_add_note(notation, notes, ordered_notes):
     assert note_list == ordered_note_list
 
 
-def test_add_note_incompatible_notation():
+def test_add_note_incompatible_origin_contexts():
     """
-    Test that IncompatibleNotations exception is raised
+    Test that IncompatibleOriginContexts exception is raised
     when note is added that is from a different notational
     context
     """
@@ -106,9 +115,48 @@ def test_add_note_incompatible_notation():
     n_edo12 = make_nat_acc_test_notation(edo12)
     n_edo12_2 = make_nat_acc_test_notation(edo12)
 
-    with pytest.raises(IncompatibleNotations):
+    with pytest.raises(IncompatibleOriginContexts):
         note_scale = NoteScale(n_edo12)
-        note_scale.add_note(n_edo12_2.note('A', 0))
+        with pytest.deprecated_call():
+            note_scale.add_note(n_edo12_2.note('A', 0))
+
+
+@pytest.mark.parametrize(
+    'notation, notes, ordered_notes',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B', 1)],
+            [('A', 0), ('C+', 0), ('B', 1)],
+        ),
+        (
+            n_edo12,
+            [('B', 1), ('C+', 0), ('A', 0)],
+            [('A', 0), ('C+', 0), ('B', 1)],
+        ),
+    ]
+)
+def test_with_element(notation, notes, ordered_notes):
+    """
+    Test that with_element insorts notes correctly
+    """
+
+    note_scale = NoteScale(notation)
+
+    for pc_symbol, nat_bi_index in notes:
+        note_scale = note_scale.with_element(
+            notation.note(pc_symbol, nat_bi_index)
+        )
+
+    ordered_note_list = []
+
+    for pc_symbol, nat_bi_index in ordered_notes:
+        ordered_note_list.append(
+            notation.note(pc_symbol, nat_bi_index)
+        )
+
+    note_list = list(note_scale)
+    assert note_list == ordered_note_list
 
 
 @pytest.mark.parametrize(
@@ -478,6 +526,154 @@ def test_getitem_slice_omit_start(notation,
         [notation.note(*pair) for pair in result_pairs]
     )
     assert scale[:stop] == scale_b
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask, exp_pcsym',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1,              ['B']),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...,            ['A+', 'C', 'F+']),
+        (n_edo12,  ['A', 'B', 'C'],              (1,),           ['B']),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,),         ['A+', 'C', 'F+']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, 2),         ['C+', 'G+']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...),       ['C+', 'G+', 'C']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4),      ['E+', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4),    ['E+', 'F', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4), ['E+', 'F', 'H', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4), ['E+', 'H', 'I+', 'J']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100),  ['H', 'I+', 'J']),
+    ]
+)
+def test_partial(notation, input_pcsym, mask, exp_pcsym):
+    """
+    Test if partial function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+    expected_scale = notation.pc_scale(exp_pcsym)
+    assert scale.partial(mask).is_notated_same(expected_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_invalid_mask(notation, mask):
+    """
+    Test if partial function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial(mask)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask, exp_pcsym',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1,              ['A', 'C']),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...,            []),
+        (n_edo12,  ['A', 'B', 'C'],              (1,),           ['A', 'C']),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,),         []),
+        (n_edo31,  ['B', 'C+', 'G+', 'H'],       (1, 2),         ['B', 'H']),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...),       ['B']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4),      ['F', 'I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4),    ['I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4), ['I+']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4), ['F']),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100),  ['E+', 'F']),
+    ]
+)
+def test_partial_not(notation, input_pcsym, mask, exp_pcsym):
+    """
+    Test if partial_not function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+    expected_scale = notation.pc_scale(exp_pcsym)
+    assert scale.partial_not(mask).is_notated_same(expected_scale)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partial_not_invalid_mask(notation, mask):
+    """
+    Test if partial_not function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partial_not(mask)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pcsym, mask',
+    [
+        (n_edo12,  ['A', 'B', 'C'],              1),
+        (n_edo31,  ['A+', 'C', 'F+'],            ...),
+        (n_edo12,  ['A', 'B', 'C'],              (1,)),
+        (n_edo31,  ['A+', 'C', 'F+'],            (...,)),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, 2)),
+        (n_edo31,  ['B', 'C+', 'G+', 'C'],       (1, ...)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (..., 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, ..., 2, 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (0, 2, ..., 4)),
+        (n_edo31,  ['E+', 'F', 'H', 'I+', 'J'],  (2, ..., 100))
+    ]
+)
+def test_partition(notation, input_pcsym, mask):
+    """
+    Test if partition function of scales works correctly
+    """
+
+    scale = notation.pc_scale(input_pcsym)
+
+    positive = scale.partial(mask)
+    complement = scale.partial_not(mask)
+    a, b = scale.partition(mask)
+    assert a.is_notated_same(positive)
+    assert b.is_notated_same(complement)
+
+
+@pytest.mark.parametrize(
+    'notation, mask',
+    [
+        (n_edo31,  (-1, ..., 2, 4)),
+        (n_edo31,  (..., 4, 3)),
+        (n_edo31,  (..., 4, 3, ...)),
+        (n_edo31,  (3, 2, ...)),
+        (n_edo31,  (1, 2, -1)),
+    ]
+)
+def test_partition_invalid_mask(notation, mask):
+    """
+    Test if partition function of scales raises correct exception
+    when invalid mask is given
+    """
+
+    scale = notation.pc_scale(['A', 'B+', 'D', 'F'])
+
+    with pytest.raises(InvalidIndexMask):
+        scale.partition(mask)
 
 
 @pytest.mark.parametrize(
@@ -941,7 +1137,10 @@ def test_to_note_intervals(notation, input_pairs, intervals):
         )
         note_intervals.append(interval)
 
-    assert scale.to_note_intervals() == note_intervals
+    with pytest.deprecated_call():
+        assert scale.to_note_intervals() == note_intervals
+
+    assert scale.to_intervals() == note_intervals
 
 
 @pytest.mark.parametrize(
@@ -989,54 +1188,109 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
     )
 
     transposed = scale.transpose(note_interval)
-    assert transposed == notation.note_scale(
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
         [notation.note(*pair) for pair in result_pairs]
     )
 
 
 @pytest.mark.parametrize(
-    'notation, input_pairs, bi_diff, result_pairs',
+    'notation, input_pairs, result_pairs',
     [
         (
             n_edo12,
-            [('A+', 0), ('B+', 0), ('D+', 0)],
-            2,
-            [('A+', 2), ('B+', 2), ('D+', 2)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('A', 0), ('E-', -1), ('F-', -2)],
         ),
         (
             n_edo12,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            0,
-            [('A+', 0), ('B+', 1), ('F', 2)],
+            [('A', 0), ('E-', -1), ('F-', -2)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
         ),
         (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            -1,
-            [('A+', -1), ('B+', 0), ('F', 1)],
+            n_edo12,
+            [('B',  0), ('C', 0), ('Bx', 2)],
+            [('F', -1), ('E', -1), ('F.', -3)],
         ),
         (
-            n_edo24,
-            [('A+', 0), ('B+', 1), ('F', 2)],
-            5,
-            [('A+', 5), ('B+', 6), ('F', 7)],
+            n_edo12,
+            [('F', -1), ('E', -1), ('F.', -3)],
+            [('B',  0), ('C', 0), ('Bx', 2)],
         ),
     ]
 )
-def test_transpose_bi_index(notation, input_pairs, bi_diff, result_pairs):
+def test_reflection_no_param(notation, input_pairs, result_pairs):
     """
-    Test if transpose method works correctly when given an interval
+    Test if reflection method works correctly
+    without parameters
     """
 
     scale = NoteScale(
         notation,
         [notation.note(*pair) for pair in input_pairs]
     )
-
-    transposed = scale.transpose_bi_index(bi_diff)
-    assert transposed == notation.note_scale(
+    result = NoteScale(
+        notation,
         [notation.note(*pair) for pair in result_pairs]
     )
+    assert scale.reflection().is_notated_same(result)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs, axis_pair',
+    [
+        (
+            n_edo12,
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            [('C', 0), ('A-', 0), ('B-', -1)],
+            ('B', 0)
+        ),
+        (
+            n_edo12,
+            [('C', 0), ('A-', 0), ('B-', -1)],
+            [('A', 0), ('C+', 0), ('B+', 1)],
+            ('B', 0)
+        ),
+        (
+            n_edo12,
+            [('F', -1), ('C', 0), ('A-', 0)],
+            [('F', -1), ('C', -1), ('E+', -1)],
+            ('F', -1)
+        ),
+        (
+            n_edo12,
+            [('F', -1), ('C', -1), ('E+', -1)],
+            [('F', -1), ('C', 0), ('A-', 0)],
+            ('F', -1)
+        ),
+    ]
+)
+def test_reflection_custom_axis(
+    notation,
+    input_pairs,
+    result_pairs,
+    axis_pair
+):
+    """
+    Test if reflection method works correctly
+    with custom axis
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    result = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in result_pairs]
+    )
+    axis = notation.note(*axis_pair)
+    assert scale.reflection(axis).is_notated_same(result)
 
 
 @pytest.mark.parametrize(
@@ -1084,13 +1338,17 @@ def test_union(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.union(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a | scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_union_incompatible_notations():
+def test_union_incompatible_origin_contexts():
     """
     Test if union operation fails if scales originate from
     different notations
@@ -1110,8 +1368,11 @@ def test_union_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.union(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a | scale_b
 
 
 @pytest.mark.parametrize(
@@ -1165,7 +1426,11 @@ def test_intersection(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.intersection(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a & scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -1233,7 +1498,7 @@ def test_note_intersection(
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_intersection_incompatible_notations():
+def test_intersection_incompatible_origin_contexts():
     """
     Test if intersection operation fails if scales originate from
     different notations
@@ -1253,11 +1518,14 @@ def test_intersection_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.intersection(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a & scale_b
 
-def test_note_intersection_incompatible_notations():
+
+def test_note_intersection_incompatible_origin_contexts():
     """
     Test if note_intersection operation fails if scales originate from
     different notations
@@ -1277,7 +1545,7 @@ def test_note_intersection_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.note_intersection(scale_b)
 
 
@@ -1332,7 +1600,11 @@ def test_difference(notation, input_pairs_a, input_pairs_b, result_pairs):
     )
 
     scale_c = scale_a.difference(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a - scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
@@ -1400,7 +1672,7 @@ def test_note_difference(
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_difference_incompatible_notations():
+def test_difference_incompatible_origin_contexts():
     """
     Test if difference operation fails if scales originate from
     different notations
@@ -1420,11 +1692,14 @@ def test_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.difference(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a - scale_b
 
-def test_note_difference_incompatible_notations():
+
+def test_note_difference_incompatible_origin_contexts():
     """
     Test if note_difference operation fails if scales originate from
     different notations
@@ -1444,7 +1719,7 @@ def test_note_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.note_difference(scale_b)
 
 
@@ -1493,13 +1768,17 @@ def test_symmetric_difference(notation, input_pairs_a, input_pairs_b, result_pai
     )
 
     scale_c = scale_a.symmetric_difference(scale_b)
+    assert len(scale_c) == len(result_pairs)
+    notes = list(scale_c)
+    assert notes == [notation.note(*pair) for pair in result_pairs]
 
+    scale_c = scale_a ^ scale_b
     assert len(scale_c) == len(result_pairs)
     notes = list(scale_c)
     assert notes == [notation.note(*pair) for pair in result_pairs]
 
 
-def test_symmetric_difference_incompatible_notations():
+def test_symmetric_difference_incompatible_origin_contexts():
     """
     Test if symmetric_difference operation fails if scales originate from
     different notations
@@ -1519,8 +1798,11 @@ def test_symmetric_difference_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.symmetric_difference(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a ^ scale_b
 
 
 @pytest.mark.parametrize(
@@ -1629,7 +1911,7 @@ def test_is_notated_disjoint(notation, input_pairs_a, input_pairs_b, expected):
     assert scale_a.is_notated_disjoint(scale_b) == expected
 
 
-def test_is_disjoint_incompatible_notations():
+def test_is_disjoint_incompatible_origin_contexts():
     """
     Test if is_disjoint operation fails if scales originate from
     different notations
@@ -1649,11 +1931,11 @@ def test_is_disjoint_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_disjoint(scale_b)
 
 
-def test_is_notated_disjoint_incompatible_notations():
+def test_is_notated_disjoint_incompatible_origin_contexts():
     """
     Test if is_notated_disjoint operation fails if scales originate from
     different notations
@@ -1673,7 +1955,7 @@ def test_is_notated_disjoint_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_notated_disjoint(scale_b)
 
 
@@ -1935,7 +2217,7 @@ def test_is_note_subset_proper(
     ) == expected
 
 
-def test_is_subset_incompatible_notations():
+def test_is_subset_incompatible_origin_contexts():
     """
     Test if is_subset operation fails if scales originate from
     different notations
@@ -1955,11 +2237,11 @@ def test_is_subset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
 
 
-def test_is_note_subset_incompatible_notations():
+def test_is_note_subset_incompatible_origin_contexts():
     """
     Test if is_note_subset operation fails if scales originate from
     different notations
@@ -1979,7 +2261,7 @@ def test_is_note_subset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_subset(scale_b)
 
 
@@ -2241,7 +2523,7 @@ def test_is_note_superset_proper(
     ) == expected
 
 
-def test_is_superset_incompatible_notations():
+def test_is_superset_incompatible_origin_contexts():
     """
     Test if is_superset operation fails if scales originate from
     different notations
@@ -2261,11 +2543,11 @@ def test_is_superset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
 
 
-def test_is_note_superset_incompatible_notations():
+def test_is_note_superset_incompatible_origin_contexts():
     """
     Test if is_note_superset operation fails if scales originate from
     different notations
@@ -2285,5 +2567,126 @@ def test_is_note_superset_incompatible_notations():
                 notation_b
             )
 
-            with pytest.raises(IncompatibleNotations):
+            with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_note_superset(scale_b)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, result_pairs',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            [('A', 0), ('B', 0), ('D', 0)],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B', 0), ('E+', 0), ('B+', 1)],
+            [('A', 0), ('B-', 0), ('E', 0), ('B', 1)],
+        ),
+        (
+            n_edo24,
+            [('C', 0), ('D+', 0), ('F', 2)],
+            [('A', 0), ('B+', 0), ('D', 2)],
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('B+', 0), ('F', 2)],
+            [('A', 0), ('B+', 0), ('F', 2)],
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('B+', 0), ('F', 0)],
+            [('A', 0), ('B+', 0), ('F', 0)],
+        ),
+    ]
+)
+def test_zero_normalized(
+    notation,
+    input_pairs,
+    result_pairs
+):
+    """
+    Test if zero_normalized works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    result_scale = notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+    assert input_scale.zero_normalized().is_notated_same(result_scale)
+
+
+def test_zero_normalized_value_error():
+    """
+    Test if zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.zero_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'zero_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, expected',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            False
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B', 0), ('E+', 0), ('B+', 1)],
+            False
+        ),
+        (
+            n_edo24,
+            [('C', 0), ('D+', 0), ('F', 2)],
+            False
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('B+', 0), ('F', 2)],
+            True
+        ),
+        (
+            n_edo24,
+            [('A', 0), ('B+', 0), ('F', 0)],
+            True
+        ),
+    ]
+)
+def test_is_zero_normalized(
+    notation,
+    input_pairs,
+    expected
+):
+    """
+    Test if is_zero_normalized works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    assert input_scale.is_zero_normalized == expected
+
+
+def test_is_zero_normalized_value_error():
+    """
+    Test if is_zero_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = n_edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_zero_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_zero_normalized is not defined on empty scale'
+    )

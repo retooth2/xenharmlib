@@ -1,6 +1,6 @@
 import pytest
 from xenharmlib import EDOTuning
-from xenharmlib.exc import IncompatibleNotations
+from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 from xenharmlib.core.notes import NatAccNoteInterval
 from ..utils import make_nat_acc_test_notation
@@ -25,10 +25,10 @@ n_edo31 = make_nat_acc_test_notation(edo31)
     ]
 )
 def test_note_interval_pitch_diff(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     pitch_diff
 ):
@@ -39,7 +39,11 @@ def test_note_interval_pitch_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.pitch_diff == pitch_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.pitch_diff == pitch_diff
 
 
@@ -55,10 +59,10 @@ def test_note_interval_pitch_diff(
     ]
 )
 def test_note_interval_nat_diff(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     nat_diff
 ):
@@ -69,7 +73,11 @@ def test_note_interval_nat_diff(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.nat_diff == nat_diff
+
+    interval = notation.interval(note_a, note_b)
     assert interval.nat_diff == nat_diff
 
 
@@ -86,10 +94,10 @@ def test_note_interval_nat_diff(
     ]
 )
 def test_note_interval_symbol(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     symbol
 ):
@@ -100,7 +108,11 @@ def test_note_interval_symbol(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.symbol == symbol
+
+    interval = notation.interval(note_a, note_b)
     assert interval.symbol == symbol
 
 
@@ -117,10 +129,10 @@ def test_note_interval_symbol(
     ]
 )
 def test_note_interval_number(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     number
 ):
@@ -131,7 +143,11 @@ def test_note_interval_number(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval = notation.note_interval(note_a, note_b)
+    assert interval.number == number
+
+    interval = notation.interval(note_a, note_b)
     assert interval.number == number
 
 
@@ -148,10 +164,10 @@ def test_note_interval_number(
     ]
 )
 def test_note_interval_shorthand(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     shorthand_name
 ):
@@ -163,7 +179,11 @@ def test_note_interval_shorthand(
     note_a = notation.note(pc_symbol_a, nat_bi_index_a)
     note_b = notation.note(pc_symbol_b, nat_bi_index_b)
 
-    interval1 = notation.note_interval(note_a, note_b)
+    with pytest.deprecated_call():
+        interval1 = notation.note_interval(note_a, note_b)
+    assert interval1.shorthand_name == shorthand_name
+
+    interval1 = notation.interval(note_a, note_b)
     assert interval1.shorthand_name == shorthand_name
 
     interval2 = notation.shorthand_interval(*shorthand_name)
@@ -187,15 +207,15 @@ def test_note_interval_shorthand(
     ]
 )
 def test_note_interval_lt(
-    notation_ab, 
-    pc_symbol_a, 
+    notation_ab,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    notation_cd, 
-    pc_symbol_c, 
+    notation_cd,
+    pc_symbol_c,
     nat_bi_index_c,
-    pc_symbol_d, 
+    pc_symbol_d,
     nat_bi_index_d,
 ):
     """
@@ -230,15 +250,15 @@ def test_note_interval_lt(
     ]
 )
 def test_note_interval_eq(
-    notation_ab, 
-    pc_symbol_a, 
+    notation_ab,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    notation_cd, 
-    pc_symbol_c, 
+    notation_cd,
+    pc_symbol_c,
     nat_bi_index_c,
-    pc_symbol_d, 
+    pc_symbol_d,
     nat_bi_index_d,
 ):
     """
@@ -284,10 +304,10 @@ def test_note_interval_default_not_eq(not_an_interval):
     ]
 )
 def test_note_interval_lt_pitch(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -325,10 +345,10 @@ def test_note_interval_lt_pitch(
     ]
 )
 def test_note_interval_eq_pitch(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -361,10 +381,10 @@ def test_note_interval_eq_pitch(
     ]
 )
 def test_note_interval_eq_abs(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
 ):
     """
@@ -394,10 +414,10 @@ def test_note_interval_eq_abs(
     ]
 )
 def test_note_interval_eq_pitch_abs(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
     tuning,
     pitch_index_a,
@@ -433,12 +453,12 @@ def test_note_interval_eq_pitch_abs(
     ]
 )
 def test_note_interval_get_generator_distance(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    gen_pc_symbol, 
+    gen_pc_symbol,
     gen_nat_bi_index,
     gen_dist
 ):
@@ -466,12 +486,12 @@ def test_note_interval_get_generator_distance(
     ]
 )
 def test_note_interval_get_generator_distance_invalid_generator(
-    notation, 
-    pc_symbol_a, 
+    notation,
+    pc_symbol_a,
     nat_bi_index_a,
-    pc_symbol_b, 
+    pc_symbol_b,
     nat_bi_index_b,
-    gen_pc_symbol, 
+    gen_pc_symbol,
     gen_nat_bi_index
 ):
     """
@@ -489,7 +509,7 @@ def test_note_interval_get_generator_distance_invalid_generator(
         )
 
 
-def test_get_generator_distance_incompatible_notations():
+def test_get_generator_distance_incompatible_origin_contexts():
     """
     Test if get_generator_distance fails if interval and generator
     note are from different notations
@@ -499,8 +519,8 @@ def test_get_generator_distance_incompatible_notations():
         n_edo12.note('F', 0)
     )
     gen_note = n_edo31.note('A', 0)
-    
-    with pytest.raises(IncompatibleNotations):
+
+    with pytest.raises(IncompatibleOriginContexts):
         interval.get_generator_distance(gen_note)
 
 
@@ -537,7 +557,7 @@ def test_note_repr(
     assert repr(interval) == expected
 
 
-def test_from_notes_incompatible_notations():
+def test_from_notes_incompatible_origin_contexts():
     """
     Test if from_notes method raises correct error
     when notes are from different notations
@@ -546,5 +566,6 @@ def test_from_notes_incompatible_notations():
     note_a = n_edo12.note('A', 0)
     note_b = n_edo24.note('B', 1)
 
-    with pytest.raises(IncompatibleNotations):
-        NatAccNoteInterval.from_notes(note_a, note_b)
+    with pytest.raises(IncompatibleOriginContexts):
+        with pytest.deprecated_call():
+            NatAccNoteInterval.from_notes(note_a, note_b)

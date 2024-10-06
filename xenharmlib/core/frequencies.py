@@ -23,14 +23,15 @@ useful representations for frequencies and frequency ratios.
 from __future__ import annotations
 
 import os
-import sympy as sp
+from typing import overload
 from typing import Self
 from typing import TypeAlias
 from typing import List
 from typing import Optional
 from functools import total_ordering
 from fractions import Fraction
-from unittest import mock
+import sympy as sp
+
 from .utils import get_primes
 from .utils import get_all_primes
 from .constants import CENTS_PRECISION
@@ -246,9 +247,14 @@ class Frequency:
     # however dividing a frequency by a frequency gives
     # a (scalar) FrequencyRatio: 100 Hz / 20 Hz = 5
 
+    @overload
+    def __truediv__(self, other: Self) -> FrequencyRatio: ...
+
+    @overload
+    def __truediv__(self, other: ScalarLike) -> Frequency: ...
+
     def __truediv__(
-        self,
-        other: Self | ScalarLike
+        self, other: Self | ScalarLike
     ) -> Frequency | FrequencyRatio:
 
         if isinstance(other, Frequency):
@@ -520,8 +526,7 @@ class FrequencyRatio:
         return FrequencyRatio(other_sp_expr - self.sp_expr)
 
     def __mul__(
-        self,
-        other: Frequency | ScalarLike
+        self, other: Frequency | ScalarLike
     ) -> Frequency | FrequencyRatio:
 
         if isinstance(other, Frequency):
@@ -537,10 +542,7 @@ class FrequencyRatio:
             )
         return FrequencyRatio(self.sp_expr * other_sp_expr)
 
-    def __rmul__(
-        self,
-        other: ScalarLike
-    ) -> FrequencyRatio:
+    def __rmul__(self, other: ScalarLike) -> FrequencyRatio:
         # we don't need to implement frequency * ratio here
         # because Frequency implements __mul__ for this
         try:

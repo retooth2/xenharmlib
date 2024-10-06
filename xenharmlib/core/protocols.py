@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Protocol
 from typing import runtime_checkable
 from typing import List
+from collections.abc import Iterator
 from .frequencies import Frequency
 
 
@@ -67,7 +68,7 @@ class PeriodicPitchLike(PitchLike, Protocol):
     @property
     def bi_index(self) -> int: ...
 
-    def transpose_bi_index(self) -> PeriodicPitchLike: ...
+    def transpose_bi_index(self, bi_diff: int) -> PeriodicPitchLike: ...
 
     def pcs_normalized(self) -> PeriodicPitchLike: ...
 
@@ -170,6 +171,12 @@ class PitchScaleLike(HasFrequencies, HasFrequencyRatios, Protocol):
     @property
     def pitch_diffs(self) -> List[int]: ...
 
+    def __iter__(self) -> Iterator: ...
+
+    def __len__(self) -> int: ...
+
+    def __getitem__(self, index_or_slice: int | slice): ...
+
 
 @runtime_checkable
 class PeriodicPitchScaleLike(PitchScaleLike, Protocol):
@@ -184,6 +191,8 @@ class PeriodicPitchScaleLike(PitchScaleLike, Protocol):
 
     @property
     def bi_indices(self) -> List[int]: ...
+
+    def pcs_normalized(self) -> PeriodicPitchScaleLike: ...
 
 
 @runtime_checkable
