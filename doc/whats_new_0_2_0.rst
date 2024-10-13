@@ -422,9 +422,10 @@ As an example consider the following function:
 
    def without_imperfect(scale, fdef):
        """
-       Returns a period normalized scale without imperfect
-       notes/pitches. A note/pitch is considered imperfect
-       if it does not have a fifth above in the scale.
+       Returns a period normalized scale without notes/pitches
+       that were imperfect in the original scale. A note/pitch
+       is considered imperfect if it does not have a fifth above
+       in the scale.
 
        :param scale: A note scale or pitch scale
        :param fdef: An interval defining the fifth
@@ -449,13 +450,20 @@ The function can now be called with either a note scale:
 
    scale = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
    fdef = n_edo12.shorthand_interval('P', 5)
-   perfected = without_imperfect(scale, fdef)
 
-   print(perfected)
+   while len(scale) != 0:
+       scale = without_imperfect(scale, fdef)
+       print(scale)
 
 .. testoutput::
 
    UpDownNoteScale([C0, D0, E0, F0, G0, A0], 12-EDO)
+   UpDownNoteScale([C0, D0, F0, G0, A0], 12-EDO)
+   UpDownNoteScale([C0, D0, F0, G0], 12-EDO)
+   UpDownNoteScale([C0, F0, G0], 12-EDO)
+   UpDownNoteScale([C0, F0], 12-EDO)
+   UpDownNoteScale([F0], 12-EDO)
+   UpDownNoteScale([], 12-EDO)
 
 Or with a pitch scale:
 
@@ -463,10 +471,15 @@ Or with a pitch scale:
 
    scale = edo12.pc_scale([0, 2, 5, 7, 9, 11])
    fdef = edo12.pitch(0).interval(edo12.pitch(7))
-   perfected = without_imperfect(scale, fdef)
 
-   print(perfected)
+   while len(scale) != 0:
+       scale = without_imperfect(scale, fdef)
+       print(scale)
 
 .. testoutput::
 
    EDOPitchScale([0, 2, 5, 7], 12-EDO)
+   EDOPitchScale([0, 5, 7], 12-EDO)
+   EDOPitchScale([0, 5], 12-EDO)
+   EDOPitchScale([5], 12-EDO)
+   EDOPitchScale([], 12-EDO)
