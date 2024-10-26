@@ -91,6 +91,10 @@ class Pitch(SDFreqRepr):
             f'{self.tuning.name})'
         )
 
+    @property
+    def short_repr(self) -> str:
+        return f'{self.pitch_index}'
+
     def transpose(self, diff: int | PitchInterval) -> Pitch:
         """
         Transposes the pitch to a different one
@@ -158,6 +162,10 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
         The base interval index of this pitch
         """
         return self._bi_index
+
+    @property
+    def pc_short_repr(self) -> str:
+        return f'{self.pc_index}'
 
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
@@ -247,10 +255,6 @@ class EDPitch(PeriodicPitch):
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
-
-    @property
-    def short_repr(self) -> str:
-        return f'{self.pitch_index}'
 
 
 class EDOPitch(EDPitch):

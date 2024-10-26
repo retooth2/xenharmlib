@@ -419,6 +419,13 @@ class NatAccNote(PeriodicNoteABC):
         """
         return f'{self.pc_symbol}{self.nat_bi_index}'
 
+    @property
+    def pc_short_repr(self):
+        """
+        The pitch class symbol of this note
+        """
+        return f'{self.pc_symbol}'
+
     def acc_altered(self, acc_diff: Tuple[int, ...]):
         """
         Returns a note with altered accidentals from an accidental
