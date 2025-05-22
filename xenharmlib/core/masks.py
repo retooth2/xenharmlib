@@ -157,3 +157,104 @@ class IndexMask:
 
     def __contains__(self, index):
         return index in self.indices or index > self.open_from
+
+
+class InfiniteIndexMask:
+    """
+    An InfiniteIndexMask defines a finite selection of indices on an
+    infinite series. Index masks are generalizations of slices insofar
+    as multiple index ranges can be selected at once. An index mask
+    can be defined in various ways:
+
+    As a list of consecutive indices:
+    >>> InfiniteIndexMask((-3, 2, 5))
+    InfiniteIndexMask(-3, 2, 5)
+
+    An ellipsis between two indices adds all indices between
+    them to the selection
+    >>> InfiniteIndexMask((-2, ..., 5, 9))
+    InfiniteIndexMask(-2, -1, 0, 1, 2, 3, 4, 5, 9)
+
+    Integers can be used as shortform for 1-tuples
+    >>> InfiniteIndexMask(4)
+
+    The trivial empty mask
+    >>> InfiniteIndexMask()
+
+    In contrast to IndexMask which operates on a finite series
+    infinite index masks cannot be right-open or left-open
+    (having an ellipsis as first or last element), because
+    this would not result in a finite set of indices.
+
+    Once defined the IndexMask object allows containment
+    testing over the in-operator:
+
+    >>> -1 in InfiniteIndexMask((-2, ..., 5, 9))
+    True
+    >>> 6 in InfiniteIndexMask((1, ..., 5, 9))
+    False
+    """
+
+    def __init__(self, expr=None):
+
+        if not expr:
+            self.indices = []
+            self.index_set = set()
+            return
+
+        if not isinstance(expr, Iterable):
+            expr = (expr,)
+
+        if type(expr[0]) is not int:
+            raise InvalidIndexMask('First mask element must be integer')
+
+        if type(expr[-1]) is not int:
+            raise InvalidIndexMask('Last mask element must be integer')
+
+        # we inline-define two list operations which make sure that
+        # every newly added element does honor the constraint of
+        # strict monotony and positivity
+
+        def _append_index(list_, e):
+            if list_ and list_[-1] >= e:
+                raise InvalidIndexMask('Indices in masks are not consecutive')
+            list_.append(e)
+
+        def _extend_indices(list_a, list_b):
+            for e in list_b:
+                _append_index(list_a, e)
+
+        # unwrap the mask into a list of consecutive indices
+
+        indices = []
+
+        # by definition of zip and [1:] this for-loop gets only
+        # executed when there are at least two elements in the
+        # expression
+
+        for e1, e2 in zip(expr, expr[1:]):
+            if e1 is not ...:
+                _append_index(indices, e1)
+            if e1 is ... and e2 is not ...:
+                last = indices[-1]
+                _extend_indices(indices, range(last + 1, e2))
+
+        # for-loop only considers elements up until to the last
+        # (excluding) so we need to look at the last element
+        # seperately. in case len(expr) = 1 the for-loop gets
+        # omitted and the following code describes the treatment
+        # of the only element in the expression
+
+        _append_index(indices, expr[-1])
+
+        # the purpose of index mask is to support fast lookup
+        # operations, so we cast our list into a set.
+
+        self.index_set = set(indices)
+        self.indices = indices
+
+    def __iter__(self):
+        return self.indices.__iter__()
+
+    def __contains__(self, index):
+        return index in self.index_set
