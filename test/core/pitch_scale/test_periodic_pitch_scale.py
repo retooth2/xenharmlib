@@ -135,6 +135,69 @@ def test_is_period_normalized_value_error():
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
+        (edo12, [7, 13, 19, 24], [7, 13, 12, 19]),
+        (edo31, [13, 39, 48, 65], [13, 17, 34, 39, 44])
+    ]
+)
+def test_plusone_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if plusone_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.plusone_normalized() == expected
+
+
+def test_plusone_normalized_value_error():
+    """
+    Test if plusone_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.plusone_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'plusone_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [9, 15, 18, 22, 37], False),
+        (edo31, [9, 15, 18, 22, 37, 40], True)
+    ]
+)
+def test_is_plusone_normalized(tuning, pi_list, expected):
+    """
+    Test if is_plusone_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_plusone_normalized == expected
+
+
+def test_is_plusone_normalized_value_error():
+    """
+    Test if is_plusone_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_plusone_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_plusone_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list',
+    [
         (edo12, [7, 13, 19, 24], [0, 5, 6]),
         (edo31, [13, 39, 48, 65], [0, 4, 21, 26])
     ]

@@ -646,6 +646,42 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         return self[-1] < self[0].transpose_bi_index(1)
 
+    def plusone_normalized(self) -> Self:
+        """
+        Returns a period normalized version of the scale with
+        an additional transposed root at the end, e.g.
+        (F0, G0, A0, B0, C1, D1, E1, F1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'plusone_normalized is not defined on empty scale'
+            )
+
+        scale = self.period_normalized()
+        return scale.with_element(scale[0].transpose_bi_index(1))
+
+    @property
+    def is_plusone_normalized(self) -> bool:
+        """
+        Returns a period normalized version of the scale with
+        an additional transposed root at the end, e.g.
+        (F0, G0, A0, B0, C1, D1, E1, F1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_plusone_normalized is not defined on empty scale'
+            )
+
+        root = self[0]
+        last = self[-1]
+
+        return (
+            root.is_equivalent(last) and
+            (last.bi_index - root.bi_index) == 1
+        )
+
     def zp_normalized(self) -> Self:
         """
         Returns the scale transposed in a way so the root has pitch

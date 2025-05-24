@@ -249,6 +249,29 @@ the method :meth:`~xenharmlib.core.scale.PeriodicScale.zp_normalized`
 
    UpDownNoteScale([C0, Db0, E0, F#0, G0, Bb0], 12-EDO)
 
+Another common normal form is depicting the scale as a series inbetween two
+equivalent notes (for example depicting the notes of F major inbetween F4
+and F5). This form can be calculated using the method
+:meth:`~xenharmlib.core.scale.PeriodicScale.plusone_normalized`:
+
+.. testcode::
+
+   edo12 = EDOTuning(12)
+   n_edo12 = UpDownNotation(edo12)
+
+   scale = n_edo12.pc_scale(
+       ['F', 'G#', 'C', 'F#', 'G']
+   )
+   print(scale)
+
+   pn_scale = scale.plusone_normalized()
+   print(pn_scale)
+
+.. testoutput::
+
+   UpDownNoteScale([F0, G#0, C1, F#1, G1], 12-EDO)
+   UpDownNoteScale([F0, F#0, G0, G#0, C1, F1], 12-EDO)
+
 Reflection
 --------------------------------------
 
