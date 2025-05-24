@@ -4,3 +4,5 @@ from .utils import index
 from .utils import partial
 from .utils import index_mask
 from .utils import partial
+from .iter import cutouts
+from .iter import pairs
