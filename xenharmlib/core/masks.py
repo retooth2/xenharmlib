@@ -18,7 +18,9 @@ This module implements the logic behind index masks (used e.g.
 in the partial method of scales)
 """
 
+from __future__ import annotations
 import math
+from typing import Self
 from typing import Iterable
 from ..exc import InvalidIndexMask
 
@@ -102,7 +104,8 @@ class IndexMask:
         self.open_from = math.inf
 
         if not expr:
-            self.indices = set()
+            self.indices = []
+            self.index_set = set()
             return
 
         if not isinstance(expr, Iterable):
@@ -153,10 +156,27 @@ class IndexMask:
         # the purpose of index mask is to support fast lookup
         # operations, so we cast our list into a set.
 
-        self.indices = set(indices)
+        self.index_set = set(indices)
+        self.indices = indices
+
+    def with_offset(self, offset: int) -> Self:
+        """
+        Derives another index mask from this one with all
+        integers moved according to the given offset
+
+        :param offset: An integer offset
+        """
+
+        mask_expr = tuple()
+        for index in self.indices:
+            mask_expr = mask_expr + (index + offset,)
+        return InfiniteIndexMask(mask_expr)
+
+    def __iter__(self):
+        return self.indices.__iter__()
 
     def __contains__(self, index):
-        return index in self.indices or index > self.open_from
+        return index in self.index_set or index > self.open_from
 
 
 class InfiniteIndexMask:
@@ -252,6 +272,19 @@ class InfiniteIndexMask:
 
         self.index_set = set(indices)
         self.indices = indices
+
+    def with_offset(self, offset: int) -> Self:
+        """
+        Derives another index mask from this one with all
+        integers moved according to the given offset
+
+        :param offset: An integer offset
+        """
+
+        mask_expr = tuple()
+        for index in self.indices:
+            mask_expr = mask_expr + (index + offset,)
+        return InfiniteIndexMask(mask_expr)
 
     def __iter__(self):
         return self.indices.__iter__()
