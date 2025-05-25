@@ -23,6 +23,14 @@ ABS_SHARP_1_EDOS = {5, 9, 12, 16, 19, 23, 26, 33, 40, 47}
 IMPERFECT_EDOS = ALL_EDOS.difference(PERFECT_EDOS)
 IMPERFECT_UPDOWN_EDOS = IMPERFECT_EDOS.difference(ABS_SHARP_1_EDOS)
 
+edo12 = EDOTuning(12)
+n_edo12 = UpDownNotation(edo12)
+
+edo24 = EDOTuning(24)
+n_edo24 = UpDownNotation(edo24)
+
+edo31 = EDOTuning(31)
+n_edo31 = UpDownNotation(edo31)
 
 TESTCASE_LIST_STD_C = [
     ('C',     1, 'Cbb',   1, 'dd',     1),
@@ -459,3 +467,22 @@ def test_interval_names_perfect_edos(
 
     interval = n_edo.shorthand_interval(ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
+
+
+@pytest.mark.parametrize(
+    'notation, pitch_diff',
+    [
+        (n_edo12, 3),
+        (n_edo24, 0),
+        (n_edo24, -3),
+        (n_edo31, 40),
+    ]
+)
+def test_diff_interval(notation, pitch_diff):
+
+    created = notation.diff_interval(pitch_diff)
+    note_a = notation.note('D', 2)
+    note_b = note_a.transpose(pitch_diff)
+    expected = note_a.interval(note_b)
+
+    assert created == expected

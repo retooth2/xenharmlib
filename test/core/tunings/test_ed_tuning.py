@@ -205,3 +205,23 @@ def test_index_scale(tuning, indices, expected):
     assert scale == tuning.scale(
         [tuning.pitch(i) for i in expected]
     )
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff',
+    [
+        (EDTuning(12, FrequencyRatio(2)), 3),
+        (EDTuning(24, FrequencyRatio(2)), 0),
+        (EDTuning(22, FrequencyRatio(2)), -1),
+        (EDTuning(31, FrequencyRatio(2)), -9),
+        (EDTuning(14, FrequencyRatio(2)), 18)
+    ]
+)
+def test_diff_interval(tuning, pitch_diff):
+
+    created = tuning.diff_interval(pitch_diff)
+    pitch_a = tuning.pitch(10)
+    pitch_b = tuning.pitch(10 + pitch_diff)
+    expected = pitch_a.interval(pitch_b)
+
+    assert created == expected

@@ -95,6 +95,20 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
 
         return self._interval_cls.from_source_and_target(source, target)
 
+    def diff_interval(
+        self,
+        pitch_diff: int
+    ) -> IntervalSeqT:
+        """
+        Returns an interval the size of a given pitch index difference.
+
+        :param pitch_diff: The pitch index difference
+        """
+
+        a = self.zero_element
+        b = a.transpose(pitch_diff)
+        return a.interval(b)
+
     def scale(self, elements: Optional[Iterable[FreqReprT]] = None) -> ScaleT:
         """
         Returns a scale having the scale type this origin context
