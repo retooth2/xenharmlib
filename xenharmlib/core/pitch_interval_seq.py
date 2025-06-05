@@ -51,9 +51,6 @@ class PitchIntervalSeq(IntervalSeq[PitchIntervalT]):
         super().__init__(tuning, intervals)
         self.tuning = tuning
 
-    def pitch_diffs(self) -> List[int]:
-        return [interval.pitch_diff for interval in self]
-
     def __repr__(self):
         return (
             f'{self.__class__.__name__}('
