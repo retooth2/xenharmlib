@@ -22,6 +22,7 @@ from ..core.symbols import SymbolArithmeticSet
 from ..core.notes import NatAccNote
 from ..core.notes import NatAccNoteInterval
 from ..core.note_scale import NatAccNoteScale
+from ..core.note_interval_seq import NatAccNoteIntervalSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
 from ..exc import UnfittingNotation
@@ -39,6 +40,10 @@ class UpDownNoteInterval(NatAccNoteInterval):
 
 
 class UpDownNoteScale(NatAccNoteScale):
+    pass
+
+
+class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq):
     pass
 
 
@@ -121,6 +126,7 @@ class UpDownNotation(NatAccNotation):
         note_cls=UpDownNote,
         note_interval_cls=UpDownNoteInterval,
         note_scale_cls=UpDownNoteScale,
+        note_interval_seq_cls=UpDownNoteIntervalSeq,
     ):
 
         if not isinstance(tuning, EDOTuning):
@@ -131,6 +137,7 @@ class UpDownNotation(NatAccNotation):
             note_cls,
             note_interval_cls,
             note_scale_cls,
+            note_interval_seq_cls
         )
 
         self._init_naturals()

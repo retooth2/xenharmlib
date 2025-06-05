@@ -48,6 +48,10 @@ from .pitch import EDPitchInterval
 from .pitch import EDOPitchInterval
 from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
+from .pitch_interval_seq import PitchIntervalSeq
+from .pitch_interval_seq import PeriodicPitchIntervalSeq
+from .pitch_interval_seq import EDPitchIntervalSeq
+from .pitch_interval_seq import EDOPitchIntervalSeq
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
 from .origin_context import OriginContext
@@ -56,10 +60,11 @@ from ..exc import InvalidPitchClassIndex
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
+IntervalSeqT = TypeVar('IntervalSeqT', bound=PitchIntervalSeq)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
 
-class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
+class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -94,10 +99,16 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
         pitch_cls: type[PitchT],
         pitch_interval_cls: type[IntervalT],
         pitch_scale_cls: type[ScaleT],
+        pitch_interval_seq_cls: type[IntervalSeqT],
         ref_frequency: Frequency,
     ):
 
-        super().__init__(pitch_cls, pitch_interval_cls, pitch_scale_cls)
+        super().__init__(
+            pitch_cls,
+            pitch_interval_cls,
+            pitch_scale_cls,
+            pitch_interval_seq_cls
+        )
         self.ref_frequency = ref_frequency
 
     @property
@@ -281,10 +292,19 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
 PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
+PeriodicIntervalSeqT = TypeVar(
+    'PeriodicIntervalSeqT',
+    bound=PeriodicPitchIntervalSeq
+)
 
 
 class PeriodicTuning(
-    TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT]
+    TuningABC[
+        PeriodicPitchT,
+        PeriodicIntervalT,
+        PeriodicScaleT,
+        PeriodicIntervalSeqT
+    ]
 ):
     """
     This abstract class makes the assumption that the tuning has
@@ -324,6 +344,7 @@ class PeriodicTuning(
         pitch_cls: type[PeriodicPitchT],
         pitch_interval_cls: type[PeriodicIntervalT],
         pitch_scale_cls: type[PeriodicScaleT],
+        pitch_interval_seq_cls: type[PeriodicIntervalSeqT],
         ref_frequency: Frequency,
     ):
 
@@ -331,6 +352,7 @@ class PeriodicTuning(
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 
@@ -434,7 +456,14 @@ else:
     Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
 
 
-class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
+class EDTuning(
+    PeriodicTuning[
+        EDPitch,
+        EDPitchInterval,
+        EDPitchScale,
+        EDPitchIntervalSeq
+    ]
+):
     """
     EDTuning ("equal division tuning") takes a base interval
     given as a frequency ratio and divides this base interval
@@ -480,6 +509,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         pitch_cls: type[EDPitch] = EDPitch,
         pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
         pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
+        pitch_interval_seq_cls: type[EDPitchIntervalSeq] = EDPitchIntervalSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
@@ -488,6 +518,7 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 
@@ -566,6 +597,7 @@ class EDOTuning(EDTuning):
         pitch_cls: type[EDOPitch] = EDOPitch,
         pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
         pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
+        pitch_interval_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
@@ -575,6 +607,7 @@ class EDOTuning(EDTuning):
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 

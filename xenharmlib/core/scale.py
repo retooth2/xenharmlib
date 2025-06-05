@@ -19,6 +19,7 @@ This module implements base classes for scales
 
 from __future__ import annotations
 
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from collections.abc import Sequence
@@ -31,6 +32,7 @@ from typing import Self
 from typing import Tuple
 from types import EllipsisType
 from .interval import Interval
+from .interval_seq import IntervalSeq
 from .freq_repr import FreqRepr
 from .protocols import PeriodicPitchLike
 from .masks import mask_select
@@ -338,10 +340,27 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
+    def to_interval_seq(self) -> IntervalSeq[Interval[FreqReprT]]:
+        """
+        Returns this scale represented as an interval sequence
+        """
+
+        intervals = []
+        for i in range(0, len(self) - 1):
+            intervals.append(self[i].interval(self[i + 1]))
+        return self.origin_context.interval_seq(intervals)
+
     def to_intervals(self) -> List[Interval[FreqReprT]]:
         """
         Returns this scale represented as a list of intervals
         """
+        warn(
+            f'{self.__class__.__name__}.to_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.to_interval_seq instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         intervals = []
         for i in range(0, len(self) - 1):

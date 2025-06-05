@@ -34,6 +34,8 @@ from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_interval_seq import NoteIntervalSeq
+from .note_interval_seq import NatAccNoteIntervalSeq
 from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
@@ -49,9 +51,10 @@ from .symbols import AmbiguousSymbol
 NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
+IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
 
 
-class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
+class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
@@ -78,8 +81,14 @@ class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
         note_cls: type[NoteT],
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
+        note_interval_seq_cls: type[IntervalSeqT]
     ):
-        super().__init__(note_cls, note_interval_cls, note_scale_cls)
+        super().__init__(
+            note_cls,
+            note_interval_cls,
+            note_scale_cls,
+            note_interval_seq_cls
+        )
         self._tuning = tuning
         self._enharm_strategy = None
 
@@ -362,7 +371,12 @@ class IncompleteNotation(Exception):
 
 
 class NatAccNotation(
-    NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale]
+    NotationABC[
+        NatAccNote,
+        NatAccNoteInterval,
+        NatAccNoteScale,
+        NatAccNoteIntervalSeq
+    ]
 ):
     """
     NatAccNotation is a notation for periodic tunings that select a
@@ -406,9 +420,16 @@ class NatAccNotation(
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
+        note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
     ):
 
-        super().__init__(tuning, note_cls, note_interval_cls, note_scale_cls)
+        super().__init__(
+            tuning,
+            note_cls,
+            note_interval_cls,
+            note_scale_cls,
+            note_interval_seq_cls
+        )
 
         # the naturals list will include tuples with two elements.
         # a tuple (symbol, natc_pitch_index) at position k in the

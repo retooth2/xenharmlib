@@ -28,13 +28,15 @@ from ..exc import IncompatibleOriginContexts
 from .freq_repr import FreqRepr
 from .interval import Interval
 from .scale import Scale
+from .interval_seq import IntervalSeq
 
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
+IntervalSeqT = TypeVar('IntervalSeqT', bound=IntervalSeq)
 
 
-class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
+class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
     """
     OriginContext is the abstract base class for both tunings and notations.
     It defines a unified interface for collection and interval builder
@@ -54,11 +56,13 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
         freq_repr_cls: type[FreqReprT],
         interval_cls: type[IntervalT],
         scale_cls: type[ScaleT],
+        interval_seq_cls: type[IntervalSeqT],
     ):
 
         self._freq_repr_cls = freq_repr_cls
         self._interval_cls = interval_cls
         self._scale_cls = scale_cls
+        self._interval_seq_cls = interval_seq_cls
 
     @property
     @abstractmethod
@@ -122,3 +126,43 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT], ABC):
         """
 
         return self._scale_cls(self, elements)
+
+    def interval_seq(
+        self,
+        intervals: Optional[Iterable[IntervalT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval sequence having the interval sequence type
+        this origin context was configured with
+
+        :raises IncompatibleOriginContexts: If at least one given
+            element has a different origin context than this one
+
+        :param intervals: A list of intervals originating from this
+            context
+        """
+
+        return self._interval_seq_cls(self, intervals)
+
+    def diff_interval_seq(
+        self,
+        pitch_diffs: Optional[Iterable[int]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval sequence from an iterable of pitch index
+        differences, for example:
+
+        >>> from xenharmlib import EDOTuning
+        >>> edo12 = EDOTuning(12)
+        >>> major_chord = edo12.diff_interval_seq([4, 3])
+        >>> minor_chord = edo12.diff_interval_seq([3, 4])
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        intervals = [
+            self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs
+        ]
+
+        return self.interval_seq(intervals)
