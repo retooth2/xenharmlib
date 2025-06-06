@@ -32,7 +32,6 @@ from typing import Self
 from typing import Tuple
 from types import EllipsisType
 from .interval import Interval
-from .interval_seq import IntervalSeq
 from .freq_repr import FreqRepr
 from .protocols import PeriodicPitchLike
 from .masks import mask_select
@@ -340,7 +339,7 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
-    def to_interval_seq(self) -> IntervalSeq[Interval[FreqReprT]]:
+    def to_interval_seq(self):
         """
         Returns this scale represented as an interval sequence
         """
