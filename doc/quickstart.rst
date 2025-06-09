@@ -265,10 +265,11 @@ perfect fifth in a tuning you can do something like this:
 Pitch Intervals
 ------------------------
 
-Two pitches can form an interval. Pitch intervals can be either
-created with the
-:meth:`~xenharmlib.core.origin_context.OriginContext.interval` method of a
-tuning or with the interval method of a pitch:
+An interval denotes the *difference* between two pitches. Interval objects
+can be created in multiple ways in xenharmlib:
+
+Calling the :meth:`~xenharmlib.core.origin_context.OriginContext.interval`
+method of the tuning with two pitches as arguments:
 
 .. testcode::
 
@@ -276,8 +277,36 @@ tuning or with the interval method of a pitch:
     pitch_b = edo31.pitch(9)
     interval = edo31.interval(pitch_a, pitch_b)
 
-    assert interval == pitch_a.interval(pitch_b)
-    print(interval.pitch_diff)
+    print(interval)
+
+.. testoutput::
+
+    6
+
+Calling the :meth:`~xenharmlib.core.freq_repr.FreqRepr.interval` of a pitch with
+another pitch as an argument:
+
+.. testcode::
+
+    pitch_a = edo31.pitch(3)
+    pitch_b = edo31.pitch(9)
+    pitch_a.interval(pitch_b)
+
+    print(interval)
+
+.. testoutput::
+
+    6
+
+or, finally, without defining any pitches, by specifying the desired
+distance directly with the
+:meth:`~xenharmlib.core.origin_context.OriginContext.diff_interval`
+method of the tuning:
+
+.. testcode::
+
+    interval = edo31.diff_interval(6)
+    print(interval)
 
 .. testoutput::
 
