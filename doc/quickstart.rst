@@ -464,8 +464,11 @@ something like this:
 Pitch Scales
 ------------------------
 
-Pitch scales are sorted lists of unique pitches. Like pitches, they
-can be constructed through a builder method in the tuning object.
+Pitch scales are sorted lists of unique pitches. Like other objects,
+they can be constructed using builder methods in the tuning object.
+
+The :meth:`~xenharmlib.core.origin_context.OriginContext.scale` method
+constructs a scale object from a list of pitches:
 
 .. testcode::
 
