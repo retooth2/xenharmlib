@@ -488,8 +488,23 @@ The following expression is equivalent to the above snippet:
 
 Please note that the uniqueness property refers to pitch and not pitch
 class, so scales including 'C-0' and 'C-1' are possible.
+Even though the familiar textbook definition of a scale is "a consecutive
+series of notes that form a progression between one note and its octave",
+having a looser definition of a scale has considerable advantages: It
+allows to define scales on tunings that might not have an octave (for
+example the Bohlen-Pierce tuning) or even tunings that do not have an
+equivalency interval at all. Furthermore this way there is no need for
+a distinct chord object in xenharmlib, because both chords and scales
+fulfill the definition of "a sorted list of unique pitches" with scales
+being sorted from left to right, while chords being sorted from bottom
+to top. For example a 9th chord can be defined as a scale object like
+this:
 
-Pitch scale objects support most of the typical list operations, e.g.
+.. testcode::
+
+    Cmaj9 = edo31.index_scale([0, 4, 7, 11, 14])
+
+Scale objects support most of the typical list operations, e.g.
 they are iterable:
 
 .. testcode::
