@@ -347,12 +347,8 @@ considered smaller, and vice versa. For example, the fifth interval of
 
 .. testcode::
 
-    interval_fifth_edo12 = edo12.pitch(0).interval(
-        edo12.pitch(7)
-    )
-    interval_fifth_edo31 = edo31.pitch(0).interval(
-        edo31.pitch(18)
-    )
+    interval_fifth_edo12 = edo12.diff_interval(7)
+    interval_fifth_edo31 = edo31.diff_interval(18)
 
     assert interval_fifth_edo31 < interval_fifth_edo12
 
@@ -384,6 +380,20 @@ function.
 .. testcode::
 
     assert abs(fifth_d) > abs(second_d)
+
+Futhermore since interval objects define the difference between two pitches
+they can also be used as an argument for transposition:
+
+.. testcode::
+
+    fifth = edo12.diff_interval(7)
+    D = edo12.pitch(2)
+
+    print(D.transpose(fifth))
+
+.. testoutput::
+
+   Pitch(9, 12-EDO)
 
 For periodic tunings, you can calculate the generator distance, which is
 the minimum number of steps from one pitch to the other when iteratively
@@ -466,6 +476,16 @@ can be constructed through a builder method in the tuning object.
 Xenharmlib will sort the pitches automatically when constructing a
 scale, so the original order is not important. The uniqueness property
 means that duplicate pitches in the list will be only added once.
+
+A more concise method to construct a pitch scale is to use the
+the :meth:`~xenharmlib.core.tunings.TuningABC.index_scale`
+method that expects a list of integers instead of a list of pitches.
+The following expression is equivalent to the above snippet:
+
+.. testcode::
+
+    scale = edo31.index_scale([9, 10, 4, 5])
+
 Please note that the uniqueness property refers to pitch and not pitch
 class, so scales including 'C-0' and 'C-1' are possible.
 
@@ -501,14 +521,13 @@ interval is given xenharmlib checks if *any* two pairs of notes
 (both in upwards and downwards direction) form the interval.
 
 .. testcode::
-   
-    scale = edo31.scale(
-        [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
-    )
 
-    p = edo31.pitch(0)
-    assert p in scale
-    assert p.interval(edo31.pitch(9)) in scale
+    scale = edo31.index_scale([0, 5, 9])
+    pitch = edo31.pitch(0)
+    interval = edo31.diff_interval(9)
+
+    assert pitch in scale
+    assert interval in scale
 
 The in operator is even more broad: It generally accepts every object
 that has a :attr:`frequency` or a :attr:`frequency_ratio` attribute,
@@ -522,9 +541,7 @@ tunings:
 
     assert all([pitch in edo24_scale for pitch in edo12_scale])
 
-    edo12_fifth = edo12.pitch(0).interval(
-        edo12.pitch(7)
-    )
+    edo12_fifth = edo12.diff_interval(7)
     assert edo12_fifth in edo24_scale
 
 In general, all the operations that are possible on single pitches are
@@ -533,9 +550,7 @@ same way you can transpose pitches:
 
 .. testcode::
    
-    scale = edo31.scale(
-        [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
-    )
+    scale = edo31.index_scale([0, 5, 9])
     transposed = scale.transpose(2)
     print(transposed)
 
@@ -548,9 +563,7 @@ tuning:
 
 .. testcode::
 
-    scale = edo12.scale(
-        [edo12.pitch(0), edo12.pitch(1), edo12.pitch(2)]
-    )
+    scale = edo12.index_scale([0, 1, 2])
     retuned = scale.retune(edo24)
     print(retuned)
 
@@ -644,18 +657,14 @@ avoided:
         # differ in base interval)
         return scale.difference(avoid_scale, ignore_bi_index=True)
 
-    c_maj = edo12.scale(
-        [edo12.pitch(i) for i in [0, 2, 4, 5, 7, 9, 11]]
-    )
-    C7 = edo12.scale(
-        [edo12.pitch(i) for i in [0, 4, 7, 10]]
-    )
+    c_maj = edo12.index_scale([0, 2, 4, 5, 7, 9, 11]
+    F7 = edo12.index_scale([5, 9, 12, 15])
 
-    print(get_safe_for_chord(c_maj, C7))
+    print(get_safe_for_chord(c_maj, F7))
 
 .. testoutput::
 
-    EDOPitchScale([0, 2, 4, 7, 9], 12-EDO)
+    EDOPitchScale([0, 2, 5, 7, 9, 11], 12-EDO)
 
 As an example for the intersection method we calculate how the Revati
 scale from India's Carnatic music and the Japanese Hirajōshi scale (as
@@ -664,13 +673,8 @@ the Western equal-tempered 12-tone system:
 
 .. testcode::
 
-    revati = edo12.scale(
-        [edo12.pitch(i) for i in [0, 1, 5, 7, 10]]
-    )
-    hirajoshi = edo12.scale(
-        [edo12.pitch(i) for i in [0, 1, 5, 6, 10]]
-    )
-
+    revati = edo12.index_scale([0, 1, 5, 7, 10])
+    hirajoshi = edo12.index_scale([0, 1, 5, 6, 10])
     print(revati.intersection(hirajoshi))
 
 .. testoutput::
@@ -687,9 +691,7 @@ purposes.
 
 .. testcode::
 
-    a_minor = edo12.scale(
-        [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
-    )
+    a_minor = edo12.index_scale([9, 11, 12, 14, 16, 17, 19])
     print(a_minor.pcs_normalized())
 
 .. testoutput::
@@ -708,12 +710,8 @@ intersection method to achieve our goal:
 
 .. testcode::
 
-    a_minor = edo12.scale(
-        [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
-    )
-    g_major = edo12.scale(
-        [edo12.pitch(i) for i in [7, 9, 11, 12, 14, 16, 18]]
-    )
+    a_minor = edo12.index_scale([9, 11, 12, 14, 16, 17, 19])
+    g_major = edo12.index_scale([7, 9, 11, 12, 14, 16, 18])
 
     shared = a_minor.pcs_normalized().intersection(
         g_major.pcs_normalized()
@@ -1446,6 +1444,12 @@ a subsection below. But first, let's create our first note scale:
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
 
+Or, in a more concise form:
+
+.. testcode::
+
+    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb])
+
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
 scale object was a python builtin list. The in operator works likewise
@@ -1459,7 +1463,7 @@ both with pitches, pitch intervals, notes, and note intervals.
     assert n_edo12.note('C', 0) in Cm7
     assert n_edo12.shorthand_interval('m', 3) in Cm7
     assert edo12.pitch(3) in Cm7
-    assert edo12.pitch(1).interval(edo12.pitch(11)) in Cm7
+    assert edo12.diff_interval(11) in Cm7
     
 .. testoutput::
 
@@ -1471,12 +1475,8 @@ equal sign will ignore enharmonic notation differences:
 
 .. testcode::
 
-    Cm = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G']]
-    )
-    Cm_weird = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'D#', 'Abb']]
-    )
+    Cm = n_edo12.pc_scale(['C', 'Eb', 'G'])
+    Cm_weird = n_edo12.pc_scale(['C', 'D#', 'Abb'])
 
     assert Cm == Cm_weird
 
@@ -1592,12 +1592,8 @@ transpose to obtain each chord.
 
 .. testcode::
 
-    C7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'E', 'G', 'Bb']]
-    )
-    Cm7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
-    )
+    C7 = n_edo12.pc_scale(['C', 'E', 'G', 'Bb'])
+    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb'])
 
     # to be played with B major
     B7 = C7.transpose(sh('M', 7))
