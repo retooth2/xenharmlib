@@ -1090,12 +1090,8 @@ Notes have an interval method returning a note interval:
     gsharp1 = n_edo31.note('G#', 1)
     gsharp1.interval(gsharp1)
 
-Notes in UpDownNotation do **not** define addition, subtraction and
-scalar multiplication, because the result is not well defined in
-notation systems that have enharmonic ambiguity. (Other notations
-without this problem might implement them). Notes can be transposed
-through the transpose method by giving a note interval of the same
-notation:
+Notes can be transposed through the transpose method by giving a
+note interval of the same notation:
 
 .. testcode::
 
