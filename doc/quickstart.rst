@@ -699,6 +699,23 @@ the Western equal-tempered 12-tone system:
 
     EDOPitchScale([0, 1, 5, 10], 12-EDO)
 
+Similar to python's sets there are also infix-operations available
+for scales:
+
+.. testcode::
+
+    print(revati | hirajoshi) # union
+    print(revati & hirajoshi) # intersection
+    print(revati - hirajoshi) # difference
+    print(revati ^ hirajoshi) # symmetric difference
+
+.. testoutput::
+
+    EDOPitchScale([0, 1, 5, 10], 12-EDO)
+    EDOPitchScale([0, 1, 5, 6, 7, 10], 12-EDO)
+    EDOPitchScale([7], 12-EDO)
+    EDOPitchScale([6, 7], 12-EDO)
+
 Often the interest lies not in the overlapping of specific pitches, but
 rather in the shared pitch classes. This becomes particularly relevant
 when choosing notes for a melody during key modulation.
