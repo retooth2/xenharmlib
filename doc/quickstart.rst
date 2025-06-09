@@ -145,26 +145,12 @@ point math)
 
     17.831543876451384
 
-Speaking of math: Pitches also allow addition, subtraction, and scalar
-multiplication:
-
-.. testcode::
-
-    print(edo24.pitch(3) + edo24.pitch(3))
-    print(edo24.pitch(10) - edo24.pitch(2))
-    print(5 * edo24.pitch(2))
-
-.. testoutput::
-
-    EDOPitch(6, 24-EDO)
-    EDOPitch(8, 24-EDO)
-    EDOPitch(10, 24-EDO)
-
-As an alternative for addition and subtraction, you can also use the
-:meth:`~xenharmlib.core.pitch.Pitch.transpose` method for transposition,
-which expects a positive or negative integer. The following snippets
-defines a function that transposes the pitch n octaves up regardless of
-tuning:
+Pitches can be transformed into other pitches by transposition.
+For this purpose pitch objects provide a
+:meth:`~xenharmlib.core.pitch.Pitch.transpose` method that expects
+a positive or negative integer, or an interval object (more on that later).
+The following snippets defines a function that transposes the pitch
+n octaves up regardless of tuning:
 
 .. testcode::
 
