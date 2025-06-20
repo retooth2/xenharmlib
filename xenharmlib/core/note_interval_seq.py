@@ -55,6 +55,18 @@ class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
             [interval.pitch_interval for interval in self]
         )
 
+    def __repr__(self):
+        interval_symbols = []
+        for interval in self:
+            interval_symbols.append(interval.short_repr)
+        interval_symbols = ', '.join(interval_symbols)
+        interval_symbols = '[' + interval_symbols + ']'
+        return (
+            f'{self.__class__.__name__}('
+            f'{interval_symbols}, '
+            f'{self.tuning.name})'
+        )
+
 
 NatAccNoteIntervalT = TypeVar('NatAccNoteIntervalT', bound=NatAccNoteInterval)
 
