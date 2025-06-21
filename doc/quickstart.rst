@@ -281,7 +281,7 @@ method of the tuning with two pitches as arguments:
 
 .. testoutput::
 
-    6
+    EDOPitchInterval(6, 31-EDO)
 
 Calling the :meth:`~xenharmlib.core.freq_repr.FreqRepr.interval` of a pitch with
 another pitch as an argument:
@@ -296,7 +296,7 @@ another pitch as an argument:
 
 .. testoutput::
 
-    6
+    EDOPitchInterval(6, 31-EDO)
 
 or, finally, without defining any pitches, by specifying the desired
 distance directly with the
@@ -310,7 +310,7 @@ method of the tuning:
 
 .. testoutput::
 
-    6
+    EDOPitchInterval(6, 31-EDO)
 
 Intervals are considered **directional** in xenharmlib, which means
 that the order of the pitches from which they are created is important.
@@ -393,7 +393,7 @@ they can also be used as an argument for transposition:
 
 .. testoutput::
 
-   Pitch(9, 12-EDO)
+   EDOPitch(9, 12-EDO)
 
 For periodic tunings, you can calculate the generator distance, which is
 the minimum number of steps from one pitch to the other when iteratively
@@ -512,6 +512,8 @@ they are iterable:
 
 .. testcode::
 
+    scale = edo31.index_scale([0, 4, 5, 9, 10])
+
     for pitch in scale:
         print(pitch)
 
@@ -521,6 +523,7 @@ they are iterable:
     EDOPitch(4, 31-EDO)
     EDOPitch(5, 31-EDO)
     EDOPitch(9, 31-EDO)
+    EDOPitch(10, 31-EDO)
 
 They also support item selection and slicing:
 
@@ -532,7 +535,7 @@ They also support item selection and slicing:
 .. testoutput::
 
     EDOPitch(4, 31-EDO)
-    EDOPitchScale([4, 5], 31-EDO)
+    EDOPitchScale([4, 5, 9], 31-EDO)
 
 The 'in' operator accepts both pitches and pitch intervals. If an
 interval is given xenharmlib checks if *any* two pairs of notes
@@ -675,7 +678,7 @@ avoided:
         # differ in base interval)
         return scale.difference(avoid_scale, ignore_bi_index=True)
 
-    c_maj = edo12.index_scale([0, 2, 4, 5, 7, 9, 11]
+    c_maj = edo12.index_scale([0, 2, 4, 5, 7, 9, 11])
     F7 = edo12.index_scale([5, 9, 12, 15])
 
     print(get_safe_for_chord(c_maj, F7))
@@ -711,8 +714,8 @@ for scales:
 
 .. testoutput::
 
-    EDOPitchScale([0, 1, 5, 10], 12-EDO)
     EDOPitchScale([0, 1, 5, 6, 7, 10], 12-EDO)
+    EDOPitchScale([0, 1, 5, 10], 12-EDO)
     EDOPitchScale([7], 12-EDO)
     EDOPitchScale([6, 7], 12-EDO)
 
@@ -795,8 +798,8 @@ Let's create our first notation with it:
     from xenharmlib import EDOTuning
     from xenharmlib import UpDownNotation
 
-    edo31 = EDOTuning(31)
-    n_edo31 = UpDownNotation(edo31)
+    edo24 = EDOTuning(24)
+    n_edo24 = UpDownNotation(edo24)
 
 The notation layer 'wraps' the low level classes and provides a more
 human-friendly interface to them, making connections between
@@ -812,18 +815,18 @@ EDOs) as arguments:
 
 .. testcode::
 
-    c = n_edo31.note('C', 0)
-    e_neutral = n_edo31.note('vE', 0)
-    g_flat = n_edo31.note('Gb', 0)
+    c = n_edo24.note('C', 0)
+    e_neutral = n_edo24.note('vE', 0)
+    g_flat = n_edo24.note('Gb', 0)
 
 You can combine two notes to form a note interval:
 
 .. testcode::
 
-    neutral_3 = n_edo31.interval(
+    neutral_3 = n_edo24.interval(
         c, e_neutral
     )
-    diminished_5 = n_edo31.interval(
+    diminished_5 = n_edo24.interval(
         c, g_flat
     )
 
@@ -831,7 +834,7 @@ A list of notes can be used to create a note scale:
 
 .. testcode::
 
-    triad = n_edo31.scale(
+    triad = n_edo24.scale(
         [c, e_neutral, g_flat]
     )
 
@@ -851,9 +854,9 @@ counterpart:
 
 .. testoutput::
 
-    EDOPitch(0, 31-EDO)
-    EDOPitchInterval(9, 31-EDO)
-    EDOPitchScale([0, 9, 16], 31-EDO)
+    EDOPitch(0, 24-EDO)
+    EDOPitchInterval(7, 24-EDO)
+    EDOPitchScale([0, 7, 12], 24-EDO)
 
 Notes
 -----------------------------------
@@ -880,8 +883,8 @@ the creation of notes with any number of accidentals:
 
 .. testcode::
 
-    weird_aug_c0 = n_edo31.note('^^^^Cx#xx', 0)
-    weird_dim_c1 = n_edo31.note('vvvCbbbbb', 1)
+    weird_aug_c0 = n_edo24.note('^^^^Cx#', 0)
+    weird_dim_c1 = n_edo24.note('vvvvCbbbbb', 1)
     print(weird_aug_c0 == weird_dim_c1)
 
 .. testoutput::
@@ -1479,7 +1482,7 @@ Or, in a more concise form:
 
 .. testcode::
 
-    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb])
+    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb'])
 
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
@@ -1494,7 +1497,7 @@ both with pitches, pitch intervals, notes, and note intervals.
     assert n_edo12.note('C', 0) in Cm7
     assert n_edo12.shorthand_interval('m', 3) in Cm7
     assert edo12.pitch(3) in Cm7
-    assert edo12.diff_interval(11) in Cm7
+    assert edo12.diff_interval(10) in Cm7
     
 .. testoutput::
 
