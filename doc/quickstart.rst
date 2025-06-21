@@ -782,16 +782,19 @@ Notation
 
 Notation can be a murky thing, especially when it comes to tunings that
 are more novel and don't come with an established cultural tradition.
-Not every notation system makes sense for every tuning. Some systems
-produce very counter-intuitive results when combined with unfitting
-tunings (for example in standard Western notation 'E' and 'F' are the
-same note in 5-EDO). In this Quickstart we will focus on a notation
-called "up/down notation" which is a superset of the standard Western
-notation. Apart from a couple of outliers (like 5-EDO) the system works
-pretty well on a large number of periodic tunings that rely on division
-of the octave.
+Not every notation system makes sense for every tuning. In this Quickstart
+we will focus on a notation called UpDownNotation which is a superset
+of the standard Western notation and is designed as a general notation
+for "equal division of the octave" tunings.
 
-Let's create our first notation with it:
+UpDownNotation first approximates the western naturals (C, D, E, F,
+G, A, B), mapping C to the zero pitch and generating the other
+naturals by stacking fifths. After that, it approximates sharp
+and flat accidentals and fills the gaps with multiples of
+sharps and flats or up and down arrows.
+
+Let's create a notation for the Modern Arabic quartertone tuning
+with it:
 
 .. testcode::
 
@@ -867,14 +870,19 @@ need more notes than tunings with fewer divisions. In certain notations
 'C#' and 'Db' refer to the same pitch, in others the pitches are
 distinct.
 
-UpDownNotation is a natural/accidental notation. It first approximates
-the naturals (C, D, E, F, G, A, B), mapping C to the zero pitch and
-generating the other naturals by stacking fifths. After that, it
-approximates sharp and flat accidentals and fills the gaps with
-multiples of sharps and flats or up and down arrows. The note object
-created by UpDownNotation consists of a natural (like 'C') and an
-accidental (like '#'). The more pitches exist in between two natural
-pitches the more accidentals are needed.
+Note objects created by UpDownNotation consists of a natural (like 'C')
+and an accidental (like '#'). A Down-Arrow :code:`v` means
+"transpose the note one pitch down", an Up-Arrow :code:`^`
+means "transpose the note one pitch up". By convention
+Up-Arrows and Down-Arrows are put *before* the natural while
+sharps (:code:`#`), flats (:code:`b`), double-sharps (:code:`x`)
+are put behind it.
+
+.. testcode::
+
+    # A C sharp transposed one pitch down, resulting in
+    # the quartertone that lays between C and C#
+    note = n_edo24.note('vC#', 0)
 
 In xenharmlib's implementation of UpDownNotation, enharmonic equivalents
 are theoretically infinite due to its comprehensive accidental
@@ -895,136 +903,13 @@ It is even possible to mix flat/sharp and up/down accidentals:
 
 .. testcode::
 
-    weird_note = n_edo31.note('vvvvv^^^^Cxx#xxbbx', 0)
-
-In the following table we display an overview of the different
-accidentals that are used by UpDownNotation in their ASCII form together
-with the matching symbols in the Standard Music Layout Font.
+    weird_note = n_edo24.note('vvvvv^^^^Cxx#xxbbx', 0)
 
 If a certain accidental is available depends on the underlying tuning.
 For 12-EDO e.g. the 'bv' accidental is not available, however for 31-EDO
 it is. In general, there exists exactly one accidental symbol for each
 accidental value (hence 'v' does not exist in 12-EDO because it would be
 the same as 'b')
-
-.. role:: smufl
-
-.. list-table::
-   :widths: 25 25 25 25
-   :header-rows: 1
-
-   * - unicode sharp
-     - ascii sharp
-     - unicode flat
-     - ascii flat
-   * - C |acc_^|
-     - ^C
-     - C |acc_v|
-     - vC
-   * - C |acc_^^|
-     - ^^C
-     - C |acc_vv|
-     - vvC
-   * - C |acc_^^^|
-     - ^^^C
-     - C |acc_vvv|
-     - vvvC
-   * - C |acc_#vvv|
-     - vvvC#
-     - C |acc_b^^^|
-     - ^^^Cb
-   * - C |acc_#vv|
-     - vvC#
-     - C |acc_b^^|
-     - ^^Cb
-   * - C |acc_#v|
-     - vC#
-     - C |acc_b^|
-     - ^Cb
-   * - C |acc_#|
-     - C#
-     - C |acc_b|
-     - Cb
-   * - C |acc_#^|
-     - ^C#
-     - C |acc_bv|
-     - vCb
-   * - C |acc_#^^|
-     - ^^C#
-     - C |acc_bvv|
-     - vvCb
-   * - C |acc_#^^^|
-     - ^^^C#
-     - C |acc_bvvv|
-     - vvvCb
-   * - C |acc_xvvv|
-     - vvvCx
-     - C |acc_bb^^^|
-     - ^^^Cbb
-   * - C |acc_xvv|
-     - vvCx
-     - C |acc_bb^^|
-     - ^^Cbb
-   * - C |acc_xv|
-     - vCx
-     - C |acc_bb^|
-     - ^Cbb
-   * - C |acc_x|
-     - Cx
-     - C |acc_bb|
-     - Cbb
-   * - C |acc_x^|
-     - ^Cx
-     - C |acc_bbv|
-     - vCbb
-   * - C |acc_x^^|
-     - ^^Cx
-     - C |acc_bbvv|
-     - vvCbb
-   * - C |acc_x^^^|
-     - ^^^Cx
-     - C |acc_bbvvv|
-     - vvvCbb
-
-.. |acc_^| replace:: :smufl:``
-.. |acc_^^| replace:: :smufl:``
-.. |acc_^^^| replace:: :smufl:``
-.. |acc_t| replace:: :smufl:``
-.. |acc_#vvv| replace:: :smufl:``
-.. |acc_#vv| replace:: :smufl:``
-.. |acc_#v| replace:: :smufl:``
-.. |acc_#| replace:: :smufl:``
-.. |acc_#^| replace:: :smufl:``
-.. |acc_#^^| replace:: :smufl:``
-.. |acc_#^^^| replace:: :smufl:``
-.. |acc_#t| replace:: :smufl:``
-.. |acc_xvvv| replace:: :smufl:``
-.. |acc_xvv| replace:: :smufl:``
-.. |acc_xv| replace:: :smufl:``
-.. |acc_x| replace:: :smufl:``
-.. |acc_x^| replace:: :smufl:``
-.. |acc_x^^| replace:: :smufl:``
-.. |acc_x^^^| replace:: :smufl:``
-
-.. |acc_v| replace:: :smufl:``
-.. |acc_vv| replace:: :smufl:``
-.. |acc_vvv| replace:: :smufl:``
-.. |acc_d| replace:: :smufl:``
-.. |acc_b^^^| replace:: :smufl:``
-.. |acc_b^^| replace:: :smufl:``
-.. |acc_b^| replace:: :smufl:``
-.. |acc_b| replace:: :smufl:``
-.. |acc_bv| replace:: :smufl:``
-.. |acc_bvv| replace:: :smufl:``
-.. |acc_bvvv| replace:: :smufl:``
-.. |acc_db| replace:: :smufl:``
-.. |acc_bb^^^| replace:: :smufl:``
-.. |acc_bb^^| replace:: :smufl:``
-.. |acc_bb^| replace:: :smufl:``
-.. |acc_bb| replace:: :smufl:``
-.. |acc_bbv| replace:: :smufl:``
-.. |acc_bbvv| replace:: :smufl:``
-.. |acc_bbvvv| replace:: :smufl:``
 
 Since notes are wrappers around pitches, you can operate on notes mostly
 the same way you operated on pitches with the difference that the
