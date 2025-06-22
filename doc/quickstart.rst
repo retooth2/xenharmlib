@@ -1352,10 +1352,10 @@ intervals can be transformed into their upwards counterpart:
 Note Scales
 -----------------------------------
 
-A set of unique, ordered notes is called a note scale. Note scales
-work similarly to pitch scales, however there are special considerations
-necessary in light of enharmonic ambiguity. We will address these in
-a subsection below. But first, let's create our first note scale:
+A set of unique, ordered notes is called a note scale. Note scales can
+be created with the :meth:`~xenharmlib.core.origin_context.OriginContext.scale`
+method of the notation context that expects a list of notes originating
+from the same notation:
 
 .. testcode::
 
@@ -1363,7 +1363,9 @@ a subsection below. But first, let's create our first note scale:
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
 
-Or, in a more concise form:
+Or - in a more concise form - with the
+:meth:`~xenharmlib.core.notation.NatAccNotation.pc_scale` method
+that expects a list of pitch class symbols:
 
 .. testcode::
 
@@ -1607,223 +1609,6 @@ operator.
 The set of improvisation notes over all sections is simply the full
 chromatic scale, meaning that the three improvisation scales cut the
 chromatic scale in 3 disjoint sets, each with 4 notes.
-
-Enharmonic ambiguity and set operations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When we speak of enharmonic equivalence we mean that two notes refer
-to the same pitch, but are notated differently, that is: we
-differentiate between the sound of a note and its function.
-The question if Eb and D# in 12-EDO are *the same* can only be
-answered if we further specify: Same in regards to what?
-
-In regards to notation Eb and D# are distinct, however in regards
-to sound they are the same. Spoken in mathematical terms:
-Notation systems in which there is enharmonic equivalence
-define two equivalency relations on the space of notes. We already came
-across to both of them in the chapter about notes: The :code:`==`
-operator considers notes as equal if their frequency is the same
-while the method :code:`is_notated_same` checks for notation
-equality.
-
-The existence of two different equivalency relations on the space
-of notes poses a problem for us when we want to define scales and
-operations on them:
-Note scales are defined as 'an ordered set of *unique* notes',
-meaning that no two notes in a scale are the same. Now should
-this refer to notation or sound? After all in cases where we
-are interested in the functional relationship of scales, we
-would want to treat D# and Eb as distinct, while in other cases
-we want them to be considered equal.
-
-Xenharmlib defines the uniqueness restriction of the scale as "unique in
-*pitch*", meaning that no two notes :code:`e_flat` and :code:`d_sharp` with
-:code:`e_flat == d_sharp` can exist in the scale at the same time. However,
-it provides special variants for some set operations that honor notational
-differences (More on that later).
-
-The reason for choosing the :code:`==` equivalency as the base for the
-uniqueness property is to provide consistency with the underlying pitch
-scale object:
-
-.. testcode::
-
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([e_flat])
-    scale_b = n_edo12.scale([d_sharp])
-
-    note_union = scale_a.union(scale_b)
-    pitch_union = scale_a.pitch_scale.union(
-        scale_b.pitch_scale
-    )
-
-    # among others, these would break if we would
-    # treat Eb and D# distinct in note scales
-    assert note_union.frequencies == pitch_union.frequencies
-    assert len(note_union) == len(pitch_union)
-    pitch_intervals = [
-        i.pitch_interval for i in note_union.to_intervals()
-    ]
-    assert pitch_intervals == pitch_union.to_intervals()
-
-This choice also allows implementing the scale's :code:`==` operator
-as a consistent logical extension of the note's :code:`==` operator,
-creating a closed set algebra for scales under :code:`==` with all
-basic set operations. Think of it this way: Notes are variable names
-holding the pitch as their value with some variables being equal:
-
-.. math::
-
-   A = \{a, b\}\\
-   B = \{c, d\}\\
-   \\
-   b = c \rightarrow\\
-   A \cap B = \{b\} = \{c\}\\
-   A \cup B = \{a, b, d\} == \{a, c, d\}\\
-
-How does xenharmlib then choose the note representation of a pitch when
-more than one enharmonically equivalent note is present? During
-construction of a note scale it chooses on the principle of first
-encounter:
-
-.. testcode::
-
-    scale = n_edo12.scale(
-        [
-            n_edo12.note('D#', 0),
-            n_edo12.note('Eb', 0),
-        ]
-    )
-    assert len(scale) == 1
-    assert scale[0].pc_symbol == 'D#'
-
-When using set operations xenharmlib always prefers the representation
-of the scale that executed the operation:
-
-.. testcode::
-
-    c = n_edo12.note('C', 0)
-    g = n_edo12.note('G', 0)
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([c, e_flat])
-    scale_b = n_edo12.scale([d_sharp, g])
-
-    # A v B / A ^ B
-
-    union_a_b = scale_a.union(scale_b)
-    assert union_a_b.is_notated_same(
-        n_edo12.scale([c, e_flat, g])
-    )
-
-    intersection_a_b = scale_a.intersection(scale_b)
-    assert intersection_a_b.is_notated_same(
-        n_edo12.scale([e_flat])
-    )
-
-    # B v A / B ^ A
-
-    union_b_a = scale_b.union(scale_a)
-    assert union_b_a.is_notated_same(
-        n_edo12.scale([c, d_sharp, g])
-    )
-
-    intersection_b_a = scale_b.intersection(scale_a)
-    assert intersection_b_a.is_notated_same(
-        n_edo12.scale([d_sharp])
-    )
-
-Using the :code:`==` operator we see that even though the results
-are different in terms of representation, commutativity in regards
-to union and intersection is still preserved:
-
-.. testcode::
-
-    assert union_a_b == union_b_a
-    assert intersection_a_b == intersection_b_a
-
-In contrast using the :code:`is_notated_same` equivalency relation
-on the two result pairs does *not* preserve commutativity:
-
-.. testcode::
-
-    assert not union_a_b.is_notated_same(union_b_a)
-    assert not intersection_a_b.is_notated_same(intersection_b_a)
-
-Since we chose the :code:`==` operator as a basis for scale uniqueness,
-there is no way to define a closed set algebra for the :code:`is_notated_same`
-relation at the same time, because the union operation would not be well
-defined.
-
-However, on *certain* set operations, we can define the option to use
-the :code:`is_notated_same` relation. For :code:`intersection`, we
-can define that same-sounding, but differently notated notes should
-not be part of the intersection. For :code:`difference` we can define
-that such notes will not be removed from the first scale. In the
-same way, we can define the relationships :code:`is_disjoint`,
-:code:`is_subset`, and :code:`is_superset`.
-
-These stricter variants of the set operations are called:
-
-* :meth:`~xenharmlib.core.note_scale.NoteScale.note_intersection`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.note_difference`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_subset`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_superset`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_notated_disjoint`
-
-.. testcode::
-
-    c = n_edo12.note('C', 0)
-    g = n_edo12.note('G', 0)
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([c, e_flat])
-    scale_b = n_edo12.scale([d_sharp, g])
-
-    intersection_a_b = scale_a.note_intersection(scale_b)
-    assert len(intersection_a_b) == 0
-
-    diff_a_b = scale_a.note_difference(scale_b)
-    assert len(diff_a_b) == 2
-
-In combination with the :code:`ignore_bi_index` flag, we can for
-example build a function that returns the pitch class symbols of
-the common notes of two scales while being aware of the key:
-
-.. testcode::
-
-    def common_notes_key_aware(scale_a, scale_b):
-        scale_i = scale_a.note_intersection(
-            scale_b,
-            ignore_bi_index=True
-        ).pcs_normalized()
-        return scale_i
-
-    # F# major and Gb major have exactly the same
-    # pitches, however they are notated differently
-    f_sharp_maj = n_edo12.natural_scale().transpose(
-        n_edo12.shorthand_interval('A', 4)
-    )
-    g_flat_maj = n_edo12.natural_scale().transpose(
-        n_edo12.shorthand_interval('d', 5)
-    )
-
-    # D# minor is the relative key to F# major
-    d_sharp_min = f_sharp_maj.rotation(5)
-
-    print(common_notes_key_aware(f_sharp_maj, g_flat_maj))
-    print(common_notes_key_aware(g_flat_maj, d_sharp_min))
-    print(common_notes_key_aware(f_sharp_maj, d_sharp_min))
-
-.. testoutput::
-
-    UpDownNoteScale([], 12-EDO)
-    UpDownNoteScale([], 12-EDO)
-    UpDownNoteScale([C#0, D#0, E#0, F#0, G#0, A#0, B0], 12-EDO)
 
 Playing and Exporting
 -----------------------------------
