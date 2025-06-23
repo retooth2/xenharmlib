@@ -332,7 +332,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
     def to_scale(self, start: FreqRepr) -> Scale:
         """
         Returns a scale that has the interval structure of
-        this sequence, initialized by a starting interval.
+        this sequence, starting with the given note/pitch
 
         :param start: A starting note/pitch of the same
             origin context
