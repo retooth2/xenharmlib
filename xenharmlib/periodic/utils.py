@@ -32,8 +32,8 @@ def scale_element(
     >>> n_edo12 = UpDownNotation(edo12)
     >>>
     >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
-    >>> periodic.scale_element(8)
-    UpDownNote('D', 1)
+    >>> periodic.scale_element(c_maj, 8)
+    UpDownNote(D, 1, 12-EDO)
 
     :param scale: A period normalized scale
     :param index: An index of the periodic extension of the scale
@@ -138,7 +138,7 @@ def scalar_transpose(
     >>>
     >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
     >>> periodic.scalar_transpose(c_maj, n_edo12.note('D', 1), 3)
-    UpDownNote('G', 1, 12-EDO)
+    UpDownNote(G, 1, 12-EDO)
 
     When scalar transposition is applied to collections of notes or
     pitches interval content can change, for example if a C major
@@ -147,7 +147,7 @@ def scalar_transpose(
 
     >>> triad = n_edo12.pc_scale(['C', 'E', 'G'])
     >>> periodic.scalar_transpose(c_maj, triad, 1)
-    UpDownNoteScale(['D', 'F', 'A'], 12-EDO)
+    UpDownNoteScale([D0, F0, A0], 12-EDO)
 
     :param ref_scale: A period normalized reference scale
     :param transposable: The object to be transposed
@@ -216,10 +216,10 @@ def partial(
     >>> n_edo12 = UpDownNotation(edo12)
     >>>
     >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
-    >>> periodic.partial((-1, 1, 3))
-    UpDownScale('B', 'D', 'F')
-    >>> periodic.partial((5, ..., 12))
-    UpDownScale('A', 'B', 'C', 'D', 'E', 'F', 'G')
+    >>> periodic.partial(c_maj, (-1, 1, 3))
+    UpDownNoteScale([B-1, D0, F0], 12-EDO)
+    >>> periodic.partial(c_maj, (5, ..., 12))
+    UpDownNoteScale([A0, B0, C1, D1, E1, F1, G1, A1], 12-EDO)
 
     If only one element should be selected a simple integer
     can be used
@@ -262,7 +262,7 @@ def index_mask(parent: ScaleT, partial: ScaleT) -> Tuple[int, ...]:
     >>> n_edo12 = UpDownNotation(edo12)
     >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
     >>> Bdim = n_edo12.pc_scale(['B', 'D', 'F'])
-    >>> periodic.index_mask(Bdim)
+    >>> periodic.index_mask(c_maj, Bdim)
     (6, 8, 10)
 
     :param parent: The parent scale to search in
