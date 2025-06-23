@@ -154,28 +154,28 @@ def test_cutouts_invalid_mask():
         list(periodic.cutouts(scale, ...))
 
     assert exc_info.value.args[0] == (
-        'First mask element must be integer'
+        'Ellipsis is not allowed on edges of infinite series mask'
     )
 
     with pytest.raises(InvalidIndexMask) as exc_info:
         list(periodic.cutouts(scale, (1, 4, ...)))
 
     assert exc_info.value.args[0] == (
-        'Last mask element must be integer'
+        'Ellipsis is not allowed on edges of infinite series mask'
     )
 
     with pytest.raises(InvalidIndexMask) as exc_info:
         list(periodic.cutouts(scale, (..., 1, 4)))
 
     assert exc_info.value.args[0] == (
-        'First mask element must be integer'
+        'Ellipsis is not allowed on edges of infinite series mask'
     )
 
     with pytest.raises(InvalidIndexMask) as exc_info:
         list(periodic.cutouts(scale, (..., 1, 4, ...)))
 
     assert exc_info.value.args[0] == (
-        'First mask element must be integer'
+        'Ellipsis is not allowed on edges of infinite series mask'
     )
 
 

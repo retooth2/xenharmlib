@@ -226,10 +226,14 @@ class InfiniteIndexMask:
             expr = (expr,)
 
         if type(expr[0]) is not int:
-            raise InvalidIndexMask('First mask element must be integer')
+            raise InvalidIndexMask(
+                'Ellipsis is not allowed on edges of infinite series mask'
+            )
 
         if type(expr[-1]) is not int:
-            raise InvalidIndexMask('Last mask element must be integer')
+            raise InvalidIndexMask(
+                'Ellipsis is not allowed on edges of infinite series mask'
+            )
 
         # we inline-define two list operations which make sure that
         # every newly added element does honor the constraint of
