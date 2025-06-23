@@ -1405,3 +1405,22 @@ def test_is_zero_normalized_value_error():
         excinfo.value.args[0] ==
         'is_zero_normalized is not defined on empty scale'
     )
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, source_index, target_index, diff',
+    [
+        (edo12, [3, 5, 7, 8, 10], 0, 2, 4),
+        (edo12, [5, 7, 8, 15, 19], 2, -1, 11),
+        (edo31, [10, 19, 23, 36, 37], 3, 1, -17),
+        (edo31, [0, 12, 16, 19, 22, 34, 36], -1, -2, -2),
+    ]
+)
+def test_spec_interval(tuning, input_pi, source_index, target_index, diff):
+    """
+    Test if spec_interval works correctly
+    """
+
+    input_scale = tuning.index_scale(input_pi)
+    expected = tuning.diff_interval(diff)
+    assert input_scale.spec_interval(source_index, target_index) == expected

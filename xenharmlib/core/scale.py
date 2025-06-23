@@ -349,6 +349,19 @@ class Scale(Sequence[FreqReprT], ABC):
             intervals.append(self[i].interval(self[i + 1]))
         return self.origin_context.interval_seq(intervals)
 
+    def spec_interval(self, source_index, target_index):
+        """
+        Returns the specific interval for a generic interval.
+        For example in the 12-EDO C major scale the generic
+        interval defined by (0, 2) is the specific interval
+        major 3.
+
+        :param source_index: Source index for the interval
+        :param target_index: Target index for the interval
+        """
+
+        return self[source_index].interval(self[target_index])
+
     def to_intervals(self) -> List[Interval[FreqReprT]]:
         """
         Returns this scale represented as a list of intervals

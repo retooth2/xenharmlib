@@ -2690,3 +2690,44 @@ def test_is_zero_normalized_value_error():
         excinfo.value.args[0] ==
         'is_zero_normalized is not defined on empty scale'
     )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, source_index, target_index, interval_pair',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            0, 2,
+            ('C', 4)
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B', 0), ('E+', 0), ('B+', 1)],
+            2, -1,
+            ('C', 4)
+        ),
+        (
+            n_edo24,
+            [('C', 0), ('D+', 0), ('F', 2)],
+            -1, 0,
+            ('C', -28)
+        ),
+    ]
+)
+def test_spec_interval(
+    notation,
+    input_pairs,
+    source_index,
+    target_index,
+    interval_pair
+):
+    """
+    Test if spec_interval works correctly
+    """
+
+    input_scale = notation.scale(
+        [notation.note(*pair) for pair in input_pairs]
+    )
+    expected = notation.shorthand_interval(*interval_pair)
+    assert input_scale.spec_interval(source_index, target_index) == expected
