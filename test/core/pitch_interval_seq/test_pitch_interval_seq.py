@@ -812,7 +812,7 @@ def test_index_start_stop_value_error(tuning, diff, interval, start, stop):
         (edo24, [2, -1, -5, 3], 6, [6, 8, 7, 2, 5]),
     ]
 )
-def test_to_scale(tuning, diff, pitch_index, scale_pi):
+def test_scale_conversion(tuning, diff, pitch_index, scale_pi):
     """
     Test if pitch interval sequence can be converted into scale
     """
@@ -825,11 +825,12 @@ def test_to_scale(tuning, diff, pitch_index, scale_pi):
 
     expected_scale = tuning.index_scale(scale_pi)
     assert interval_seq.to_scale(pitch) == expected_scale
+    assert pitch.scale(interval_seq) == expected_scale
 
 
-def test_to_scale_incompatible_origin_context():
+def test_scale_conversion_incompatible_origin_context():
     """
-    Test if to_scale raises correct error if parameter is
+    Test if scale conversion raises correct error if parameter is
     from different origin context
     """
 
@@ -840,3 +841,6 @@ def test_to_scale_incompatible_origin_context():
 
     with pytest.raises(IncompatibleOriginContexts):
         interval_seq.to_scale(pitch)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        pitch.scale(interval_seq)

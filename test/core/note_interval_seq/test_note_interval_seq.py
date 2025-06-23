@@ -1320,7 +1320,7 @@ def test_index_start_stop_value_error(
         ),
     ]
 )
-def test_to_scale(notation, input_shn, note_pair, scale_pairs):
+def test_scale_conversion(notation, input_shn, note_pair, scale_pairs):
     """
     Test if pitch interval sequence can be converted into scale
     """
@@ -1335,11 +1335,12 @@ def test_to_scale(notation, input_shn, note_pair, scale_pairs):
         notation.note(*pair) for pair in scale_pairs
     )
     assert interval_seq.to_scale(note) == expected_scale
+    assert note.scale(interval_seq) == expected_scale
 
 
-def test_to_scale_incompatible_origin_context():
+def test_scale_conversion_incompatible_origin_context():
     """
-    Test if to_scale raises correct error if parameter is
+    Test if scale conversion raises correct error if parameter is
     from different origin context
     """
 
@@ -1351,6 +1352,9 @@ def test_to_scale_incompatible_origin_context():
 
     with pytest.raises(IncompatibleOriginContexts):
         interval_seq.to_scale(note)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        note.scale(interval_seq)
 
 
 @pytest.mark.parametrize(
