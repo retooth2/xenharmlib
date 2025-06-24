@@ -6,3 +6,4 @@ from .utils import index_mask
 from .utils import partial
 from .iter import cutouts
 from .iter import pairs
+from .intervals import spec_interval
