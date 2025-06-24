@@ -178,6 +178,13 @@ def test_cutouts_invalid_mask():
         'Ellipsis is not allowed on edges of infinite series mask'
     )
 
+    with pytest.raises(InvalidIndexMask) as exc_info:
+        list(periodic.cutouts(scale, (2, 1)))
+
+    assert exc_info.value.args[0] == (
+        'Indices in masks are not consecutive'
+    )
+
 
 @pytest.mark.parametrize(
     'tuning, scale_pi, dist, result_pair_pi',
