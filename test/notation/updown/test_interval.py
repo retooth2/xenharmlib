@@ -5,8 +5,8 @@ from xenharmlib.notation.updown import UpDownNotation
 # Technically we should really test all EDOs 5-72, but it
 # takes a long, long time, so instead we put a couple of
 # each sharpness
-# ALL_EDOS = set(range(5, 73))
-ALL_EDOS = {
+# ALL_EDO_DIVS = set(range(5, 73))
+ALL_EDO_DIVS = {
     6, 7, 8, 13, 14, 18, 21, 28, 35,
     5, 9, 12, 33,
     10, 11, 38,
@@ -18,10 +18,20 @@ ALL_EDOS = {
     66,
     71
 }
-PERFECT_EDOS = {7, 14, 21, 28, 35}
-ABS_SHARP_1_EDOS = {5, 9, 12, 16, 19, 23, 26, 33, 40, 47}
-IMPERFECT_EDOS = ALL_EDOS.difference(PERFECT_EDOS)
-IMPERFECT_UPDOWN_EDOS = IMPERFECT_EDOS.difference(ABS_SHARP_1_EDOS)
+PERFECT_EDO_DIVS = {7, 14, 21, 28, 35}
+ABS_SHARP_1_EDO_DIVS = {5, 9, 12, 16, 19, 23, 26, 33, 40, 47}
+IMPERFECT_EDO_DIVS = ALL_EDO_DIVS.difference(PERFECT_EDO_DIVS)
+IMPERFECT_UPDOWN_EDO_DIVS = IMPERFECT_EDO_DIVS.difference(ABS_SHARP_1_EDO_DIVS)
+
+IMPERFECT_EDOS = [
+    UpDownNotation(EDOTuning(i)) for i in IMPERFECT_EDO_DIVS
+]
+
+IMPERFECT_UPDOWN_EDOS = [
+    UpDownNotation(EDOTuning(i)) for i in IMPERFECT_UPDOWN_EDO_DIVS
+]
+
+PERFECT_EDOS = [UpDownNotation(EDOTuning(i)) for i in PERFECT_EDO_DIVS]
 
 edo12 = EDOTuning(12)
 n_edo12 = UpDownNotation(edo12)
@@ -258,10 +268,10 @@ def invariant_updown(testcase_list, acc_symbol):
     invariant_source_target_note(TESTCASE_LIST_STD_C, 'x')
 )
 @pytest.mark.parametrize(
-    'edo_divisions',
+    'n_edo',
     IMPERFECT_EDOS
 )
-def test_flat_sharp_interval_names_imperfect_edos(edo_divisions,
+def test_flat_sharp_interval_names_imperfect_edos(n_edo,
                                                   pc_symbol_a,
                                                   bi_index_a,
                                                   pc_symbol_b,
@@ -273,23 +283,21 @@ def test_flat_sharp_interval_names_imperfect_edos(edo_divisions,
     correct interval name
     """
 
-    edo12 = EDOTuning(edo_divisions)
-    n_edo12 = UpDownNotation(edo12)
-    note_a = n_edo12.note(pc_symbol_a, bi_index_a)
-    note_b = n_edo12.note(pc_symbol_b, bi_index_b)
+    note_a = n_edo.note(pc_symbol_a, bi_index_a)
+    note_b = n_edo.note(pc_symbol_b, bi_index_b)
 
     with pytest.deprecated_call():
-        interval = n_edo12.note_interval(note_a, note_b)
+        interval = n_edo.note_interval(note_a, note_b)
 
     assert interval.shorthand_name == (ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
 
-    interval = n_edo12.interval(note_a, note_b)
+    interval = n_edo.interval(note_a, note_b)
 
     assert interval.shorthand_name == (ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
 
-    interval = n_edo12.shorthand_interval(ic_symbol, numeral)
+    interval = n_edo.shorthand_interval(ic_symbol, numeral)
     assert note_a.transpose(interval) == note_b
 
 
@@ -343,11 +351,11 @@ def test_flat_sharp_interval_names_imperfect_edos(edo_divisions,
     invariant_updown(TESTCASE_LIST_MULTI_BI_B_NEG, 'vvv')
 )
 @pytest.mark.parametrize(
-    'edo_divisions',
+    'n_edo',
     IMPERFECT_UPDOWN_EDOS
 )
 def test_up_down_interval_names_imperfect_edos(
-    edo_divisions,
+    n_edo,
     pc_symbol_a,
     bi_index_a,
     pc_symbol_b,
@@ -359,10 +367,6 @@ def test_up_down_interval_names_imperfect_edos(
     Test if ups and downs are applied correctly
     to imperfect EDOs that have abs(sharpness) != 1
     """
-
-    edo = EDOTuning(edo_divisions)
-
-    n_edo = UpDownNotation(edo)
 
     note_a = n_edo.note(pc_symbol_a, bi_index_a)
     note_b = n_edo.note(pc_symbol_b, bi_index_b)
@@ -430,11 +434,11 @@ TESTCASE_LIST_PERFECT_C_NEG = [
     invariant_updown(TESTCASE_LIST_PERFECT_C_NEG, '^^^')
 )
 @pytest.mark.parametrize(
-    'edo_divisions',
+    'n_edo',
     PERFECT_EDOS
 )
 def test_interval_names_perfect_edos(
-    edo_divisions,
+    n_edo,
     pc_symbol_a,
     bi_index_a,
     pc_symbol_b,
@@ -446,10 +450,6 @@ def test_interval_names_perfect_edos(
     Test if ups and downs are applied correctly
     to perfect EDOs (those without sharps and flats)
     """
-
-    edo = EDOTuning(edo_divisions)
-
-    n_edo = UpDownNotation(edo)
 
     note_a = n_edo.note(pc_symbol_a, bi_index_a)
     note_b = n_edo.note(pc_symbol_b, bi_index_b)
