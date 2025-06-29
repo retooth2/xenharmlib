@@ -170,6 +170,31 @@ def test_pc_scale_invalid_pci(tuning, pc_indices):
 
 
 @pytest.mark.parametrize(
+    'tuning, pc_indices, root_bi_index, expected',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [7, 9, 3, 5],
+            4,
+            [7+48, 9+48, 3+60, 5+60]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [3, 6, 10, 16],
+            2,
+            [3+62, 6+62, 10+62, 16+62]
+        ),
+    ]
+)
+def test_pc_scale_root_bi_index(tuning, pc_indices, root_bi_index, expected):
+
+    scale = tuning.pc_scale(pc_indices, root_bi_index)
+    assert scale == tuning.scale(
+        [tuning.pitch(i) for i in expected]
+    )
+
+
+@pytest.mark.parametrize(
     'tuning, indices, expected',
     [
         (

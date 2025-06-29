@@ -101,6 +101,35 @@ def test_pc_scale(notation, pc_symbols, expected_pairs):
 
 
 @pytest.mark.parametrize(
+    'notation, pc_symbols, root_bi_index, expected_pairs',
+    [
+        (
+            n_edo12,
+            ['E', 'F+', 'A', 'C'],
+            2,
+            [('E', 2), ('F+', 2), ('A', 3), ('C', 3)]
+        ),
+        (
+            n_edo24,
+            ['E', 'E', 'E', 'E'],
+            5,
+            [('E', 5), ('E', 6), ('E', 7), ('E', 8)]
+        )
+    ]
+)
+def test_pc_scale_root_bi_index(
+    notation, pc_symbols, root_bi_index, expected_pairs
+):
+
+    scale = notation.pc_scale(pc_symbols, root_bi_index)
+    expected = notation.scale(
+        [notation.note(*pair) for pair in expected_pairs]
+    )
+
+    assert scale.is_notated_same(expected)
+
+
+@pytest.mark.parametrize(
     'notation, pc_symbols',
     [
         (

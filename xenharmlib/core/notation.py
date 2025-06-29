@@ -780,7 +780,7 @@ class NatAccNotation(
         return self.scale(notes)
 
     def pc_scale(
-        self, pc_symbols: Optional[List[str]] = None
+        self, pc_symbols: Optional[List[str]] = None, root_bi_index: int = 0
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
@@ -794,15 +794,17 @@ class NatAccNotation(
             valid in the definition of this notation
 
         :param pc_symbols: A list of pitch class symbols.
+        :param root_bi_index: Base interval index of the root
+            (optional, defaults to 0)
         """
 
         notes = []
-        current_bi_index = 0
+        current_bi_index = root_bi_index
 
         if not pc_symbols:
             return self.scale()
 
-        notes.append(self.note(pc_symbols[0], 0))
+        notes.append(self.note(pc_symbols[0], root_bi_index))
 
         for pc_symbol in pc_symbols[1:]:
             note = self.note(pc_symbol, current_bi_index)

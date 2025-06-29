@@ -361,7 +361,9 @@ class PeriodicTuning(
     def __len__(self):
         return self._period_length
 
-    def pc_scale(self, pc_indices: Optional[List[int]] = None) -> ScaleT:
+    def pc_scale(
+        self, pc_indices: Optional[List[int]] = None, root_bi_index: int = 0
+    ) -> ScaleT:
         """
         Constructs a pitch scale from a list of pitch class indices.
         The pitch class indices are assumed to be in the order they
@@ -374,10 +376,12 @@ class PeriodicTuning(
             list is not a valid pitch class index in this tuning
 
         :param pc_indices: A list of pitch class indices.
+        :param root_bi_index: Base interval index of the root
+            (optional, defaults to 0)
         """
 
         pitches = []
-        current_bi_index = 0
+        current_bi_index = root_bi_index
         tuning_len = len(self)
 
         if not pc_indices:
@@ -389,7 +393,9 @@ class PeriodicTuning(
                 f'Pitch class index must be between 0 and {tuning_len}'
                 f'(exclusive). {head} did not meet that boundary.'
             )
-        pitches.append(self.pitch(head))
+
+        pitch_index = head + (tuning_len * current_bi_index)
+        pitches.append(self.pitch(pitch_index))
 
         for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
             if current_pci >= tuning_len:
