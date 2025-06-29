@@ -780,36 +780,40 @@ class NatAccNotation(
         return self.scale(notes)
 
     def pc_scale(
-        self, pc_symbols: Optional[List[str]] = None, root_bi_index: int = 0
+        self,
+        pc_symbols: Optional[List[str]] = None,
+        root_nat_bi_index: int = 0
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
         The pitch class symbols are assumed to be in the order they
         appear in the scale meaning that e.g. in 12-EDO the provided
         argument ['G', 'D', 'E'] will result in a scale with notes
-        G0, D1, E1. The base interval of the first provided pc symbol
-        will always assumed to be 0.
+        G0, D1, E1. The base interval of the natural of the first
+        provided pc symbol will always assumed to be 0.
 
         :raises UnknownNoteSymbol: If one of the pc symbols is not
             valid in the definition of this notation
 
         :param pc_symbols: A list of pitch class symbols.
-        :param root_bi_index: Base interval index of the root
-            (optional, defaults to 0)
+        :param root_nat_bi_index: (optional, defaults to 0) The base
+            interval index of the natural of the root (for example a
+            B#-2 in 12-EDO has the natural base interval index of 2,
+            even though the pitch is in base interval 3).
         """
 
         notes = []
-        current_bi_index = root_bi_index
+        current_nat_bi_index = root_nat_bi_index
 
         if not pc_symbols:
             return self.scale()
 
-        notes.append(self.note(pc_symbols[0], root_bi_index))
+        notes.append(self.note(pc_symbols[0], root_nat_bi_index))
 
         for pc_symbol in pc_symbols[1:]:
-            note = self.note(pc_symbol, current_bi_index)
+            note = self.note(pc_symbol, current_nat_bi_index)
             if note <= notes[-1]:
-                current_bi_index += 1
+                current_nat_bi_index += 1
                 note = note.transpose_bi_index(1)
             notes.append(note)
 
