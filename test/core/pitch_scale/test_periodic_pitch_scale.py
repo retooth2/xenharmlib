@@ -917,11 +917,12 @@ def test_is_disjoint_incompatible_origin_contexts():
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, expected',
     [
-        (edo12, [5, 8, 7], [5, 8, 19], True),
+        (edo12, [5, 8, 7], [5, 8, 7], True),
         (edo12, [8, 7], [5, 8, 19], False),
         (edo12, [5, 8, 7], [5, 8], False),
         (edo24, [1, 11, 12], [25, 35, 36], True),
         (edo31, [3, 11, 64], [1, 9, 12], False),
+        (edo12, [2, 6, 9], [6, 9, 14], False),
         (ed13_3, [3, 11, 20], [], False),
         (ed13_3, [], [3, 11, 20], False),
     ]

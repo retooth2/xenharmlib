@@ -810,8 +810,8 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
     def is_equivalent(self, other: PeriodicScale) -> bool:
         """
         Returns True if every element in this scale corresponds to another
-        one in the other scale that has the same pitch class index.
-        (and vice versa)
+        one in the other scale at the same index that has the same pitch
+        class index.
 
         :raises IncompatibleOriginContexts: If the other scale has a
             different origin context
@@ -824,10 +824,32 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
                 'Scales do not originate from the same context'
             )
 
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
+        if len(self) != len(other):
+            return False
 
-        return n_self == n_other
+        for e_self, e_other in zip(self, other):
+            if not e_self.is_equivalent(e_other):
+                return False
+
+        return True
+
+    def is_pcs_equivalent(self, other: PeriodicScale) -> bool:
+        """
+        Returns True if the set of pitch class indices are the same
+        in both scales.
+
+        :raises IncompatibleOriginContexts: If the other scale has a
+            different origin context
+
+        :param other: Another periodic scale
+        """
+
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Scales do not originate from the same context'
+            )
+
+        return set(self.pc_indices) == set(other.pc_indices)
 
     def pcs_intersection(self, other: Self) -> Self:
         """
@@ -996,12 +1018,12 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_subset = self.is_equivalent(intersection)
+        is_subset = self.is_pcs_equivalent(intersection)
 
         if not proper:
             return is_subset
 
-        return is_subset and not self.is_equivalent(other)
+        return is_subset and not self.is_pcs_equivalent(other)
 
     def is_superset(
         self, other: Self, proper: bool = False, ignore_bi_index: bool = False
@@ -1027,9 +1049,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_superset = other.is_equivalent(intersection)
+        is_superset = other.is_pcs_equivalent(intersection)
 
         if not proper:
             return is_superset
 
-        return is_superset and not self.is_equivalent(other)
+        return is_superset and not self.is_pcs_equivalent(other)
