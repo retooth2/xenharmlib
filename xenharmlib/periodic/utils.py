@@ -117,6 +117,46 @@ def index(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> int:
     return i + (bi_index_diff * len(scale))
 
 
+def is_in(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> bool:
+    """
+    Returns bool if element exists in periodic extension of a period
+    normalized scale
+
+    >>> from xenharmlib import EDOTuning
+    >>> from xenharmlib import UpDownNotation
+    >>> from xenharmlib import periodic
+    >>>
+    >>> edo12 = EDOTuning(12)
+    >>> n_edo12 = UpDownNotation(edo12)
+    >>>
+    >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
+    >>> periodic.is_in(c_maj, n_edo12.note('D', 1))
+    True
+
+    :param scale: A period normalized scale
+    :param element: The element to be found
+
+    :raises ValueError: If given scale is not period normalized
+    :raises IncompatibleOriginContexts: If element and scale have
+        different origin contexts
+    """
+
+    if not scale.is_period_normalized:
+        raise ValueError(
+            'is_in is only defined on period normalized scales'
+        )
+
+    if scale.origin_context is not element.origin_context:
+        raise IncompatibleOriginContexts(
+            'Element and scale must have same origin context'
+        )
+
+    for i, maybe_equivalent in enumerate(scale):
+        if element.is_equivalent(maybe_equivalent):
+            return True
+    return False
+
+
 @overload
 def scalar_transpose(
     ref_scale: ScaleT,

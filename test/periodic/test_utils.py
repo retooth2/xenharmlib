@@ -711,3 +711,120 @@ def test_scalar_transpose_not_found():
         'UpDownNote(G#, 0, 31-EDO) was not found in '
         'periodic extension of the scale'
     )
+
+
+@pytest.mark.parametrize(
+    'tuning, scale_pi, element_pi, found',
+    [
+        (edo12, [2, 4, 6, 7, 9, 11], 2, True),
+        (edo12, [2, 4, 6, 7, 9, 11], -1, True),
+        (edo12, [2, 4, 6, 7, 9, 11], -4, False),
+        (edo24, [2, 3, 5, 7, 9, 12, 14, 19, 22], 27, True),
+        (edo31, [2, 4, 6, 7, 9, 11, 14, 19, 22], -9, True),
+        (edo31, [2, 4, 6, 7, 9, 11, 14, 19, 22], 32, False),
+    ]
+)
+def test_is_in_pitch(tuning, scale_pi, element_pi, found):
+    """
+    Test if is_in function works correctly on the pitch layer
+    """
+
+    scale = tuning.index_scale(scale_pi)
+    element = tuning.pitch(element_pi)
+
+    assert periodic.is_in(scale, element) is found
+
+
+@pytest.mark.parametrize(
+    'notation, scale_pairs, element_pair, found',
+    [
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('C', 1),
+            True
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('F#', 1),
+            True
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('D#', 1),
+            False
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('C', 2),
+            True
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('E', 3),
+            True
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('D', 0),
+            True
+        ),
+        (
+            n_edo12,
+            [('A', 1), ('B', 1), ('C#', 2), ('D#', 2), ('F', 2)],
+            ('D#', 3),
+            True
+        ),
+        (
+            n_edo12,
+            [('C', 1), ('D', 1), ('E', 1), ('F#', 1), ('A', 1)],
+            ('F', 3),
+            False
+        ),
+    ]
+)
+def test_is_in_note(notation, scale_pairs, element_pair, found):
+    """
+    Test if is_in function works correctly on the notation layer
+    """
+
+    scale = notation.scale(
+        [notation.note(*pair) for pair in scale_pairs]
+    )
+    element = notation.note(*element_pair)
+    assert periodic.is_in(scale, element) is found
+
+
+def test_is_in_non_period_normalized():
+    """
+    Test if is_in raises ValueError if scale is not
+    period normalized
+    """
+
+    scale = n_edo31.pc_scale(['C', 'E', 'G', 'B', 'D', 'F'])
+    element = n_edo31.note('C', 0)
+
+    with pytest.raises(ValueError) as exc_info:
+        periodic.is_in(scale, element)
+
+    assert exc_info.value.args[0] == (
+        'is_in is only defined on period normalized scales'
+    )
+
+
+def test_is_in_incompatible_origin_contexts():
+    """
+    Test if is_in raises correct error if origin contexts of
+    scale and note do not match
+    """
+
+    scale = n_edo12.pc_scale(['C', 'E', 'G', 'B'])
+    element = n_edo24.note('E', 1)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        periodic.is_in(scale, element)
