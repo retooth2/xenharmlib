@@ -324,6 +324,8 @@ class PeriodicTuning(
 
     :param period_length: The number of pitches that constitute
         a period (for example 12 in 12EDO)
+    :param eq_ratio: A frequency ratio that defines the
+        equivalency interval
     :param pitch_cls: The python class for the pitch that is
         used to generate a pitch object in the pitch method.
         (Not to be confused with the 'pitch class' of pitches
@@ -341,6 +343,7 @@ class PeriodicTuning(
     def __init__(
         self,
         period_length: int,
+        eq_ratio: FrequencyRatio,
         pitch_cls: type[PeriodicPitchT],
         pitch_interval_cls: type[PeriodicIntervalT],
         pitch_scale_cls: type[PeriodicScaleT],
@@ -356,10 +359,18 @@ class PeriodicTuning(
             ref_frequency=ref_frequency,
         )
 
+        self._eq_ratio = eq_ratio
         self._period_length = period_length
 
     def __len__(self):
         return self._period_length
+
+    @property
+    def eq_ratio(self) -> FrequencyRatio:
+        """
+        The frequency ratio defining the equivalency interval
+        """
+        return self._eq_ratio
 
     def pc_scale(
         self, pc_indices: Optional[List[int]] = None, root_bi_index: int = 0
@@ -521,6 +532,7 @@ class EDTuning(
 
         super().__init__(
             period_length=divisions,
+            eq_ratio=eq_ratio,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
@@ -532,7 +544,6 @@ class EDTuning(
             raise TypeError('eq_ratio must be a FrequencyRatio')
 
         self.divisions = divisions
-        self.eq_ratio = eq_ratio
 
     @property
     def name(self) -> str:
