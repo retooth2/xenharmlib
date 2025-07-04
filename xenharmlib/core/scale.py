@@ -809,47 +809,95 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
     def is_equivalent(self, other: PeriodicScale) -> bool:
         """
-        Returns True if every element in this scale corresponds to another
-        one in the other scale at the same index that has the same pitch
-        class index.
+        .. deprecated:: 0.3.0
+           Use :py:meth:`is_set_equivalent` instead.
+
+        Returns True if two scales are set equivalent, i.e. every
+        element in this scale has an equivalent element somewhere(!)
+        in the other scale (and vice versa).
+
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Set equivalency between scales
+        of different contexts is defined as "equality after
+        pitch class set normalization"
+
+        :raises IncompatibleOriginContexts: If the other scale
+            has a different equivalency interval definition
+
+        :param other: Another periodic scale
+        """
+        warn(
+            f'{self.__class__.__name__}.is_equivalent is deprecated '
+            f'and will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.is_set_equivalent instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        return self.is_set_equivalent(other)
+
+    def is_seq_equivalent(self, other: PeriodicScale) -> bool:
+        """
+        Returns True if two scales are sequentially equivalent, i.e.
+        every element in this scale corresponds to another one in
+        the other scale at the same scale index.
+
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Sequential equivalency between
+        scales of different contexts is defined as "equality
+        after base interval alignment"
 
         :raises IncompatibleOriginContexts: If the other scale has a
-            different origin context
+            different equivalency interval definition
 
         :param other: Another periodic scale
         """
 
-        if self.origin_context is not other.origin_context:
-            raise IncompatibleOriginContexts(
-                'Scales do not originate from the same context'
-            )
+        if self.tuning is other.tuning:
+            return self.pc_indices == other.pc_indices
 
-        if len(self) != len(other):
-            return False
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            bi_diff = self[0].bi_index - other[0].bi_index
+            t_other = other.transpose_bi_index(bi_diff)
+            return self == t_other
 
-        for e_self, e_other in zip(self, other):
-            if not e_self.is_equivalent(e_other):
-                return False
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
 
-        return True
-
-    def is_pcs_equivalent(self, other: PeriodicScale) -> bool:
+    def is_set_equivalent(self, other: PeriodicScale) -> bool:
         """
-        Returns True if the set of pitch class indices are the same
-        in both scales.
+        Returns True if two scales are set equivalent, i.e. every
+        element in this scale has an equivalent element somewhere(!)
+        in the other scale (and vice versa).
 
-        :raises IncompatibleOriginContexts: If the other scale has a
-            different origin context
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Set equivalency between scales
+        of different contexts is defined as "equality after
+        pitch class set normalization"
+
+        :raises IncompatibleOriginContexts: If the other scale
+            has a different equivalency interval definition
 
         :param other: Another periodic scale
         """
 
-        if self.origin_context is not other.origin_context:
-            raise IncompatibleOriginContexts(
-                'Scales do not originate from the same context'
-            )
+        if self.tuning is other.tuning:
+            return set(self.pc_indices) == set(other.pc_indices)
 
-        return set(self.pc_indices) == set(other.pc_indices)
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            n_self = self.pcs_normalized()
+            n_other = other.pcs_normalized()
+            return n_self == n_other
+
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
 
     def pcs_intersection(self, other: Self) -> Self:
         """
@@ -1018,12 +1066,12 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_subset = self.is_pcs_equivalent(intersection)
+        is_subset = self.is_set_equivalent(intersection)
 
         if not proper:
             return is_subset
 
-        return is_subset and not self.is_pcs_equivalent(other)
+        return is_subset and not self.is_set_equivalent(other)
 
     def is_superset(
         self, other: Self, proper: bool = False, ignore_bi_index: bool = False
@@ -1049,9 +1097,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_superset = other.is_pcs_equivalent(intersection)
+        is_superset = other.is_set_equivalent(intersection)
 
         if not proper:
             return is_superset
 
-        return is_superset and not self.is_pcs_equivalent(other)
+        return is_superset and not self.is_set_equivalent(other)
