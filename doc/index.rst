@@ -201,6 +201,7 @@ features.
    quickstart
    adv_scale_features
    adv_notation_features
+   interval_seq
    periodic_package
    core_api
    export_api
