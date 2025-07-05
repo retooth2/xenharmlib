@@ -141,26 +141,32 @@ original object.
 Features
 ---------------
 
-Xenharmlib is an ongoing project. New features will come in over time and
-feature requests are welcome.
+A selection of things supported by xenharmlib:
 
-So far it supports the following:
-
-* Equal division tunings (e.g. Western, Modern Arabic, Bohlen-Pierce)
+* Equal division tunings (e.g. Western, Modern Arabic, Turkish Makam,
+  Bohlen-Pierce, Wendy Carlos' Gamma Scale)
+* Western notation (including interval naming)
+* Up/Down notation (a superset of Western notation)
 * Analysis of intervals, scales, and their relations to one another
 * Group theoretical analysis (integer pitches, pitch classes, etc)
-* Up/Down Notation (a superset of Western accidental notation)
-* Building blocks for custom notations
+* Interval sequence pattern matching
+* Modulation suggestions for arbitrary key changes
+* Basic posttonal analysis (normal & prime form calculations, inversion, etc)
 
-Coming soon:
+Roadmap
+-----------------
 
-* Maximally even sets
-* Interval vectors and related properties
-* Key signature support for Up/Down Notation scales
-* Scale and triad generators
-* Just Intonation and Prime Limit Tunings
-* Odd Limit Tunings
+A list of planned features (not necessarily in chronological order):
+
+* Templates for Western music
+* Plugin interface for score rendering backends
+* Advanced posttonal analysis (interval vectors, z-Relations, Forte numbers)
+* Rothenberg propriety and interval matrices
+* MOS scale generation utilities
+* Just Intonation and prime limit tunings
 * Extended Helmholtz-Ellis JI Pitch Notation
+* Odd Limit Tunings
+* Arel-Ezgi-Uzdilek notation
 
 License
 ---------------
