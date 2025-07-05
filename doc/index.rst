@@ -15,6 +15,29 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
 .. testcode::
 
+   from xenharmlib import WesternNotation
+   from xenharmlib.periodic import mod_connectors
+
+   n = WesternNotation()
+
+   # find out which I-III-V triads can be used
+   # to modulate between d minor and g major
+
+   d_minor = n.pc_scale(['D', 'E', 'F', 'G', 'A', 'Bb', 'C'])
+   g_major = n.pc_scale(['G', 'A', 'B', 'C', 'D', 'E', 'F#'])
+
+   for c in mod_connectors(d_minor, g_major, (0, 2, 4)):
+       print(c)
+
+.. testoutput::
+
+   WesternNoteScale([A0, C1, E1])
+   WesternNoteScale([C1, E1, G1])
+
+-----------
+
+.. testcode::
+
    from xenharmlib import EDOTuning
    from xenharmlib import play
    from xenharmlib import UpDownNotation
@@ -65,28 +88,6 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
          <source src="_static/sounds/edo31_vD_supermajor7_chord.wav" type="audio/wav">
          Your browser does not support the <code>audio</code> element. 
    </audio>
-
------------
-
-.. testcode::
-
-   from xenharmlib import EDOTuning
-   from xenharmlib import UpDownNotation
-
-   # do plain old western scale analysis
-
-   western = EDOTuning(12)
-   n_west = UpDownNotation(western)
-
-   c_maj = n_west.natural_scale()
-   g_maj = c_maj.transpose(
-      n_west.shorthand_interval('P', 5)
-   )
-   print(c_maj.pcs_intersection(g_maj))
-
-.. testoutput::
-
-   UpDownNoteScale([C0, D0, E0, G0, A0, B0], 12-EDO)
 
 -----------
 
