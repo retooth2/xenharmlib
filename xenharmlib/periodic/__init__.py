@@ -8,3 +8,5 @@ from .utils import partial
 from .iter import cutouts
 from .iter import pairs
 from .intervals import spec_interval
+from .match import find_iseq
+from .match import mod_connectors
