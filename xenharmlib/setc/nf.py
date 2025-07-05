@@ -135,7 +135,7 @@ def compact_forte(scale: ScaleT) -> ScaleT:
 
         r2_candidate = r2_candidates[0]
 
-        for k in (1, n - 1):
+        for k in range(1, n - 1):
             i1 = r1_candidate.spec_interval(0, k)
             i2 = r2_candidate.spec_interval(0, k)
             if i1 < i2:
@@ -257,7 +257,7 @@ def compact_rahn(scale: ScaleT) -> ScaleT:
         # first candidate is sufficient
         candidate = candidates[0]
 
-        for k in (n - 1, 0, -1):
+        for k in range(n - 1, 0, -1):
             i1 = rotation.spec_interval(0, k)
             i2 = candidate.spec_interval(0, k)
             if i1 < i2:
