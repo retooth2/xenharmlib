@@ -1,10 +1,14 @@
-Welcome to xenharmlib's documentation!
-======================================
-
 .. admonition:: New Release
 
-   Xenharmlib 0.2.0 has just been released.
-   :doc:`Find out what's new<whats_new_0_2_0>`
+Welcome to xenharmlib’s documentation!
+=================================================
+
+----
+
+   **Xenharmonic (adj.):** Pertaining to music which sounds unlike
+   that composed in the familiar 12 tone equal-tempered scale.
+
+   -- *Ivor Darreg*
 
 Xenharmlib is a generalized music theory library that supports traditional
 Western and non-western harmonic systems, unconventional microtonal and
