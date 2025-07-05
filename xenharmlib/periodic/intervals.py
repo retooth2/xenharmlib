@@ -36,7 +36,7 @@ def spec_interval(
     >>>
     >>> c_maj = n_edo12.pc_scale(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
     >>> periodic.spec_interval(c_maj, 6, 7)
-    UpDownNoteInterval(m2, 12-EDO)
+    UpDownNoteInterval(m, 2, 12-EDO)
 
     :param scale: A period normalized scale
     :param source_index: Periodic source index for the interval
