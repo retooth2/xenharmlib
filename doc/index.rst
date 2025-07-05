@@ -213,6 +213,7 @@ features.
    export_api
    notation_api
    periodic_api
+   setc_api
    changelog
 
 Contributor Guide
