@@ -201,9 +201,11 @@ features.
    quickstart
    adv_scale_features
    adv_notation_features
+   periodic_package
    core_api
    export_api
    notation_api
+   periodic_api
    changelog
 
 Contributor Guide
