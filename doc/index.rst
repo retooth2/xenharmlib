@@ -213,6 +213,7 @@ features.
    adv_notation_features
    interval_seq
    periodic_package
+   posttonal
    core_api
    export_api
    notation_api
