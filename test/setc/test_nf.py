@@ -17,8 +17,7 @@ n_edo12 = UpDownNotation(edo12)
             [5, 7, 10, 13],
             [5, 7, 10, 1]
         ),
-        # standard tie break possible + different
-        # results between rahn and forte method
+        # standard tie break possible
         (
             edo12,
             [2, 3, 7, 11],
@@ -62,6 +61,11 @@ def test_nf_forte_pitch(
     input_scale = tuning.index_scale(input_scale_pi)
     output_scale = tuning.index_scale(output_scale_pi)
 
+    # normal form must be idempotent under rotation
+
+    for order in range(0, len(input_scale)):
+        input_scale = input_scale.rotation(order)
+
     n_scale = setc.nf_forte(input_scale)
     assert n_scale == output_scale
     assert n_scale.pc_indices == output_pci
@@ -101,8 +105,7 @@ def test_nf_forte_non_period_normalized():
             [5, 7, 10, 13],
             [5, 7, 10, 1]
         ),
-        # standard tie break possible + different
-        # results between rahn and forte method
+        # standard tie break possible
         (
             edo12,
             [2, 3, 7, 11],
@@ -139,6 +142,11 @@ def test_nf_rahn_pitch(
 
     input_scale = tuning.index_scale(input_scale_pi)
     output_scale = tuning.index_scale(output_scale_pi)
+
+    # normal form must be idempotent under rotation
+
+    for order in range(0, len(input_scale)):
+        input_scale = input_scale.rotation(order)
 
     n_scale = setc.nf_rahn(input_scale)
     assert n_scale == output_scale
