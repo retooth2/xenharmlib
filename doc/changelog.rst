@@ -1,6 +1,26 @@
 Changelog
 =======================================
 
+.. _changelog_0_3_0:
+
+0.3.0
+--------------------------------------
+
+* Introduced IntervalSeq class for tunings and notations
+* Introduced to_interval_seq method on scales, deprecated to_intervals
+* Introduced diff_interval and diff_interval_seq on origin contexts
+* Introduced Forte/Rahn normal form & prime form
+* Introduced periodic extension module
+* Fixed an ambiguous definition problem of equivalency on periodic
+  scales. (is_equivalent is now deprecated in favor of is_set_equivalent
+  and is_seq_equivalent)
+* Added WesternNotation as an alias for UpDownNotation(edo12)
+* Introduced caching to tests to reduce test run time
+* Added root_bi_index parameter to pc_scale method on tuning layer
+* Added root_nat_bi_index parameter to pc_scale method on notation layer
+* Added spec_interval method to scale class
+* Added scale method to note / pitch
+
 .. _changelog_0_2_0:
 
 0.2.0
