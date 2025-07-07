@@ -1,5 +1,8 @@
 .. admonition:: New Release
 
+   Xenharmlib 0.3.0 has just been released.
+   :doc:`Find out what's new<whats_new_0_3_0>`
+
 Welcome to xenharmlib’s documentation!
 =================================================
 

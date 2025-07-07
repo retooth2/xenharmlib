@@ -216,6 +216,8 @@ as an argument:
   :width: 100%
   :alt: A diagram showing a reflection with a different axis
 
+.. _posttonal_nf_pf:
+
 Normal Form
 ------------------------------------
 

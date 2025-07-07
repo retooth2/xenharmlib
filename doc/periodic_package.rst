@@ -1,3 +1,5 @@
+.. _periodic_ext:
+
 The :code:`periodic` Package
 ===============================
 

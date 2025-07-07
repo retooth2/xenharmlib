@@ -1,3 +1,5 @@
+.. _interval_seq:
+
 Interval Sequences
 ======================================
 
