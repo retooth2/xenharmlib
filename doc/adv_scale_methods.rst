@@ -1,7 +1,7 @@
-Advanced Scale Features
+Advanced Scale Methods
 ======================================
 
-This section talks about pitch scale / note scale features that have not
+This section talks about pitch scale / note scale methods that have not
 been covered in the quickstart. The following features work on both note
 scales and pitch scales. For the sake of brevity, we will only give
 one example instead of one for each domain.

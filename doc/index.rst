@@ -212,7 +212,7 @@ features.
    :caption: Contents:
 
    quickstart
-   adv_scale_features
+   adv_scale_methods
    adv_notation_features
    interval_seq
    periodic_package
