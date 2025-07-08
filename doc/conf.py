@@ -30,7 +30,7 @@ extensions = [
 ]
 
 templates_path = ['_templates']
-html_css_files = ['css/smufl.css',]
+html_css_files = ['css/smufl.css', 'css/custom.css']
 static_path = ['_static']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_logo = "_static/images/sidebar-logo.png"

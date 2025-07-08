@@ -135,6 +135,69 @@ def test_is_period_normalized_value_error():
 @pytest.mark.parametrize(
     'tuning, pi_list, n_pi_list',
     [
+        (edo12, [7, 13, 19, 24], [7, 13, 12, 19]),
+        (edo31, [13, 39, 48, 65], [13, 17, 34, 39, 44])
+    ]
+)
+def test_plusone_normalized(tuning, pi_list, n_pi_list):
+    """
+    Test if plusone_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    expected = tuning.index_scale(n_pi_list)
+    assert scale.plusone_normalized() == expected
+
+
+def test_plusone_normalized_value_error():
+    """
+    Test if plusone_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.plusone_normalized()
+    assert (
+        excinfo.value.args[0] ==
+        'plusone_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, expected',
+    [
+        (edo12, [7, 13, 19, 24], False),
+        (edo31, [13, 39, 48, 65], False),
+        (edo31, [9, 15, 18, 22, 37], False),
+        (edo31, [9, 15, 18, 22, 37, 40], True)
+    ]
+)
+def test_is_plusone_normalized(tuning, pi_list, expected):
+    """
+    Test if is_plusone_normalized method works correctly
+    """
+
+    scale = tuning.index_scale(pi_list)
+    assert scale.is_plusone_normalized == expected
+
+
+def test_is_plusone_normalized_value_error():
+    """
+    Test if is_plusone_normalized raises ValueError if scale is empty
+    """
+
+    input_scale = edo12.scale()
+    with pytest.raises(ValueError) as excinfo:
+        input_scale.is_plusone_normalized
+    assert (
+        excinfo.value.args[0] ==
+        'is_plusone_normalized is not defined on empty scale'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pi_list, n_pi_list',
+    [
         (edo12, [7, 13, 19, 24], [0, 5, 6]),
         (edo31, [13, 39, 48, 65], [0, 4, 21, 26])
     ]
@@ -854,54 +917,192 @@ def test_is_disjoint_incompatible_origin_contexts():
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, expected',
     [
-        (edo12, [5, 8, 7], [5, 8, 19], True),
+        (edo12, [5, 7, 8], [5, 7, 8], True),
+        (edo12, [5, 7, 8], [5, 7, 20], True),
         (edo12, [8, 7], [5, 8, 19], False),
         (edo12, [5, 8, 7], [5, 8], False),
         (edo24, [1, 11, 12], [25, 35, 36], True),
         (edo31, [3, 11, 64], [1, 9, 12], False),
+        (edo12, [2, 6, 9], [6, 9, 14], True),
         (ed13_3, [3, 11, 20], [], False),
         (ed13_3, [], [3, 11, 20], False),
     ]
 )
-def test_is_equivalent(tuning, input_pi_a, input_pi_b, expected):
+def test_is_set_equivalent(tuning, input_pi_a, input_pi_b, expected):
     """
-    Test if is_equivalent method works correctly
+    Test if is_set_equivalent method works correctly
     """
 
     scale_a = PeriodicPitchScale(
-        tuning, 
+        tuning,
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
     scale_b = PeriodicPitchScale(
-        tuning, 
+        tuning,
         [tuning.pitch(pi) for pi in input_pi_b]
     )
-    assert scale_a.is_equivalent(scale_b) == expected
+
+    with pytest.deprecated_call():
+        assert scale_a.is_equivalent(scale_b) == expected
+
+    assert scale_a.is_set_equivalent(scale_b) == expected
 
 
-def test_is_equivalent_incompatible_origin_contexts():
+@pytest.mark.parametrize(
+    'tuning_a, input_pi_a, tuning_b, input_pi_b, expected',
+    [
+        (edo12, [5, 8, 7], edo24, [10, 14, 16], True),
+        (edo12, [5, 8, 7], edo24, [34, 38, 40], True),
+        (edo12, [5, 8, 7], edo24, [38, 40, 58], True),
+        (edo12, [8, 7], edo24, [34, 38, 19], False),
+        (edo12, [8, 7], edo31, [34, 38, 19], False),
+    ]
+)
+def test_is_set_equivalent_different_tunings(
+    tuning_a, input_pi_a, tuning_b, input_pi_b, expected
+):
     """
-    Test if is_equivalent fails if scales originate from
-    different tunings
+    Test if is_set_equivalent method works correctly
+    if scales are from different tunings with
+    same equivalency interval
     """
 
-    edo12_2 = EDTuning(12, FrequencyRatio(2))
-    tunings = edo12, edo24, edo31, ed13_3, edo12_2
+    scale_a = PeriodicPitchScale(
+        tuning_a,
+        [tuning_a.pitch(pi) for pi in input_pi_a]
+    )
 
-    for i, tuning_a in enumerate(tunings):
+    scale_b = PeriodicPitchScale(
+        tuning_b,
+        [tuning_b.pitch(pi) for pi in input_pi_b]
+    )
 
-        for tuning_b in tunings[i+1:]:
+    with pytest.deprecated_call():
+        assert scale_a.is_equivalent(scale_b) == expected
 
-            scale_a = PeriodicPitchScale(
-                tuning_a
-            )
-            scale_b = PeriodicPitchScale(
-                tuning_b
-            )
+    assert scale_a.is_set_equivalent(scale_b) == expected
 
-            with pytest.raises(IncompatibleOriginContexts):
+
+def test_is_set_equivalent_incompatible_origin_contexts():
+    """
+    Test if is_set_equivalent method fails
+    if scales are from tunings with
+    different equivalency interval
+    """
+
+    ed12_3 = EDTuning(12, FrequencyRatio(3))
+    tunings = edo12, edo24, edo31
+
+    for tuning in tunings:
+
+        scale_a = PeriodicPitchScale(tuning)
+        scale_b = PeriodicPitchScale(ed12_3)
+
+        with pytest.raises(IncompatibleOriginContexts) as exc_info:
+            with pytest.deprecated_call():
                 scale_a.is_equivalent(scale_b)
+
+        assert exc_info.value.args[0] == (
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
+
+        with pytest.raises(IncompatibleOriginContexts) as exc_info:
+            scale_a.is_set_equivalent(scale_b)
+
+        assert exc_info.value.args[0] == (
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi_a, input_pi_b, expected',
+    [
+        (edo12, [5, 7, 8], [5, 7, 8], True),
+        (edo12, [5, 7, 8], [5, 7, 20], True),
+        (edo12, [8, 7], [5, 8, 19], False),
+        (edo12, [5, 8, 7], [5, 8], False),
+        (edo24, [1, 11, 12], [25, 35, 36], True),
+        (edo31, [3, 11, 64], [1, 9, 12], False),
+        (edo12, [2, 6, 9], [6, 9, 14], False),
+        (ed13_3, [3, 11, 20], [], False),
+        (ed13_3, [], [3, 11, 20], False),
+    ]
+)
+def test_is_seq_equivalent(tuning, input_pi_a, input_pi_b, expected):
+    """
+    Test if is_seq_equivalent method works correctly
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi_a]
+    )
+
+    scale_b = PeriodicPitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi_b]
+    )
+
+    assert scale_a.is_seq_equivalent(scale_b) == expected
+
+
+@pytest.mark.parametrize(
+    'tuning_a, input_pi_a, tuning_b, input_pi_b, expected',
+    [
+        (edo12, [5, 8, 7], edo24, [10, 14, 16], True),
+        (edo12, [5, 8, 7], edo24, [34, 38, 40], True),
+        (edo12, [5, 8, 7], edo24, [38, 40, 58], False),
+        (edo12, [8, 7], edo24, [34, 38, 19], False),
+        (edo12, [8, 7], edo31, [34, 38, 19], False),
+    ]
+)
+def test_is_seq_equivalent_different_tunings(
+    tuning_a, input_pi_a, tuning_b, input_pi_b, expected
+):
+    """
+    Test if is_seq_equivalent method works correctly
+    if scales are from different tunings with
+    same equivalency interval
+    """
+
+    scale_a = PeriodicPitchScale(
+        tuning_a,
+        [tuning_a.pitch(pi) for pi in input_pi_a]
+    )
+
+    scale_b = PeriodicPitchScale(
+        tuning_b,
+        [tuning_b.pitch(pi) for pi in input_pi_b]
+    )
+
+    assert scale_a.is_seq_equivalent(scale_b) == expected
+
+
+def test_is_seq_equivalent_incompatible_origin_contexts():
+    """
+    Test if is_seq_equivalent method fails
+    if scales are from tunings with
+    different equivalency interval
+    """
+
+    ed12_3 = EDTuning(12, FrequencyRatio(3))
+    tunings = edo12, edo24, edo31
+
+    for tuning in tunings:
+
+        scale_a = PeriodicPitchScale(tuning)
+        scale_b = PeriodicPitchScale(ed12_3)
+
+        with pytest.raises(IncompatibleOriginContexts) as exc_info:
+            scale_a.is_seq_equivalent(scale_b)
+
+        assert exc_info.value.args[0] == (
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
 
 
 @pytest.mark.parametrize(

@@ -48,6 +48,10 @@ from .pitch import EDPitchInterval
 from .pitch import EDOPitchInterval
 from .pitch_scale import EDPitchScale
 from .pitch_scale import EDOPitchScale
+from .pitch_interval_seq import PitchIntervalSeq
+from .pitch_interval_seq import PeriodicPitchIntervalSeq
+from .pitch_interval_seq import EDPitchIntervalSeq
+from .pitch_interval_seq import EDOPitchIntervalSeq
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
 from .origin_context import OriginContext
@@ -56,10 +60,11 @@ from ..exc import InvalidPitchClassIndex
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
+IntervalSeqT = TypeVar('IntervalSeqT', bound=PitchIntervalSeq)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 
 
-class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
+class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -94,10 +99,16 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
         pitch_cls: type[PitchT],
         pitch_interval_cls: type[IntervalT],
         pitch_scale_cls: type[ScaleT],
+        pitch_interval_seq_cls: type[IntervalSeqT],
         ref_frequency: Frequency,
     ):
 
-        super().__init__(pitch_cls, pitch_interval_cls, pitch_scale_cls)
+        super().__init__(
+            pitch_cls,
+            pitch_interval_cls,
+            pitch_scale_cls,
+            pitch_interval_seq_cls
+        )
         self.ref_frequency = ref_frequency
 
     @property
@@ -281,10 +292,19 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT]):
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
 PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
+PeriodicIntervalSeqT = TypeVar(
+    'PeriodicIntervalSeqT',
+    bound=PeriodicPitchIntervalSeq
+)
 
 
 class PeriodicTuning(
-    TuningABC[PeriodicPitchT, PeriodicIntervalT, PeriodicScaleT]
+    TuningABC[
+        PeriodicPitchT,
+        PeriodicIntervalT,
+        PeriodicScaleT,
+        PeriodicIntervalSeqT
+    ]
 ):
     """
     This abstract class makes the assumption that the tuning has
@@ -304,6 +324,8 @@ class PeriodicTuning(
 
     :param period_length: The number of pitches that constitute
         a period (for example 12 in 12EDO)
+    :param eq_ratio: A frequency ratio that defines the
+        equivalency interval
     :param pitch_cls: The python class for the pitch that is
         used to generate a pitch object in the pitch method.
         (Not to be confused with the 'pitch class' of pitches
@@ -321,9 +343,11 @@ class PeriodicTuning(
     def __init__(
         self,
         period_length: int,
+        eq_ratio: FrequencyRatio,
         pitch_cls: type[PeriodicPitchT],
         pitch_interval_cls: type[PeriodicIntervalT],
         pitch_scale_cls: type[PeriodicScaleT],
+        pitch_interval_seq_cls: type[PeriodicIntervalSeqT],
         ref_frequency: Frequency,
     ):
 
@@ -331,15 +355,26 @@ class PeriodicTuning(
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 
+        self._eq_ratio = eq_ratio
         self._period_length = period_length
 
     def __len__(self):
         return self._period_length
 
-    def pc_scale(self, pc_indices: Optional[List[int]] = None) -> ScaleT:
+    @property
+    def eq_ratio(self) -> FrequencyRatio:
+        """
+        The frequency ratio defining the equivalency interval
+        """
+        return self._eq_ratio
+
+    def pc_scale(
+        self, pc_indices: Optional[List[int]] = None, root_bi_index: int = 0
+    ) -> ScaleT:
         """
         Constructs a pitch scale from a list of pitch class indices.
         The pitch class indices are assumed to be in the order they
@@ -352,10 +387,12 @@ class PeriodicTuning(
             list is not a valid pitch class index in this tuning
 
         :param pc_indices: A list of pitch class indices.
+        :param root_bi_index: Base interval index of the root
+            (optional, defaults to 0)
         """
 
         pitches = []
-        current_bi_index = 0
+        current_bi_index = root_bi_index
         tuning_len = len(self)
 
         if not pc_indices:
@@ -367,7 +404,9 @@ class PeriodicTuning(
                 f'Pitch class index must be between 0 and {tuning_len}'
                 f'(exclusive). {head} did not meet that boundary.'
             )
-        pitches.append(self.pitch(head))
+
+        pitch_index = head + (tuning_len * current_bi_index)
+        pitches.append(self.pitch(pitch_index))
 
         for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
             if current_pci >= tuning_len:
@@ -434,7 +473,14 @@ else:
     Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
 
 
-class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
+class EDTuning(
+    PeriodicTuning[
+        EDPitch,
+        EDPitchInterval,
+        EDPitchScale,
+        EDPitchIntervalSeq
+    ]
+):
     """
     EDTuning ("equal division tuning") takes a base interval
     given as a frequency ratio and divides this base interval
@@ -480,14 +526,17 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
         pitch_cls: type[EDPitch] = EDPitch,
         pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
         pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
+        pitch_interval_seq_cls: type[EDPitchIntervalSeq] = EDPitchIntervalSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
         super().__init__(
             period_length=divisions,
+            eq_ratio=eq_ratio,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 
@@ -495,7 +544,6 @@ class EDTuning(PeriodicTuning[EDPitch, EDPitchInterval, EDPitchScale]):
             raise TypeError('eq_ratio must be a FrequencyRatio')
 
         self.divisions = divisions
-        self.eq_ratio = eq_ratio
 
     @property
     def name(self) -> str:
@@ -566,6 +614,7 @@ class EDOTuning(EDTuning):
         pitch_cls: type[EDOPitch] = EDOPitch,
         pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
         pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
+        pitch_interval_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
@@ -575,6 +624,7 @@ class EDOTuning(EDTuning):
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
             ref_frequency=ref_frequency,
         )
 

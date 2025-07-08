@@ -34,6 +34,8 @@ from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_interval_seq import NoteIntervalSeq
+from .note_interval_seq import NatAccNoteIntervalSeq
 from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
@@ -49,9 +51,10 @@ from .symbols import AmbiguousSymbol
 NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
+IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
 
 
-class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
+class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
@@ -78,8 +81,14 @@ class NotationABC(OriginContext[NoteT, IntervalT, ScaleT]):
         note_cls: type[NoteT],
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
+        note_interval_seq_cls: type[IntervalSeqT]
     ):
-        super().__init__(note_cls, note_interval_cls, note_scale_cls)
+        super().__init__(
+            note_cls,
+            note_interval_cls,
+            note_scale_cls,
+            note_interval_seq_cls
+        )
         self._tuning = tuning
         self._enharm_strategy = None
 
@@ -362,7 +371,12 @@ class IncompleteNotation(Exception):
 
 
 class NatAccNotation(
-    NotationABC[NatAccNote, NatAccNoteInterval, NatAccNoteScale]
+    NotationABC[
+        NatAccNote,
+        NatAccNoteInterval,
+        NatAccNoteScale,
+        NatAccNoteIntervalSeq
+    ]
 ):
     """
     NatAccNotation is a notation for periodic tunings that select a
@@ -406,9 +420,16 @@ class NatAccNotation(
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
+        note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
     ):
 
-        super().__init__(tuning, note_cls, note_interval_cls, note_scale_cls)
+        super().__init__(
+            tuning,
+            note_cls,
+            note_interval_cls,
+            note_scale_cls,
+            note_interval_seq_cls
+        )
 
         # the naturals list will include tuples with two elements.
         # a tuple (symbol, natc_pitch_index) at position k in the
@@ -759,34 +780,40 @@ class NatAccNotation(
         return self.scale(notes)
 
     def pc_scale(
-        self, pc_symbols: Optional[List[str]] = None
+        self,
+        pc_symbols: Optional[List[str]] = None,
+        root_nat_bi_index: int = 0
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
         The pitch class symbols are assumed to be in the order they
         appear in the scale meaning that e.g. in 12-EDO the provided
         argument ['G', 'D', 'E'] will result in a scale with notes
-        G0, D1, E1. The base interval of the first provided pc symbol
-        will always assumed to be 0.
+        G0, D1, E1. The base interval of the natural of the first
+        provided pc symbol will always assumed to be 0.
 
         :raises UnknownNoteSymbol: If one of the pc symbols is not
             valid in the definition of this notation
 
         :param pc_symbols: A list of pitch class symbols.
+        :param root_nat_bi_index: (optional, defaults to 0) The base
+            interval index of the natural of the root (for example a
+            B#-2 in 12-EDO has the natural base interval index of 2,
+            even though the pitch is in base interval 3).
         """
 
         notes = []
-        current_bi_index = 0
+        current_nat_bi_index = root_nat_bi_index
 
         if not pc_symbols:
             return self.scale()
 
-        notes.append(self.note(pc_symbols[0], 0))
+        notes.append(self.note(pc_symbols[0], root_nat_bi_index))
 
         for pc_symbol in pc_symbols[1:]:
-            note = self.note(pc_symbol, current_bi_index)
+            note = self.note(pc_symbol, current_nat_bi_index)
             if note <= notes[-1]:
-                current_bi_index += 1
+                current_nat_bi_index += 1
                 note = note.transpose_bi_index(1)
             notes.append(note)
 

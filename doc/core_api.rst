@@ -32,6 +32,12 @@ Intervals
 .. automodule:: xenharmlib.core.interval
     :members:
 
+Interval Sequences
+---------------------------
+
+.. automodule:: xenharmlib.core.interval_seq
+    :members:
+
 Tuning
 ------------------------
 

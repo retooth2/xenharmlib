@@ -91,6 +91,10 @@ class Pitch(SDFreqRepr):
             f'{self.tuning.name})'
         )
 
+    @property
+    def short_repr(self) -> str:
+        return f'{self.pitch_index}'
+
     def transpose(self, diff: int | PitchInterval) -> Pitch:
         """
         Transposes the pitch to a different one
@@ -159,6 +163,10 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
         """
         return self._bi_index
 
+    @property
+    def pc_short_repr(self) -> str:
+        return f'{self.pc_index}'
+
     def transpose_bi_index(self, bi_diff: int) -> Self:
         """
         Returns a pitch with the same pitch class index
@@ -187,10 +195,18 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
         :param other: Another periodic pitch or note
         """
 
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
+        if self.tuning is other.tuning:
+            return self.pc_index == other.pc_index
 
-        return n_self == n_other
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            bi_diff = self.bi_index - other.bi_index
+            t_other = other.transpose_bi_index(bi_diff)
+            return self == t_other
+
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for pitches from tunings '
+            'with the same equivalency interval'
+        )
 
     def get_generator_index(self, generator_pitch: Self):
         """
@@ -247,10 +263,6 @@ class EDPitch(PeriodicPitch):
     :param pitch_index: An integer denoting the pitch (with
         0 being the first pitch, 1 being the second, etc)
     """
-
-    @property
-    def short_repr(self) -> str:
-        return f'{self.pitch_index}'
 
 
 class EDOPitch(EDPitch):

@@ -11,3 +11,4 @@ from .core.pitch_scale import EDOPitchScale
 
 from .play import play
 from .notation.updown import UpDownNotation
+from .notation.western import WesternNotation

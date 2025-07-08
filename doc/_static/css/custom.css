@@ -1,0 +1,17 @@
+#welcome-to-xenharmlibs-documentation blockquote {
+    text-align: justify;
+    font-size: 11pt;
+    margin-left: 20%;
+}
+
+.admonition-new-release {
+    font-size: 11pt;
+}
+
+.admonition-new-release .admonition-title {
+    display: None;
+}
+
+.admonition-new-release p {
+    margin-top: 0;
+}

@@ -136,10 +136,18 @@ class PeriodicNoteABC(NoteABC, PeriodicPitchLike):
         :param other: Another periodic pitch or note
         """
 
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
+        if self.tuning is other.tuning:
+            return self.pc_index == other.pc_index
 
-        return n_self == n_other
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            bi_diff = self.bi_index - other.bi_index
+            t_other = other.transpose_bi_index(bi_diff)
+            return self == t_other
+
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for notes from tunings '
+            'with the same equivalency interval'
+        )
 
     @abstractmethod
     def is_notated_equivalent(self, other) -> bool:
@@ -418,6 +426,13 @@ class NatAccNote(PeriodicNoteABC):
         A shortened representation of this note
         """
         return f'{self.pc_symbol}{self.nat_bi_index}'
+
+    @property
+    def pc_short_repr(self):
+        """
+        The pitch class symbol of this note
+        """
+        return f'{self.pc_symbol}'
 
     def acc_altered(self, acc_diff: Tuple[int, ...]):
         """

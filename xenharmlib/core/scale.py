@@ -19,6 +19,7 @@ This module implements base classes for scales
 
 from __future__ import annotations
 
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from collections.abc import Sequence
@@ -338,10 +339,40 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
+    def to_interval_seq(self):
+        """
+        Returns this scale represented as an interval sequence
+        """
+
+        intervals = []
+        for i in range(0, len(self) - 1):
+            intervals.append(self[i].interval(self[i + 1]))
+        return self.origin_context.interval_seq(intervals)
+
+    def spec_interval(self, source_index, target_index):
+        """
+        Returns the specific interval for a generic interval.
+        For example in the 12-EDO C major scale the generic
+        interval defined by (0, 2) is the specific interval
+        major 3.
+
+        :param source_index: Source index for the interval
+        :param target_index: Target index for the interval
+        """
+
+        return self[source_index].interval(self[target_index])
+
     def to_intervals(self) -> List[Interval[FreqReprT]]:
         """
         Returns this scale represented as a list of intervals
         """
+        warn(
+            f'{self.__class__.__name__}.to_interval is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.to_interval_seq instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         intervals = []
         for i in range(0, len(self) - 1):
@@ -646,6 +677,42 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         return self[-1] < self[0].transpose_bi_index(1)
 
+    def plusone_normalized(self) -> Self:
+        """
+        Returns a period normalized version of the scale with
+        an additional transposed root at the end, e.g.
+        (F0, G0, A0, B0, C1, D1, E1, F1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'plusone_normalized is not defined on empty scale'
+            )
+
+        scale = self.period_normalized()
+        return scale.with_element(scale[0].transpose_bi_index(1))
+
+    @property
+    def is_plusone_normalized(self) -> bool:
+        """
+        Returns a period normalized version of the scale with
+        an additional transposed root at the end, e.g.
+        (F0, G0, A0, B0, C1, D1, E1, F1)
+        """
+
+        if len(self) == 0:
+            raise ValueError(
+                'is_plusone_normalized is not defined on empty scale'
+            )
+
+        root = self[0]
+        last = self[-1]
+
+        return (
+            root.is_equivalent(last) and
+            (last.bi_index - root.bi_index) == 1
+        )
+
     def zp_normalized(self) -> Self:
         """
         Returns the scale transposed in a way so the root has pitch
@@ -742,25 +809,95 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
     def is_equivalent(self, other: PeriodicScale) -> bool:
         """
-        Returns True if every element in this scale corresponds to another
-        one in the other scale that has the same pitch class index.
-        (and vice versa)
+        .. deprecated:: 0.3.0
+           Use :py:meth:`is_set_equivalent` instead.
+
+        Returns True if two scales are set equivalent, i.e. every
+        element in this scale has an equivalent element somewhere(!)
+        in the other scale (and vice versa).
+
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Set equivalency between scales
+        of different contexts is defined as "equality after
+        pitch class set normalization"
+
+        :raises IncompatibleOriginContexts: If the other scale
+            has a different equivalency interval definition
+
+        :param other: Another periodic scale
+        """
+        warn(
+            f'{self.__class__.__name__}.is_equivalent is deprecated '
+            f'and will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.is_set_equivalent instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        return self.is_set_equivalent(other)
+
+    def is_seq_equivalent(self, other: PeriodicScale) -> bool:
+        """
+        Returns True if two scales are sequentially equivalent, i.e.
+        every element in this scale corresponds to another one in
+        the other scale at the same scale index.
+
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Sequential equivalency between
+        scales of different contexts is defined as "equality
+        after base interval alignment"
 
         :raises IncompatibleOriginContexts: If the other scale has a
-            different origin context
+            different equivalency interval definition
 
         :param other: Another periodic scale
         """
 
-        if self.origin_context is not other.origin_context:
-            raise IncompatibleOriginContexts(
-                'Scales do not originate from the same context'
-            )
+        if self.tuning is other.tuning:
+            return self.pc_indices == other.pc_indices
 
-        n_self = self.pcs_normalized()
-        n_other = other.pcs_normalized()
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            bi_diff = self[0].bi_index - other[0].bi_index
+            t_other = other.transpose_bi_index(bi_diff)
+            return self == t_other
 
-        return n_self == n_other
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
+
+    def is_set_equivalent(self, other: PeriodicScale) -> bool:
+        """
+        Returns True if two scales are set equivalent, i.e. every
+        element in this scale has an equivalent element somewhere(!)
+        in the other scale (and vice versa).
+
+        Periodic scales of different origin contexts can be
+        compared if their origin contexts have the same
+        equivalency interval. Set equivalency between scales
+        of different contexts is defined as "equality after
+        pitch class set normalization"
+
+        :raises IncompatibleOriginContexts: If the other scale
+            has a different equivalency interval definition
+
+        :param other: Another periodic scale
+        """
+
+        if self.tuning is other.tuning:
+            return set(self.pc_indices) == set(other.pc_indices)
+
+        if self.tuning.eq_ratio == other.tuning.eq_ratio:
+            n_self = self.pcs_normalized()
+            n_other = other.pcs_normalized()
+            return n_self == n_other
+
+        raise IncompatibleOriginContexts(
+            'Equivalency can only be tested for scales from tunings '
+            'with the same equivalency interval'
+        )
 
     def pcs_intersection(self, other: Self) -> Self:
         """
@@ -929,12 +1066,12 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_subset = self.is_equivalent(intersection)
+        is_subset = self.is_set_equivalent(intersection)
 
         if not proper:
             return is_subset
 
-        return is_subset and not self.is_equivalent(other)
+        return is_subset and not self.is_set_equivalent(other)
 
     def is_superset(
         self, other: Self, proper: bool = False, ignore_bi_index: bool = False
@@ -960,9 +1097,9 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         intersection = self.intersection(other, ignore_bi_index=True)
 
-        is_superset = other.is_equivalent(intersection)
+        is_superset = other.is_set_equivalent(intersection)
 
         if not proper:
             return is_superset
 
-        return is_superset and not self.is_equivalent(other)
+        return is_superset and not self.is_set_equivalent(other)

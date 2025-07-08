@@ -145,26 +145,12 @@ point math)
 
     17.831543876451384
 
-Speaking of math: Pitches also allow addition, subtraction, and scalar
-multiplication:
-
-.. testcode::
-
-    print(edo24.pitch(3) + edo24.pitch(3))
-    print(edo24.pitch(10) - edo24.pitch(2))
-    print(5 * edo24.pitch(2))
-
-.. testoutput::
-
-    EDOPitch(6, 24-EDO)
-    EDOPitch(8, 24-EDO)
-    EDOPitch(10, 24-EDO)
-
-As an alternative for addition and subtraction, you can also use the
-:meth:`~xenharmlib.core.pitch.Pitch.transpose` method for transposition,
-which expects a positive or negative integer. The following snippets
-defines a function that transposes the pitch n octaves up regardless of
-tuning:
+Pitches can be transformed into other pitches by transposition.
+For this purpose pitch objects provide a
+:meth:`~xenharmlib.core.pitch.Pitch.transpose` method that expects
+a positive or negative integer, or an interval object (more on that later).
+The following snippets defines a function that transposes the pitch
+n octaves up regardless of tuning:
 
 .. testcode::
 
@@ -279,10 +265,11 @@ perfect fifth in a tuning you can do something like this:
 Pitch Intervals
 ------------------------
 
-Two pitches can form an interval. Pitch intervals can be either
-created with the
-:meth:`~xenharmlib.core.origin_context.OriginContext.interval` method of a
-tuning or with the interval method of a pitch:
+An interval denotes the *difference* between two pitches. Interval objects
+can be created in multiple ways in xenharmlib:
+
+Calling the :meth:`~xenharmlib.core.origin_context.OriginContext.interval`
+method of the tuning with two pitches as arguments:
 
 .. testcode::
 
@@ -290,12 +277,40 @@ tuning or with the interval method of a pitch:
     pitch_b = edo31.pitch(9)
     interval = edo31.interval(pitch_a, pitch_b)
 
-    assert interval == pitch_a.interval(pitch_b)
-    print(interval.pitch_diff)
+    print(interval)
 
 .. testoutput::
 
-    6
+    EDOPitchInterval(6, 31-EDO)
+
+Calling the :meth:`~xenharmlib.core.freq_repr.FreqRepr.interval` of a pitch with
+another pitch as an argument:
+
+.. testcode::
+
+    pitch_a = edo31.pitch(3)
+    pitch_b = edo31.pitch(9)
+    pitch_a.interval(pitch_b)
+
+    print(interval)
+
+.. testoutput::
+
+    EDOPitchInterval(6, 31-EDO)
+
+or, finally, without defining any pitches, by specifying the desired
+distance directly with the
+:meth:`~xenharmlib.core.origin_context.OriginContext.diff_interval`
+method of the tuning:
+
+.. testcode::
+
+    interval = edo31.diff_interval(6)
+    print(interval)
+
+.. testoutput::
+
+    EDOPitchInterval(6, 31-EDO)
 
 Intervals are considered **directional** in xenharmlib, which means
 that the order of the pitches from which they are created is important.
@@ -332,12 +347,8 @@ considered smaller, and vice versa. For example, the fifth interval of
 
 .. testcode::
 
-    interval_fifth_edo12 = edo12.pitch(0).interval(
-        edo12.pitch(7)
-    )
-    interval_fifth_edo31 = edo31.pitch(0).interval(
-        edo31.pitch(18)
-    )
+    interval_fifth_edo12 = edo12.diff_interval(7)
+    interval_fifth_edo31 = edo31.diff_interval(18)
 
     assert interval_fifth_edo31 < interval_fifth_edo12
 
@@ -369,6 +380,20 @@ function.
 .. testcode::
 
     assert abs(fifth_d) > abs(second_d)
+
+Futhermore since interval objects define the difference between two pitches
+they can also be used as an argument for transposition:
+
+.. testcode::
+
+    fifth = edo12.diff_interval(7)
+    D = edo12.pitch(2)
+
+    print(D.transpose(fifth))
+
+.. testoutput::
+
+   EDOPitch(9, 12-EDO)
 
 For periodic tunings, you can calculate the generator distance, which is
 the minimum number of steps from one pitch to the other when iteratively
@@ -439,8 +464,11 @@ something like this:
 Pitch Scales
 ------------------------
 
-Pitch scales are sorted lists of unique pitches. Like pitches, they
-can be constructed through a builder method in the tuning object.
+Pitch scales are sorted lists of unique pitches. Like other objects,
+they can be constructed using builder methods in the tuning object.
+
+The :meth:`~xenharmlib.core.origin_context.OriginContext.scale` method
+constructs a scale object from a list of pitches:
 
 .. testcode::
 
@@ -451,13 +479,40 @@ can be constructed through a builder method in the tuning object.
 Xenharmlib will sort the pitches automatically when constructing a
 scale, so the original order is not important. The uniqueness property
 means that duplicate pitches in the list will be only added once.
+
+A more concise method to construct a pitch scale is to use the
+the :meth:`~xenharmlib.core.tunings.TuningABC.index_scale`
+method that expects a list of integers instead of a list of pitches.
+The following expression is equivalent to the above snippet:
+
+.. testcode::
+
+    scale = edo31.index_scale([9, 10, 4, 5])
+
 Please note that the uniqueness property refers to pitch and not pitch
 class, so scales including 'C-0' and 'C-1' are possible.
+Even though the familiar textbook definition of a scale is "a consecutive
+series of notes that form a progression between one note and its octave",
+having a looser definition of a scale has considerable advantages: It
+allows to define scales on tunings that might not have an octave (for
+example the Bohlen-Pierce tuning) or even tunings that do not have an
+equivalency interval at all. Furthermore this way there is no need for
+a distinct chord object in xenharmlib, because both chords and scales
+fulfill the definition of "a sorted list of unique pitches" with scales
+being sorted from left to right, while chords being sorted from bottom
+to top. For example a 9th chord can be defined as a scale object like
+this:
 
-Pitch scale objects support most of the typical list operations, e.g.
+.. testcode::
+
+    Cmaj9 = edo31.index_scale([0, 4, 7, 11, 14])
+
+Scale objects support most of the typical list operations, e.g.
 they are iterable:
 
 .. testcode::
+
+    scale = edo31.index_scale([0, 4, 5, 9, 10])
 
     for pitch in scale:
         print(pitch)
@@ -468,6 +523,7 @@ they are iterable:
     EDOPitch(4, 31-EDO)
     EDOPitch(5, 31-EDO)
     EDOPitch(9, 31-EDO)
+    EDOPitch(10, 31-EDO)
 
 They also support item selection and slicing:
 
@@ -479,21 +535,20 @@ They also support item selection and slicing:
 .. testoutput::
 
     EDOPitch(4, 31-EDO)
-    EDOPitchScale([4, 5], 31-EDO)
+    EDOPitchScale([4, 5, 9], 31-EDO)
 
 The 'in' operator accepts both pitches and pitch intervals. If an
 interval is given xenharmlib checks if *any* two pairs of notes
 (both in upwards and downwards direction) form the interval.
 
 .. testcode::
-   
-    scale = edo31.scale(
-        [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
-    )
 
-    p = edo31.pitch(0)
-    assert p in scale
-    assert p.interval(edo31.pitch(9)) in scale
+    scale = edo31.index_scale([0, 5, 9])
+    pitch = edo31.pitch(0)
+    interval = edo31.diff_interval(9)
+
+    assert pitch in scale
+    assert interval in scale
 
 The in operator is even more broad: It generally accepts every object
 that has a :attr:`frequency` or a :attr:`frequency_ratio` attribute,
@@ -507,9 +562,7 @@ tunings:
 
     assert all([pitch in edo24_scale for pitch in edo12_scale])
 
-    edo12_fifth = edo12.pitch(0).interval(
-        edo12.pitch(7)
-    )
+    edo12_fifth = edo12.diff_interval(7)
     assert edo12_fifth in edo24_scale
 
 In general, all the operations that are possible on single pitches are
@@ -518,9 +571,7 @@ same way you can transpose pitches:
 
 .. testcode::
    
-    scale = edo31.scale(
-        [edo31.pitch(0), edo31.pitch(5), edo31.pitch(9)]
-    )
+    scale = edo31.index_scale([0, 5, 9])
     transposed = scale.transpose(2)
     print(transposed)
 
@@ -533,9 +584,7 @@ tuning:
 
 .. testcode::
 
-    scale = edo12.scale(
-        [edo12.pitch(0), edo12.pitch(1), edo12.pitch(2)]
-    )
+    scale = edo12.index_scale([0, 1, 2])
     retuned = scale.retune(edo24)
     print(retuned)
 
@@ -629,18 +678,14 @@ avoided:
         # differ in base interval)
         return scale.difference(avoid_scale, ignore_bi_index=True)
 
-    c_maj = edo12.scale(
-        [edo12.pitch(i) for i in [0, 2, 4, 5, 7, 9, 11]]
-    )
-    C7 = edo12.scale(
-        [edo12.pitch(i) for i in [0, 4, 7, 10]]
-    )
+    c_maj = edo12.index_scale([0, 2, 4, 5, 7, 9, 11])
+    F7 = edo12.index_scale([5, 9, 12, 15])
 
-    print(get_safe_for_chord(c_maj, C7))
+    print(get_safe_for_chord(c_maj, F7))
 
 .. testoutput::
 
-    EDOPitchScale([0, 2, 4, 7, 9], 12-EDO)
+    EDOPitchScale([0, 2, 5, 7, 9, 11], 12-EDO)
 
 As an example for the intersection method we calculate how the Revati
 scale from India's Carnatic music and the Japanese Hirajōshi scale (as
@@ -649,18 +694,30 @@ the Western equal-tempered 12-tone system:
 
 .. testcode::
 
-    revati = edo12.scale(
-        [edo12.pitch(i) for i in [0, 1, 5, 7, 10]]
-    )
-    hirajoshi = edo12.scale(
-        [edo12.pitch(i) for i in [0, 1, 5, 6, 10]]
-    )
-
+    revati = edo12.index_scale([0, 1, 5, 7, 10])
+    hirajoshi = edo12.index_scale([0, 1, 5, 6, 10])
     print(revati.intersection(hirajoshi))
 
 .. testoutput::
 
     EDOPitchScale([0, 1, 5, 10], 12-EDO)
+
+Similar to python's sets there are also infix-operations available
+for scales:
+
+.. testcode::
+
+    print(revati | hirajoshi) # union
+    print(revati & hirajoshi) # intersection
+    print(revati - hirajoshi) # difference
+    print(revati ^ hirajoshi) # symmetric difference
+
+.. testoutput::
+
+    EDOPitchScale([0, 1, 5, 6, 7, 10], 12-EDO)
+    EDOPitchScale([0, 1, 5, 10], 12-EDO)
+    EDOPitchScale([7], 12-EDO)
+    EDOPitchScale([6, 7], 12-EDO)
 
 Often the interest lies not in the overlapping of specific pitches, but
 rather in the shared pitch classes. This becomes particularly relevant
@@ -672,9 +729,7 @@ purposes.
 
 .. testcode::
 
-    a_minor = edo12.scale(
-        [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
-    )
+    a_minor = edo12.index_scale([9, 11, 12, 14, 16, 17, 19])
     print(a_minor.pcs_normalized())
 
 .. testoutput::
@@ -693,12 +748,8 @@ intersection method to achieve our goal:
 
 .. testcode::
 
-    a_minor = edo12.scale(
-        [edo12.pitch(i) for i in [9, 11, 12, 14, 16, 17, 19]]
-    )
-    g_major = edo12.scale(
-        [edo12.pitch(i) for i in [7, 9, 11, 12, 14, 16, 18]]
-    )
+    a_minor = edo12.index_scale([9, 11, 12, 14, 16, 17, 19])
+    g_major = edo12.index_scale([7, 9, 11, 12, 14, 16, 18])
 
     shared = a_minor.pcs_normalized().intersection(
         g_major.pcs_normalized()
@@ -731,24 +782,27 @@ Notation
 
 Notation can be a murky thing, especially when it comes to tunings that
 are more novel and don't come with an established cultural tradition.
-Not every notation system makes sense for every tuning. Some systems
-produce very counter-intuitive results when combined with unfitting
-tunings (for example in standard Western notation 'E' and 'F' are the
-same note in 5-EDO). In this Quickstart we will focus on a notation
-called "up/down notation" which is a superset of the standard Western
-notation. Apart from a couple of outliers (like 5-EDO) the system works
-pretty well on a large number of periodic tunings that rely on division
-of the octave.
+Not every notation system makes sense for every tuning. In this Quickstart
+we will focus on a notation called UpDownNotation which is a superset
+of the standard Western notation and is designed as a general notation
+for "equal division of the octave" tunings.
 
-Let's create our first notation with it:
+UpDownNotation first approximates the western naturals (C, D, E, F,
+G, A, B), mapping C to the zero pitch and generating the other
+naturals by stacking fifths. After that, it approximates sharp
+and flat accidentals and fills the gaps with multiples of
+sharps and flats or up and down arrows.
+
+Let's create a notation for the Modern Arabic quartertone tuning
+with it:
 
 .. testcode::
 
     from xenharmlib import EDOTuning
     from xenharmlib import UpDownNotation
 
-    edo31 = EDOTuning(31)
-    n_edo31 = UpDownNotation(edo31)
+    edo24 = EDOTuning(24)
+    n_edo24 = UpDownNotation(edo24)
 
 The notation layer 'wraps' the low level classes and provides a more
 human-friendly interface to them, making connections between
@@ -764,18 +818,18 @@ EDOs) as arguments:
 
 .. testcode::
 
-    c = n_edo31.note('C', 0)
-    e_neutral = n_edo31.note('vE', 0)
-    g_flat = n_edo31.note('Gb', 0)
+    c = n_edo24.note('C', 0)
+    e_neutral = n_edo24.note('vE', 0)
+    g_flat = n_edo24.note('Gb', 0)
 
 You can combine two notes to form a note interval:
 
 .. testcode::
 
-    neutral_3 = n_edo31.interval(
+    neutral_3 = n_edo24.interval(
         c, e_neutral
     )
-    diminished_5 = n_edo31.interval(
+    diminished_5 = n_edo24.interval(
         c, g_flat
     )
 
@@ -783,7 +837,7 @@ A list of notes can be used to create a note scale:
 
 .. testcode::
 
-    triad = n_edo31.scale(
+    triad = n_edo24.scale(
         [c, e_neutral, g_flat]
     )
 
@@ -803,9 +857,9 @@ counterpart:
 
 .. testoutput::
 
-    EDOPitch(0, 31-EDO)
-    EDOPitchInterval(9, 31-EDO)
-    EDOPitchScale([0, 9, 16], 31-EDO)
+    EDOPitch(0, 24-EDO)
+    EDOPitchInterval(7, 24-EDO)
+    EDOPitchScale([0, 7, 12], 24-EDO)
 
 Notes
 -----------------------------------
@@ -816,14 +870,19 @@ need more notes than tunings with fewer divisions. In certain notations
 'C#' and 'Db' refer to the same pitch, in others the pitches are
 distinct.
 
-UpDownNotation is a natural/accidental notation. It first approximates
-the naturals (C, D, E, F, G, A, B), mapping C to the zero pitch and
-generating the other naturals by stacking fifths. After that, it
-approximates sharp and flat accidentals and fills the gaps with
-multiples of sharps and flats or up and down arrows. The note object
-created by UpDownNotation consists of a natural (like 'C') and an
-accidental (like '#'). The more pitches exist in between two natural
-pitches the more accidentals are needed.
+Note objects created by UpDownNotation consists of a natural (like 'C')
+and an accidental (like '#'). A Down-Arrow :code:`v` means
+"transpose the note one pitch down", an Up-Arrow :code:`^`
+means "transpose the note one pitch up". By convention
+Up-Arrows and Down-Arrows are put *before* the natural while
+sharps (:code:`#`), flats (:code:`b`), double-sharps (:code:`x`)
+are put behind it.
+
+.. testcode::
+
+    # A C sharp transposed one pitch down, resulting in
+    # the quartertone that lays between C and C#
+    note = n_edo24.note('vC#', 0)
 
 In xenharmlib's implementation of UpDownNotation, enharmonic equivalents
 are theoretically infinite due to its comprehensive accidental
@@ -832,8 +891,8 @@ the creation of notes with any number of accidentals:
 
 .. testcode::
 
-    weird_aug_c0 = n_edo31.note('^^^^Cx#xx', 0)
-    weird_dim_c1 = n_edo31.note('vvvCbbbbb', 1)
+    weird_aug_c0 = n_edo24.note('^^^^Cx#', 0)
+    weird_dim_c1 = n_edo24.note('vvvvCbbbbb', 1)
     print(weird_aug_c0 == weird_dim_c1)
 
 .. testoutput::
@@ -844,136 +903,13 @@ It is even possible to mix flat/sharp and up/down accidentals:
 
 .. testcode::
 
-    weird_note = n_edo31.note('vvvvv^^^^Cxx#xxbbx', 0)
-
-In the following table we display an overview of the different
-accidentals that are used by UpDownNotation in their ASCII form together
-with the matching symbols in the Standard Music Layout Font.
+    weird_note = n_edo24.note('vvvvv^^^^Cxx#xxbbx', 0)
 
 If a certain accidental is available depends on the underlying tuning.
 For 12-EDO e.g. the 'bv' accidental is not available, however for 31-EDO
 it is. In general, there exists exactly one accidental symbol for each
 accidental value (hence 'v' does not exist in 12-EDO because it would be
 the same as 'b')
-
-.. role:: smufl
-
-.. list-table::
-   :widths: 25 25 25 25
-   :header-rows: 1
-
-   * - unicode sharp
-     - ascii sharp
-     - unicode flat
-     - ascii flat
-   * - C |acc_^|
-     - ^C
-     - C |acc_v|
-     - vC
-   * - C |acc_^^|
-     - ^^C
-     - C |acc_vv|
-     - vvC
-   * - C |acc_^^^|
-     - ^^^C
-     - C |acc_vvv|
-     - vvvC
-   * - C |acc_#vvv|
-     - vvvC#
-     - C |acc_b^^^|
-     - ^^^Cb
-   * - C |acc_#vv|
-     - vvC#
-     - C |acc_b^^|
-     - ^^Cb
-   * - C |acc_#v|
-     - vC#
-     - C |acc_b^|
-     - ^Cb
-   * - C |acc_#|
-     - C#
-     - C |acc_b|
-     - Cb
-   * - C |acc_#^|
-     - ^C#
-     - C |acc_bv|
-     - vCb
-   * - C |acc_#^^|
-     - ^^C#
-     - C |acc_bvv|
-     - vvCb
-   * - C |acc_#^^^|
-     - ^^^C#
-     - C |acc_bvvv|
-     - vvvCb
-   * - C |acc_xvvv|
-     - vvvCx
-     - C |acc_bb^^^|
-     - ^^^Cbb
-   * - C |acc_xvv|
-     - vvCx
-     - C |acc_bb^^|
-     - ^^Cbb
-   * - C |acc_xv|
-     - vCx
-     - C |acc_bb^|
-     - ^Cbb
-   * - C |acc_x|
-     - Cx
-     - C |acc_bb|
-     - Cbb
-   * - C |acc_x^|
-     - ^Cx
-     - C |acc_bbv|
-     - vCbb
-   * - C |acc_x^^|
-     - ^^Cx
-     - C |acc_bbvv|
-     - vvCbb
-   * - C |acc_x^^^|
-     - ^^^Cx
-     - C |acc_bbvvv|
-     - vvvCbb
-
-.. |acc_^| replace:: :smufl:``
-.. |acc_^^| replace:: :smufl:``
-.. |acc_^^^| replace:: :smufl:``
-.. |acc_t| replace:: :smufl:``
-.. |acc_#vvv| replace:: :smufl:``
-.. |acc_#vv| replace:: :smufl:``
-.. |acc_#v| replace:: :smufl:``
-.. |acc_#| replace:: :smufl:``
-.. |acc_#^| replace:: :smufl:``
-.. |acc_#^^| replace:: :smufl:``
-.. |acc_#^^^| replace:: :smufl:``
-.. |acc_#t| replace:: :smufl:``
-.. |acc_xvvv| replace:: :smufl:``
-.. |acc_xvv| replace:: :smufl:``
-.. |acc_xv| replace:: :smufl:``
-.. |acc_x| replace:: :smufl:``
-.. |acc_x^| replace:: :smufl:``
-.. |acc_x^^| replace:: :smufl:``
-.. |acc_x^^^| replace:: :smufl:``
-
-.. |acc_v| replace:: :smufl:``
-.. |acc_vv| replace:: :smufl:``
-.. |acc_vvv| replace:: :smufl:``
-.. |acc_d| replace:: :smufl:``
-.. |acc_b^^^| replace:: :smufl:``
-.. |acc_b^^| replace:: :smufl:``
-.. |acc_b^| replace:: :smufl:``
-.. |acc_b| replace:: :smufl:``
-.. |acc_bv| replace:: :smufl:``
-.. |acc_bvv| replace:: :smufl:``
-.. |acc_bvvv| replace:: :smufl:``
-.. |acc_db| replace:: :smufl:``
-.. |acc_bb^^^| replace:: :smufl:``
-.. |acc_bb^^| replace:: :smufl:``
-.. |acc_bb^| replace:: :smufl:``
-.. |acc_bb| replace:: :smufl:``
-.. |acc_bbv| replace:: :smufl:``
-.. |acc_bbvv| replace:: :smufl:``
-.. |acc_bbvvv| replace:: :smufl:``
 
 Since notes are wrappers around pitches, you can operate on notes mostly
 the same way you operated on pitches with the difference that the
@@ -1042,12 +978,8 @@ Notes have an interval method returning a note interval:
     gsharp1 = n_edo31.note('G#', 1)
     gsharp1.interval(gsharp1)
 
-Notes in UpDownNotation do **not** define addition, subtraction and
-scalar multiplication, because the result is not well defined in
-notation systems that have enharmonic ambiguity. (Other notations
-without this problem might implement them). Notes can be transposed
-through the transpose method by giving a note interval of the same
-notation:
+Notes can be transposed through the transpose method by giving a
+note interval of the same notation:
 
 .. testcode::
 
@@ -1420,16 +1352,24 @@ intervals can be transformed into their upwards counterpart:
 Note Scales
 -----------------------------------
 
-A set of unique, ordered notes is called a note scale. Note scales
-work similarly to pitch scales, however there are special considerations
-necessary in light of enharmonic ambiguity. We will address these in
-a subsection below. But first, let's create our first note scale:
+A set of unique, ordered notes is called a note scale. Note scales can
+be created with the :meth:`~xenharmlib.core.origin_context.OriginContext.scale`
+method of the notation context that expects a list of notes originating
+from the same notation:
 
 .. testcode::
 
     Cm7 = n_edo12.scale(
         [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
     )
+
+Or - in a more concise form - with the
+:meth:`~xenharmlib.core.notation.NatAccNotation.pc_scale` method
+that expects a list of pitch class symbols:
+
+.. testcode::
+
+    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb'])
 
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
@@ -1444,7 +1384,7 @@ both with pitches, pitch intervals, notes, and note intervals.
     assert n_edo12.note('C', 0) in Cm7
     assert n_edo12.shorthand_interval('m', 3) in Cm7
     assert edo12.pitch(3) in Cm7
-    assert edo12.pitch(1).interval(edo12.pitch(11)) in Cm7
+    assert edo12.diff_interval(10) in Cm7
     
 .. testoutput::
 
@@ -1456,12 +1396,8 @@ equal sign will ignore enharmonic notation differences:
 
 .. testcode::
 
-    Cm = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G']]
-    )
-    Cm_weird = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'D#', 'Abb']]
-    )
+    Cm = n_edo12.pc_scale(['C', 'Eb', 'G'])
+    Cm_weird = n_edo12.pc_scale(['C', 'D#', 'Abb'])
 
     assert Cm == Cm_weird
 
@@ -1577,12 +1513,8 @@ transpose to obtain each chord.
 
 .. testcode::
 
-    C7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'E', 'G', 'Bb']]
-    )
-    Cm7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
-    )
+    C7 = n_edo12.pc_scale(['C', 'E', 'G', 'Bb'])
+    Cm7 = n_edo12.pc_scale(['C', 'Eb', 'G', 'Bb'])
 
     # to be played with B major
     B7 = C7.transpose(sh('M', 7))
@@ -1677,223 +1609,6 @@ operator.
 The set of improvisation notes over all sections is simply the full
 chromatic scale, meaning that the three improvisation scales cut the
 chromatic scale in 3 disjoint sets, each with 4 notes.
-
-Enharmonic ambiguity and set operations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When we speak of enharmonic equivalence we mean that two notes refer
-to the same pitch, but are notated differently, that is: we
-differentiate between the sound of a note and its function.
-The question if Eb and D# in 12-EDO are *the same* can only be
-answered if we further specify: Same in regards to what?
-
-In regards to notation Eb and D# are distinct, however in regards
-to sound they are the same. Spoken in mathematical terms:
-Notation systems in which there is enharmonic equivalence
-define two equivalency relations on the space of notes. We already came
-across to both of them in the chapter about notes: The :code:`==`
-operator considers notes as equal if their frequency is the same
-while the method :code:`is_notated_same` checks for notation
-equality.
-
-The existence of two different equivalency relations on the space
-of notes poses a problem for us when we want to define scales and
-operations on them:
-Note scales are defined as 'an ordered set of *unique* notes',
-meaning that no two notes in a scale are the same. Now should
-this refer to notation or sound? After all in cases where we
-are interested in the functional relationship of scales, we
-would want to treat D# and Eb as distinct, while in other cases
-we want them to be considered equal.
-
-Xenharmlib defines the uniqueness restriction of the scale as "unique in
-*pitch*", meaning that no two notes :code:`e_flat` and :code:`d_sharp` with
-:code:`e_flat == d_sharp` can exist in the scale at the same time. However,
-it provides special variants for some set operations that honor notational
-differences (More on that later).
-
-The reason for choosing the :code:`==` equivalency as the base for the
-uniqueness property is to provide consistency with the underlying pitch
-scale object:
-
-.. testcode::
-
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([e_flat])
-    scale_b = n_edo12.scale([d_sharp])
-
-    note_union = scale_a.union(scale_b)
-    pitch_union = scale_a.pitch_scale.union(
-        scale_b.pitch_scale
-    )
-
-    # among others, these would break if we would
-    # treat Eb and D# distinct in note scales
-    assert note_union.frequencies == pitch_union.frequencies
-    assert len(note_union) == len(pitch_union)
-    pitch_intervals = [
-        i.pitch_interval for i in note_union.to_intervals()
-    ]
-    assert pitch_intervals == pitch_union.to_intervals()
-
-This choice also allows implementing the scale's :code:`==` operator
-as a consistent logical extension of the note's :code:`==` operator,
-creating a closed set algebra for scales under :code:`==` with all
-basic set operations. Think of it this way: Notes are variable names
-holding the pitch as their value with some variables being equal:
-
-.. math::
-
-   A = \{a, b\}\\
-   B = \{c, d\}\\
-   \\
-   b = c \rightarrow\\
-   A \cap B = \{b\} = \{c\}\\
-   A \cup B = \{a, b, d\} == \{a, c, d\}\\
-
-How does xenharmlib then choose the note representation of a pitch when
-more than one enharmonically equivalent note is present? During
-construction of a note scale it chooses on the principle of first
-encounter:
-
-.. testcode::
-
-    scale = n_edo12.scale(
-        [
-            n_edo12.note('D#', 0),
-            n_edo12.note('Eb', 0),
-        ]
-    )
-    assert len(scale) == 1
-    assert scale[0].pc_symbol == 'D#'
-
-When using set operations xenharmlib always prefers the representation
-of the scale that executed the operation:
-
-.. testcode::
-
-    c = n_edo12.note('C', 0)
-    g = n_edo12.note('G', 0)
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([c, e_flat])
-    scale_b = n_edo12.scale([d_sharp, g])
-
-    # A v B / A ^ B
-
-    union_a_b = scale_a.union(scale_b)
-    assert union_a_b.is_notated_same(
-        n_edo12.scale([c, e_flat, g])
-    )
-
-    intersection_a_b = scale_a.intersection(scale_b)
-    assert intersection_a_b.is_notated_same(
-        n_edo12.scale([e_flat])
-    )
-
-    # B v A / B ^ A
-
-    union_b_a = scale_b.union(scale_a)
-    assert union_b_a.is_notated_same(
-        n_edo12.scale([c, d_sharp, g])
-    )
-
-    intersection_b_a = scale_b.intersection(scale_a)
-    assert intersection_b_a.is_notated_same(
-        n_edo12.scale([d_sharp])
-    )
-
-Using the :code:`==` operator we see that even though the results
-are different in terms of representation, commutativity in regards
-to union and intersection is still preserved:
-
-.. testcode::
-
-    assert union_a_b == union_b_a
-    assert intersection_a_b == intersection_b_a
-
-In contrast using the :code:`is_notated_same` equivalency relation
-on the two result pairs does *not* preserve commutativity:
-
-.. testcode::
-
-    assert not union_a_b.is_notated_same(union_b_a)
-    assert not intersection_a_b.is_notated_same(intersection_b_a)
-
-Since we chose the :code:`==` operator as a basis for scale uniqueness,
-there is no way to define a closed set algebra for the :code:`is_notated_same`
-relation at the same time, because the union operation would not be well
-defined.
-
-However, on *certain* set operations, we can define the option to use
-the :code:`is_notated_same` relation. For :code:`intersection`, we
-can define that same-sounding, but differently notated notes should
-not be part of the intersection. For :code:`difference` we can define
-that such notes will not be removed from the first scale. In the
-same way, we can define the relationships :code:`is_disjoint`,
-:code:`is_subset`, and :code:`is_superset`.
-
-These stricter variants of the set operations are called:
-
-* :meth:`~xenharmlib.core.note_scale.NoteScale.note_intersection`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.note_difference`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_subset`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_note_superset`
-* :meth:`~xenharmlib.core.note_scale.NoteScale.is_notated_disjoint`
-
-.. testcode::
-
-    c = n_edo12.note('C', 0)
-    g = n_edo12.note('G', 0)
-    e_flat = n_edo12.note('Eb', 0)
-    d_sharp = n_edo12.note('D#', 0)
-
-    scale_a = n_edo12.scale([c, e_flat])
-    scale_b = n_edo12.scale([d_sharp, g])
-
-    intersection_a_b = scale_a.note_intersection(scale_b)
-    assert len(intersection_a_b) == 0
-
-    diff_a_b = scale_a.note_difference(scale_b)
-    assert len(diff_a_b) == 2
-
-In combination with the :code:`ignore_bi_index` flag, we can for
-example build a function that returns the pitch class symbols of
-the common notes of two scales while being aware of the key:
-
-.. testcode::
-
-    def common_notes_key_aware(scale_a, scale_b):
-        scale_i = scale_a.note_intersection(
-            scale_b,
-            ignore_bi_index=True
-        ).pcs_normalized()
-        return scale_i
-
-    # F# major and Gb major have exactly the same
-    # pitches, however they are notated differently
-    f_sharp_maj = n_edo12.natural_scale().transpose(
-        n_edo12.shorthand_interval('A', 4)
-    )
-    g_flat_maj = n_edo12.natural_scale().transpose(
-        n_edo12.shorthand_interval('d', 5)
-    )
-
-    # D# minor is the relative key to F# major
-    d_sharp_min = f_sharp_maj.rotation(5)
-
-    print(common_notes_key_aware(f_sharp_maj, g_flat_maj))
-    print(common_notes_key_aware(g_flat_maj, d_sharp_min))
-    print(common_notes_key_aware(f_sharp_maj, d_sharp_min))
-
-.. testoutput::
-
-    UpDownNoteScale([], 12-EDO)
-    UpDownNoteScale([], 12-EDO)
-    UpDownNoteScale([C#0, D#0, E#0, F#0, G#0, A#0, B0], 12-EDO)
 
 Playing and Exporting
 -----------------------------------

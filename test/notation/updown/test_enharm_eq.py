@@ -3,6 +3,11 @@ import pytest
 from xenharmlib.core.tunings import EDOTuning
 from xenharmlib.notation.updown import UpDownNotation
 
+NOTATIONS = {
+    i: UpDownNotation(EDOTuning(i))
+    for i in range(5, 73)
+}
+
 
 @pytest.mark.parametrize(
     'divisions, enharmonics',
@@ -643,8 +648,7 @@ def test_enharm_eq(divisions, enharmonics):
     Test enharmonic equivalencies of notes in different EDOs
     """
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
 
     for note_pair_a, note_pair_b in combinations(enharmonics, 2):
         note_a = notation.note(*note_pair_a)

@@ -170,6 +170,31 @@ def test_pc_scale_invalid_pci(tuning, pc_indices):
 
 
 @pytest.mark.parametrize(
+    'tuning, pc_indices, root_bi_index, expected',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [7, 9, 3, 5],
+            4,
+            [7+48, 9+48, 3+60, 5+60]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [3, 6, 10, 16],
+            2,
+            [3+62, 6+62, 10+62, 16+62]
+        ),
+    ]
+)
+def test_pc_scale_root_bi_index(tuning, pc_indices, root_bi_index, expected):
+
+    scale = tuning.pc_scale(pc_indices, root_bi_index)
+    assert scale == tuning.scale(
+        [tuning.pitch(i) for i in expected]
+    )
+
+
+@pytest.mark.parametrize(
     'tuning, indices, expected',
     [
         (
@@ -205,3 +230,23 @@ def test_index_scale(tuning, indices, expected):
     assert scale == tuning.scale(
         [tuning.pitch(i) for i in expected]
     )
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff',
+    [
+        (EDTuning(12, FrequencyRatio(2)), 3),
+        (EDTuning(24, FrequencyRatio(2)), 0),
+        (EDTuning(22, FrequencyRatio(2)), -1),
+        (EDTuning(31, FrequencyRatio(2)), -9),
+        (EDTuning(14, FrequencyRatio(2)), 18)
+    ]
+)
+def test_diff_interval(tuning, pitch_diff):
+
+    created = tuning.diff_interval(pitch_diff)
+    pitch_a = tuning.pitch(10)
+    pitch_b = tuning.pitch(10 + pitch_diff)
+    expected = pitch_a.interval(pitch_b)
+
+    assert created == expected

@@ -1,18 +1,47 @@
-Welcome to xenharmlib's documentation!
-======================================
-
 .. admonition:: New Release
 
-   Xenharmlib 0.2.0 has just been released.
-   :doc:`Find out what's new<whats_new_0_2_0>`
+   Xenharmlib 0.3.0 has just been released.
+   :doc:`Find out what's new<whats_new_0_3_0>`
 
-Xenharmlib is a music theory library for the exploration and research of
-microtonality, diatonic set theory, non-standard notations, and many
-more. The library implements a superset of Western classical music theory,
-so you can also use it to compose and analyze music in the boundaries of
-the common practice period or 20th century Western music.
+Welcome to xenharmlib’s documentation!
+=================================================
+
+----
+
+   **Xenharmonic (adj.):** Pertaining to music which sounds unlike
+   that composed in the familiar 12 tone equal-tempered scale.
+
+   -- *Ivor Darreg*
+
+Xenharmlib is a generalized music theory library that supports traditional
+Western and non-western harmonic systems, unconventional microtonal and
+macrotonal tunings, diatonic and posttonal set theory and non-standard
+notations.
 
 It is easy to use, extendable, and tries to be intuitive. Have a peek:
+
+.. testcode::
+
+   from xenharmlib import WesternNotation
+   from xenharmlib.periodic import mod_connectors
+
+   n = WesternNotation()
+
+   # find out which I-III-V triads can be used
+   # to modulate between d minor and g major
+
+   d_minor = n.pc_scale(['D', 'E', 'F', 'G', 'A', 'Bb', 'C'])
+   g_major = n.pc_scale(['G', 'A', 'B', 'C', 'D', 'E', 'F#'])
+
+   for c in mod_connectors(d_minor, g_major, (0, 2, 4)):
+       print(c)
+
+.. testoutput::
+
+   WesternNoteScale([A0, C1, E1])
+   WesternNoteScale([C1, E1, G1])
+
+-----------
 
 .. testcode::
 
@@ -71,28 +100,6 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
 .. testcode::
 
-   from xenharmlib import EDOTuning
-   from xenharmlib import UpDownNotation
-
-   # do plain old western scale analysis
-
-   western = EDOTuning(12)
-   n_west = UpDownNotation(western)
-
-   c_maj = n_west.natural_scale()
-   g_maj = c_maj.transpose(
-      n_west.shorthand_interval('P', 5)
-   )
-   print(c_maj.pcs_intersection(g_maj))
-
-.. testoutput::
-
-   UpDownNoteScale([C0, D0, E0, G0, A0, B0], 12-EDO)
-
------------
-
-.. testcode::
-
    from xenharmlib import EDTuning
    from xenharmlib import FrequencyRatio
 
@@ -141,26 +148,32 @@ original object.
 Features
 ---------------
 
-Xenharmlib is an ongoing project. New features will come in over time and
-feature requests are welcome.
+A selection of things supported by xenharmlib:
 
-So far it supports the following:
-
-* Equal division tunings (e.g. Western, Modern Arabic, Bohlen-Pierce)
+* Equal division tunings (e.g. Western, Modern Arabic, Turkish Makam,
+  Bohlen-Pierce, Wendy Carlos' Gamma Scale)
+* Western notation (including interval naming)
+* Up/Down notation (a superset of Western notation)
 * Analysis of intervals, scales, and their relations to one another
 * Group theoretical analysis (integer pitches, pitch classes, etc)
-* Up/Down Notation (a superset of Western accidental notation)
-* Building blocks for custom notations
+* Interval sequence pattern matching
+* Modulation suggestions for arbitrary key changes
+* Basic posttonal analysis (normal & prime form calculations, inversion, etc)
 
-Coming soon:
+Roadmap
+-----------------
 
-* Maximally even sets
-* Interval vectors and related properties
-* Key signature support for Up/Down Notation scales
-* Scale and triad generators
-* Just Intonation and Prime Limit Tunings
-* Odd Limit Tunings
+A list of planned features (not necessarily in chronological order):
+
+* Templates for Western music
+* Plugin interface for score rendering backends
+* Advanced posttonal analysis (interval vectors, z-Relations, Forte numbers)
+* Rothenberg propriety and interval matrices
+* MOS scale generation utilities
+* Just Intonation and prime limit tunings
 * Extended Helmholtz-Ellis JI Pitch Notation
+* Odd Limit Tunings
+* Arel-Ezgi-Uzdilek notation
 
 License
 ---------------
@@ -199,11 +212,17 @@ features.
    :caption: Contents:
 
    quickstart
-   adv_scale_features
+   western_notation
+   adv_scale_methods
    adv_notation_features
+   interval_seq
+   periodic_package
+   posttonal
    core_api
    export_api
    notation_api
+   periodic_api
+   setc_api
    changelog
 
 Contributor Guide

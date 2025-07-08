@@ -3,6 +3,11 @@ from xenharmlib import EDOTuning
 from xenharmlib import UpDownNotation
 from xenharmlib.notation.updown import MixedLeftEnharmStrategy
 
+NOTATIONS = {
+    i: UpDownNotation(EDOTuning(i))
+    for i in [5, 7, 9, 10, 11, 12, 14, 18, 28, 31]
+}
+
 
 @pytest.mark.parametrize(
     'divisions, pitch_index, note_pair',
@@ -40,8 +45,8 @@ from xenharmlib.notation.updown import MixedLeftEnharmStrategy
 )
 def test_guess_note(divisions, pitch_index, note_pair):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
+    tuning = notation.tuning
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
@@ -83,8 +88,8 @@ def test_guess_note_interval(divisions,
                              pitch_index_b,
                              name):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
+    tuning = notation.tuning
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
@@ -170,8 +175,8 @@ def test_guess_note_interval(divisions,
 )
 def test_guess_note_scale(divisions, pitch_indices, note_pairs):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
+    tuning = notation.tuning
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
@@ -220,8 +225,7 @@ def test_note_transpose(divisions,
                         pitch_diff,
                         note_pair_b):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
@@ -323,8 +327,7 @@ def test_note_scale_transpose(
     note_pairs_b
 ):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
@@ -421,8 +424,7 @@ def test_note_scale_pcs_complement(
     note_pairs_b
 ):
 
-    tuning = EDOTuning(divisions)
-    notation = UpDownNotation(tuning)
+    notation = NOTATIONS[divisions]
     strategy = MixedLeftEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
