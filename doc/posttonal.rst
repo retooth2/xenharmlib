@@ -285,9 +285,21 @@ Prime Form
 The prime form transforms all scales that are related by rotation,
 transposition and inversion into a single representative. 
 
-Xenharmlib again provides both the Forte and the Rahn variant of the
-prime form transformation: :func:`~xenharmlib.setc.primeform_forte`,
-:func:`~xenharmlib.setc.primeform_rahn`.
+Xenharmlib provides both the Forte and the Rahn variant of the prime
+form transformation: :func:`~xenharmlib.setc.primeform_forte` and
+:func:`~xenharmlib.setc.primeform_rahn` respectively.
+
+The prime form is calculated as follows:
+
+1. Transform the scale to its normal order.
+2. Zero-normalize the scale
+3. Generate the inversion of the resulting scale,
+   transform it to its normal order and zero-normalize it.
+4. Compare scales from step 2 and 3 and choose the one
+   with intervals most tightly packed to the left
+   (using Forte's or Rahn's algorithm)
+
+An example for 12-EDO:
 
 .. testcode::
 
@@ -304,10 +316,9 @@ prime form transformation: :func:`~xenharmlib.setc.primeform_forte`,
 
    EDOPitchScale([0, 2, 3, 5, 7, 9], 12-EDO)
 
-To retrieve the prime form in its pitch class representation
-the scale attribute
-:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices`
-must be used:
+To retrieve the prime form in its pure pitch class representation
+use the scale attribute
+:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices`:
 
 .. testcode::
 
