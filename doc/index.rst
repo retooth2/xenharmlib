@@ -212,6 +212,7 @@ features.
    :caption: Contents:
 
    quickstart
+   western_notation
    adv_scale_methods
    adv_notation_features
    interval_seq
