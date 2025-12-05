@@ -19,7 +19,7 @@ This module implements functions for prime form calculations
 from typing import TypeVar
 from .nf import nf_forte
 from .nf import nf_rahn
-from ..core.scale import PeriodicScale
+from ..core.objects import PeriodicScale
 
 ScaleT = TypeVar('ScaleT', bound=PeriodicScale)
 

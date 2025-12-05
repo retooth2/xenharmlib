@@ -1,5 +1,4 @@
-from xenharmlib.core.pitch import Pitch
-from xenharmlib.core.tunings import EDOTuning
+from xenharmlib import EDOTuning
 
 
 def test_pitch_index():

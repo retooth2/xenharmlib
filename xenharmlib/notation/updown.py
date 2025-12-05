@@ -15,7 +15,7 @@
 
 import numpy as np
 from typing import Tuple
-from ..core.tunings import EDOTuning
+from ..tuning.edo import EDOTuning
 from ..core.notation import NatAccNotation
 from ..core.symbols import SymbolArithmetic
 from ..core.symbols import SymbolArithmeticSet

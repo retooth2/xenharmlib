@@ -15,7 +15,7 @@
 
 from .notes import NoteIntervalABC
 from .notes import NatAccNoteInterval
-from .interval_seq import IntervalSeq
+from .objects import IntervalSeq
 from typing import Optional
 from typing import TypeVar
 from typing import List

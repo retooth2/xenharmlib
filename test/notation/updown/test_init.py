@@ -1,7 +1,7 @@
 import pytest
 
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.notation.updown import UpDownNotation
+from xenharmlib import EDOTuning
+from xenharmlib import UpDownNotation
 
 edo12 = EDOTuning(12)
 edo31 = EDOTuning(31)

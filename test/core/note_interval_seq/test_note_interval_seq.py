@@ -1,9 +1,8 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.core.tunings import EDTuning
+from xenharmlib import EDOTuning
+from xenharmlib import EDTuning
 from xenharmlib.core.note_interval_seq import NoteIntervalSeq
-from xenharmlib.core.note_interval_seq import NatAccNoteIntervalSeq
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidIndexMask
 from ..utils import make_nat_acc_test_notation

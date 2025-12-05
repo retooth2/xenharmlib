@@ -1,7 +1,7 @@
 import pytest
 import sympy as sp
 
-from xenharmlib.core.tunings import EDTuning
+from xenharmlib import EDTuning
 from xenharmlib.core.frequencies import Frequency
 from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.exc import IncompatibleOriginContexts

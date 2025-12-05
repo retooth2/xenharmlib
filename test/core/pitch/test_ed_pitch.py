@@ -1,7 +1,7 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.pitch import EDPitch
+from xenharmlib import EDTuning
+from xenharmlib.tuning.ed import EDPitch
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
 

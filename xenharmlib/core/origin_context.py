@@ -25,10 +25,10 @@ from typing import TypeVar
 from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
-from .freq_repr import FreqRepr
-from .interval import Interval
-from .scale import Scale
-from .interval_seq import IntervalSeq
+from .objects import FreqRepr
+from .objects import Interval
+from .objects import Scale
+from .objects import IntervalSeq
 
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)

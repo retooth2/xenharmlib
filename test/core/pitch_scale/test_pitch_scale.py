@@ -1,9 +1,8 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.pitch import EDPitch
-from xenharmlib.core.pitch_scale import PitchScale
+from xenharmlib import EDOTuning
+from xenharmlib import EDTuning
+from xenharmlib.core import SDPitchScale
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidIndexMask
 
@@ -28,7 +27,7 @@ def test_sort_on_init(tuning, input_pi, result_pi):
     Test if pitches get sorted correctly on scale init
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -49,7 +48,7 @@ def test_init_empty(tuning):
     Test if scale can be created by omitting pitches parameter
     """
 
-    scale = PitchScale(tuning)
+    scale = SDPitchScale(tuning)
 
     assert len(scale) == 0
     pitches = list(scale)
@@ -71,7 +70,7 @@ def test_add_pitch(tuning, input_pi, new_pi, result_pi):
     Test if add_pitch correctly insorts new pitch
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -101,7 +100,7 @@ def test_with_element(tuning, input_pi, new_pi, result_pi):
     Test if with_element correctly insorts new pitch
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -128,7 +127,7 @@ def test_add_pitch_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale = PitchScale(
+            scale = SDPitchScale(
                 tuning_a
             )
 
@@ -154,7 +153,7 @@ def test_add_pitch_index(tuning, input_pi, new_pi, result_pi):
     Test if add_pitch_index correctly insorts new pitch
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -184,7 +183,7 @@ def test_from_pitch_indices(tuning, input_pi, result_pi):
     """
 
     with pytest.deprecated_call():
-        scale = PitchScale.from_pitch_indices(
+        scale = SDPitchScale.from_pitch_indices(
             input_pi, tuning=tuning
         )
 
@@ -231,7 +230,7 @@ def test_getitem(tuning, input_pi, result_pi):
     Test if fetching single pitch items works correctly
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -515,7 +514,7 @@ def test_in_operator_pitch(tuning, input_pi):
     Test if 'in' operator works on single pitches
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -539,7 +538,7 @@ def test_not_in_operator_pitch(tuning, input_pi, excl_pi):
     Test if 'not in' operator works on single pitches
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -562,7 +561,7 @@ def test_in_operator_interval(tuning, input_pi, interval_pi):
     Test if 'in' operator works on intervals
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -587,7 +586,7 @@ def test_not_in_operator_interval(tuning, input_pi, excl_interval_pi):
     Test if 'not in' operator works on intervals
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -610,7 +609,7 @@ def test_in_operator_bogus(tuning):
     Test if 'in' operator returns False on non-supported types
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [
             tuning.pitch(8),
@@ -627,10 +626,10 @@ def test_in_operator_bogus(tuning):
 @pytest.mark.parametrize(
     'tuning, input_pi, repr_str',
     [
-        (edo12, [8, 3, 7], 'PitchScale([3, 7, 8], 12-EDO)'),
-        (edo24, [1, 33, 3, 7], 'PitchScale([1, 3, 7, 33], 24-EDO)'),
-        (edo31, [4, 8, 10, 22, 13], 'PitchScale([4, 8, 10, 13, 22], 31-EDO)'),
-        (ed13_3, [0, 8, 15, 9, 66], 'PitchScale([0, 8, 9, 15, 66], 13ed3)' ),
+        (edo12, [8, 3, 7], 'SDPitchScale([3, 7, 8], 12-EDO)'),
+        (edo24, [1, 33, 3, 7], 'SDPitchScale([1, 3, 7, 33], 24-EDO)'),
+        (edo31, [4, 8, 10, 22, 13], 'SDPitchScale([4, 8, 10, 13, 22], 31-EDO)'),
+        (ed13_3, [0, 8, 15, 9, 66], 'SDPitchScale([0, 8, 9, 15, 66], 13ed3)' ),
     ]
 )
 def test_repr(tuning, input_pi, repr_str):
@@ -638,7 +637,7 @@ def test_repr(tuning, input_pi, repr_str):
     Test if repr() returns the right string for scale
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -656,7 +655,7 @@ def test_frequencies(tuning):
     Test if frequencies property works correctly
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [
             tuning.pitch(8),
@@ -687,7 +686,7 @@ def test_pitch_indices(tuning, input_pi, result_pi):
     Test if pitch_indices property works correctly
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -708,7 +707,7 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     Test if to_intervals method works correctly
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -753,7 +752,7 @@ def test_transpose_int(tuning, input_pi, diff, result_pi):
     Test if transpose method works correctly when given an integer
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -783,7 +782,7 @@ def test_transpose_interval(tuning, input_pi, interval_pi, result_pi):
     Test if transpose method works correctly when given an interval
     """
 
-    scale = PitchScale(
+    scale = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi]
     )
@@ -894,12 +893,12 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     Test if union operation works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -928,10 +927,10 @@ def test_union_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -956,12 +955,12 @@ def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
     Test if intersection operation works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -990,10 +989,10 @@ def test_intersection_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -1018,12 +1017,12 @@ def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
     Test if difference operation works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1052,10 +1051,10 @@ def test_difference_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -1080,12 +1079,12 @@ def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
     Test if symmetric difference operation works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1114,10 +1113,10 @@ def test_symmetric_difference_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -1142,12 +1141,12 @@ def test_is_disjoint(tuning, input_pi_a, input_pi_b, expected):
     Test if is_disjoint set test works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1168,10 +1167,10 @@ def test_is_disjoint_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -1194,12 +1193,12 @@ def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
     Test if is_subset test works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1223,12 +1222,12 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     with proper=True
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1249,10 +1248,10 @@ def test_is_subset_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 
@@ -1275,12 +1274,12 @@ def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
     Test if is_superset test works correctly
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1304,12 +1303,12 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     with proper=True
     """
 
-    scale_a = PitchScale(
+    scale_a = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PitchScale(
+    scale_b = SDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1330,10 +1329,10 @@ def test_is_superset_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PitchScale(
+            scale_a = SDPitchScale(
                 tuning_a
             )
-            scale_b = PitchScale(
+            scale_b = SDPitchScale(
                 tuning_b
             )
 

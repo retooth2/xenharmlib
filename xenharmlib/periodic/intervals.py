@@ -14,8 +14,8 @@
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
 from .utils import scale_element
-from ..core.scale import PeriodicScale
-from ..core.interval import Interval
+from ..core.objects import PeriodicScale
+from ..core.objects import Interval
 
 
 def spec_interval(

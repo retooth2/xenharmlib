@@ -1,8 +1,8 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.core.pitch import PitchInterval
+from xenharmlib import EDTuning
+from xenharmlib import EDOTuning
+from xenharmlib.core import SDPitchInterval
 from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))
@@ -30,7 +30,7 @@ def test_init_pitch_diff(tuning,
     """
 
     with pytest.deprecated_call():
-        interval = PitchInterval.from_pitches(
+        interval = SDPitchInterval.from_pitches(
             tuning.pitch(pitch_index_a),
             tuning.pitch(pitch_index_b),
         )
@@ -38,7 +38,7 @@ def test_init_pitch_diff(tuning,
     interval.ref_pitch == tuning.pitch(pitch_index_a)
     interval.pitch_diff == pitch_diff
 
-    interval = PitchInterval.from_source_and_target(
+    interval = SDPitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
@@ -69,12 +69,12 @@ def test_lt_gt(tuning_ab,
     """
 
     with pytest.deprecated_call():
-        interval_ab = PitchInterval.from_pitches(
+        interval_ab = SDPitchInterval.from_pitches(
             tuning_ab.pitch(pitch_index_a),
             tuning_ab.pitch(pitch_index_b),
         )
     with pytest.deprecated_call():
-        interval_cd = PitchInterval.from_pitches(
+        interval_cd = SDPitchInterval.from_pitches(
             tuning_cd.pitch(pitch_index_c),
             tuning_cd.pitch(pitch_index_d),
         )
@@ -83,11 +83,11 @@ def test_lt_gt(tuning_ab,
     assert interval_ab != interval_cd
     assert interval_cd != interval_ab
 
-    interval_ab = PitchInterval.from_source_and_target(
+    interval_ab = SDPitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
         tuning_ab.pitch(pitch_index_b),
     )
-    interval_cd = PitchInterval.from_source_and_target(
+    interval_cd = SDPitchInterval.from_source_and_target(
         tuning_cd.pitch(pitch_index_c),
         tuning_cd.pitch(pitch_index_d),
     )
@@ -118,22 +118,22 @@ def test_eq(tuning_ab,
     """
 
     with pytest.deprecated_call():
-        interval_ab = PitchInterval.from_pitches(
+        interval_ab = SDPitchInterval.from_pitches(
             tuning_ab.pitch(pitch_index_a),
             tuning_ab.pitch(pitch_index_b),
         )
     with pytest.deprecated_call():
-        interval_cd = PitchInterval.from_pitches(
+        interval_cd = SDPitchInterval.from_pitches(
             tuning_cd.pitch(pitch_index_c),
             tuning_cd.pitch(pitch_index_d),
         )
     assert interval_ab == interval_cd
 
-    interval_ab = PitchInterval.from_source_and_target(
+    interval_ab = SDPitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
         tuning_ab.pitch(pitch_index_b),
     )
-    interval_cd = PitchInterval.from_source_and_target(
+    interval_cd = SDPitchInterval.from_source_and_target(
         tuning_cd.pitch(pitch_index_c),
         tuning_cd.pitch(pitch_index_d),
     )
@@ -156,23 +156,23 @@ def test_abs(tuning,
     """
 
     with pytest.deprecated_call():
-        interval_a = PitchInterval.from_pitches(
+        interval_a = SDPitchInterval.from_pitches(
             tuning.pitch(pitch_index_a),
             tuning.pitch(pitch_index_b),
         )
     with pytest.deprecated_call():
-        interval_b = PitchInterval.from_pitches(
+        interval_b = SDPitchInterval.from_pitches(
             tuning.pitch(pitch_index_b),
             tuning.pitch(pitch_index_a),
         )
     assert abs(interval_a) == abs(interval_b)
     assert abs(interval_b) == interval_a
 
-    interval_a = PitchInterval.from_source_and_target(
+    interval_a = SDPitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
-    interval_b = PitchInterval.from_source_and_target(
+    interval_b = SDPitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_b),
         tuning.pitch(pitch_index_a),
     )
@@ -197,13 +197,13 @@ def test_cents(tuning,
     """
 
     with pytest.deprecated_call():
-        interval = PitchInterval.from_pitches(
+        interval = SDPitchInterval.from_pitches(
             tuning.pitch(pitch_index_a),
             tuning.pitch(pitch_index_b),
         )
     assert interval.cents == cents
 
-    interval = PitchInterval.from_source_and_target(
+    interval = SDPitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
@@ -220,12 +220,12 @@ def test_init_incompatible_origin_contexts():
 
     with pytest.raises(IncompatibleOriginContexts):
         with pytest.deprecated_call():
-            PitchInterval.from_pitches(
+            SDPitchInterval.from_pitches(
                 edo12.pitch(0),
                 edo12_2.pitch(0),
             )
     with pytest.raises(IncompatibleOriginContexts):
-        PitchInterval.from_source_and_target(
+        SDPitchInterval.from_source_and_target(
             edo12.pitch(0),
             edo12_2.pitch(0),
         )
@@ -234,8 +234,8 @@ def test_init_incompatible_origin_contexts():
 @pytest.mark.parametrize(
     'tuning, pitch_index_a, pitch_index_b, repr_result',
     [
-        (EDOTuning(31), 2, 8, 'PitchInterval(6, 31-EDO)'),
-        (EDOTuning(12), 2, -8, 'PitchInterval(-10, 12-EDO)'),
+        (EDOTuning(31), 2, 8, 'SDPitchInterval(6, 31-EDO)'),
+        (EDOTuning(12), 2, -8, 'SDPitchInterval(-10, 12-EDO)'),
     ]
 )
 def test_repr(tuning,
@@ -247,13 +247,13 @@ def test_repr(tuning,
     """
 
     with pytest.deprecated_call():
-        interval = PitchInterval.from_pitches(
+        interval = SDPitchInterval.from_pitches(
             tuning.pitch(pitch_index_a),
             tuning.pitch(pitch_index_b),
         )
     assert repr(interval) == repr_result
 
-    interval = PitchInterval.from_source_and_target(
+    interval = SDPitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )

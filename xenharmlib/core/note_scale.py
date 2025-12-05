@@ -26,8 +26,8 @@ from bisect import insort
 from .notes import NoteABC
 from .notes import PeriodicNoteABC
 from .notes import NoteIntervalABC
-from .scale import Scale
-from .scale import PeriodicScale
+from .objects import Scale
+from .objects import PeriodicScale
 from ..exc import IncompatibleOriginContexts
 
 NoteT = TypeVar('NoteT', bound=NoteABC)

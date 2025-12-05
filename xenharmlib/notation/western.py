@@ -20,7 +20,7 @@ from .updown import UpDownNoteScale
 from .updown import UpDownNoteIntervalSeq
 from .updown import DownwardsEnharmStrategy
 from .updown import UpwardsEnharmStrategy
-from ..core.tunings import EDOTuning
+from ..tuning.edo import EDOTuning
 
 
 class FlatEnharmStrategy(DownwardsEnharmStrategy):

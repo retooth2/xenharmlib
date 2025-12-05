@@ -17,7 +17,7 @@
 This module implements functions for normal form calculations
 """
 from typing import TypeVar
-from ..core.scale import PeriodicScale
+from ..core.objects import PeriodicScale
 
 ScaleT = TypeVar('ScaleT', bound=PeriodicScale)
 

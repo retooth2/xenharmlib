@@ -1,8 +1,8 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.pitch import EDPitch
-from xenharmlib.core.pitch import EDPitchInterval
+from xenharmlib import EDTuning
+from xenharmlib.tuning.ed import EDPitch
+from xenharmlib.tuning.ed import EDPitchInterval
 from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))

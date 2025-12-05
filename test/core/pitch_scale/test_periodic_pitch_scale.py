@@ -1,8 +1,7 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.pitch import EDPitch
-from xenharmlib.core.pitch_scale import PeriodicPitchScale
+from xenharmlib import EDTuning
+from xenharmlib.core import PeriodicSDPitchScale
 from xenharmlib.exc import IncompatibleOriginContexts
 
 edo12 = EDTuning(12, FrequencyRatio(2))
@@ -44,7 +43,7 @@ def test_pcs_normalized(tuning, pi_list, n_pi_list):
     pitches = [
         tuning.pitch(pi) for pi in pi_list
     ]
-    scale = PeriodicPitchScale(
+    scale = PeriodicSDPitchScale(
         tuning, pitches
     )
     normalized = scale.pcs_normalized()
@@ -272,7 +271,7 @@ def test_pcs_complement(tuning, pi_list, n_pi_list):
     pitches = [
         tuning.pitch(pi) for pi in pi_list
     ]
-    scale = PeriodicPitchScale(
+    scale = PeriodicSDPitchScale(
         edo12, pitches
     )
     normalized = scale.pcs_complement()
@@ -426,12 +425,12 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     Test if union operation works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -460,10 +459,10 @@ def test_union_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -488,12 +487,12 @@ def test_intersection(tuning, input_pi_a, input_pi_b, result_pi):
     Test if intersection operation works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -527,12 +526,12 @@ def test_intersection_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -559,10 +558,10 @@ def test_intersection_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -587,12 +586,12 @@ def test_difference(tuning, input_pi_a, input_pi_b, result_pi):
     Test if difference operation works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -626,12 +625,12 @@ def test_difference_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -658,10 +657,10 @@ def test_difference_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -686,12 +685,12 @@ def test_symmetric_difference(tuning, input_pi_a, input_pi_b, result_pi):
     Test if symmetric difference operation works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -725,12 +724,12 @@ def test_symmetric_difference_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -758,10 +757,10 @@ def test_symmetric_difference_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -789,12 +788,12 @@ def test_pcs_intersection(tuning,
     Test if pcs_intersection method works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -819,10 +818,10 @@ def test_pcs_intersection_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -844,12 +843,12 @@ def test_is_disjoint(tuning, input_pi_a, input_pi_b, expected):
     Test if is_disjoint set test works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -875,12 +874,12 @@ def test_is_disjoint_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -903,10 +902,10 @@ def test_is_disjoint_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -933,12 +932,12 @@ def test_is_set_equivalent(tuning, input_pi_a, input_pi_b, expected):
     Test if is_set_equivalent method works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -968,12 +967,12 @@ def test_is_set_equivalent_different_tunings(
     same equivalency interval
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning_a,
         [tuning_a.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning_b,
         [tuning_b.pitch(pi) for pi in input_pi_b]
     )
@@ -996,8 +995,8 @@ def test_is_set_equivalent_incompatible_origin_contexts():
 
     for tuning in tunings:
 
-        scale_a = PeriodicPitchScale(tuning)
-        scale_b = PeriodicPitchScale(ed12_3)
+        scale_a = PeriodicSDPitchScale(tuning)
+        scale_b = PeriodicSDPitchScale(ed12_3)
 
         with pytest.raises(IncompatibleOriginContexts) as exc_info:
             with pytest.deprecated_call():
@@ -1036,12 +1035,12 @@ def test_is_seq_equivalent(tuning, input_pi_a, input_pi_b, expected):
     Test if is_seq_equivalent method works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning,
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1068,12 +1067,12 @@ def test_is_seq_equivalent_different_tunings(
     same equivalency interval
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning_a,
         [tuning_a.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning_b,
         [tuning_b.pitch(pi) for pi in input_pi_b]
     )
@@ -1093,8 +1092,8 @@ def test_is_seq_equivalent_incompatible_origin_contexts():
 
     for tuning in tunings:
 
-        scale_a = PeriodicPitchScale(tuning)
-        scale_b = PeriodicPitchScale(ed12_3)
+        scale_a = PeriodicSDPitchScale(tuning)
+        scale_b = PeriodicSDPitchScale(ed12_3)
 
         with pytest.raises(IncompatibleOriginContexts) as exc_info:
             scale_a.is_seq_equivalent(scale_b)
@@ -1120,12 +1119,12 @@ def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
     Test if is_subset test works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1152,12 +1151,12 @@ def test_is_subset_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1184,12 +1183,12 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     with proper=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1216,12 +1215,12 @@ def test_is_subset_proper_ignore_bi_index(tuning,
     on ignore_bi_index=True and proper=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1246,10 +1245,10 @@ def test_is_subset_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 
@@ -1272,12 +1271,12 @@ def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
     Test if is_superset test works correctly
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1304,12 +1303,12 @@ def test_is_superset_ignore_bi_index(tuning,
     on ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1339,12 +1338,12 @@ def test_is_superset_proper(tuning,
     on proper=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1373,12 +1372,12 @@ def test_is_superset_proper_ignore_bi_index(tuning,
     on proper=True and ignore_bi_index=True
     """
 
-    scale_a = PeriodicPitchScale(
+    scale_a = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_a]
     )
 
-    scale_b = PeriodicPitchScale(
+    scale_b = PeriodicSDPitchScale(
         tuning, 
         [tuning.pitch(pi) for pi in input_pi_b]
     )
@@ -1403,10 +1402,10 @@ def test_is_superset_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            scale_a = PeriodicPitchScale(
+            scale_a = PeriodicSDPitchScale(
                 tuning_a
             )
-            scale_b = PeriodicPitchScale(
+            scale_b = PeriodicSDPitchScale(
                 tuning_b
             )
 

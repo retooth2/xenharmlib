@@ -1,8 +1,8 @@
 import pytest
 from xenharmlib.core.frequencies import FrequencyRatio
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.core.tunings import EDTuning
-from xenharmlib.core.pitch_interval_seq import PitchIntervalSeq
+from xenharmlib import EDOTuning
+from xenharmlib import EDTuning
+from xenharmlib.core import SDPitchIntervalSeq
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidIndexMask
 
@@ -23,7 +23,7 @@ def test_init_empty(tuning):
     Test if interval sequence can be created by omitting intervals parameter
     """
 
-    interval_seq = PitchIntervalSeq(tuning)
+    interval_seq = SDPitchIntervalSeq(tuning)
 
     assert len(interval_seq) == 0
     intervals = list(interval_seq)
@@ -43,7 +43,7 @@ def test_init_incompatible_origin_contexts():
     """
 
     with pytest.raises(IncompatibleOriginContexts):
-        PitchIntervalSeq(edo12, [edo24.diff_interval(3)])
+        SDPitchIntervalSeq(edo12, [edo24.diff_interval(3)])
 
     with pytest.raises(IncompatibleOriginContexts):
         edo12.interval_seq([edo24.diff_interval(3)])
@@ -62,7 +62,7 @@ def test_with_interval(tuning, input_diffs, new_diff, result_diffs):
     Test if with_interval works
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -95,7 +95,7 @@ def test_with_interval_insert_pos(
     Test if with_interval works with insert_pos parameter
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -122,7 +122,7 @@ def test_with_interval_incompatible_origin_contexts():
 
         for tuning_b in tunings[i+1:]:
 
-            interval_seq = PitchIntervalSeq(
+            interval_seq = SDPitchIntervalSeq(
                 tuning_a
             )
 
@@ -170,7 +170,7 @@ def test_getitem(tuning, diffs):
     Test if fetching single interval items works correctly
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diffs]
     )
@@ -193,12 +193,12 @@ def test_getitem_slice(tuning, input_diffs, start, stop, result_diffs):
     Test if slicing of interval_seq works correctly
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in result_diffs]
     )
@@ -222,12 +222,12 @@ def test_getitem_slice_omit_stop(tuning, input_diffs, start, result_diffs):
     stop parameter is omitted
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in result_diffs]
     )
@@ -251,12 +251,12 @@ def test_getitem_slice_omit_start(tuning, input_diffs, stop, result_diffs):
     start parameter is omitted
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in result_diffs]
     )
@@ -285,12 +285,12 @@ def test_partial(tuning, input_diffs, mask, result_diffs):
     Test if partial function of interval sequences works correctly
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in result_diffs]
     )
@@ -340,12 +340,12 @@ def test_partial_not(tuning, input_diffs, mask, result_diffs):
     Test if partial_not function of interval sequences works correctly
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in result_diffs]
     )
@@ -395,7 +395,7 @@ def test_partition(tuning, input_diffs, mask):
     Test if partition function of interval sequences works correctly
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -443,7 +443,7 @@ def test_in_operator(tuning, input_diffs):
     Test if 'in' operator works
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -467,7 +467,7 @@ def test_not_in_operator_pitch(tuning, input_diffs, excl_diffs):
     Test if 'not in' operator works
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -487,7 +487,7 @@ def test_in_operator_bogus(tuning):
     Test if 'in' operator returns False on non-supported types
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in [3, 5, 6]]
     )
@@ -500,10 +500,10 @@ def test_in_operator_bogus(tuning):
 @pytest.mark.parametrize(
     'tuning, input_diffs, repr_str',
     [
-        (edo12, [3, 8, 7], 'PitchIntervalSeq([3, 8, 7], 12-EDO)'),
-        (edo24, [1, 7, 3, 33], 'PitchIntervalSeq([1, 7, 3, 33], 24-EDO)'),
-        (edo31, [4, 8, 10, 22, 13], 'PitchIntervalSeq([4, 8, 10, 22, 13], 31-EDO)'),
-        (ed13_3, [0, 8, 9, 15, 2], 'PitchIntervalSeq([0, 8, 9, 15, 2], 13ed3)'),
+        (edo12, [3, 8, 7], 'SDPitchIntervalSeq([3, 8, 7], 12-EDO)'),
+        (edo24, [1, 7, 3, 33], 'SDPitchIntervalSeq([1, 7, 3, 33], 24-EDO)'),
+        (edo31, [4, 8, 10, 22, 13], 'SDPitchIntervalSeq([4, 8, 10, 22, 13], 31-EDO)'),
+        (ed13_3, [0, 8, 9, 15, 2], 'SDPitchIntervalSeq([0, 8, 9, 15, 2], 13ed3)'),
     ]
 )
 def test_repr(tuning, input_diffs, repr_str):
@@ -511,7 +511,7 @@ def test_repr(tuning, input_diffs, repr_str):
     Test if repr() returns the right string for scale
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in input_diffs]
     )
@@ -529,7 +529,7 @@ def test_frequency_ratios(tuning):
     Test if frequency_ratios property works correctly
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in [3, 5, 6]]
     )
@@ -552,7 +552,7 @@ def test_cents(tuning):
     Test if cents property works correctly
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in [3, 5, 6]]
     )
@@ -579,7 +579,7 @@ def test_pitch_diffs(tuning, diffs):
     Test if pitch_diffs property works correctly
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diffs]
     )
@@ -603,17 +603,17 @@ def test_addition(tuning, diff_a, diff_b, diff_result):
     Test if interval sequence addition works correctly
     """
 
-    interval_seq_a = PitchIntervalSeq(
+    interval_seq_a = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff_a]
     )
 
-    interval_seq_b = PitchIntervalSeq(
+    interval_seq_b = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff_b]
     )
 
-    interval_seq_result = PitchIntervalSeq(
+    interval_seq_result = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff_result]
     )
@@ -637,12 +637,12 @@ def test_scalar_multiplication(tuning, diff, scalar, diff_result):
     Test if interval sequence can multiplied with scalars
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
 
-    interval_seq_result = PitchIntervalSeq(
+    interval_seq_result = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff_result]
     )
@@ -664,7 +664,7 @@ def test_index(tuning, diff, interval, result):
     no additional restriction parameters
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -686,7 +686,7 @@ def test_index_value_error(tuning, diff, interval):
     Test if index raises ValueError if interval was not found
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -715,7 +715,7 @@ def test_index_start(tuning, diff, interval, start, result):
     a given start index parameter
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -739,7 +739,7 @@ def test_index_start_value_error(tuning, diff, interval, start):
     after a given start value
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -767,7 +767,7 @@ def test_index_start_stop(tuning, diff, interval, start, stop, result):
     a given start and stop parameter
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -790,7 +790,7 @@ def test_index_start_stop_value_error(tuning, diff, interval, start, stop):
     between a given start and end index
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )
@@ -817,7 +817,7 @@ def test_scale_conversion(tuning, diff, pitch_index, scale_pi):
     Test if pitch interval sequence can be converted into scale
     """
 
-    interval_seq = PitchIntervalSeq(
+    interval_seq = SDPitchIntervalSeq(
         tuning,
         [tuning.diff_interval(diff) for diff in diff]
     )

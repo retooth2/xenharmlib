@@ -20,8 +20,8 @@ from __future__ import annotations
 from typing import Tuple
 from typing import Generator
 from typing import TypeVar
-from ..core.scale import PeriodicScale
-from ..core.freq_repr import FreqRepr
+from ..core.objects import PeriodicScale
+from ..core.objects import FreqRepr
 from ..core.masks import InfiniteIndexMask
 from .utils import scale_element
 

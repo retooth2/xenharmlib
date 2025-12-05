@@ -1,7 +1,7 @@
 from itertools import combinations
 import pytest
-from xenharmlib.core.tunings import EDOTuning
-from xenharmlib.notation.updown import UpDownNotation
+from xenharmlib import EDOTuning
+from xenharmlib import UpDownNotation
 
 NOTATIONS = {
     i: UpDownNotation(EDOTuning(i))

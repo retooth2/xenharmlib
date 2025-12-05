@@ -18,8 +18,8 @@ This module includes basic utils for the periodic package such as
 extractions methods for scale elements and partial scales, scalar
 transposition and element / partial scale lookup functions
 """
-from ..core.freq_repr import FreqRepr
-from ..core.scale import PeriodicScale
+from ..core.objects import FreqRepr
+from ..core.objects import PeriodicScale
 from ..exc import IncompatibleOriginContexts
 from ..core.masks import InfiniteIndexMask
 from typing import TypeVar

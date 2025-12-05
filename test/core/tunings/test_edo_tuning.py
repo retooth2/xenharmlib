@@ -1,5 +1,5 @@
 import pytest
-from xenharmlib.core.tunings import EDOTuning
+from xenharmlib import EDOTuning
 
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)

@@ -30,14 +30,14 @@ from abc import ABC
 from abc import abstractmethod
 import numpy as np
 from .protocols import PeriodicPitchLike
-from .freq_repr import SDFreqRepr
-from .interval import SDInterval
-from .pitch import PeriodicPitch
+from .objects import FreqRepr
+from .objects import Interval
+from .tuning.psd_objects import PeriodicSDPitch
 from ..exc import IncompatibleOriginContexts
 
 
 @total_ordering
-class NoteABC(SDFreqRepr):
+class NoteABC(FreqRepr):
     """
     Abstract base class for notes. Implements the properties
     :attr:`tuning`, :attr:`frequency` and :attr:`pitch_index`
@@ -54,8 +54,39 @@ class NoteABC(SDFreqRepr):
     """
 
     def __init__(self, notation, frequency, pitch_index):
-        super().__init__(notation, frequency, pitch_index)
+        super().__init__(notation, frequency)
         self._notation = notation
+        self._pitch_index = pitch_index
+
+    def __hash__(self):
+        return hash(self._pitch_index)
+
+    @property
+    def pitch_index(self) -> int:
+        """
+        The pitch index of this object
+        """
+        return self._pitch_index
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, FreqRepr):
+            return False
+        if (
+            isinstance(other, NoteABC)
+            and self.origin_context is other.origin_context
+        ):
+            return self.pitch_index == other.pitch_index
+        return self.frequency == other.frequency
+
+    def __lt__(self, other) -> bool:
+        if not isinstance(other, FreqRepr):
+            return NotImplemented
+        if (
+            isinstance(other, FreqRepr)
+            and self.origin_context is other.origin_context
+        ):
+            return self.pitch_index < other.pitch_index
+        return self.frequency < other.frequency
 
     @property
     def notation(self):
@@ -248,7 +279,7 @@ class NatAccNote(PeriodicNoteABC):
         self._acc_symbol = acc_symbol
 
     @property
-    def pitch(self) -> PeriodicPitch:
+    def pitch(self) -> PeriodicSDPitch:
         """
         Returns the underlying pitch object
         """
@@ -495,7 +526,7 @@ NoteT = TypeVar('NoteT', bound=NoteABC)
 
 
 @total_ordering
-class NoteIntervalABC(SDInterval[NoteT], ABC):
+class NoteIntervalABC(Interval[NoteT], ABC):
     """
     Abstract base class for note intervals. Implements the
     property :attr:`pitch_interval` that constructs the
@@ -522,9 +553,14 @@ class NoteIntervalABC(SDInterval[NoteT], ABC):
         pitch_diff: int,
         ref_note: NoteT,
     ):
-        super().__init__(notation, frequency_ratio, pitch_diff)
+        super().__init__(notation, frequency_ratio)
         self._notation = notation
         self._ref_note = ref_note
+        self._pitch_diff = pitch_diff
+
+    @property
+    def pitch_diff(self) -> int:
+        return self._pitch_diff
 
     def __abs__(self) -> Self:
         """
