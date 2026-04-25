@@ -19,6 +19,7 @@ literal and each word represents an integer vector. These languages are
 called 'symbol codes' and are used as utils in notations.
 """
 
+import operator
 from typing import Tuple
 from typing import List
 from typing import Dict
@@ -29,6 +30,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from scipy.optimize import milp
 from scipy.optimize import LinearConstraint
+from .utils import componentwise
 
 
 class UnknownSymbolString(Exception):
@@ -283,11 +285,11 @@ class SymbolArithmetic(SymbolCode):
             symbol literal in this arithmetic
         """
 
-        result = np.array(self._offset)
+        result = self._offset
 
         for symbol in symbols:
             value = self._symbol_vectors[symbol]
-            result = np.add(result, value)
+            result = componentwise(operator.add, result, value)
 
         return tuple(result)
 
