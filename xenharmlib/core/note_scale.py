@@ -21,6 +21,7 @@ types of scale notation systems.
 from typing import Self
 from typing import TypeVar
 from typing import List
+from typing import Tuple
 from warnings import warn
 from bisect import insort
 from .notes import NoteABC
@@ -545,6 +546,9 @@ class NatAccNoteScale(PeriodicNoteScale):
     # properties on single natural/accidental notes that
     # should also apply to collections
 
+    # FIXME: in line with the "immutable design style" these
+    # should return tuples, not lists
+
     @property
     def nat_indices(self) -> List[int]:
         """
@@ -589,13 +593,42 @@ class NatAccNoteScale(PeriodicNoteScale):
         return indices
 
     @property
-    def acc_vectors(self) -> List[int]:
+    def acc_vectors(self) -> List[Tuple[int]]:
         """
+        .. deprecated:: 0.4.0
+           Use :py:meth:`acc_diff_vectors` instead.
+
         A list of accidental vectors for each note in the scale
+        """
+        warn(
+            f'{self.__class__.__name__}.acc_vectors is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.acc_diff_vectors instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.acc_diff_vectors
+
+    @property
+    def acc_sum_vectors(self) -> List[Tuple[int]]:
+        """
+        A list of (unweighted) accidental sum vectors for
+        each note in the scale
         """
         vectors = []
         for note in self:
-            vectors.append(note.acc_vector)
+            vectors.append(note.acc_sum_vector)
+        return vectors
+
+    @property
+    def acc_diff_vectors(self) -> List[Tuple[int]]:
+        """
+        A list of (weighted) accidental diff vectors for
+        each note in the scale
+        """
+        vectors = []
+        for note in self:
+            vectors.append(note.acc_diff_vector)
         return vectors
 
     @property
