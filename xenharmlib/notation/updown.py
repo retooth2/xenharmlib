@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
+import operator
 from typing import Tuple
 from ..core.tunings import EDOTuning
 from ..core.notation import NatAccNotation
@@ -26,6 +26,7 @@ from ..core.note_interval_seq import NatAccNoteIntervalSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
 from ..exc import UnfittingNotation
+from ..core.utils import componentwise
 
 
 # These are placeholders for future implementations
@@ -132,8 +133,16 @@ class UpDownNotation(NatAccNotation):
         if not isinstance(tuning, EDOTuning):
             raise UnfittingNotation('UpDownNotation only supports EDO tunings')
 
+        if tuning.sharpness == 0:
+            acc_weights = (1,)
+        elif abs(tuning.sharpness) == 1:
+            acc_weights = (tuning.sharpness,)
+        else:
+            acc_weights = (tuning.sharpness, 1)
+
         super().__init__(
             tuning,
+            acc_weights,
             note_cls,
             note_interval_cls,
             note_scale_cls,
@@ -283,13 +292,17 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
-        acc_arith = SymbolArithmetic(dimensions=2, allow_empty=True)
 
-        acc_arith.add_symbol('#', (sharpness, 0))
-        acc_arith.add_symbol('b', ((-1) * sharpness, 0))
-        acc_arith.add_symbol('x', (2 * sharpness, 0))
-
-        if abs(sharpness) != 1:
+        if abs(sharpness) == 1:
+            acc_arith = SymbolArithmetic(dimensions=1, allow_empty=True)
+            acc_arith.add_symbol('#', (1,))
+            acc_arith.add_symbol('b', (-1,))
+            acc_arith.add_symbol('x', (2,))
+        else:
+            acc_arith = SymbolArithmetic(dimensions=2, allow_empty=True)
+            acc_arith.add_symbol('#', (1, 0))
+            acc_arith.add_symbol('b', (-1, 0))
+            acc_arith.add_symbol('x', (2, 0))
             acc_arith.add_symbol("^", (0, 1))
             acc_arith.add_symbol("v", (0, -1))
 
@@ -327,6 +340,18 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
+        dimensions = 1 if abs(sharpness) == 1 else 2
+
+        # we define a helper function here that auto-adds another
+        # dimension if we set a first dimension symbol and the
+        # number of dimensions are 2
+
+        def add_first_dim_symbol(arithmetic, symbol, value, **kwargs):
+            if dimensions == 1:
+                vector = (value,)
+            elif dimensions == 2:
+                vector = (value, 0)
+            arithmetic.add_symbol(symbol, vector, **kwargs)
 
         # ------------------------------------------------
         # 1) Arithmetics for interval quality 'perfect'
@@ -349,15 +374,15 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #                             P
 
-        p_arith = SymbolArithmeticSet(dimensions=2)
+        p_arith = SymbolArithmeticSet(dimensions=dimensions)
 
-        p_sub_arith_zero = SymbolArithmetic(dimensions=2)
-        p_sub_arith_zero.add_symbol(
-            'P', (0, 0), min_occurence=1, max_occurence=1
+        p_sub_arith_zero = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_zero, 'P', 0, min_occurence=1, max_occurence=1
         )
         p_arith.add_arithmetic(p_sub_arith_zero)
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
 
             # on sharpness 1 perfect intervals do not have ups and downs,
             # because it would be the same as using A and d.
@@ -368,7 +393,7 @@ class UpDownNotation(NatAccNotation):
             #  --------------------------------------------------------
             #       vv          v                    ^          ^^
 
-            p_sub_arith_ud = SymbolArithmetic(dimensions=2)
+            p_sub_arith_ud = SymbolArithmetic(dimensions=dimensions)
             p_sub_arith_ud.add_symbol("v", (0, -1))
             p_sub_arith_ud.add_symbol("^", (0, 1))
             p_arith.add_arithmetic(p_sub_arith_ud)
@@ -388,9 +413,9 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         A^         A^^
 
-        p_sub_arith_aug = SymbolArithmetic(dimensions=2)
-        p_sub_arith_aug.add_symbol(
-            "A", (sharpness, 0), min_occurence=1, position=1
+        p_sub_arith_aug = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_aug, "A", 1, min_occurence=1, position=1
         )
         p_arith.add_arithmetic(p_sub_arith_aug)
 
@@ -405,13 +430,13 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvd        vd          d          ^d         ^^d
 
-        p_sub_arith_dim = SymbolArithmetic(dimensions=2)
-        p_sub_arith_dim.add_symbol(
-            "d", ((-1) * sharpness, 0), min_occurence=1, position=1
+        p_sub_arith_dim = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_dim, "d", -1, min_occurence=1, position=1
         )
         p_arith.add_arithmetic(p_sub_arith_dim)
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
 
             p_sub_arith_aug.add_symbol('^', (0, 1), position=0)
             p_sub_arith_aug.add_symbol('v', (0, -1), position=0)
@@ -436,7 +461,7 @@ class UpDownNotation(NatAccNotation):
         #   * an augmented arithmetic with symbols A, ^, v
         #   * a diminished arithmetic with symbols d, ^, v
 
-        imp_arith = SymbolArithmeticSet(dimensions=2)
+        imp_arith = SymbolArithmeticSet(dimensions=dimensions)
 
         # Major arithmetic
 
@@ -446,12 +471,12 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvM        vM          M         ^M         ^^M
 
-        imp_maj_arith = SymbolArithmetic(dimensions=2)
-        imp_maj_arith.add_symbol(
-            'M', (0, 0), min_occurence=1, max_occurence=1, position=1
+        imp_maj_arith = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            imp_maj_arith, "M", 0, min_occurence=1, max_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_maj_arith.add_symbol('^', (0, 1), position=0)
             imp_maj_arith.add_symbol('v', (0, -1), position=0)
 
@@ -466,13 +491,14 @@ class UpDownNotation(NatAccNotation):
         #      vvm        vm          m         ^m          ^m
 
         imp_min_arith = SymbolArithmetic(
-            dimensions=2, offset=((-1) * sharpness, 0)
+            dimensions=dimensions,
+            offset=(-1, 0) if dimensions == 2 else (-1,)
         )
-        imp_min_arith.add_symbol(
-            'm', (0, 0), min_occurence=1, max_occurence=1, position=1
+        add_first_dim_symbol(
+            imp_min_arith, "m", 0, min_occurence=1, max_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_min_arith.add_symbol('^', (0, 1), position=0)
             imp_min_arith.add_symbol('v', (0, -1), position=0)
 
@@ -491,12 +517,12 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         ^A         ^^A
 
-        imp_aug_arith = SymbolArithmetic(dimensions=2)
-        imp_aug_arith.add_symbol(
-            'A', (sharpness, 0), min_occurence=1, position=1
+        imp_aug_arith = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            imp_aug_arith, "A", 1, min_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_aug_arith.add_symbol('^', (0, 1), position=0)
             imp_aug_arith.add_symbol('v', (0, -1), position=0)
 
@@ -516,13 +542,14 @@ class UpDownNotation(NatAccNotation):
         #      vvd        vd          d         ^d         ^^d
 
         imp_dim_arith = SymbolArithmetic(
-            dimensions=2, offset=((-1) * sharpness, 0)
+            dimensions=dimensions,
+            offset=(-1, 0) if dimensions == 2 else (-1,)
         )
-        imp_dim_arith.add_symbol(
-            'd', ((-1) * sharpness, 0), min_occurence=1, position=1
+        add_first_dim_symbol(
+            imp_dim_arith, "d", -1, min_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_dim_arith.add_symbol('^', (0, 1), position=0)
             imp_dim_arith.add_symbol('v', (0, -1), position=0)
 
@@ -574,7 +601,7 @@ class UpDownNotation(NatAccNotation):
             )
 
         acc_symbol = acc_head + acc_tail
-        acc_value = tuple(np.add(acc_head_value, acc_tail_value))
+        acc_value = componentwise(operator.add, acc_head_value, acc_tail_value)
 
         return natc_symbol, acc_symbol, natc_index, acc_value
 
@@ -658,7 +685,10 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
         ref_note = start_note if sharpness > 0 else end_note
 
         for i in range(1, fillers_count + 1):
-            sharpened = ref_note.acc_altered((i * sharpness, 0))
+            if abs(sharpness) == 1:
+                sharpened = ref_note.add_acc_sum_vector((i,))
+            else:
+                sharpened = ref_note.add_acc_sum_vector((i, 0))
             yield sharpened
 
     @staticmethod
@@ -687,8 +717,11 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
         ref_note = end_note if sharpness > 0 else start_note
 
         for i in range(1, fillers_count + 1):
-            sharpened = ref_note.acc_altered((-i * sharpness, 0))
-            yield sharpened
+            if abs(sharpness) == 1:
+                flattened = ref_note.add_acc_sum_vector((-i,))
+            else:
+                flattened = ref_note.add_acc_sum_vector((-i, 0))
+            yield flattened
 
     @staticmethod
     def up_fillers(start_note, end_note):
@@ -711,7 +744,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         for i in range(1, gap_size + 1):
             alteration = (i,) if sharpness == 0 else (0, i)
-            upped = start_note.acc_altered(alteration)
+            upped = start_note.add_acc_sum_vector(alteration)
             yield upped
 
     @staticmethod
@@ -735,7 +768,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         for i in range(1, gap_size + 1):
             alteration = (-i,) if sharpness == 0 else (0, -i)
-            downed = end_note.acc_altered(alteration)
+            downed = end_note.add_acc_sum_vector(alteration)
             yield downed
 
     @staticmethod

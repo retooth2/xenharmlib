@@ -7,7 +7,7 @@ from xenharmlib.core.notation import NatAccNotation
 def test_invalid_interval_number():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     notation.append_natural('C', 3)
 

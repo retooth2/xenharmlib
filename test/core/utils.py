@@ -22,7 +22,7 @@ def make_nat_acc_test_notation(tuning):
 
     ALPHABET = [chr(x) for x in range(65, 65+26)]
 
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     for nat_pc_index in range(0, len(tuning), 2):
         natc_symbol = ALPHABET.pop(0)

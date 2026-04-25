@@ -11,7 +11,7 @@ from xenharmlib.core.symbols import AmbiguousSymbol
 def test_append_natural_ambiguous_symbol():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     notation.append_natural('C', 3)
 
@@ -22,7 +22,7 @@ def test_append_natural_ambiguous_symbol():
 def test_get_acc_symbol_invalid_accidental_value():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     arith = SymbolArithmetic()
     arith.add_symbol('#', (1,))
@@ -35,7 +35,7 @@ def test_get_acc_symbol_invalid_accidental_value():
 def test_set_interval_symbol_code_invalid_nat_diffc():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     notation.append_natural('C', 3)
 
@@ -49,7 +49,7 @@ def test_set_interval_symbol_code_invalid_nat_diffc():
 def test_get_interval_symbol_incomplete_notation():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     notation.append_natural('C', 3)
     notation.append_natural('D', 5)
@@ -62,7 +62,7 @@ def test_get_interval_symbol_incomplete_notation():
 def test_acc_symbol_code_incomplete_notation():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = NatAccNotation(tuning, acc_weights=(1,))
 
     with pytest.raises(IncompleteNotation):
         notation.acc_symbol_code
