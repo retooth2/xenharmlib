@@ -837,7 +837,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[NatAccNote]):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self._acc_vector
+        return self.acc_diff_vector
 
     @property
     def acc_sum_vector(self) -> Tuple[int, ...]:
