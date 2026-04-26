@@ -32,19 +32,19 @@ from ..core.utils import componentwise
 # These are placeholders for future implementations
 
 
-class UpDownNote(NatAccNote):
+class UpDownNote(NatAccNote[int]):
     pass
 
 
-class UpDownNoteInterval(NatAccNoteInterval):
+class UpDownNoteInterval(NatAccNoteInterval[int, UpDownNote]):
     pass
 
 
-class UpDownNoteScale(NatAccNoteScale):
+class UpDownNoteScale(NatAccNoteScale[int, UpDownNote]):
     pass
 
 
-class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq):
+class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq[int, UpDownNoteInterval]):
     pass
 
 
@@ -93,7 +93,7 @@ SMUFL_MAP = dict(
 )
 
 
-class UpDownNotation(NatAccNotation):
+class UpDownNotation(NatAccNotation[int]):
     """
     UpDownNotation is an implementation of Kite Giedraitis' classic
     ups/down notation for EDOs 5-72. It differs from the paper in
@@ -160,6 +160,10 @@ class UpDownNotation(NatAccNotation):
 
         # initialize default enharmonic strategy
         self.enharm_strategy = MixedLeftEnharmStrategy(self)
+
+    @property
+    def zero_index(self) -> int:
+        return 0
 
     @property
     def edo_category(self) -> str:

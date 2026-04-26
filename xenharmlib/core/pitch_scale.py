@@ -32,6 +32,7 @@ difference, etc.
 from __future__ import annotations
 
 from bisect import insort
+from typing import Generic
 from typing import TypeVar
 from typing import List
 from typing import Self
@@ -41,15 +42,18 @@ from .pitch import Pitch
 from .pitch import PeriodicPitch
 from .pitch import EDPitch
 from .pitch import PitchInterval
+from .protocols import Index
+from .protocols import PeriodicIndex
 from .interval import Interval
 from .scale import Scale
 from .scale import PeriodicScale
 from ..exc import IncompatibleOriginContexts
 
 PitchT = TypeVar('PitchT', bound=Pitch)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class PitchScale(Scale[PitchT]):
+class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
     """
     The base class of all pitch scales. Implements list and set
     operations, transposition, retuning, etc.
@@ -161,7 +165,7 @@ class PitchScale(Scale[PitchT]):
         if pitch not in self._sorted_elements:
             insort(self._sorted_elements, pitch)
 
-    def add_pitch_index(self, pitch_index: int):
+    def add_pitch_index(self, pitch_index: IndexT):
         """
         .. deprecated:: 0.2.0
            objects in xenharmlib are supposed to be immutable
@@ -186,7 +190,7 @@ class PitchScale(Scale[PitchT]):
     # builder methods
 
     @classmethod
-    def from_pitch_indices(cls, pitch_indices: List[int], tuning) -> Self:
+    def from_pitch_indices(cls, pitch_indices: List[IndexT], tuning) -> Self:
         """
         Creates a scale from a list of pitch
         indices
@@ -224,7 +228,7 @@ class PitchScale(Scale[PitchT]):
     # pitches
 
     @property
-    def pitch_indices(self) -> List[int]:
+    def pitch_indices(self) -> List[IndexT]:
         """
         A list of the ordered pitch indices
         present in this scale
@@ -247,14 +251,14 @@ class PitchScale(Scale[PitchT]):
         )
         return self.to_intervals()
 
-    def transpose(self, diff: int | PitchInterval[PitchT]) -> Self:
+    def transpose(self, diff: IndexT | PitchInterval[IndexT, PitchT]) -> Self:
         """
         Transposes the scale upwards or downwards
 
         :param diff: The difference from this pitch. Can be
-            either an integer (positive for upward movement,
-            negative for downward movement) or a pitch
-            interval
+            either a pitch index difference (positive for
+            upward movement, negative for downward movement)
+            or a pitch interval
         """
 
         transposed = []
@@ -287,10 +291,11 @@ class PitchScale(Scale[PitchT]):
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
 class PeriodicPitchScale(
-    PitchScale[PeriodicPitchT], PeriodicScale[PeriodicPitchT]
+    PitchScale[PeriodicIndexT, PeriodicPitchT], PeriodicScale[PeriodicPitchT]
 ):
     """
     Pitch scale class for periodic tunings. Implements
@@ -323,7 +328,7 @@ class PeriodicPitchScale(
         return self.tuning.scale(complement)
 
     @property
-    def pc_indices(self) -> List[int]:
+    def pc_indices(self) -> List[PeriodicIndexT]:
         """
         Returns a list of pitch class indices in
         the order they appear in this scale. This can
@@ -333,7 +338,7 @@ class PeriodicPitchScale(
         return [pitch.pc_index for pitch in self]
 
 
-class EDPitchScale(PeriodicPitchScale[EDPitch]):
+class EDPitchScale(PeriodicPitchScale[int, EDPitch]):
     """Pitch scale class for equal division tunings"""
 
 

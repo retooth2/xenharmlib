@@ -16,14 +16,17 @@
 from .notes import NoteIntervalABC
 from .notes import NatAccNoteInterval
 from .interval_seq import IntervalSeq
+from .protocols import Index
+from .protocols import PeriodicIndex
 from typing import Optional
 from typing import TypeVar
 from typing import List
 
 NoteIntervalT = TypeVar('NoteIntervalT', bound=NoteIntervalABC)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
+class NoteIntervalSeq(IntervalSeq[IndexT, NoteIntervalT]):
     """
     Base class for note interval sequences
 
@@ -69,9 +72,12 @@ class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
 
 
 NatAccNoteIntervalT = TypeVar('NatAccNoteIntervalT', bound=NatAccNoteInterval)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
-class NatAccNoteIntervalSeq(NoteIntervalSeq[NatAccNoteIntervalT]):
+class NatAccNoteIntervalSeq(
+    NoteIntervalSeq[PeriodicIndexT, NatAccNoteIntervalT]
+):
     """
     Base class for natural/accidental notation interval sequences
 

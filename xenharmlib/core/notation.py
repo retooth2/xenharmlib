@@ -46,6 +46,8 @@ from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
+from .protocols import Index
+from .protocols import PeriodicIndex
 from .symbols import AmbiguousSymbol
 from .utils import scalar_op
 
@@ -53,9 +55,12 @@ NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
+class NotationABC(
+    OriginContext[IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT]
+):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
@@ -371,8 +376,12 @@ class IncompleteNotation(Exception):
 # would just balance with flats or sharps. However depending on notation it
 # is possible that other strategies must be applied.
 
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
+
+
 class NatAccNotation(
     NotationABC[
+        PeriodicIndexT,
         NatAccNote,
         NatAccNoteInterval,
         NatAccNoteScale,
@@ -421,7 +430,7 @@ class NatAccNotation(
     def __init__(
         self,
         tuning,
-        acc_weights: Tuple[int, ...],
+        acc_weights: Tuple[PeriodicIndexT, ...],
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
@@ -450,13 +459,13 @@ class NatAccNotation(
         # in notations of pentatonic EDOs where m2 = M2 the note
         # (B, 0) and (C, 1) refer to the same pitch
 
-        self._naturals: List[Tuple[str, int]] = []
+        self._naturals: List[Tuple[str, PeriodicIndexT]] = []
 
         self._acc_symbol_code: Optional[SymbolCode] = None
         self._interval_symbol_codes: Dict[int, SymbolCode] = {}
 
     @property
-    def acc_weights(self) -> Tuple[int, ...]:
+    def acc_weights(self) -> Tuple[PeriodicIndexT, ...]:
         """
         The weight vector that transforms the accidental sum vector
         into the accidental diff vector
@@ -486,7 +495,7 @@ class NatAccNotation(
 
     def acc_sum_vector_to_acc_diff_vector(
         self, acc_sum_vector: Tuple[int, ...]
-    ) -> Tuple[int, ...]:
+    ) -> Tuple[PeriodicIndexT, ...]:
         """
         Transforms an (unweighted) accidental sum vector into a
         (weighted) accidental diff vector.
@@ -506,7 +515,7 @@ class NatAccNotation(
                 f'correct dimensions (should be {dimensions})'
             )
 
-        result = tuple()
+        result: Tuple[PeriodicIndexT, ...] = tuple()
 
         for i, component in enumerate(acc_sum_vector):
             result += (component * self.acc_weights[i],)
@@ -514,7 +523,7 @@ class NatAccNotation(
         return result
 
     def acc_diff_vector_to_acc_sum_vector(
-        self, acc_diff_vector: Tuple[int, ...]
+        self, acc_diff_vector: Tuple[PeriodicIndexT, ...]
     ) -> Tuple[int, ...]:
         """
         Transforms a (weighted) accidental diff vector into a
@@ -539,7 +548,7 @@ class NatAccNotation(
                 f'correct dimensions (should be {dimensions})'
             )
 
-        result = tuple()
+        result: Tuple[int, ...] = tuple()
 
         for i, component in enumerate(acc_diff_vector):
             q, r = divmod(component, self.acc_weights[i])
@@ -554,7 +563,9 @@ class NatAccNotation(
 
     # we define the h(p) function from the definition
 
-    def get_acc_sum_balance_vector(self, delta: int) -> Tuple[int, ...]:
+    def get_acc_sum_balance_vector(
+        self, delta: PeriodicIndexT
+    ) -> Tuple[int, ...]:
         """
         Returns an accidental sum balance vector for a pitch difference
         delta. By default this function assumes that pitch difference
@@ -583,7 +594,7 @@ class NatAccNotation(
 
     # we define the p(n) function from the definition
 
-    def nat_index_to_pitch_index(self, nat_index: int) -> int:
+    def nat_index_to_pitch_index(self, nat_index: int) -> PeriodicIndexT:
         """
         Returns the pitch index a natural index refers to
         (e.g. in 12-EDO: 0 -> 0, 1 -> 2, 3 -> 4, 4 -> 5)
@@ -597,7 +608,7 @@ class NatAccNotation(
 
     # we define the q(m) function from the definition
 
-    def std_pitch_diff(self, nat_diff: int) -> int:
+    def std_pitch_diff(self, nat_diff: int) -> PeriodicIndexT:
         """
         Returns the standardized pitch difference for a
         natural index difference (e.g. in 12-EDO: 0 -> 0,
@@ -876,7 +887,7 @@ class NatAccNotation(
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
 
-    def nat_index_to_pc_index(self, nat_index: int) -> int:
+    def nat_index_to_pc_index(self, nat_index: int) -> PeriodicIndexT:
         """
         Returns the pitch class index a natural index refers to
 
@@ -886,7 +897,7 @@ class NatAccNotation(
         pitch_index = self.nat_index_to_pitch_index(nat_index)
         return pitch_index % len(self.tuning)
 
-    def is_natural(self, pitch_index: int) -> bool:
+    def is_natural(self, pitch_index: PeriodicIndexT) -> bool:
         """
         Returns True if the given pitch index refers to
         a natural in this notation, False otherwise
@@ -907,7 +918,7 @@ class NatAccNotation(
         return len(self._naturals)
 
     @property
-    def natc_pitch_indices(self) -> List[int]:
+    def natc_pitch_indices(self) -> List[PeriodicIndexT]:
         """
         A sorted list of natural class pitch indices
         that are present in this notation
@@ -915,7 +926,7 @@ class NatAccNotation(
         return [t[1] for t in self._naturals]
 
     @property
-    def natc_pc_indices(self) -> List[int]:
+    def natc_pc_indices(self) -> List[PeriodicIndexT]:
         """
         A sorted list of natural class pitch class indices
         that are present in this notation
@@ -928,7 +939,9 @@ class NatAccNotation(
 
     # natural symbol processing
 
-    def append_natural(self, natc_symbol: str, natc_pitch_index: int):
+    def append_natural(
+        self, natc_symbol: str, natc_pitch_index: PeriodicIndexT
+    ):
         """
         Appends a new natural to this notation. The order in which
         naturals are added determines their natural class index,

@@ -15,6 +15,7 @@
 
 from abc import ABC
 from collections.abc import Sequence
+from typing import Generic
 from typing import Optional
 from typing import overload
 from typing import Self
@@ -23,16 +24,18 @@ from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
 from .interval import Interval
+from .protocols import Index
 from .masks import mask_select
 from ..exc import IncompatibleOriginContexts
 from .scale import Scale
 from .freq_repr import FreqRepr
 
 
-IntervalT = TypeVar('FreqReprT', bound=Interval)
+IntervalT = TypeVar('IntervalT', bound=Interval)  # FIXME. wrong type id
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class IntervalSeq(Sequence[IntervalT], ABC):
+class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
     """
     IntervalSeq is the abstract base class for all interval sequence types.
     Interval sequences can be understood as "abstract scales" (for example
@@ -323,7 +326,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         return [interval.cents for interval in self]
 
     @property
-    def pitch_diffs(self) -> List[int]:
+    def pitch_diffs(self) -> List[IndexT]:
         """
         An ordered list of pitch differences representing the sequence
         """

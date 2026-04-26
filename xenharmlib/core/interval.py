@@ -25,14 +25,15 @@ from abc import ABC
 from abc import abstractmethod
 from .frequencies import FrequencyRatio
 from .freq_repr import FreqRepr
-from .freq_repr import SDFreqRepr
+from .freq_repr import IndexedFreqRepr
 from .constants import CENTS_PRECISION
+from .protocols import Index
 
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 
 
 @total_ordering
-class Interval(Generic[FreqReprT], ABC):
+class Interval(ABC, Generic[FreqReprT]):
     """
     Interval is the abstract bass class for all interval types, consisting
     only of an origin context and a frequency ratio. Based on frequency ratio
@@ -117,24 +118,26 @@ class Interval(Generic[FreqReprT], ABC):
         """
 
 
-SDFreqReprT = TypeVar('SDFreqReprT', bound=SDFreqRepr)
+IndexedFreqReprT = TypeVar('IndexedFreqReprT', bound=IndexedFreqRepr)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class SDInterval(Interval[SDFreqReprT]):
+class IndexedInterval(
+    Interval[IndexedFreqReprT], Generic[IndexT, IndexedFreqReprT]
+):
     """
-    SDInterval (single dimensional interval) extends the Interval class
-    by a pitch_diff property.
+    IndexedInterval extends the Interval class by a pitch_diff property.
     """
 
     def __init__(
         self,
         origin_context,
         frequency_ratio: FrequencyRatio,
-        pitch_diff: int,
+        pitch_diff: IndexT,
     ):
         super().__init__(origin_context, frequency_ratio)
         self._pitch_diff = pitch_diff
 
     @property
-    def pitch_diff(self) -> int:
+    def pitch_diff(self) -> IndexT:
         return self._pitch_diff
