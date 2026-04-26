@@ -166,6 +166,9 @@ class TuningABC(
         :param pitch_indices: A list of pitch indices
         """
 
+        if pitch_indices is None:
+            return self.scale()
+
         pitches = []
         for index in pitch_indices:
             pitches.append(self.pitch(index))

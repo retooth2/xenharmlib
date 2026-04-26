@@ -178,6 +178,9 @@ class OriginContext(
             differences
         """
 
+        if not pitch_diffs:
+            return self.interval_seq()
+
         intervals = [
             self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs
         ]
