@@ -132,7 +132,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
-    def with_element(self, element: FreqReprT) -> Self[FreqRepr]:
+    def with_element(self, element: FreqReprT) -> Self:
         """
         Returns a new scale containing all elements from this scale
         and the additional one given as a parameter.
