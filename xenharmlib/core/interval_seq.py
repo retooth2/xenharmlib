@@ -31,7 +31,7 @@ from .scale import Scale
 from .freq_repr import FreqRepr
 
 
-IntervalT = TypeVar('IntervalT', bound=Interval)  # FIXME. wrong type id
+IntervalT = TypeVar('IntervalT', bound=Interval)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
