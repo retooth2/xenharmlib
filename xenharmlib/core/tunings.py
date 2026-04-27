@@ -264,7 +264,7 @@ class PeriodicTuning(
 
     def __init__(
         self,
-        period_length: int,
+        period_length: PeriodicIndexT,
         eq_ratio: FrequencyRatio,
         pitch_cls: type[PeriodicPitchT],
         pitch_interval_cls: type[PeriodicIntervalT],
