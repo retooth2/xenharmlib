@@ -21,6 +21,7 @@ lower-level objects (pitch, pitch interval, pitch scale)
 """
 
 import operator
+from functools import reduce
 from typing import Tuple
 from typing import Dict
 from typing import Optional
@@ -651,7 +652,7 @@ class NatAccNotation(
         acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
             acc_sum_vector
         )
-        acc_value = sum(acc_diff_vector)
+        acc_value = reduce(operator.add, acc_diff_vector)
 
         tuning = self.tuning
         pitch_index = (
@@ -688,7 +689,7 @@ class NatAccNotation(
         acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
             acc_sum_vector
         )
-        acc_value = sum(acc_diff_vector)
+        acc_value = reduce(operator.add, acc_diff_vector)
         nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
         pitch_index = nat_pitch_index + acc_value
         frequency = self.tuning.get_frequency_for_index(pitch_index)
@@ -806,7 +807,9 @@ class NatAccNotation(
         acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
             acc_sum_vector
         )
-        pitch_diff_zero = sum(acc_diff_vector) + nat_pitch_diff
+        pitch_diff_zero = reduce(
+            operator.add, acc_diff_vector
+        ) + nat_pitch_diff
         pitch_diff = pitch_diff_zero - ref_note.pitch_index
 
         tuning = self.tuning

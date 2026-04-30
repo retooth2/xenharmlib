@@ -27,6 +27,7 @@ from typing import Tuple
 from typing import Self
 from typing import TypeVar
 from warnings import warn
+from functools import reduce
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
@@ -352,7 +353,7 @@ class NatAccNote(PeriodicNoteABC[PeriodicIndexT]):
         The accidental value of this note
         (e.g. in 31edo 2 for #, -2 for b, 0 for natural)
         """
-        return sum(self.acc_diff_vector)
+        return reduce(operator.add, self.acc_diff_vector)
 
     @property
     def acc_vector(self) -> Tuple[PeriodicIndexT, ...]:
