@@ -234,12 +234,12 @@ class PeriodicTuning(
     the two pitches as 'equivalent'). This can be the octave in
     EDO tunings or a tritave in ED3 tunings.
 
-    Periodic tunings implement the len() function that returns
-    the period length:
+    Periodic tunings implement the period_length attribute that
+    returns the period length:
 
     >>> from xenharmlib import EDOTuning
     >>> edo12 = EDOTuning(12)
-    >>> len(edo12)
+    >>> edo12.period_length
     12
 
     The constructor arguments are:
@@ -284,7 +284,18 @@ class PeriodicTuning(
         self._eq_ratio = eq_ratio
         self._period_length = period_length
 
+    @property
+    def period_length(self) -> PeriodicIndexT:
+        return self._period_length
+
     def __len__(self):
+        warn(
+            f'Using len() to determine period length is deprecated and '
+            f'will be removed in 1.0.0. Please use the property '
+            f'{self.__class__.__name__}.period_length instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._period_length
 
     @property
@@ -317,7 +328,7 @@ class PeriodicTuning(
 
         pitches = []
         current_bi_index = root_bi_index
-        tuning_len = len(self)
+        tuning_len = self.period_length
 
         if not pc_indices:
             return self.scale()
@@ -461,7 +472,7 @@ class SDPeriodicTuningMixin(SDTuningMixin):
         :param pitch: A pitch of this tuning.
         """
 
-        p = len(self)
+        p = self.period_length
         q = pitch.pc_index
 
         while q != 0:
@@ -484,9 +495,9 @@ class SDPeriodicTuningMixin(SDTuningMixin):
 
         generators = []
 
-        for index in range(1, len(self) + 1):
+        for index in range(1, self.period_length + 1):
 
-            p = len(self)
+            p = self.period_length
             q = index
 
             while q != 0:
@@ -615,7 +626,7 @@ class EDTuning(
         :param pitch_index: A pitch index
         """
 
-        scale_size = len(self)
+        scale_size = self.period_length
         exp = sp.Rational(1, scale_size)
         ratio = (self.eq_ratio**exp) ** pitch_index
         return self.ref_frequency * ratio

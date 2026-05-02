@@ -250,3 +250,10 @@ def test_diff_interval(tuning, pitch_diff):
     expected = pitch_a.interval(pitch_b)
 
     assert created == expected
+
+
+def test_len_deprecated():
+
+    tuning = EDTuning(12, FrequencyRatio(3))
+    with pytest.deprecated_call():
+        len(tuning)

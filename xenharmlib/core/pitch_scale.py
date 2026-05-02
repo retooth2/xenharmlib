@@ -318,7 +318,7 @@ class PeriodicPitchScale(
         complement = []
 
         full_scale = self.tuning.scale(
-            self.tuning.pitch_range(len(self.tuning))
+            self.tuning.pitch_range(self.tuning.period_length)
         )
 
         for pitch in full_scale:

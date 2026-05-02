@@ -184,10 +184,10 @@ class UpDownNotation(NatAccNotation[int]):
         """
 
         tuning = self.tuning
-        major2_size = (tuning.fifth.pitch_index * 2) % len(tuning)
+        major2_size = (tuning.fifth.pitch_index * 2) % tuning.period_length
         minor2_size = major2_size - tuning.sharpness
 
-        if len(tuning) in {2, 3, 4, 6}:
+        if tuning.period_length in {2, 3, 4, 6}:
             return 'trivial'
 
         if minor2_size == 0:
@@ -214,7 +214,7 @@ class UpDownNotation(NatAccNotation[int]):
         """
 
         tuning = self.tuning
-        tuning_len = len(tuning)
+        tuning_len = tuning.period_length
 
         # in order to get the pitch indices of the naturals we
         # define that C should refer to the pitch index 0 and

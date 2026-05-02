@@ -156,7 +156,7 @@ n octaves up regardless of tuning:
 
     def octaves_up(pitch, n):
         return pitch.transpose(
-            n * len(pitch.tuning)
+            n * pitch.tuning.period_length
         )
 
     a0 = edo12.pitch(9)
@@ -412,7 +412,7 @@ something like this:
     tuning = edo31
 
     intervals = []
-    for i in range(0, len(tuning)):
+    for i in range(0, tuning.period_length):
         zero = tuning.pitch(0)
         target = tuning.pitch(i)
         intervals.append(

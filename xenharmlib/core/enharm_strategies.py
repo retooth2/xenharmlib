@@ -182,7 +182,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
         self.pc_blueprint = notation.scale(pc_blueprint).pcs_normalized()
 
-        if len(self.pc_blueprint) != len(notation.tuning):
+        if len(self.pc_blueprint) != notation.tuning.period_length:
             # pick out the missing pitch class representative
             # in the blueprint to get a nicer error message
             for i, note in enumerate(self.pc_blueprint):
