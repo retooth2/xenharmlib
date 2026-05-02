@@ -582,7 +582,7 @@ class NatAccNotation(
 
         q, r = divmod(delta, self.acc_weights[0])
 
-        if r != 0:
+        if r != self.zero_index:
             raise ValueError(
                 f'heuristic for balancing accidental sum vector failed: '
                 f'pitch deviation {delta} can not be represented by '
