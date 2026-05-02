@@ -290,19 +290,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
         return tuning.scale(pitches)
 
 
-PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
-PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
-
-
-class PeriodicPitchScale(
-    PitchScale[PeriodicIndexT, PeriodicPitchT], PeriodicScale[PeriodicPitchT]
-):
-    """
-    Pitch scale class for periodic tunings. Implements
-    operations like rotation and customized set operations
-    (for when you want to treat equivalent pitches the same
-    as equal pitches). It also implements normalization methods.
-    """
+class SDPeriodicPitchScaleMixin:
 
     # normalization methods
 
@@ -327,6 +315,21 @@ class PeriodicPitchScale(
 
         return self.tuning.scale(complement)
 
+
+PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
+
+
+class PeriodicPitchScale(
+    PitchScale[PeriodicIndexT, PeriodicPitchT], PeriodicScale[PeriodicPitchT]
+):
+    """
+    Pitch scale class for periodic tunings. Implements
+    operations like rotation and customized set operations
+    (for when you want to treat equivalent pitches the same
+    as equal pitches). It also implements normalization methods.
+    """
+
     @property
     def pc_indices(self) -> List[PeriodicIndexT]:
         """
@@ -338,7 +341,9 @@ class PeriodicPitchScale(
         return [pitch.pc_index for pitch in self]
 
 
-class EDPitchScale(PeriodicPitchScale[int, EDPitch]):
+class EDPitchScale(
+    PeriodicPitchScale[int, EDPitch], SDPeriodicPitchScaleMixin
+):
     """Pitch scale class for equal division tunings"""
 
 
