@@ -367,7 +367,7 @@ class Scale(Sequence[FreqReprT], ABC):
         Returns this scale represented as a list of intervals
         """
         warn(
-            f'{self.__class__.__name__}.to_interval is deprecated and '
+            f'{self.__class__.__name__}.to_intervals is deprecated and '
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_interval_seq instead.',
             DeprecationWarning,
