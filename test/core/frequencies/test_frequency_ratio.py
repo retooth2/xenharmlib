@@ -2376,3 +2376,75 @@ def test_to_monzo_irrational():
 
     with pytest.raises(ValueError):
         ratio.to_monzo()
+
+
+def test_hash_set():
+
+    # each element pair in this definition is
+    # equal under __eq__  implementation so each
+    # second element should be canceled out
+
+    set_a = {
+        FrequencyRatio(3),
+        FrequencyRatio(3),
+        FrequencyRatio(6, 3),
+        FrequencyRatio(2),
+        FrequencyRatio(3),
+        FrequencyRatio(3.0),
+        FrequencyRatio(2),
+        FrequencyRatio(Fraction(4, 2)),
+        FrequencyRatio(22),
+        22,
+        FrequencyRatio(22),
+        22.0,
+        FrequencyRatio(33),
+        Fraction(66, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 2),
+        FrequencyRatio(0.5),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(Fraction(1, 3)),
+        FrequencyRatio(4, 2),
+        2,
+        FrequencyRatio(5, 2),
+        2.5,
+        FrequencyRatio(1, 3),
+        Fraction(1, 3),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(Fraction(1, 2)),
+        FrequencyRatio(2.0),
+        2,
+        FrequencyRatio(0.5),
+        0.5,
+        FrequencyRatio(0.75),
+        Fraction(3, 4),
+        FrequencyRatio(Fraction(4, 3)),
+        FrequencyRatio(Fraction(4, 3)),
+    }
+
+    set_b = {
+        FrequencyRatio(3),
+        FrequencyRatio(6, 3),
+        FrequencyRatio(3),
+        FrequencyRatio(2),
+        FrequencyRatio(22),
+        FrequencyRatio(22),
+        FrequencyRatio(33),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(4, 2),
+        FrequencyRatio(5, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(2.0),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.75),
+        FrequencyRatio(Fraction(4, 3)),
+    }
+
+    assert set_a == set_b

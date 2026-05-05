@@ -23,6 +23,7 @@ useful representations for frequencies and frequency ratios.
 from __future__ import annotations
 
 import os
+import numbers
 from typing import overload
 from typing import Self
 from typing import TypeAlias
@@ -189,6 +190,9 @@ class Frequency:
     def __init__(self, number: ScalarLike):
         sp_expr = _scalar_to_sp_expr(number, allow_freq_ratio=False)
         self.sp_expr = sp_expr
+
+    def __hash__(self):
+        return hash(self.sp_expr)
 
     # A note on error handling: On most arithmetic methods we want to
     # be strict and not give an unknown object the chance to call its
@@ -469,9 +473,65 @@ class FrequencyRatio:
     """
 
     def __init__(self, numerator: ScalarLike, denominator: ScalarLike = 1):
-        numerator = _scalar_to_sp_expr(numerator)
-        denominator = _scalar_to_sp_expr(denominator)
-        self.sp_expr = numerator / denominator
+
+        sp_numerator = _scalar_to_sp_expr(numerator)
+        sp_denominator = _scalar_to_sp_expr(denominator)
+        self.sp_expr = sp_numerator / sp_denominator
+
+        # equality is tested by applying _scalar_to_sp_expr to the
+        # second operand, so e.g. it holds that 3 == FrequencyRatio(3)
+        # or Fraction(3, 2) == FrequencyRatio(Fraction(3, 2)). since
+        # we want __hash__ to reflect that we must tread carefully
+
+        # if neither of the original numerator/denominator params
+        # was a sympy expression or a frequency ratio object we
+        # can simply use hash() of the python builtin Fraction
+        # or float type, which correctly hashes builtin number
+        # types, e.g. hash(3) == hash(Fraction(3, 1)) == hash(3.0)
+
+        if not (
+            isinstance(numerator, sp.Expr) or
+            isinstance(denominator, sp.Expr) or
+            isinstance(numerator, FrequencyRatio) or
+            isinstance(denominator, FrequencyRatio)
+        ):
+
+            if (
+                isinstance(numerator, numbers.Rational) and
+                isinstance(denominator, numbers.Rational)
+            ):
+                self._hash = hash(Fraction(numerator, denominator))
+            else:
+                self._hash = hash(numerator / denominator)
+
+        # if at least one parameter was given as a sympy expression
+        # we can check if the expression is a rational number and
+        # do the same maneuver
+
+        elif self.sp_expr.is_rational:
+            # FIXME: sympy's rational number object did not properly
+            # define __hash__ equality, so even if it holds that
+            # sympy.rational(1, 3) == Fraction(1, 3) it does not
+            # hold that the hashes of these two objects are the
+            # same. We inherit that bug in here, by saying that
+            # even if FrequencyRatio(sympy.rational(1, 3)) ==
+            # Fraction(1, 3) == sympy.rational(1, 3) the hashes
+            # of the first two expression are the same but are
+            # distinct from the last expression
+            n, d = sp.fraction(self.sp_expr)
+            self._hash = hash(Fraction(n, d))
+
+        # or if we have something that can only truly be expressed
+        # by sympy (e.g. an irrational number) we use the hash of
+        # the sympy expression as the value of our __hash__ which
+        # also satisfies SP_EXPR == FrequencyRatio(SP_EXPR) in the
+        # __hash__ space:
+
+        else:
+            self._hash = hash(self.sp_expr)
+
+    def __hash__(self):
+        return self._hash
 
     # A note on error handling: On most arithmetic methods we want to
     # be strict and not give an unknown object the chance to call its

@@ -1557,3 +1557,39 @@ def test_repr(freq, result):
 def test_init_inconvertible(inconvertible):
     with pytest.raises(ValueError):
         Frequency(inconvertible)
+
+
+def test_hash_set():
+
+    # each element pair in this definition is
+    # equal under __eq__  implementation so each
+    # second element should be canceled out
+
+    set_a = {
+        Frequency(3),
+        Frequency(3),
+        Frequency(3),
+        Frequency(3.0),
+        Frequency(3),
+        Frequency(Fraction(6, 2)),
+        Frequency(3.5),
+        Frequency(3.5),
+        Frequency(0.5),
+        Frequency(Fraction(1, 2)),
+        Frequency(Fraction(2, 4)),
+        Frequency(Fraction(1, 2)),
+        Frequency(SP_NUM),
+        Frequency(SP_NUM),
+    }
+
+    set_b = {
+        Frequency(3),
+        Frequency(3),
+        Frequency(3),
+        Frequency(3.5),
+        Frequency(0.5),
+        Frequency(Fraction(2, 4)),
+        Frequency(SP_NUM),
+    }
+
+    assert set_a == set_b
