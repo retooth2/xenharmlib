@@ -8,6 +8,12 @@ Frequency
 .. automodule:: xenharmlib.core.frequencies
     :members:
 
+Lattices
+---------------------------
+
+.. automodule:: xenharmlib.core.lattice
+    :members:
+
 Origin Context
 ------------------------
 

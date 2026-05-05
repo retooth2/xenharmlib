@@ -1,41 +1,47 @@
 """
 The lattice module implements a generalization of pitch indices.
 
-In sparse, equally-spaced tunings the pitch index group (Z, +) can
-be mapped to the frequency ratio group (R, *) by group homomorphism
-H_b as follows:
+In sparse, equally-spaced tunings the pitch index group
+:math:`(\\mathbb{Z}, +)` can be mapped to the frequency
+ratio group :math:`(\\mathbb{R}, \\cdot)` by group homomorphism
+:math:`H_b` as follows:
 
-    H_b(x)     := b^x
-    H_b(x + y) := b^x * b^y = b^(x + y)
+    :math:`H_b(x)     := b^x`
 
-Lattices generalize this homomorphism by mapping a vector group (Z^n, +)
-to the frequency ratio group (R, *) refering to a base vector B:
+    :math:`H_b(x + y) := b^x \\cdot b^y = b^{(x + y)}`
 
-    H_B(X)     := b_1^(x_1) * b_2^(x_2) * ... * b_n^(x_n)
-    H_B(X + Y) := b_1^(x_1 + y_1) * b_2^(x_2 + y_2) * ... * b_n^(x_n + y_n)
+Lattices generalize this homomorphism by mapping a vector
+group :math:`(\\mathbb{Z}^n, +)` to the frequency ratio group
+:math:`(R, \\cdot)` refering to a base vector B:
 
-By defining an order on Z^n with the following definition
+    :math:`H_B(X)     := b_1^{x_1} \\cdot b_2^{x_2} \\cdot ... \\cdot b_n^{x_n}`
 
-    X < Y      iff H_B(X) < H_B(Y)
+    :math:`H_B(X + Y) := b_1^{(x_1 + y_1)} \\cdot b_2^{(x_2 + y_2)} \\cdot ... \\cdot b_n^{(x_n + y_n)}`
 
-and by introducing scalar multiplication kX on Z^n as a short form
-for repeated addition of an element X in Z^n with itself, equivalency
-classes on Z^n can be obtained by defining division with remainder:
+By defining an order on :math:`\\mathbb{Z}^n` with the following definition
 
-    X // Y = C
-    X % Y  = k
+    :math:`X < Y`      iff :math:`H_B(X) < H_B(Y)`
 
-    so that X = kY + C with C < Y
+and by introducing scalar multiplication :math:`kX` on :math:`\\mathbb{Z}^n`
+as a short form for repeated addition of an element :math:`X` in
+:math:`\\mathbb{Z}^n` with itself, equivalency classes on
+:math:`\\mathbb{Z}^n` can be obtained by defining division with remainder:
 
-For n = 1 this reduces to simple integer modulo arithmetic.
+    :math:`\\lfloor \\frac{X}{Y} \\rfloor = C`
+
+    :math:`X \\bmod Y  = k`
+
+    so that :math:`X = kY + C` with :math:`C < Y`
+
+For :math:`n = 1` this reduces to simple integer modulo arithmetic.
 
 Using this definition for a n-dimensional pitch index both pitch class
 indices and base interval indices can be obtained with C being the
 n-dimensional pitch class index and k being the integer base interval
 index.
 
-While for n = 1 pitch class indices are finite, for n > 1 pitch class
-indices are infinite.
+While for :math:`n = 1` pitch class indices are finite, for
+:math:`n > 1` pitch class indices are infinite.
 """
 
 from __future__ import annotations
@@ -52,8 +58,9 @@ from .frequencies import FrequencyRatio
 class Lattice:
     """
     A Lattice is a point cloud representing a frequency ratio space.
-    For a given base b_1, ...., b_n and integer lattice coordinates
-    x_1, ..., x_n the point represents r(X) = b_1^x_1 * ... * b_n^x_n.
+    For a given base :math:`b_1, ...., b_n` and integer lattice coordinates
+    :math:`x_1, ..., x_n` the point represents
+    :math:`r(X) = b_1^{x_1} \\cdot ... \\cdot b_n^{x_n}`.
 
     The 0 is understood as an n-dimensional 0-vector and can be obtained
     through the :py:attr:`zero` property.
@@ -100,8 +107,9 @@ class Lattice:
 class LatticePoint:
     """
     A point in a n-dimensional lattice representing a frequency ratio.
-    For a given base b_1, ...., b_n and integer lattice coordinates
-    x_1, ..., x_n the point represents r(X) = b_1^x_1 * ... * b_n^x_n.
+    For a given base :math:`b_1, ..., b_n` and integer lattice coordinates
+    :math:`x_1, ..., x_n` the point represents
+    :math:`r(X) = b_1^{x_1} \\cdot ... \\cdot b_n^{x_n}`.
 
     The 0 is understood as an n-dimensional 0-vector and can be obtained
     through the :py:meth:`zero` class method.
