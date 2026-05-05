@@ -2308,6 +2308,25 @@ def test_repr(ratio, result):
 
 
 @pytest.mark.parametrize(
+    'ratio, result',
+    [
+        # ratio(int)
+        (FrequencyRatio(3), '3'),
+        # ratio(int, int)
+        (FrequencyRatio(7, 2), '7/2'),
+        # ratio(float)
+        (FrequencyRatio(0.5), '1/2'),
+        # ratio(Fraction)
+        (FrequencyRatio(Fraction(5, 2)), '5/2'),
+        # ratio(SP_NUM)
+        (FrequencyRatio(SP_NUM), '2**(1/3)'),
+    ]
+)
+def test_short_repr(ratio, result):
+    assert ratio.short_repr == result
+
+
+@pytest.mark.parametrize(
     'ratio, cents',
     [
         (FrequencyRatio(Fraction(3, 2)), 701.9550008654),

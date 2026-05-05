@@ -767,6 +767,10 @@ class FrequencyRatio:
     def __repr__(self) -> str:
         return f'FrequencyRatio({repr(self.sp_expr)})'
 
+    @property
+    def short_repr(self) -> str:
+        return repr(self.sp_expr)
+
     @classmethod
     def from_monzo(cls, monzo: List[int]):
         """
