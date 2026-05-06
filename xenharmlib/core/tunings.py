@@ -52,6 +52,10 @@ from .pitch_interval_seq import PitchIntervalSeq
 from .pitch_interval_seq import PeriodicPitchIntervalSeq
 from .pitch_interval_seq import EDPitchIntervalSeq
 from .pitch_interval_seq import EDOPitchIntervalSeq
+from .protocols import Index
+from .protocols import PeriodicIndex
+from .protocols import PitchLike
+from .protocols import TuningLike
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
 from .origin_context import OriginContext
@@ -62,9 +66,13 @@ PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=PitchIntervalSeq)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
+class TuningABC(
+    OriginContext[IndexT, PitchT, IntervalT, ScaleT, IntervalSeqT],
+    TuningLike
+):
     """
     The most abstract tuning class and the base class for all
     other tunings. AbstractTuning makes next to no assumptions
@@ -113,9 +121,9 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
 
     @property
     def zero_element(self) -> PitchT:
-        return self.pitch(0)
+        return self.pitch(self.zero_index)
 
-    def pitch(self, pitch_index: int) -> PitchT:
+    def pitch(self, pitch_index: IndexT) -> PitchT:
         """
         Returns a pitch having the pitch type this tuning
         was configured with
@@ -146,7 +154,9 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
         )
         return self.interval(pitch_a, pitch_b)
 
-    def index_scale(self, pitch_indices: Optional[List[int]] = None) -> ScaleT:
+    def index_scale(
+        self, pitch_indices: Optional[List[IndexT]] = None
+    ) -> ScaleT:
         """
         Constructs a pitch scale from a list of pitch indices.
         According to the definition of a scale indices occuring
@@ -155,6 +165,9 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
 
         :param pitch_indices: A list of pitch indices
         """
+
+        if pitch_indices is None:
+            return self.scale()
 
         pitches = []
         for index in pitch_indices:
@@ -181,7 +194,176 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
         )
         return self.scale(pitches)
 
-    def pitch_range(self, start, stop=None, step=1):
+    @abstractmethod
+    def get_frequency(self, pitch: PitchT) -> Frequency:
+        """
+        (Must be overwritten by subclasses)
+        Returns the frequency for a given pitch
+        """
+
+    @abstractmethod
+    def get_frequency_for_index(self, pitch_index: IndexT) -> Frequency:
+        """
+        (Must be overwritten by subclasses)
+        Returns the frequency for a given pitch index
+        """
+
+
+PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
+PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
+PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
+PeriodicIntervalSeqT = TypeVar(
+    'PeriodicIntervalSeqT',
+    bound=PeriodicPitchIntervalSeq
+)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
+
+
+class PeriodicTuning(
+    TuningABC[
+        PeriodicIndexT,
+        PeriodicPitchT,
+        PeriodicIntervalT,
+        PeriodicScaleT,
+        PeriodicIntervalSeqT
+    ]
+):
+    """
+    This abstract class makes the assumption that the tuning has
+    a period (a fixed distance between two pitches that declares
+    the two pitches as 'equivalent'). This can be the octave in
+    EDO tunings or a tritave in ED3 tunings.
+
+    Periodic tunings implement the period_length attribute that
+    returns the period length:
+
+    >>> from xenharmlib import EDOTuning
+    >>> edo12 = EDOTuning(12)
+    >>> edo12.period_length
+    12
+
+    The constructor arguments are:
+
+    :param period_length: The number of pitches that constitute
+        a period (for example 12 in 12EDO)
+    :param eq_ratio: A frequency ratio that defines the
+        equivalency interval
+    :param pitch_cls: The python class for the pitch that is
+        used to generate a pitch object in the pitch method.
+        (Not to be confused with the 'pitch class' of pitches
+        in periodic tunings)
+    :param pitch_interval_cls: The python class for the pitch
+        interval that is used to generate a pitch interval
+        object in the pitch interval method.
+    :param pitch_scale_cls: The python class for the pitch
+        scale that is used to generate a pitch scale object
+        in the pitch scale method.
+    :param ref_frequency: A reference frequency on which this
+        tuning is build.
+    """
+
+    def __init__(
+        self,
+        period_length: PeriodicIndexT,
+        eq_ratio: FrequencyRatio,
+        pitch_cls: type[PeriodicPitchT],
+        pitch_interval_cls: type[PeriodicIntervalT],
+        pitch_scale_cls: type[PeriodicScaleT],
+        pitch_interval_seq_cls: type[PeriodicIntervalSeqT],
+        ref_frequency: Frequency,
+    ):
+
+        super().__init__(
+            pitch_cls=pitch_cls,
+            pitch_interval_cls=pitch_interval_cls,
+            pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
+            ref_frequency=ref_frequency,
+        )
+
+        self._eq_ratio = eq_ratio
+        self._period_length = period_length
+
+    @property
+    def period_length(self) -> PeriodicIndexT:
+        return self._period_length
+
+    def __len__(self):
+        warn(
+            f'Using len() to determine period length is deprecated and '
+            f'will be removed in 1.0.0. Please use the property '
+            f'{self.__class__.__name__}.period_length instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._period_length
+
+    @property
+    def eq_ratio(self) -> FrequencyRatio:
+        """
+        The frequency ratio defining the equivalency interval
+        """
+        return self._eq_ratio
+
+    def pc_scale(
+        self,
+        pc_indices: Optional[List[PeriodicIndexT]] = None,
+        root_bi_index: int = 0
+    ) -> PeriodicScaleT:
+        """
+        Constructs a pitch scale from a list of pitch class indices.
+        The pitch class indices are assumed to be in the order they
+        appear in the scale meaning that e.g. in 12-EDO the provided
+        argument [7, 3, 4] will result in a scale with pitch indices
+        [7, 15, 16]. The base interval of the first provided pc index
+        will always assumed to be 0.
+
+        :raises InvalidPitchClassIndex: If one of the indices in the
+            list is not a valid pitch class index in this tuning
+
+        :param pc_indices: A list of pitch class indices.
+        :param root_bi_index: Base interval index of the root
+            (optional, defaults to 0)
+        """
+
+        pitches = []
+        current_bi_index = root_bi_index
+        tuning_len = self.period_length
+
+        if not pc_indices:
+            return self.scale()
+
+        head = pc_indices[0]
+        if head >= tuning_len:
+            raise InvalidPitchClassIndex(
+                f'Pitch class index must be between 0 and {tuning_len}'
+                f'(exclusive). {head} did not meet that boundary.'
+            )
+
+        pitch_index = head + (tuning_len * current_bi_index)
+        pitches.append(self.pitch(pitch_index))
+
+        for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
+            if current_pci >= tuning_len:
+                raise InvalidPitchClassIndex(
+                    f'Pitch class index must be between 0 and {tuning_len}'
+                    f'(exclusive). {current_pci} did not meet that boundary.'
+                )
+            if current_pci <= prev_pci:
+                current_bi_index += 1
+            pitch_index = current_pci + (tuning_len * current_bi_index)
+            pitches.append(self.pitch(pitch_index))
+
+        return self.scale(pitches)
+
+
+class SDTuningMixin:
+    """
+    Mixin class for single-dimensional tunings. Implements various methods
+    that are only defined in the one-dimensional case.
+    """
+
+    def pitch_range(self: TuningLike, start, stop=None, step=1):
         """
         Returns a generator for continuous pitches of this
         tuning similar to pythons range function. The
@@ -218,21 +400,7 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
         for i in range(start, stop, step):
             yield self.pitch(i)
 
-    @abstractmethod
-    def get_frequency(self, pitch: PitchT) -> Frequency:
-        """
-        (Must be overwritten by subclasses)
-        Returns the frequency for a given pitch
-        """
-
-    @abstractmethod
-    def get_frequency_for_index(self, pitch_index: int) -> Frequency:
-        """
-        (Must be overwritten by subclasses)
-        Returns the frequency for a given pitch index
-        """
-
-    def get_approx_pitch(self, frequency: Frequency) -> PitchT:
+    def get_approx_pitch(self: TuningLike, frequency: Frequency) -> PitchLike:
         """
         Returns the closest pitch in the tuning
         to a given frequency.
@@ -289,139 +457,14 @@ class TuningABC(OriginContext[PitchT, IntervalT, ScaleT, IntervalSeqT]):
         return higher_pitch
 
 
-PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
-PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
-PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
-PeriodicIntervalSeqT = TypeVar(
-    'PeriodicIntervalSeqT',
-    bound=PeriodicPitchIntervalSeq
-)
-
-
-class PeriodicTuning(
-    TuningABC[
-        PeriodicPitchT,
-        PeriodicIntervalT,
-        PeriodicScaleT,
-        PeriodicIntervalSeqT
-    ]
-):
+class SDPeriodicTuningMixin(SDTuningMixin):
     """
-    This abstract class makes the assumption that the tuning has
-    a period (a fixed distance between two pitches that declares
-    the two pitches as 'equivalent'). This can be the octave in
-    EDO tunings or a tritave in ED3 tunings.
-
-    Periodic tunings implement the len() function that returns
-    the period length:
-
-    >>> from xenharmlib import EDOTuning
-    >>> edo12 = EDOTuning(12)
-    >>> len(edo12)
-    12
-
-    The constructor arguments are:
-
-    :param period_length: The number of pitches that constitute
-        a period (for example 12 in 12EDO)
-    :param eq_ratio: A frequency ratio that defines the
-        equivalency interval
-    :param pitch_cls: The python class for the pitch that is
-        used to generate a pitch object in the pitch method.
-        (Not to be confused with the 'pitch class' of pitches
-        in periodic tunings)
-    :param pitch_interval_cls: The python class for the pitch
-        interval that is used to generate a pitch interval
-        object in the pitch interval method.
-    :param pitch_scale_cls: The python class for the pitch
-        scale that is used to generate a pitch scale object
-        in the pitch scale method.
-    :param ref_frequency: A reference frequency on which this
-        tuning is build.
+    Mixin class for single-dimensional periodic tunings. Implements
+    various methods that are only defined in the one-dimensional
+    case.
     """
 
-    def __init__(
-        self,
-        period_length: int,
-        eq_ratio: FrequencyRatio,
-        pitch_cls: type[PeriodicPitchT],
-        pitch_interval_cls: type[PeriodicIntervalT],
-        pitch_scale_cls: type[PeriodicScaleT],
-        pitch_interval_seq_cls: type[PeriodicIntervalSeqT],
-        ref_frequency: Frequency,
-    ):
-
-        super().__init__(
-            pitch_cls=pitch_cls,
-            pitch_interval_cls=pitch_interval_cls,
-            pitch_scale_cls=pitch_scale_cls,
-            pitch_interval_seq_cls=pitch_interval_seq_cls,
-            ref_frequency=ref_frequency,
-        )
-
-        self._eq_ratio = eq_ratio
-        self._period_length = period_length
-
-    def __len__(self):
-        return self._period_length
-
-    @property
-    def eq_ratio(self) -> FrequencyRatio:
-        """
-        The frequency ratio defining the equivalency interval
-        """
-        return self._eq_ratio
-
-    def pc_scale(
-        self, pc_indices: Optional[List[int]] = None, root_bi_index: int = 0
-    ) -> ScaleT:
-        """
-        Constructs a pitch scale from a list of pitch class indices.
-        The pitch class indices are assumed to be in the order they
-        appear in the scale meaning that e.g. in 12-EDO the provided
-        argument [7, 3, 4] will result in a scale with pitch indices
-        [7, 15, 16]. The base interval of the first provided pc index
-        will always assumed to be 0.
-
-        :raises InvalidPitchClassIndex: If one of the indices in the
-            list is not a valid pitch class index in this tuning
-
-        :param pc_indices: A list of pitch class indices.
-        :param root_bi_index: Base interval index of the root
-            (optional, defaults to 0)
-        """
-
-        pitches = []
-        current_bi_index = root_bi_index
-        tuning_len = len(self)
-
-        if not pc_indices:
-            return self.scale()
-
-        head = pc_indices[0]
-        if head >= tuning_len:
-            raise InvalidPitchClassIndex(
-                f'Pitch class index must be between 0 and {tuning_len}'
-                f'(exclusive). {head} did not meet that boundary.'
-            )
-
-        pitch_index = head + (tuning_len * current_bi_index)
-        pitches.append(self.pitch(pitch_index))
-
-        for prev_pci, current_pci in zip(pc_indices, pc_indices[1:]):
-            if current_pci >= tuning_len:
-                raise InvalidPitchClassIndex(
-                    f'Pitch class index must be between 0 and {tuning_len}'
-                    f'(exclusive). {current_pci} did not meet that boundary.'
-                )
-            if current_pci <= prev_pci:
-                current_bi_index += 1
-            pitch_index = current_pci + (tuning_len * current_bi_index)
-            pitches.append(self.pitch(pitch_index))
-
-        return self.scale(pitches)
-
-    def get_ring_number(self, pitch: PeriodicPitchT) -> int:
+    def get_ring_number(self: TuningLike, pitch: PeriodicPitchT) -> int:
         """
         Returns the greatest common divisor of a pitch and the
         period length of the tuning.
@@ -429,7 +472,7 @@ class PeriodicTuning(
         :param pitch: A pitch of this tuning.
         """
 
-        p = len(self)
+        p = self.period_length
         q = pitch.pc_index
 
         while q != 0:
@@ -438,7 +481,7 @@ class PeriodicTuning(
         return p
 
     @property
-    def generator_pitches(self) -> List[PeriodicPitchT]:
+    def generator_pitches(self: TuningLike) -> List[PeriodicPitchT]:
         """
         Returns a list of pitch objects that can be used
         to generate the complete set of pitches in this
@@ -452,9 +495,9 @@ class PeriodicTuning(
 
         generators = []
 
-        for index in range(1, len(self) + 1):
+        for index in range(1, self.period_length + 1):
 
-            p = len(self)
+            p = self.period_length
             q = index
 
             while q != 0:
@@ -475,11 +518,13 @@ else:
 
 class EDTuning(
     PeriodicTuning[
+        int,
         EDPitch,
         EDPitchInterval,
         EDPitchScale,
         EDPitchIntervalSeq
-    ]
+    ],
+    SDPeriodicTuningMixin
 ):
     """
     EDTuning ("equal division tuning") takes a base interval
@@ -546,6 +591,10 @@ class EDTuning(
         self.divisions = divisions
 
     @property
+    def zero_index(self) -> int:
+        return 0
+
+    @property
     def name(self) -> str:
         """
         The name of this tuning
@@ -577,7 +626,7 @@ class EDTuning(
         :param pitch_index: A pitch index
         """
 
-        scale_size = len(self)
+        scale_size = self.period_length
         exp = sp.Rational(1, scale_size)
         ratio = (self.eq_ratio**exp) ** pitch_index
         return self.ref_frequency * ratio

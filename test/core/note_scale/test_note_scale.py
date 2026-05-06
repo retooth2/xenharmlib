@@ -1062,8 +1062,8 @@ def test_frequencies(notation):
 
     assert scale.frequencies == [
         tuning.pitch(0).frequency,
-        tuning.pitch(5+2*len(tuning)).frequency,
-        tuning.pitch(5+3*len(tuning)).frequency,
+        tuning.pitch(5+2*tuning.period_length).frequency,
+        tuning.pitch(5+3*tuning.period_length).frequency,
     ]
 
 

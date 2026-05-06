@@ -1,13 +1,13 @@
 import pytest
 from xenharmlib import EDOTuning
 from xenharmlib.exc import InvalidIntervalNumber
-from xenharmlib.core.notation import NatAccNotation
+from ..utils import MyNatAccNotation
 
 
 def test_invalid_interval_number():
 
     tuning = EDOTuning(12)
-    notation = NatAccNotation(tuning)
+    notation = MyNatAccNotation(tuning, acc_weights=(1,))
 
     notation.append_natural('C', 3)
 

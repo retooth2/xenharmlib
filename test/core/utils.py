@@ -2,6 +2,14 @@ from xenharmlib.core.notation import NatAccNotation
 from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import SymbolArithmeticSet
 
+
+class MyNatAccNotation(NatAccNotation):
+
+    @property
+    def zero_index(self):
+        return 0
+
+
 def make_nat_acc_test_notation(tuning):
     """
     Creates a very generic and meaningless natural/accidental
@@ -22,9 +30,9 @@ def make_nat_acc_test_notation(tuning):
 
     ALPHABET = [chr(x) for x in range(65, 65+26)]
 
-    notation = NatAccNotation(tuning)
+    notation = MyNatAccNotation(tuning, acc_weights=(1,))
 
-    for nat_pc_index in range(0, len(tuning), 2):
+    for nat_pc_index in range(0, tuning.period_length, 2):
         natc_symbol = ALPHABET.pop(0)
         notation.append_natural(natc_symbol, nat_pc_index)
 
@@ -64,7 +72,7 @@ def make_nat_acc_test_notation(tuning):
     cringe.add_arithmetic(cringe_upper)
     cringe.add_arithmetic(cringe_lower)
 
-    for nat_diffc in range(0, len(tuning) // 2):
+    for nat_diffc in range(0, tuning.period_length // 2):
         if nat_diffc % 2 == 0:
             notation.set_interval_symbol_code(
                 nat_diffc, funky

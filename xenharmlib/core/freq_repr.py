@@ -22,10 +22,13 @@ from __future__ import annotations
 
 from typing import Self
 from typing import Optional
+from typing import Generic
+from typing import TypeVar
 from functools import total_ordering
 from abc import ABC
 from abc import abstractmethod
 from .frequencies import Frequency
+from .protocols import Index
 from ..exc import IncompatibleOriginContexts
 
 
@@ -148,11 +151,14 @@ class FreqRepr(ABC):
         return self.origin_context.scale(scale_elements)
 
 
-class SDFreqRepr(FreqRepr):
+IndexT = TypeVar('IndexT', bound=Index)
+
+
+class IndexedFreqRepr(FreqRepr, Generic[IndexT]):
     """
-    Base class for single dimensional frequency representation
-    objects. Assumes an integer pitch index in addition to the
-    frequency as part of the data structure.
+    Base class for indexed frequency representation objects.
+    Assumes a pitch index in addition to the frequency as
+    part of the data structure.
 
     Implements optimizations on the total order based on pitch
     index data (if objects originate from same context).
@@ -160,7 +166,9 @@ class SDFreqRepr(FreqRepr):
     Demands that subclasses implement a transpose method
     """
 
-    def __init__(self, origin_context, frequency: Frequency, pitch_index: int):
+    def __init__(
+        self, origin_context, frequency: Frequency, pitch_index: IndexT
+    ):
         super().__init__(origin_context, frequency)
         self._pitch_index = pitch_index
 
@@ -168,7 +176,7 @@ class SDFreqRepr(FreqRepr):
         return hash(self._pitch_index)
 
     @property
-    def pitch_index(self) -> int:
+    def pitch_index(self) -> IndexT:
         """
         The pitch index of this object
         """
@@ -178,7 +186,7 @@ class SDFreqRepr(FreqRepr):
         if not isinstance(other, FreqRepr):
             return False
         if (
-            isinstance(other, SDFreqRepr)
+            isinstance(other, IndexedFreqRepr)
             and self.origin_context is other.origin_context
         ):
             return self.pitch_index == other.pitch_index
@@ -188,7 +196,7 @@ class SDFreqRepr(FreqRepr):
         if not isinstance(other, FreqRepr):
             return NotImplemented
         if (
-            isinstance(other, SDFreqRepr)
+            isinstance(other, IndexedFreqRepr)
             and self.origin_context is other.origin_context
         ):
             return self.pitch_index < other.pitch_index

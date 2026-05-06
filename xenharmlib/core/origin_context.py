@@ -20,23 +20,28 @@ is the abstract base class for tunings and notations
 
 from typing import Optional
 from typing import Iterable
+from typing import Sequence
 from typing import Generic
 from typing import TypeVar
 from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
 from .freq_repr import FreqRepr
+from .protocols import Index
 from .interval import Interval
 from .scale import Scale
 from .interval_seq import IntervalSeq
 
+IndexT = TypeVar('IndexT', bound=Index)
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=IntervalSeq)
 
 
-class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
+class OriginContext(
+    ABC, Generic[IndexT, FreqReprT, IntervalT, ScaleT, IntervalSeqT]
+):
     """
     OriginContext is the abstract base class for both tunings and notations.
     It defines a unified interface for collection and interval builder
@@ -63,6 +68,15 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
         self._interval_cls = interval_cls
         self._scale_cls = scale_cls
         self._interval_seq_cls = interval_seq_cls
+
+    @property
+    @abstractmethod
+    def zero_index(self) -> IndexT:
+        """
+        The zero index is a reference point, in tunings with integer
+        indexing this is 0, in tunings with lattice indexing this is
+        typically the zero-vector.
+        """
 
     @property
     @abstractmethod
@@ -101,8 +115,8 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
     def diff_interval(
         self,
-        pitch_diff: int
-    ) -> IntervalSeqT:
+        pitch_diff: IndexT
+    ) -> IntervalT:
         """
         Returns an interval the size of a given pitch index difference.
 
@@ -112,6 +126,9 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
         a = self.zero_element
         b = a.transpose(pitch_diff)
         return a.interval(b)
+
+    # FIXME: scale and interval_seq have Iterable and Sequence requirement
+    # respectively, should be uniform
 
     def scale(self, elements: Optional[Iterable[FreqReprT]] = None) -> ScaleT:
         """
@@ -129,7 +146,7 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
     def interval_seq(
         self,
-        intervals: Optional[Iterable[IntervalT]] = None
+        intervals: Optional[Sequence[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence having the interval sequence type
@@ -146,7 +163,7 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
     def diff_interval_seq(
         self,
-        pitch_diffs: Optional[Iterable[int]] = None
+        pitch_diffs: Optional[Sequence[IndexT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence from an iterable of pitch index
@@ -160,6 +177,9 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
         :param pitch_diffs: An iterable containing pitch index
             differences
         """
+
+        if not pitch_diffs:
+            return self.interval_seq()
 
         intervals = [
             self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs

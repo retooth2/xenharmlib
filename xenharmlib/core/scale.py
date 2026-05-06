@@ -132,7 +132,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
-    def with_element(self, element: FreqReprT) -> Self[FreqRepr]:
+    def with_element(self, element: FreqReprT) -> Self:
         """
         Returns a new scale containing all elements from this scale
         and the additional one given as a parameter.
@@ -367,7 +367,7 @@ class Scale(Sequence[FreqReprT], ABC):
         Returns this scale represented as a list of intervals
         """
         warn(
-            f'{self.__class__.__name__}.to_interval is deprecated and '
+            f'{self.__class__.__name__}.to_intervals is deprecated and '
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_interval_seq instead.',
             DeprecationWarning,

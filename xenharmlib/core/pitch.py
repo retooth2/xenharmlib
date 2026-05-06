@@ -19,14 +19,19 @@ from typing import Self
 from typing import TypeVar
 from warnings import warn
 from .frequencies import FrequencyRatio
+from .protocols import Index
+from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
-from .freq_repr import SDFreqRepr
-from .interval import SDInterval
+from .protocols import SDPeriodicPitchLike
+from .freq_repr import IndexedFreqRepr
+from .interval import IndexedInterval
 from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidGenerator
 
+IndexT = TypeVar('IndexT', bound=Index)
 
-class Pitch(SDFreqRepr):
+
+class Pitch(IndexedFreqRepr[IndexT]):
     """
     In its most basic form, a Pitch is a tuple of a pitch index
     (an integer value) and a tuning that interprets this index
@@ -51,7 +56,7 @@ class Pitch(SDFreqRepr):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, frequency, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: IndexT):
         super().__init__(tuning, frequency, pitch_index)
         self._tuning = tuning
 
@@ -95,7 +100,7 @@ class Pitch(SDFreqRepr):
     def short_repr(self) -> str:
         return f'{self.pitch_index}'
 
-    def transpose(self, diff: int | PitchInterval) -> Pitch:
+    def transpose(self, diff: IndexT | PitchInterval) -> Pitch:
         """
         Transposes the pitch to a different one
 
@@ -121,7 +126,10 @@ class Pitch(SDFreqRepr):
         return tuning.get_approx_pitch(self.frequency)
 
 
-class PeriodicPitch(Pitch, PeriodicPitchLike):
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
+
+
+class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
     """
     The pitch type for periodic tunings. Depending on the period
     length it will classify the pitch into a 'pitch class index'
@@ -134,16 +142,16 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
         0 being the first pitch, 1 being the second, etc)
     """
 
-    def __init__(self, tuning, frequency, pitch_index: int):
+    def __init__(self, tuning, frequency, pitch_index: PeriodicIndexT):
 
         super().__init__(tuning, frequency, pitch_index)
-        tuning_len = len(tuning)
+        tuning_len = tuning.period_length
 
         self._pc_index = pitch_index % tuning_len
         self._bi_index = pitch_index // tuning_len
 
     @property
-    def pitch_index(self) -> int:
+    def pitch_index(self) -> PeriodicIndexT:
         """
         The index of this pitch as an integer
         """
@@ -176,7 +184,7 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
             between this pitch and the resulting one
         """
 
-        tuning_len = len(self.tuning)
+        tuning_len = self.tuning.period_length
         bi_index = self._bi_index + bi_diff
         pitch_index = self._pc_index + bi_index * tuning_len
         return self.tuning.pitch(pitch_index)
@@ -208,7 +216,12 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
             'with the same equivalency interval'
         )
 
-    def get_generator_index(self, generator_pitch: Self):
+
+class SDPeriodicPitchMixin:
+
+    def get_generator_index(
+        self: SDPeriodicPitchLike, generator_pitch: SDPeriodicPitchLike
+    ):
         """
         Calculates the number of steps needed to reach this pitch
         when iteratively adding the given generator to the zero
@@ -249,12 +262,12 @@ class PeriodicPitch(Pitch, PeriodicPitchLike):
                 break
 
             g_index += 1
-            pc_index = (pc_index + gen_pc) % len(self.tuning)
+            pc_index = (pc_index + gen_pc) % self.tuning.period_length
 
         return g_index
 
 
-class EDPitch(PeriodicPitch):
+class EDPitch(PeriodicPitch[int], SDPeriodicPitchMixin):
     """
     The pitch type for equal division tunings
 
@@ -279,7 +292,7 @@ class EDOPitch(EDPitch):
 PitchT = TypeVar('PitchT', bound=Pitch)
 
 
-class PitchInterval(SDInterval[PitchT]):
+class PitchInterval(IndexedInterval[IndexT, PitchT]):
     """
     The most abstract form of an interval of two pitches.
     Implements conversion functions to frequency ratios
@@ -318,7 +331,7 @@ class PitchInterval(SDInterval[PitchT]):
         self,
         tuning,
         frequency_ratio: FrequencyRatio,
-        pitch_diff: int,
+        pitch_diff: IndexT,
         ref_pitch: PitchT,
     ):
         super().__init__(tuning, frequency_ratio, pitch_diff)
@@ -332,7 +345,7 @@ class PitchInterval(SDInterval[PitchT]):
         size. On upwards intervals it acts as the identity function.
         """
 
-        if self.pitch_diff >= 0:
+        if self.pitch_diff >= self.tuning.zero_index:
             return self
 
         target_pitch = self.ref_pitch.transpose(self.pitch_diff)
@@ -407,7 +420,7 @@ class PitchInterval(SDInterval[PitchT]):
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 
 
-class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
+class PeriodicPitchInterval(PitchInterval[PeriodicIndexT, PeriodicPitchT]):
     """
     The pitch interval class for periodic tunings.
     """
@@ -444,10 +457,10 @@ class PeriodicPitchInterval(PitchInterval[PeriodicPitchT]):
         i_target = target.get_generator_index(generator_pitch)
         i_diff = i_target - i_zero
 
-        return min(i_diff, len(self.tuning) - i_diff)
+        return min(i_diff, self.tuning.period_length - i_diff)
 
 
-class EDPitchInterval(PeriodicPitchInterval[EDPitch]):
+class EDPitchInterval(PeriodicPitchInterval[int, EDPitch]):
     """
     Pitch interval class for equal division tunings
     """
