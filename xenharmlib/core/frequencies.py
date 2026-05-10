@@ -854,3 +854,10 @@ class FrequencyRatio:
         """
 
         return round(1200 * self.log(2), CENTS_PRECISION)
+
+
+# hack for RTD (see doc/conf.py for more info)
+if 'READTHEDOCS' in os.environ:
+    Hz440C0 = Frequency(55 / 2 ** Fraction(7, 4))
+else:
+    Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))

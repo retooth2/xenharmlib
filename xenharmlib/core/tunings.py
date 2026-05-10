@@ -24,9 +24,7 @@ that need a couple of methods implemented by a subclass.
 """
 
 from __future__ import annotations
-import os
 from abc import abstractmethod
-from fractions import Fraction
 from typing import TypeVar
 from typing import List
 from typing import Optional
@@ -58,6 +56,7 @@ from .protocols import PitchLike
 from .protocols import TuningLike
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
+from .frequencies import Hz440C0
 from .origin_context import OriginContext
 from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidPitchClassIndex
@@ -507,13 +506,6 @@ class SDPeriodicTuningMixin(SDTuningMixin):
                 generators.append(self.pitch(index))
 
         return generators
-
-
-# hack for RTD (see doc/conf.py for more info)
-if 'READTHEDOCS' in os.environ:
-    Hz440C0 = Frequency(55 / 2 ** Fraction(7, 4))
-else:
-    Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
 
 
 class EDTuning(
