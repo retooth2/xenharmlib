@@ -23,6 +23,7 @@ from .protocols import Index
 from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
 from .protocols import SDPeriodicPitchLike
+from .protocols import SDPitchIntervalLike
 from .freq_repr import IndexedFreqRepr
 from .interval import IndexedInterval
 from ..exc import IncompatibleOriginContexts
@@ -425,7 +426,12 @@ class PeriodicPitchInterval(PitchInterval[PeriodicIndexT, PeriodicPitchT]):
     The pitch interval class for periodic tunings.
     """
 
-    def get_generator_distance(self, generator_pitch: PeriodicPitchT) -> int:
+
+class SDPeriodicPitchIntervalMixin:
+
+    def get_generator_distance(
+        self: SDPitchIntervalLike, generator_pitch: PeriodicPitchT
+    ) -> int:
         """
         Calculates the minimum number of steps needed to reach
         one pitch from the other when iteratively adding a
@@ -460,7 +466,9 @@ class PeriodicPitchInterval(PitchInterval[PeriodicIndexT, PeriodicPitchT]):
         return min(i_diff, self.tuning.period_length - i_diff)
 
 
-class EDPitchInterval(PeriodicPitchInterval[int, EDPitch]):
+class EDPitchInterval(
+    PeriodicPitchInterval[int, EDPitch], SDPeriodicPitchIntervalMixin
+):
     """
     Pitch interval class for equal division tunings
     """
