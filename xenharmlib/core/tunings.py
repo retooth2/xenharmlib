@@ -194,13 +194,6 @@ class TuningABC(
         return self.scale(pitches)
 
     @abstractmethod
-    def get_frequency(self, pitch: PitchT) -> Frequency:
-        """
-        (Must be overwritten by subclasses)
-        Returns the frequency for a given pitch
-        """
-
-    @abstractmethod
     def get_frequency_for_index(self, pitch_index: IndexT) -> Frequency:
         """
         (Must be overwritten by subclasses)
@@ -602,6 +595,13 @@ class EDTuning(
         :raises IncompatibleOriginContexts: If note is from a different
             tuning
         """
+        warn(
+            f'{self.__class__.__name__}.get_frequency is deprecated and '
+            f'will be removed in 1.0.0. Please use the attribute '
+            f'{pitch.__class__.__name__}.frequency instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         if pitch.tuning is not self:
             raise IncompatibleOriginContexts(
