@@ -80,8 +80,8 @@ class TuningABC(
     type of pitch, pitch interval, and pitch scale adjacent to
     this tuning.
 
-    A simple tuning can be derived from this simply by
-    overwriting the method :meth:`~.AbstractTuning.get_frequency`
+    A simple tuning can be derived from this simply by overwriting
+    the method :meth:`~.TuningABC.get_frequency_for_index` and
     and setting appropriate constructor arguments.
 
     The constructor arguments are:
