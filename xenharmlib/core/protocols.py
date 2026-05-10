@@ -190,7 +190,7 @@ class HasFrequencyRatio(Protocol):
 
 
 @runtime_checkable
-class PitchIntervalLike(HasFrequencyRatio, Protocol):
+class SDPitchIntervalLike(HasFrequencyRatio, Protocol):
     """
     Extension protocol for HasFrequencyRatio. Demands the
     existence of a tuning and a pitch_diff property
