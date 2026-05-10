@@ -197,6 +197,10 @@ class LatticePoint:
         )
 
     @property
+    def short_repr(self) -> str:
+        return f'{self.vector}'
+
+    @property
     def frequency_ratio(self) -> FrequencyRatio:
         """
         Returns the frequency ratio represented by this lattice point
