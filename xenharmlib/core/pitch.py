@@ -158,7 +158,7 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
         return self._pitch_index
 
     @property
-    def pc_index(self):
+    def pc_index(self) -> PeriodicIndexT:
         """
         The pitch class index of this pitch
         """
