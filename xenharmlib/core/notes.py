@@ -34,6 +34,8 @@ from abc import abstractmethod
 from .protocols import Index
 from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
+from .protocols import SDPeriodicNoteLike
+from .protocols import SDPeriodicNoteIntervalLike
 from .freq_repr import IndexedFreqRepr
 from .interval import IndexedInterval
 from .pitch import PeriodicPitch
@@ -187,7 +189,10 @@ class PeriodicNoteABC(NoteABC[PeriodicIndexT], PeriodicPitchLike):
         """
         return self.transpose_bi_index(-self.bi_index)
 
-    def get_generator_index(self, generator_note: Self):
+
+class SDPeriodicNoteMixin:
+
+    def get_generator_index(self: SDPeriodicNoteLike, generator_note: Self):
         """
         Calculates the number of steps needed to reach this note
         when iteratively adding the pitch of the given generator
@@ -749,7 +754,12 @@ class PeriodicNoteInterval(NoteIntervalABC[PeriodicIndexT, NoteT]):
     Implements the method :meth:`get_generator_distance`
     """
 
-    def get_generator_distance(self, generator_note: NoteT) -> int:
+
+class SDPeriodicNoteIntervalMixin:
+
+    def get_generator_distance(
+        self: SDPeriodicNoteIntervalLike, generator_note: NoteT
+    ) -> int:
         """
         Calculates the minimum number of steps needed to reach
         one note from the other when iteratively adding a

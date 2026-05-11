@@ -1,9 +1,44 @@
+from xenharmlib.core.notes import NatAccNote
+from xenharmlib.core.notes import NatAccNoteInterval
+from xenharmlib.core.note_scale import NatAccNoteScale
+from xenharmlib.core.note_interval_seq import NatAccNoteIntervalSeq
+from xenharmlib.core.notes import SDPeriodicNoteMixin
+from xenharmlib.core.notes import SDPeriodicNoteIntervalMixin
 from xenharmlib.core.notation import NatAccNotation
 from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import SymbolArithmeticSet
 
 
-class MyNatAccNotation(NatAccNotation):
+class MyNatAccNote(NatAccNote[int], SDPeriodicNoteMixin):
+    pass
+
+
+class MyNatAccNoteInterval(
+    NatAccNoteInterval[int, MyNatAccNote], SDPeriodicNoteIntervalMixin
+):
+    pass
+
+
+class MyNatAccNotation(NatAccNotation[int]):
+
+    def __init__(
+        self,
+        tuning,
+        acc_weights,
+        note_cls=MyNatAccNote,
+        note_interval_cls=MyNatAccNoteInterval,
+        note_scale_cls=NatAccNoteScale,
+        note_interval_seq_cls=NatAccNoteIntervalSeq,
+    ):
+
+        super().__init__(
+            tuning,
+            acc_weights,
+            note_cls,
+            note_interval_cls,
+            note_scale_cls,
+            note_interval_seq_cls,
+        )
 
     @property
     def zero_index(self):

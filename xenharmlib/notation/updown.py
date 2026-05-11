@@ -21,6 +21,8 @@ from ..core.symbols import SymbolArithmetic
 from ..core.symbols import SymbolArithmeticSet
 from ..core.notes import NatAccNote
 from ..core.notes import NatAccNoteInterval
+from ..core.notes import SDPeriodicNoteMixin
+from ..core.notes import SDPeriodicNoteIntervalMixin
 from ..core.note_scale import NatAccNoteScale
 from ..core.note_interval_seq import NatAccNoteIntervalSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
@@ -32,11 +34,13 @@ from ..core.utils import componentwise
 # These are placeholders for future implementations
 
 
-class UpDownNote(NatAccNote[int]):
+class UpDownNote(NatAccNote[int], SDPeriodicNoteMixin):
     pass
 
 
-class UpDownNoteInterval(NatAccNoteInterval[int, UpDownNote]):
+class UpDownNoteInterval(
+    NatAccNoteInterval[int, UpDownNote], SDPeriodicNoteIntervalMixin
+):
     pass
 
 
