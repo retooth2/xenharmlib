@@ -279,6 +279,10 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
         to the same pitch in the target tuning.
 
         :param tuning: The target tuning
+
+        :raises IncompatibleOriginContext: If the target tuning is
+            not one-dimensional (a current limitation of the
+            implementation)
         """
 
         pitches = []

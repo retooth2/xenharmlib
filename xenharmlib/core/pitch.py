@@ -24,6 +24,7 @@ from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
 from .protocols import SDPeriodicPitchLike
 from .protocols import SDPitchIntervalLike
+from .protocols import SDTuningLike
 from .freq_repr import IndexedFreqRepr
 from .interval import IndexedInterval
 from ..exc import IncompatibleOriginContexts
@@ -118,11 +119,22 @@ class Pitch(IndexedFreqRepr[IndexT]):
 
         return self.tuning.pitch(transposed_index)
 
-    def retune(self, tuning) -> Pitch:
+    def retune(self, tuning: SDTuningLike) -> Pitch:
         """
-        Approximates this pitch in a different
-        tuning
+        Approximates this pitch in a different tuning
+
+        :param tuning: The target tuning
+
+        :raises IncompatibleOriginContext: If the target tuning is
+            not one-dimensional (a current limitation of the
+            implementation)
         """
+
+        if not isinstance(tuning, SDTuningLike):
+            raise IncompatibleOriginContexts(
+                'Retuning is currently only possible if the target '
+                'tuning has a one-dimensional pitch index schema.'
+            )
 
         return tuning.get_approx_pitch(self.frequency)
 

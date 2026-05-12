@@ -399,11 +399,24 @@ class PeriodicNoteScaleLike(PeriodicPitchScaleLike, Protocol):
     def pc_symbols(self) -> List[str]: ...
 
 
+@runtime_checkable
 class TuningLike(Protocol):
     """
     Protocol for basic tuning class structure
     (used to type mixin classes)
     """
 
-    def pitch(self, pitch_index): ...
-    def __len__(self) -> int: ...
+    def pitch(self, pitch_index: Index): ...
+    def get_frequency_from_pitch_index(self, pitch_index: Index): ...
+
+
+@runtime_checkable
+class SDTuningLike(Protocol):
+    """
+    Protocol for basic tuning class structure
+    (used to type mixin classes)
+    """
+
+    def pitch(self, pitch_index: int): ...
+    def get_frequency_from_pitch_index(self, pitch_index: int): ...
+    def get_approx_pitch(self, frequency: Frequency): ...
