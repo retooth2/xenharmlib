@@ -152,13 +152,6 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
         self._bi_index = pitch_index // tuning_len
 
     @property
-    def pitch_index(self) -> PeriodicIndexT:
-        """
-        The index of this pitch as an integer
-        """
-        return self._pitch_index
-
-    @property
     def pc_index(self) -> PeriodicIndexT:
         """
         The pitch class index of this pitch
