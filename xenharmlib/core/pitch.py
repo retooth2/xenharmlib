@@ -171,7 +171,7 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
         return self._pc_index
 
     @property
-    def bi_index(self):
+    def bi_index(self) -> int:
         """
         The base interval index of this pitch
         """
