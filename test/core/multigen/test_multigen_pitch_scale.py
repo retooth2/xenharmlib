@@ -3446,3 +3446,37 @@ def test_is_seq_equivalent_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_seq_equivalent(scale_b)
+
+
+@pytest.mark.parametrize(
+    'tuning, input_vecs, result_vecs',
+    [
+        (
+            multigen_235,
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1)],
+            [(1, 1, -1), (-3, -1, 2)],
+        ),
+        (
+            multigen_235,
+            [(1, 2, 3), (2, 3, 2), (-1, 2, 4), (0, 3, 3), (-2, 3, 4)],
+            [(1, 1, -1), (-3, -1, 2), (1, 1, -1), (-2, 0, 1)],
+        ),
+        (
+            multigen_23,
+            [],
+            [],
+        ),
+    ]
+)
+def test_to_interval_seq(tuning, input_vecs, result_vecs):
+    """
+    Test if to_interval_seq works correctly
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(tuning.lattice.point(vec)) for vec in input_vecs]
+    )
+    iseq = tuning.diff_interval_seq(
+        [tuning.lattice.point(vec) for vec in result_vecs]
+    )
+    assert scale.to_interval_seq() == iseq
