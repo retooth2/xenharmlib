@@ -238,14 +238,14 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
     def to_pitch_intervals(self) -> List[Interval[PitchT]]:
         """
         .. deprecated:: 0.2.0
-           Use :py:meth:`to_intervals` instead.
+           Use :py:meth:`to_interval_seq` instead.
 
         Returns this scale represented as a list of pitch intervals
         """
         warn(
             f'{self.__class__.__name__}.to_pitch_intervals is deprecated and '
             f'will be removed in 1.0.0. Please use '
-            f'{self.__class__.__name__}.to_intervals instead.',
+            f'{self.__class__.__name__}.to_interval_seq instead.',
             DeprecationWarning,
             stacklevel=2,
         )
