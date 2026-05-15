@@ -132,7 +132,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
                 'is_zero_normalized is not defined on empty scale'
             )
 
-        return self[0] == self.tuning.pitch(0)
+        return self[0] == self.tuning.pitch(self.tuning.zero_index)
 
     def add_pitch(self, pitch: PitchT):
         """
