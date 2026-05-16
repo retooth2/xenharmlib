@@ -97,7 +97,18 @@ class MultiGenPitchScale(PeriodicPitchScale[LatticePoint, MultiGenPitch]):
 class MultiGenPitchIntervalSeq(
     PeriodicPitchIntervalSeq[LatticePoint, MultiGenPitchInterval]
 ):
-    pass
+
+    def __repr__(self) -> str:
+        base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
+        base_string = ', '.join(base_strings)
+        vec_strings = [
+            interval.pitch_diff.short_repr for interval in self
+        ]
+        vec_string = ', '.join(vec_strings)
+        return (
+            f'{self.__class__.__name__}([{vec_string}], '
+            f'G=({base_string}))'
+        )
 
 
 MultiGenPitchT = TypeVar('MultiGenPitchT', bound=MultiGenPitch)
