@@ -65,6 +65,7 @@ import operator
 from functools import total_ordering
 from typing import Tuple
 from typing import Self
+from .protocols import PeriodicIndex
 from .utils import componentwise
 from .utils import scalar_op
 from .frequencies import FrequencyRatio
@@ -119,7 +120,7 @@ class Lattice:
 
 
 @total_ordering
-class LatticePoint:
+class LatticePoint(PeriodicIndex):
     """
     A point in a n-dimensional lattice representing a frequency ratio.
     For a given base :math:`b_1, ..., b_n` and integer lattice coordinates
