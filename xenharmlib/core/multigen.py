@@ -266,7 +266,7 @@ class MultiGenTuning(
         return self.diff_interval(lattice_point)
 
     def vec_scale(
-        self, vectors: Optional[Iterable[Tuple[int, ...]]]
+        self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
     ) -> MultiGenScaleT:
         """
         Convenience function to create a scale from an iterable
@@ -283,7 +283,7 @@ class MultiGenTuning(
         return self.index_scale([self.lattice.point(v) for v in _vectors])
 
     def vec_interval_seq(
-        self, vectors: Optional[Iterable[Tuple[int, ...]]]
+        self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
     ) -> MultiGenIntervalSeqT:
         """
         Convenience function to create an interval sequence from
