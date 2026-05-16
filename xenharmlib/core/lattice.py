@@ -86,13 +86,13 @@ class Lattice:
     def __init__(self, base: Tuple[FrequencyRatio, ...]):
         self.base = base
 
-    def point(self, index: Tuple[int, ...]) -> LatticePoint:
+    def point(self, vector: Tuple[int, ...]) -> LatticePoint:
         """
         Create a point inside this lattice
 
-        :param index: The lattice coordinates
+        :param vector: The lattice integer coordinates
         """
-        return LatticePoint(index, self.base)
+        return LatticePoint(vector, self.base)
 
     def contains_point(self, point: LatticePoint) -> bool:
         """
@@ -153,24 +153,24 @@ class LatticePoint:
 
     LatticePoints are also hashable, so they can be used in sets
 
-    :param index: An integer tuple
+    :param vector: An integer tuple
     :param base: A base vector of frequency ratios with the same
-        dimensions as the index
+        dimensions as the vector
     """
 
     def __init__(
-        self, index: Tuple[int, ...], base: Tuple[FrequencyRatio, ...]
+        self, vector: Tuple[int, ...], base: Tuple[FrequencyRatio, ...]
     ):
-        if len(index) != len(base):
+        if len(vector) != len(base):
             raise ValueError(
                 'Index vector dimensions must match base dimensions'
             )
 
-        self.index = index
+        self.vector = vector
         self.base = base
 
         ratio = 1
-        for x, base in zip(index, base):
+        for x, base in zip(vector, base):
             if x >= 0:
                 ratio *= base ** x
             else:
@@ -184,17 +184,21 @@ class LatticePoint:
         Returns the 0 vector for a given base
         """
 
-        index = (0,) * len(base)
-        return cls(index, base)
+        vector = (0,) * len(base)
+        return cls(vector, base)
 
     def __hash__(self):
-        return hash((self.index, self.base))
+        return hash((self.vector, self.base))
 
     def __repr__(self) -> str:
         return (
-            'LatticePoint(' + str(self.index) + ' ^= ' +
+            'LatticePoint(' + str(self.vector) + ' ^= ' +
             str(self.frequency_ratio) + ')'
         )
+
+    @property
+    def short_repr(self) -> str:
+        return f'{self.vector}'
 
     @property
     def frequency_ratio(self) -> FrequencyRatio:
@@ -222,21 +226,21 @@ class LatticePoint:
     def __add__(self, other: Self) -> Self:
 
         self._ensure_sametype_operand(other, '+')
-        index = componentwise(
+        vector = componentwise(
             operator.add,
-            self.index,
-            other.index
+            self.vector,
+            other.vector
         )
-        return self.__class__(index, self.base)
+        return self.__class__(vector, self.base)
 
     def __sub__(self, other: Self) -> Self:
         self._ensure_sametype_operand(other, '-')
-        index = componentwise(
+        vector = componentwise(
             operator.sub,
-            self.index,
-            other.index
+            self.vector,
+            other.vector
         )
-        return self.__class__(index, self.base)
+        return self.__class__(vector, self.base)
 
     def __divmod__(self, other: Self) -> Self:
 
@@ -289,8 +293,8 @@ class LatticePoint:
                 f"'{type(self)}' and '{type(other)}'"
             )
 
-        index = scalar_op(operator.mul, self.index, other)
-        return self.__class__(index, self.base)
+        vector = scalar_op(operator.mul, self.vector, other)
+        return self.__class__(vector, self.base)
 
     __rmul__ = __mul__
 
@@ -304,15 +308,15 @@ class LatticePoint:
             return (-self)
 
     def __neg__(self) -> Self:
-        index = tuple(map(lambda x: -x, self.index))
-        return self.__class__(index, self.base)
+        vector = tuple(map(lambda x: -x, self.vector))
+        return self.__class__(vector, self.base)
 
     # comparisons
 
     def __eq__(self, other):
         if not isinstance(other, LatticePoint):
             return False
-        return self.index == other.index and self.base == other.base
+        return self.vector == other.vector and self.base == other.base
 
     def __lt__(self, other) -> bool:
         self._ensure_sametype_operand(other, '<')

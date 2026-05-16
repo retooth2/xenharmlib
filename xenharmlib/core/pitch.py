@@ -23,6 +23,8 @@ from .protocols import Index
 from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
 from .protocols import SDPeriodicPitchLike
+from .protocols import SDPitchIntervalLike
+from .protocols import SDTuningLike
 from .freq_repr import IndexedFreqRepr
 from .interval import IndexedInterval
 from ..exc import IncompatibleOriginContexts
@@ -117,11 +119,22 @@ class Pitch(IndexedFreqRepr[IndexT]):
 
         return self.tuning.pitch(transposed_index)
 
-    def retune(self, tuning) -> Pitch:
+    def retune(self, tuning: SDTuningLike) -> Pitch:
         """
-        Approximates this pitch in a different
-        tuning
+        Approximates this pitch in a different tuning
+
+        :param tuning: The target tuning
+
+        :raises IncompatibleOriginContext: If the target tuning is
+            not one-dimensional (a current limitation of the
+            implementation)
         """
+
+        if not isinstance(tuning, SDTuningLike):
+            raise IncompatibleOriginContexts(
+                'Retuning is currently only possible if the target '
+                'tuning has a one-dimensional pitch index schema.'
+            )
 
         return tuning.get_approx_pitch(self.frequency)
 
@@ -151,21 +164,14 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
         self._bi_index = pitch_index // tuning_len
 
     @property
-    def pitch_index(self) -> PeriodicIndexT:
-        """
-        The index of this pitch as an integer
-        """
-        return self._pitch_index
-
-    @property
-    def pc_index(self):
+    def pc_index(self) -> PeriodicIndexT:
         """
         The pitch class index of this pitch
         """
         return self._pc_index
 
     @property
-    def bi_index(self):
+    def bi_index(self) -> int:
         """
         The base interval index of this pitch
         """
@@ -407,7 +413,7 @@ class PitchInterval(IndexedInterval[IndexT, PitchT]):
             source,
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'{self.__class__.__name__}({self.pitch_diff}, {self.tuning.name})'
         )
@@ -425,7 +431,12 @@ class PeriodicPitchInterval(PitchInterval[PeriodicIndexT, PeriodicPitchT]):
     The pitch interval class for periodic tunings.
     """
 
-    def get_generator_distance(self, generator_pitch: PeriodicPitchT) -> int:
+
+class SDPeriodicPitchIntervalMixin:
+
+    def get_generator_distance(
+        self: SDPitchIntervalLike, generator_pitch: PeriodicPitchT
+    ) -> int:
         """
         Calculates the minimum number of steps needed to reach
         one pitch from the other when iteratively adding a
@@ -460,7 +471,9 @@ class PeriodicPitchInterval(PitchInterval[PeriodicIndexT, PeriodicPitchT]):
         return min(i_diff, self.tuning.period_length - i_diff)
 
 
-class EDPitchInterval(PeriodicPitchInterval[int, EDPitch]):
+class EDPitchInterval(
+    PeriodicPitchInterval[int, EDPitch], SDPeriodicPitchIntervalMixin
+):
     """
     Pitch interval class for equal division tunings
     """

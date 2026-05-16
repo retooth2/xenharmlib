@@ -2,6 +2,7 @@ from .core.frequencies import Frequency
 from .core.frequencies import FrequencyRatio
 from .core.tunings import EDTuning
 from .core.tunings import EDOTuning
+from .core.multigen import MultiGenTuning
 from .core.pitch import EDPitch
 from .core.pitch import EDOPitch
 from .core.pitch import EDPitchInterval

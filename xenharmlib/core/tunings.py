@@ -24,9 +24,7 @@ that need a couple of methods implemented by a subclass.
 """
 
 from __future__ import annotations
-import os
 from abc import abstractmethod
-from fractions import Fraction
 from typing import TypeVar
 from typing import List
 from typing import Optional
@@ -58,6 +56,7 @@ from .protocols import PitchLike
 from .protocols import TuningLike
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
+from .frequencies import Hz440C0
 from .origin_context import OriginContext
 from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidPitchClassIndex
@@ -81,8 +80,8 @@ class TuningABC(
     type of pitch, pitch interval, and pitch scale adjacent to
     this tuning.
 
-    A simple tuning can be derived from this simply by
-    overwriting the method :meth:`~.AbstractTuning.get_frequency`
+    A simple tuning can be derived from this simply by overwriting
+    the method :meth:`~.TuningABC.get_frequency_for_index` and
     and setting appropriate constructor arguments.
 
     The constructor arguments are:
@@ -193,13 +192,6 @@ class TuningABC(
             stacklevel=2,
         )
         return self.scale(pitches)
-
-    @abstractmethod
-    def get_frequency(self, pitch: PitchT) -> Frequency:
-        """
-        (Must be overwritten by subclasses)
-        Returns the frequency for a given pitch
-        """
 
     @abstractmethod
     def get_frequency_for_index(self, pitch_index: IndexT) -> Frequency:
@@ -509,13 +501,6 @@ class SDPeriodicTuningMixin(SDTuningMixin):
         return generators
 
 
-# hack for RTD (see doc/conf.py for more info)
-if 'READTHEDOCS' in os.environ:
-    Hz440C0 = Frequency(55 / 2 ** Fraction(7, 4))
-else:
-    Hz440C0 = Frequency(sp.Integer(55) / sp.Integer(2) ** sp.Rational(7, 4))
-
-
 class EDTuning(
     PeriodicTuning[
         int,
@@ -610,6 +595,13 @@ class EDTuning(
         :raises IncompatibleOriginContexts: If note is from a different
             tuning
         """
+        warn(
+            f'{self.__class__.__name__}.get_frequency is deprecated and '
+            f'will be removed in 1.0.0. Please use the attribute '
+            f'{pitch.__class__.__name__}.frequency instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         if pitch.tuning is not self:
             raise IncompatibleOriginContexts(

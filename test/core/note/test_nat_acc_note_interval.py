@@ -530,12 +530,12 @@ def test_get_generator_distance_incompatible_origin_contexts():
     'pc_symbol_b, nat_bi_index_b, '
     'expected',
     [
-        (n_edo12, 'B',    0, 'E', 2, 'NatAccNoteInterval(C, 16, 12-EDO)'),
-        (n_edo12, 'Bx',   1, 'E', 2, 'NatAccNoteInterval(--C, 10, 12-EDO)'),
-        (n_edo12, 'B++',  3, 'E', 2, 'NatAccNoteInterval(++C, -4, 12-EDO)'),
-        (n_edo31, 'C-',   2, 'E', 2, 'NatAccNoteInterval(+F, 3, 31-EDO)'),
-        (n_edo31, 'C--',  1, 'E', 2, 'NatAccNoteInterval(++F, 19, 31-EDO)'),
-        (n_edo12, 'A--', -1, 'E', 2, 'NatAccNoteInterval(++F, 23, 12-EDO)'),
+        (n_edo12, 'B',    0, 'E', 2, 'MyNatAccNoteInterval(C, 16, 12-EDO)'),
+        (n_edo12, 'Bx',   1, 'E', 2, 'MyNatAccNoteInterval(--C, 10, 12-EDO)'),
+        (n_edo12, 'B++',  3, 'E', 2, 'MyNatAccNoteInterval(++C, -4, 12-EDO)'),
+        (n_edo31, 'C-',   2, 'E', 2, 'MyNatAccNoteInterval(+F, 3, 31-EDO)'),
+        (n_edo31, 'C--',  1, 'E', 2, 'MyNatAccNoteInterval(++F, 19, 31-EDO)'),
+        (n_edo12, 'A--', -1, 'E', 2, 'MyNatAccNoteInterval(++F, 23, 12-EDO)'),
     ]
 )
 def test_note_repr(

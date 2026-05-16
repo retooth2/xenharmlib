@@ -26,7 +26,6 @@ from abc import abstractmethod
 from .frequencies import FrequencyRatio
 from .freq_repr import FreqRepr
 from .freq_repr import IndexedFreqRepr
-from .constants import CENTS_PRECISION
 from .protocols import Index
 
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
@@ -94,7 +93,7 @@ class Interval(ABC, Generic[FreqReprT]):
         """
         The interval size in cents (e.g. 1200 for an octave)
         """
-        return round(1200 * self.frequency_ratio.log(2), CENTS_PRECISION)
+        return self.frequency_ratio.cents
 
     @property
     @abstractmethod

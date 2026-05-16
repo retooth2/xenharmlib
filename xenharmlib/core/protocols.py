@@ -160,9 +160,35 @@ class NoteLike(PitchLike, Protocol):
 
 
 @runtime_checkable
+class SDNoteLike(SDPitchLike, Protocol):
+    """
+    An extension protocol for SDPitchLike. Demands in
+    addition that the property notation exists
+    """
+
+    @property
+    def notation(self): ...
+
+
+@runtime_checkable
 class PeriodicNoteLike(PeriodicPitchLike, Protocol):
     """
     An extension protocol for PeriodicPitchLike. Demands
+    in addition that the property notation and pc_symbol
+    exists
+    """
+
+    @property
+    def notation(self): ...
+
+    @property
+    def pc_symbol(self) -> str: ...
+
+
+@runtime_checkable
+class SDPeriodicNoteLike(SDPeriodicPitchLike, Protocol):
+    """
+    An extension protocol for SDPeriodicPitchLike. Demands
     in addition that the property notation and pc_symbol
     exists
     """
@@ -193,7 +219,8 @@ class HasFrequencyRatio(Protocol):
 class PitchIntervalLike(HasFrequencyRatio, Protocol):
     """
     Extension protocol for HasFrequencyRatio. Demands the
-    existence of a tuning and a pitch_diff property
+    existence of a tuning and a pitch_diff property with
+    Index protocol return value
     """
 
     @property
@@ -201,6 +228,83 @@ class PitchIntervalLike(HasFrequencyRatio, Protocol):
 
     @property
     def pitch_diff(self) -> int: ...
+
+
+@runtime_checkable
+class SDPitchIntervalLike(HasFrequencyRatio, Protocol):
+    """
+    Extension protocol for HasFrequencyRatio. Demands the
+    existence of a tuning and a pitch_diff property with
+    integer return value
+    """
+
+    @property
+    def tuning(self): ...
+
+    @property
+    def pitch_diff(self) -> int: ...
+
+
+@runtime_checkable
+class PeriodicPitchIntervalLike(PitchIntervalLike, Protocol):
+    """
+    Extension protocol for periodic variants of PitchIntervalLike.
+    """
+
+    # preparation for new periodic interval properties
+
+
+@runtime_checkable
+class SDPeriodicPitchIntervalLike(SDPitchIntervalLike, Protocol):
+    """
+    Extension protocol for periodic variants of SDPitchIntervalLike.
+    """
+
+    # preparation for new periodic interval properties
+
+
+@runtime_checkable
+class NoteIntervalLike(PitchIntervalLike, Protocol):
+    """
+    Extension protocol for PitchIntervalLike. Demands the
+    existence of a notation property
+    """
+
+    @property
+    def notation(self): ...
+
+
+@runtime_checkable
+class SDNoteIntervalLike(SDPitchIntervalLike, Protocol):
+    """
+    Extension protocol for SDPitchIntervalLike. Demands the
+    existence of a notation property
+    """
+
+    @property
+    def notation(self): ...
+
+
+@runtime_checkable
+class PeriodicNoteIntervalLike(PeriodicPitchIntervalLike, Protocol):
+    """
+    Extension protocol for PeriodicPitchIntervalLike. Demands the
+    existence of a notation property
+    """
+
+    @property
+    def notation(self): ...
+
+
+@runtime_checkable
+class SDPeriodicNoteIntervalLike(SDPeriodicPitchIntervalLike, Protocol):
+    """
+    Extension protocol for SDPeriodicPitchIntervalLike. Demands the
+    existence of a notation property
+    """
+
+    @property
+    def notation(self): ...
 
 
 @runtime_checkable
@@ -295,11 +399,24 @@ class PeriodicNoteScaleLike(PeriodicPitchScaleLike, Protocol):
     def pc_symbols(self) -> List[str]: ...
 
 
+@runtime_checkable
 class TuningLike(Protocol):
     """
     Protocol for basic tuning class structure
     (used to type mixin classes)
     """
 
-    def pitch(self, pitch_index): ...
-    def __len__(self) -> int: ...
+    def pitch(self, pitch_index: Index): ...
+    def get_frequency_from_pitch_index(self, pitch_index: Index): ...
+
+
+@runtime_checkable
+class SDTuningLike(Protocol):
+    """
+    Protocol for basic tuning class structure
+    (used to type mixin classes)
+    """
+
+    def pitch(self, pitch_index: int): ...
+    def get_frequency_from_pitch_index(self, pitch_index: int): ...
+    def get_approx_pitch(self, frequency: Frequency): ...

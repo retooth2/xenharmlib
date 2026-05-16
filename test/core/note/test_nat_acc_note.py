@@ -650,12 +650,12 @@ def test_note_is_enharmonic_natural(
 @pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index, expected',
     [
-        (n_edo12, 'B',    0, 'NatAccNote(B, 0, 12-EDO)'),
-        (n_edo12, 'Bx',   1, 'NatAccNote(Bx, 1, 12-EDO)'),
-        (n_edo12, 'B++',  3, 'NatAccNote(B++, 3, 12-EDO)'),
-        (n_edo31, 'C-',   2, 'NatAccNote(C-, 2, 31-EDO)'),
-        (n_edo31, 'C--',  1, 'NatAccNote(C--, 1, 31-EDO)'),
-        (n_edo12, 'A--', -1, 'NatAccNote(A--, -1, 12-EDO)'),
+        (n_edo12, 'B',    0, 'MyNatAccNote(B, 0, 12-EDO)'),
+        (n_edo12, 'Bx',   1, 'MyNatAccNote(Bx, 1, 12-EDO)'),
+        (n_edo12, 'B++',  3, 'MyNatAccNote(B++, 3, 12-EDO)'),
+        (n_edo31, 'C-',   2, 'MyNatAccNote(C-, 2, 31-EDO)'),
+        (n_edo31, 'C--',  1, 'MyNatAccNote(C--, 1, 31-EDO)'),
+        (n_edo12, 'A--', -1, 'MyNatAccNote(A--, -1, 12-EDO)'),
     ]
 )
 def test_note_repr(

@@ -33,7 +33,15 @@ FREQ_EPSILON = 0.1
 def test_get_frequency(tuning, pitch_index, freq):
     pitch = tuning.pitch(pitch_index)
     assert pitch.frequency == freq
-    assert tuning.get_frequency(pitch) == freq
+
+
+def test_get_frequency_deprecated():
+
+    tuning = EDTuning(12, FrequencyRatio(2))
+    pitch = tuning.pitch(33)
+
+    with pytest.deprecated_call():
+        assert tuning.get_frequency(pitch)
 
 
 def test_get_frequency_incompatible_origin_contexts():
@@ -44,7 +52,8 @@ def test_get_frequency_incompatible_origin_contexts():
     edo12_pitch = edo12.pitch(8)
 
     with pytest.raises(IncompatibleOriginContexts):
-        edo12_2.get_frequency(edo12_pitch)
+        with pytest.deprecated_call():
+            edo12_2.get_frequency(edo12_pitch)
 
 
 @pytest.mark.parametrize(

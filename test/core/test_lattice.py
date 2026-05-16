@@ -153,6 +153,64 @@ def test_lattice_point_repr(lattice, index, repr_result):
     assert repr(point) == repr_result
 
 
+@pytest.mark.parametrize(
+    'lattice, index, repr_result',
+    [
+        (
+            Lattice(
+                (
+                    FrequencyRatio(2),
+                    FrequencyRatio(3),
+                    FrequencyRatio(5),
+                    FrequencyRatio(7),
+                )
+            ),
+            (-1, 1, 0, 0),
+            '(-1, 1, 0, 0)'
+        ),
+        (
+            Lattice(
+                (
+                    FrequencyRatio(2),
+                    FrequencyRatio(3),
+                    FrequencyRatio(5),
+                    FrequencyRatio(7),
+                )
+            ),
+            (0, 1, 0, 0),
+            '(0, 1, 0, 0)'
+        ),
+        (
+            Lattice(
+                (
+                    FrequencyRatio(2),
+                    FrequencyRatio(3),
+                    FrequencyRatio(5),
+                    FrequencyRatio(7),
+                )
+            ),
+            (-1, 0, 0, 0),
+            '(-1, 0, 0, 0)'
+        ),
+        (
+            Lattice(
+                (
+                    FrequencyRatio(2),
+                    FrequencyRatio(3),
+                    FrequencyRatio(5),
+                    FrequencyRatio(7),
+                )
+            ),
+            (0, 0, 0, 0),
+            '(0, 0, 0, 0)'
+        ),
+    ]
+)
+def test_lattice_point_short_repr(lattice, index, repr_result):
+    point = lattice.point(index)
+    assert point.short_repr == repr_result
+
+
 def test_hash_set():
 
     lattice_a = Lattice(
