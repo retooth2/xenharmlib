@@ -233,6 +233,10 @@ class MultiGenTuning(
         ratios = ', '.join([ratio.short_repr for ratio in self.lattice.base])
         return f'MultiGenTuning({ratios})'
 
+    def __repr__(self) -> str:
+        ratios = ', '.join([ratio.short_repr for ratio in self.lattice.base])
+        return f'MultiGenTuning({ratios})'
+
     def vec_pitch(self, vector: Tuple[int, ...]) -> MultiGenPitchT:
         """
         Convenience function to create a pitch from an integer vector
