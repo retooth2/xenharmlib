@@ -194,6 +194,27 @@ class MultiGenTuning(
         """
         return self.lattice.zero
 
+    # we overwrite diff-interval builder methods to provide for
+    # nicer error messages in case a wrong parameter is given
+
+    def diff_interval(
+        self,
+        pitch_diff: LatticePoint
+    ) -> MultiGenIntervalT:
+        """
+        Returns an interval the size of a given pitch index difference.
+
+        :param pitch_diff: The pitch index difference
+        """
+
+        if not self.lattice.contains_point(pitch_diff):
+            raise ValueError(
+                'Pitch difference must be a lattice point from the '
+                'same lattice as this tuning was configured with.'
+            )
+
+        return super().diff_interval(pitch_diff)
+
     def get_frequency_for_index(self, pitch_index: LatticePoint) -> Frequency:
         """
         Returns the frequency for a given pitch index
