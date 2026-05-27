@@ -750,8 +750,6 @@ class PeriodicNoteInterval(NoteIntervalABC[PeriodicIndexT, NoteT]):
     """
     Abstract base class for intervals referring to notations
     of periodic tunings.
-
-    Implements the method :meth:`get_generator_distance`
     """
 
 
