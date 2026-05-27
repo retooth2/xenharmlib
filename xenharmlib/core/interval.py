@@ -64,14 +64,77 @@ class Interval(ABC, Generic[FreqReprT]):
         """
         return self._frequency_ratio
 
+    def sign(self) -> int:
+        """
+        Returns 1 if this interval is an upward interval, -1
+        if it is a downward interval and 0 if it is the
+        unison interval
+        """
+        if self.frequency_ratio > FrequencyRatio(1):
+            return 1
+        if self.frequency_ratio < FrequencyRatio(1):
+            return -1
+        return 0
+
     @abstractmethod
     def __abs__(self) -> Self:
         """
-        Returns the absolute of this pitch interval. On downwards
-        interval it returns an upwards interval of the same absolute
-        size. On upwards intervals it acts as the identity function.
+        Returns the absolute of this interval. On downwards interval it
+        returns an upwards interval of the same absolute size. On upwards
+        intervals it acts as the identity function.
         (must be implemented by subclass)
         """
+
+    @abstractmethod
+    def __neg__(self) -> Self:
+        """
+        Returns the negative of this pitch interval. On downwards
+        interval it returns an upwards interval of the same absolute
+        size. On upwards intervals it returns the corresponding
+        downwards interval
+        (must be implemented by subclass)
+        """
+
+    @abstractmethod
+    def __add__(self, other) -> Self:
+        """
+        Returns the combination of two intervals
+        (must be implemented by subclass)
+        """
+
+    def __sub__(self, other) -> Self:
+        """
+        Subtracts an interval from this one
+        """
+        return self + (-other)
+
+    def __mul__(self, other) -> Self:
+        """
+        Scalar multiplication for intervals (which is the same
+        as stacking the interval a number of times). Negative
+        scalars flip the interval direction. Multiplying by 0
+        returns the unison interval
+        """
+
+        if not isinstance(other, int):
+            raise TypeError(
+                f"unsupported operand type(s) for <: "
+                f"'{type(self)}' and '{type(other)}'"
+            )
+
+        current = self.origin_context.unison_interval
+
+        if other > 0:
+            for _ in range(0, other):
+                current += self
+
+        if other < 0:
+            for _ in range(0, abs(other)):
+                current -= self
+
+        return current
+
+    __rmul__ = __mul__
 
     # methods necessary for total ordering
 

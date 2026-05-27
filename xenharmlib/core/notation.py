@@ -491,6 +491,15 @@ class NatAccNotation(
 
         return note
 
+    @property
+    def eq_interval(self) -> NatAccNoteInterval:
+        """
+        The equivalency interval of this tuning
+        """
+        return self.interval(
+            self.zero_element, self.zero_element.transpose_bi_index(1)
+        )
+
     # we define the function w(A) from the definition and (for
     # implementation detail reasons) also the inverse function
 

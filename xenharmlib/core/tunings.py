@@ -297,6 +297,15 @@ class PeriodicTuning(
         """
         return self._eq_ratio
 
+    @property
+    def eq_interval(self) -> PeriodicIntervalT:
+        """
+        The equivalency interval of this tuning
+        """
+        return self.interval(
+            self.zero_element, self.zero_element.transpose_bi_index(1)
+        )
+
     def pc_scale(
         self,
         pc_indices: Optional[List[PeriodicIndexT]] = None,

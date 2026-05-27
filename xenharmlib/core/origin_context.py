@@ -87,6 +87,24 @@ class OriginContext(
         etc
         """
 
+    @property
+    def zero_diff(self) -> IndexT:
+        """
+        The zero diff is a reference point, in tunings with integer
+        indexing this is 0, in tunings with lattice indexing this is
+        typically the zero-vector.
+        """
+        return self.interval(self.zero_element, self.zero_element).pitch_diff
+
+    @property
+    def unison_interval(self) -> IntervalSeqT:
+        """
+        The unison interval is a reference point, in one-dimensional tunings
+        it is the element with pitch diff 0, in western notation typically
+        P1, etc.
+        """
+        return self.interval(self.zero_element, self.zero_element)
+
     def interval(self, source: FreqReprT, target: FreqReprT) -> IntervalT:
         """
         Returns an interval having the interval type
