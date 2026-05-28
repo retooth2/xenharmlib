@@ -731,7 +731,7 @@ class NoteIntervalABC(IndexedInterval[IndexT, NoteT], ABC):
                 'Intervals must originate from the same notation context'
             )
         target_pitch = self.ref_note.transpose(self).transpose(other)
-        return self.tuning.interval(self.ref_pitch, target_pitch)
+        return self.origin_context.interval(self.ref_note, target_pitch)
 
     # read-only properties
 
