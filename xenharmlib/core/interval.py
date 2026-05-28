@@ -64,6 +64,7 @@ class Interval(ABC, Generic[FreqReprT]):
         """
         return self._frequency_ratio
 
+    @property
     def sign(self) -> int:
         """
         Returns 1 if this interval is an upward interval, -1
