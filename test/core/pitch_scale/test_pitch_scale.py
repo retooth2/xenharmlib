@@ -1269,6 +1269,9 @@ def test_is_subset_incompatible_origin_contexts():
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
 
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a.is_subset(scale_b, proper=True)
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, expected',
@@ -1349,6 +1352,9 @@ def test_is_superset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a.is_superset(scale_b, proper=True)
 
 
 @pytest.mark.parametrize(
