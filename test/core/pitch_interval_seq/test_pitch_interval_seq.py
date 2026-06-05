@@ -462,7 +462,7 @@ def test_in_operator(tuning, input_diffs):
         (ed13_3, [100, 50, 0], [9, 444, 3]),
     ]
 )
-def test_not_in_operator_pitch(tuning, input_diffs, excl_diffs):
+def test_not_in_operator(tuning, input_diffs, excl_diffs):
     """
     Test if 'not in' operator works
     """
