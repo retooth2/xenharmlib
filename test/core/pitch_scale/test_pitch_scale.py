@@ -914,6 +914,16 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
+    scale_c = scale_b.union(scale_a)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+    scale_c = scale_b | scale_a
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
 
 def test_union_incompatible_origin_contexts():
     """
