@@ -665,6 +665,127 @@ def test_sign_perfect(
 
 @pytest.mark.parametrize(
     'n_edo',
+    PERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, is_simple',
+    (
+        (('^^', 12), False),
+        (('P', 12), False),
+        (('P', 2), True),
+        (('P', -2), True),
+        (('P', -12), False),
+        (('v', -12), False),
+        (('v', 1), True),
+    )
+)
+def test_simple_compound_perfect(
+    n_edo, shorthand_name, is_simple
+):
+    """
+    Test if is_simple and is_compound works for perfect EDOs
+    """
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    PERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('^^', 12), ('^^', 5)),
+        (('P', 12), ('P', 5)),
+        (('P', 2), ('P', 2)),
+        (('P', -2), ('P', -2)),
+        (('P', -12), ('P', -5)),
+        (('v', -12), ('v', -5)),
+        (('v', 1), ('v', 1)),
+    )
+)
+def test_to_simple_perfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if to_simple works for perfect EDOs
+    """
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.to_simple().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    PERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 2), ('P', 7)),
+        (('P', 12), ('P', -5)),
+        (('^^', 12), ('^^', -5)),
+        (('P', -2), ('P', 9)),
+        (('P', -12), ('P', 19)),
+        (('v', -12), ('v', 19)),
+        (('v', 1), ('^', 8)),
+    )
+)
+def test_inversion_perfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if inversion works for perfect EDOs
+    """
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.inversion().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    PERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 2), ('P', 2)),
+        (('P', 12), ('P', 4)),
+        (('^^', 12), ('vv', 4)),
+        (('P', -2), ('P', 2)),
+        (('P', -12), ('P', 4)),
+        (('v', 1), ('^', 1)),
+    )
+)
+def test_ic_normalized_ic_index_perfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if ic normalization and ic_index works for perfect EDOs
+    """
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    # we don't test on notational equality here, because there
+    # are intervals (like A4 in 12-EDO) that have an inversion
+    # with exactly the same pitch difference, so the result
+    # depends on an implementation detail of which object is
+    # chosen in the minimum function
+
+    assert interval.ic_normalized() == result_interval
+    assert interval.ic_index == result_interval.pitch_diff
+
+
+@pytest.mark.parametrize(
+    'n_edo',
     IMPERFECT_EDOS
 )
 @pytest.mark.parametrize(
@@ -847,6 +968,145 @@ def test_sign_imperfect(
 
 @pytest.mark.parametrize(
     'n_edo',
+    IMPERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, is_simple',
+    (
+        (('M', 9), False),
+        (('P', 12), False),
+        (('M', 2), True),
+        (('m', -2), True),
+        (('A', 12), False),
+        (('P', 8), True),
+        (('P', -8), True),
+        (('M', 13), False),
+        (('d', -3), True),
+        (('P', -12), False),
+    )
+)
+def test_simple_compound_imperfect(
+    n_edo, shorthand_name, is_simple
+):
+    """
+    Test if is_simple and is_compound works for imperfect EDOs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', 5)),
+        (('P', -12), ('P', -5)),
+        (('M', 2), ('M', 2)),
+        (('m', -2), ('m', -2)),
+        (('A', -12), ('A', -5)),
+        (('dd', 12), ('dd', 5)),
+        (('P', 8), ('P', 8)),
+        (('P', -8), ('P', -8)),
+    )
+)
+def test_to_simple_imperfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if to_simple works for imperfect EDOs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.to_simple().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', -5)),
+        (('P', -12), ('P', 19)),
+        (('M', 2), ('m', 7)),
+        (('m', -2), ('m', 9)),
+        (('A', 4), ('d', 5)),
+        (('dd', 3), ('AA', 6)),
+        (('P', 8), ('P', 1)),
+        (('P', 1), ('P', 8)),
+    )
+)
+def test_inversion_imperfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if inversion works for imperfect EDOs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.inversion().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', 4)),
+        (('P', -12), ('P', 4)),
+        (('M', 2), ('M', 2)),
+        (('m', -2), ('m', 2)),
+        (('dd', 4), ('dd', 4)),
+        (('P', 8), ('P', 1)),
+        (('P', 1), ('P', 1)),
+    )
+)
+def test_ic_normalized_ic_index_imperfect(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if ic normalization and ic_index works for imperfect EDOs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    # we don't test on notational equality here, because there
+    # are intervals (like A4 in 12-EDO) that have an inversion
+    # with exactly the same pitch difference, so the result
+    # depends on an implementation detail of which object is
+    # chosen in the minimum function
+
+    assert interval.ic_normalized() == result_interval
+    assert interval.ic_index == result_interval.pitch_diff
+
+
+@pytest.mark.parametrize(
+    'n_edo',
     IMPERFECT_UPDOWN_EDOS
 )
 @pytest.mark.parametrize(
@@ -1025,3 +1285,169 @@ def test_sign_imperfect_updown(
 
     interval = n_edo.shorthand_interval(*shorthand_name)
     assert interval.sign == sign
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_UPDOWN_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, is_simple',
+    (
+        (('M', 9), False),
+        (('^^M', 9), False),
+        (('vM', 9), False),
+        (('P', 12), False),
+        (('vv', 12), False),
+        (('M', 2), True),
+        (('^M', 2), True),
+        (('m', -2), True),
+        (('^m', -2), True),
+        (('A', 12), False),
+        (('vvA', 12), False),
+        (('P', 8), True),
+        (('v', -8), True),
+        (('vvM', 13), False),
+        (('d', -3), True),
+        (('^d', -3), True),
+        (('P', -12), False),
+        (('vv', -12), False),
+    )
+)
+def test_simple_compound_imperfect_updown(
+    n_edo, shorthand_name, is_simple
+):
+    """
+    Test if is_simple and is_compound works for imperfect EDOs
+    with ups and downs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_UPDOWN_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', 5)),
+        (('^', 12), ('^', 5)),
+        (('P', -12), ('P', -5)),
+        (('vv', -12), ('vv', -5)),
+        (('M', 2), ('M', 2)),
+        (('^^M', 2), ('^^M', 2)),
+        (('m', -2), ('m', -2)),
+        (('vm', -2), ('vm', -2)),
+        (('A', -12), ('A', -5)),
+        (('vvA', -12), ('vvA', -5)),
+        (('dd', 12), ('dd', 5)),
+        (('^dd', 12), ('^dd', 5)),
+        (('P', 8), ('P', 8)),
+        (('^', 8), ('^', 1)),
+        (('^', -8), ('v', 1)),
+    )
+)
+def test_to_simple_imperfect_updown(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if to_simple works for imperfect EDOs with ups/downs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.to_simple().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_UPDOWN_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', -5)),
+        (('v', 12), ('v', -5)),
+        (('P', -12), ('P', 19)),
+        (('vvv', -12), ('vvv', 19)),
+        (('M', 2), ('m', 7)),
+        (('vM', 2), ('^m', 7)),
+        (('m', -2), ('m', 9)),
+        (('A', 4), ('d', 5)),
+        (('^A', 4), ('vd', 5)),
+        (('dd', 3), ('AA', 6)),
+        (('^^dd', 3), ('vvAA', 6)),
+        (('P', 8), ('P', 1)),
+        (('v', 8), ('^', 1)),
+        (('v', 1), ('^', 8)),
+    )
+)
+def test_inversion_imperfect_updown(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if inversion works for imperfect EDOs with ups/downs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    assert interval.inversion().is_notated_same(result_interval)
+
+
+@pytest.mark.parametrize(
+    'n_edo',
+    IMPERFECT_UPDOWN_EDOS
+)
+@pytest.mark.parametrize(
+    'shorthand_name, result_shorthand_name',
+    (
+        (('P', 12), ('P', 4)),
+        (('v', 12), ('^', 4)),
+        (('P', -12), ('P', 4)),
+        (('v', -12), ('^', 4)),
+        (('M', 2), ('M', 2)),
+        (('vM', 2), ('vM', 2)),
+        (('m', -2), ('m', 2)),
+        (('^^m', -2), ('^^m', 2)),
+        (('dd', 4), ('dd', 4)),
+        (('v', 8), ('^', 1)),
+        (('vv', 1), ('^^', 1)),
+    )
+)
+def test_ic_normalized_ic_index_imperfect_updown(
+    n_edo, shorthand_name, result_shorthand_name
+):
+    """
+    Test if ic normalization and ic_index works for imperfect EDOs
+    with ups/downs
+    """
+
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+        return  # they are too weird to test this, sorry
+
+    interval = n_edo.shorthand_interval(*shorthand_name)
+    result_interval = n_edo.shorthand_interval(*result_shorthand_name)
+
+    # we don't test on notational equality here, because there
+    # are intervals (like A4 in 12-EDO) that have an inversion
+    # with exactly the same pitch difference, so the result
+    # depends on an implementation detail of which object is
+    # chosen in the minimum function
+
+    assert interval.ic_normalized() == result_interval
+    assert interval.ic_index == result_interval.pitch_diff
