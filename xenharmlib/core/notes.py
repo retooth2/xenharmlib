@@ -772,6 +772,17 @@ class NoteIntervalABC(IndexedInterval[IndexT, NoteT], ABC):
         tuning = self.notation.tuning
         return tuning.interval(note_a.pitch, note_b.pitch)
 
+    @abstractmethod
+    def is_notated_same(self, other) -> bool:
+        """
+        (Must be implemented by subclasses)
+        Returns True, if this interval is notated the same
+        way as the other, False otherwise
+
+        :param other: Another interval of the same
+            notation
+        """
+
 
 class PeriodicNoteInterval(NoteIntervalABC[PeriodicIndexT, NoteT]):
     """
@@ -1010,6 +1021,23 @@ class NatAccNoteInterval(PeriodicNoteInterval[PeriodicIndexT, NatAccNoteT]):
         1-based index)
         """
         return self._number
+
+    def is_notated_same(self, other) -> bool:
+        """
+        Returns True, if this interval is notated the same
+        way as the other, False otherwise
+
+        :param other: Another interval to compare
+        """
+
+        if other.notation is not self.notation:
+            raise IncompatibleOriginContexts(
+                'Intervals must originate from the same notation context'
+            )
+
+        return (self.symbol == other.symbol) and (
+            self.number == other.number
+        )
 
     @classmethod
     def from_notes(cls, note_a: NatAccNoteT, note_b: NatAccNoteT) -> Self:
