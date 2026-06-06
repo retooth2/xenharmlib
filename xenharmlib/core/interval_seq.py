@@ -311,6 +311,23 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         seq_b = self.origin_context.interval_seq(intervals_b)
         return seq_a, seq_b
 
+    def inversion(self) -> Self:
+        """
+        Returns an interval sequence with all ascending intervals flipped
+        into descending intervals and vice versa.
+
+        .. warning::
+
+           Inversion has a different meaning on intervals and interval
+           sequences. This function does **not** call the inversion
+           function on every interval in the sequence but the negation
+           (-) function
+        """
+
+        return self.origin_context.interval_seq(
+            [-interval for interval in self]
+        )
+
     @property
     def frequency_ratios(self):
         """

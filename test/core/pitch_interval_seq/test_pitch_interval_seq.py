@@ -652,6 +652,33 @@ def test_scalar_multiplication(tuning, diff, scalar, diff_result):
 
 
 @pytest.mark.parametrize(
+    'tuning, diff, diff_result',
+    [
+        (edo12, [4, 3, 7], [-4, -3, -7]),
+        (edo12, [], []),
+        (edo24, [-4, 3, 10, -5, 27], [4, -3, -10, 5, -27]),
+        (ed13_3, [0, -4], [0, 4]),
+    ]
+)
+def test_inversion(tuning, diff, diff_result):
+    """
+    Test if interval sequence inversion works correctly
+    """
+
+    interval_seq = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff]
+    )
+
+    interval_seq_result = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff_result]
+    )
+
+    assert interval_seq.inversion() == interval_seq_result
+
+
+@pytest.mark.parametrize(
     'tuning, diff, interval, result',
     [
         (edo12, [4, 3, 7], 3, 1),

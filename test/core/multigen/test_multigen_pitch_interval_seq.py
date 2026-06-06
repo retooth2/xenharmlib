@@ -1035,6 +1035,42 @@ def test_addition(tuning, diff_vecs_a, diff_vecs_b, result_vecs):
 
 
 @pytest.mark.parametrize(
+    'tuning, diff_vecs, result_vecs',
+    [
+        (
+            multigen_235,
+            [(-11, 7, 0), (0, 0, 0), (-3, 2, 0), (-6, 4, 0)],
+            [(11, -7, 0), (0, 0, 0), (3, -2, 0), (6, -4, 0)],
+        ),
+        (
+            multigen_235,
+            [],
+            [],
+        ),
+        (
+            multigen_weird,
+            [(0, 1, 0), (-12, 7, 0), (-3, -2, 0), (-3, 3, 0)],
+            [(0, -1, 0), (12, -7, 0), (3, 2, 0), (3, -3, 0)],
+        ),
+    ]
+)
+def test_inversion(tuning, diff_vecs, result_vecs):
+    """
+    Test if inversion operation works on interval sequences
+    """
+
+    interval_seq = tuning.diff_interval_seq(
+        [tuning.lattice.point(vec) for vec in diff_vecs]
+    )
+
+    result = tuning.diff_interval_seq(
+        [tuning.lattice.point(vec) for vec in result_vecs]
+    )
+
+    assert interval_seq.inversion() == result
+
+
+@pytest.mark.parametrize(
     'tuning, diff_vecs, scalar, result_vecs',
     [
         (

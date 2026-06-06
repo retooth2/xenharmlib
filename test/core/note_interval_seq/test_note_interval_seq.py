@@ -1015,6 +1015,44 @@ def test_addition(notation, shn_a, shn_b, shn_result):
 
 
 @pytest.mark.parametrize(
+    'notation, shn, shn_result',
+    [
+        (
+            n_edo12,
+            [('C', 6), ('+C', 4), ('-F', 3)],
+            [('C', -6), ('+C', -4), ('-F', -3)],
+        ),
+        (
+            n_edo24,
+            [],
+            [],
+        ),
+        (
+            n_edo12,
+            [('F', 1), ('+C', -4), ('-F', 5)],
+            [('F', 1), ('+C', 4), ('-F', -5)],
+        ),
+    ]
+)
+def test_inversion(notation, shn, shn_result):
+    """
+    Test if interval sequence inversion works correctly
+    """
+
+    interval_seq = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in shn]
+    )
+
+    interval_seq_result = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in shn_result]
+    )
+
+    assert interval_seq.inversion() == interval_seq_result
+
+
+@pytest.mark.parametrize(
     'notation, input_shn, scalar, result_shn',
     [
         (
