@@ -246,7 +246,9 @@ def test_getitem(notation, input_shn):
         [notation.shorthand_interval(*shn) for shn in input_shn]
     )
     for i, shn in enumerate(input_shn):
-        assert interval_seq[i] == notation.shorthand_interval(*shn)
+        assert interval_seq[i].is_notated_same(
+            notation.shorthand_interval(*shn)
+        )
 
 
 @pytest.mark.parametrize(
@@ -299,7 +301,7 @@ def test_getitem_slice(notation, input_shn, start, stop, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[start:stop] == interval_seq_b
+    assert interval_seq_a[start:stop].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -353,7 +355,7 @@ def test_getitem_slice_omit_stop(notation, input_shn, start, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[start:] == interval_seq_b
+    assert interval_seq_a[start:].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -407,7 +409,7 @@ def test_getitem_slice_omit_start(notation, input_shn, stop, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[:stop] == interval_seq_b
+    assert interval_seq_a[:stop].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -495,7 +497,7 @@ def test_partial(notation, input_shn, mask, result_shn):
         notation,
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
-    assert interval_seq_a.partial(mask) == interval_seq_b
+    assert interval_seq_a.partial(mask).is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -608,7 +610,7 @@ def test_partial_not(notation, input_shn, mask, result_shn):
         notation,
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
-    assert interval_seq_a.partial_not(mask) == interval_seq_b
+    assert interval_seq_a.partial_not(mask).is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -1011,7 +1013,9 @@ def test_addition(notation, shn_a, shn_b, shn_result):
         [notation.shorthand_interval(*shn) for shn in shn_result]
     )
 
-    assert interval_seq_a + interval_seq_b == interval_seq_result
+    assert (interval_seq_a + interval_seq_b).is_notated_same(
+        interval_seq_result
+    )
 
 
 @pytest.mark.parametrize(
@@ -1049,7 +1053,9 @@ def test_inversion(notation, shn, shn_result):
         [notation.shorthand_interval(*shn) for shn in shn_result]
     )
 
-    assert interval_seq.inversion() == interval_seq_result
+    assert interval_seq.inversion().is_notated_same(
+        interval_seq_result
+    )
 
 
 @pytest.mark.parametrize(
@@ -1096,8 +1102,8 @@ def test_scalar_multiplication(notation, input_shn, scalar, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert scalar * interval_seq == interval_seq_result
-    assert interval_seq * scalar == interval_seq_result
+    assert (scalar * interval_seq).is_notated_same(interval_seq_result)
+    assert (interval_seq * scalar).is_notated_same(interval_seq_result)
 
 
 @pytest.mark.parametrize(
