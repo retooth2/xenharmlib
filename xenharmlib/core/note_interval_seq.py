@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
+from ..exc import IncompatibleOriginContexts
 from .notes import NoteIntervalABC
 from .notes import NatAccNoteInterval
 from .interval_seq import IntervalSeq
@@ -69,6 +70,29 @@ class NoteIntervalSeq(IntervalSeq[IndexT, NoteIntervalT]):
             f'{interval_symbols}, '
             f'{self.tuning.name})'
         )
+
+    def is_notated_same(self, other) -> bool:
+        """
+        Returns True, if this interval sequence is notated the same
+        way as the other sequence, False otherwise
+
+        :param other: Another interval sequence to compare
+        """
+
+        if len(self) != len(other):
+            return False
+
+        if other.notation is not self.notation:
+            raise IncompatibleOriginContexts(
+                'Interval sequences must originate from the same '
+                'notation context'
+            )
+
+        for a, b in zip(self, other):
+            if not a.is_notated_same(b):
+                return False
+
+        return True
 
 
 NatAccNoteIntervalT = TypeVar('NatAccNoteIntervalT', bound=NatAccNoteInterval)
