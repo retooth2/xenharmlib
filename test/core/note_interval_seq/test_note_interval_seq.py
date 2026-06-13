@@ -1402,6 +1402,66 @@ def test_scale_conversion_incompatible_origin_context():
 
 
 @pytest.mark.parametrize(
+    'notation, input_shn, note_pair, seq_pairs',
+    [
+        (
+            n_edo12,
+            [('C', 8), ('F', 9), ('C', 10), ('F', 3), ('C', 20), ('F', 9)],
+            ('A', 3),
+            [
+                ('A', 3), ('B', 4), ('D', 5), ('A', 7),
+                ('C', 7), ('D', 10), ('F', 11)
+            ]
+        ),
+        (
+            n_edo24,
+            [('C', 2), ('+C', 2), ('+C', 2), ('C', 2), ('+C', 4)],
+            ('C+', 3),
+            [
+                ('C+', 3), ('D+', 3), ('Ex', 3),
+                ('F+x', 3), ('G+x', 3), ('Jxx', 3)
+            ]
+        ),
+    ]
+)
+def test_seq_conversion(notation, input_shn, note_pair, seq_pairs):
+    """
+    Test if pitch interval sequence can be converted into seq
+    """
+
+    interval_seq = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in input_shn]
+    )
+    note = notation.note(*note_pair)
+
+    expected_seq = notation.seq(
+        [notation.note(*pair) for pair in seq_pairs]
+    )
+    assert interval_seq.to_seq(note) == expected_seq
+    assert note.seq(interval_seq) == expected_seq
+
+
+def test_seq_conversion_incompatible_origin_context():
+    """
+    Test if seq conversion raises correct error if parameter is
+    from different origin context
+    """
+
+    input_shn = [('C', 12), ('+C', 4), ('-F', 7), ('C', 2), ('F', 3)]
+    interval_seq = n_edo12.interval_seq(
+        [n_edo12.shorthand_interval(*shn) for shn in input_shn]
+    )
+    note = n_edo24.note('A', 1)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        interval_seq.to_seq(note)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        note.seq(interval_seq)
+
+
+@pytest.mark.parametrize(
     'notation, input_shn, result_diff',
     [
         (n_edo12, [('++C', 6), ('--C', 4), ('C', 2)], [12, 4, 2]),

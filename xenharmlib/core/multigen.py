@@ -40,6 +40,7 @@ from .lattice import LatticePoint
 from .pitch import PeriodicPitch
 from .pitch import PeriodicPitchInterval
 from .pitch_scale import PeriodicPitchScale
+from .pitch_seq import PeriodicPitchSeq
 from .pitch_interval_seq import PeriodicPitchIntervalSeq
 
 
@@ -111,11 +112,31 @@ class MultiGenPitchIntervalSeq(
         )
 
 
+class MultiGenPitchSeq(
+    PeriodicPitchSeq[LatticePoint, MultiGenPitch]
+):
+
+    def __repr__(self) -> str:
+        base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
+        base_string = ', '.join(base_strings)
+        vec_strings = [
+            element.pitch_index.short_repr for element in self
+        ]
+        vec_string = ', '.join(vec_strings)
+        return (
+            f'{self.__class__.__name__}([{vec_string}], '
+            f'G=({base_string}))'
+        )
+
+
 MultiGenPitchT = TypeVar('MultiGenPitchT', bound=MultiGenPitch)
 MultiGenIntervalT = TypeVar('MultiGenIntervalT', bound=MultiGenPitchInterval)
 MultiGenScaleT = TypeVar('MultiGenScaleT', bound=MultiGenPitchScale)
 MultiGenIntervalSeqT = TypeVar(
     'MultiGenIntervalSeqT', bound=MultiGenPitchIntervalSeq
+)
+MultiGenPitchSeqT = TypeVar(
+    'MultiGenPitchSeqT', bound=MultiGenPitchSeq
 )
 
 
@@ -126,6 +147,7 @@ class MultiGenTuning(
         MultiGenIntervalT,
         MultiGenScaleT,
         MultiGenIntervalSeqT,
+        MultiGenPitchSeqT,
     ]
 ):
     """
@@ -158,6 +180,7 @@ class MultiGenTuning(
         pitch_interval_seq_cls: type[
             MultiGenIntervalSeqT
         ] = MultiGenPitchIntervalSeq,
+        pitch_seq_cls: type[MultiGenPitchSeqT] = MultiGenPitchSeq,
     ):
 
         self._lattice = Lattice(generators)
@@ -177,6 +200,7 @@ class MultiGenTuning(
             pitch_interval_cls,
             pitch_scale_cls,
             pitch_interval_seq_cls,
+            pitch_seq_cls,
             ref_frequency,
         )
 

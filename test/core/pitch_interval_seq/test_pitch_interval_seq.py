@@ -855,6 +855,29 @@ def test_scale_conversion(tuning, diff, pitch_index, scale_pi):
     assert pitch.scale(interval_seq) == expected_scale
 
 
+@pytest.mark.parametrize(
+    'tuning, diff, pitch_index, seq_pi',
+    [
+        (edo12, [4, 2, 7, 9, 3], 3, [3, 7, 9, 16, 25, 28]),
+        (edo24, [2, -1, -5, 3], 6, [6, 8, 7, 2, 5]),
+    ]
+)
+def test_seq_conversion(tuning, diff, pitch_index, seq_pi):
+    """
+    Test if pitch interval sequence can be converted into sequence
+    """
+
+    interval_seq = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff]
+    )
+    pitch = tuning.pitch(pitch_index)
+
+    expected_seq = tuning.index_seq(seq_pi)
+    assert interval_seq.to_seq(pitch) == expected_seq
+    assert pitch.seq(interval_seq) == expected_seq
+
+
 def test_scale_conversion_incompatible_origin_context():
     """
     Test if scale conversion raises correct error if parameter is

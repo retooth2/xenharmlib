@@ -1392,3 +1392,40 @@ def test_to_scale(tuning, diff_vecs, pitch_vec, pitch_vecs):
 
     assert interval_seq.to_scale(pitch) == scale
     assert pitch.scale(interval_seq) == scale
+
+
+@pytest.mark.parametrize(
+    'tuning, diff_vecs, pitch_vec, pitch_vecs',
+    [
+        (
+            multigen_235,
+            [(0, 1, 0), (-11, 7, 1), (-3, 2, 0), (-6, 4, 3)],
+            (-11, 7, 1),
+            [(-11, 7, 1), (-11, 8, 1), (-22, 15, 2),
+             (-25, 17, 2), (-31, 21, 5)],
+        ),
+        (
+            multigen_23,
+            [(-11, 7), (-3, 2), (-6, -4), (-1, 1), (-6, -4)],
+            (-6, -4),
+            [(-6, -4), (-17, 3), (-20, 5), (-26, 1), (-27, 2), (-33, -2)],
+        ),
+    ]
+)
+def test_to_seq(tuning, diff_vecs, pitch_vec, pitch_vecs):
+    """
+    Test if pitch interval sequence can be converted into pitch sequence
+    """
+
+    interval_seq = tuning.diff_interval_seq(
+        [tuning.lattice.point(vec) for vec in diff_vecs]
+    )
+    seq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs]
+    )
+    pitch = tuning.pitch(
+        tuning.lattice.point(pitch_vec)
+    )
+
+    assert interval_seq.to_seq(pitch) == seq
+    assert pitch.seq(interval_seq) == seq

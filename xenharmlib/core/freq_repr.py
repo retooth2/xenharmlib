@@ -150,6 +150,30 @@ class FreqRepr(ABC):
 
         return self.origin_context.scale(scale_elements)
 
+    def seq(self, interval_seq):
+        """
+        Returns a sequence that starts with this note and
+        continues according to the given interval structure
+
+        :param interval_seq: An interval sequence of the same
+            origin context
+        """
+
+        if interval_seq.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                'The interval sequence does not originate from the '
+                'same origin context'
+            )
+
+        current = self
+        seq_elements = [self]
+
+        for interval in interval_seq:
+            current = current.transpose(interval)
+            seq_elements.append(current)
+
+        return self.origin_context.seq(seq_elements)
+
 
 IndexT = TypeVar('IndexT', bound=Index)
 

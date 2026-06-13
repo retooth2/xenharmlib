@@ -27,6 +27,7 @@ from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
 from .freq_repr import FreqRepr
+from .freq_repr_seq import FreqReprSeq
 from .protocols import Index
 from .interval import Interval
 from .scale import Scale
@@ -37,10 +38,12 @@ FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=IntervalSeq)
+FreqReprSeqT = TypeVar('IntervalSeqT', bound=FreqReprSeq)
 
 
 class OriginContext(
-    ABC, Generic[IndexT, FreqReprT, IntervalT, ScaleT, IntervalSeqT]
+    ABC,
+    Generic[IndexT, FreqReprT, IntervalT, ScaleT, IntervalSeqT, FreqReprSeqT]
 ):
     """
     OriginContext is the abstract base class for both tunings and notations.
@@ -62,12 +65,14 @@ class OriginContext(
         interval_cls: type[IntervalT],
         scale_cls: type[ScaleT],
         interval_seq_cls: type[IntervalSeqT],
+        freq_repr_seq_cls: type[FreqReprSeqT],
     ):
 
         self._freq_repr_cls = freq_repr_cls
         self._interval_cls = interval_cls
         self._scale_cls = scale_cls
         self._interval_seq_cls = interval_seq_cls
+        self._freq_repr_seq_cls = freq_repr_seq_cls
 
     @property
     @abstractmethod
@@ -178,6 +183,22 @@ class OriginContext(
         """
 
         return self._interval_seq_cls(self, intervals)
+
+    def seq(
+        self,
+        elements: Optional[Sequence[FreqReprT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns a pitch/note sequence
+
+        :raises IncompatibleOriginContexts: If at least one given
+            element has a different origin context than this one
+
+        :param elements: A list of elements originating from this
+            context
+        """
+
+        return self._freq_repr_seq_cls(self, elements)
 
     def diff_interval_seq(
         self,

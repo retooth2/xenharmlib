@@ -25,6 +25,7 @@ from ..core.notes import SDPeriodicNoteMixin
 from ..core.notes import SDPeriodicNoteIntervalMixin
 from ..core.note_scale import NatAccNoteScale
 from ..core.note_interval_seq import NatAccNoteIntervalSeq
+from ..core.note_seq import NatAccNoteSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
 from ..exc import UnfittingNotation
@@ -49,6 +50,10 @@ class UpDownNoteScale(NatAccNoteScale[int, UpDownNote]):
 
 
 class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq[int, UpDownNoteInterval]):
+    pass
+
+
+class UpDownNoteSeq(NatAccNoteSeq[int, UpDownNote]):
     pass
 
 
@@ -132,6 +137,7 @@ class UpDownNotation(NatAccNotation[int]):
         note_interval_cls=UpDownNoteInterval,
         note_scale_cls=UpDownNoteScale,
         note_interval_seq_cls=UpDownNoteIntervalSeq,
+        note_seq_cls=UpDownNoteSeq,
     ):
 
         if not isinstance(tuning, EDOTuning):
@@ -150,7 +156,8 @@ class UpDownNotation(NatAccNotation[int]):
             note_cls,
             note_interval_cls,
             note_scale_cls,
-            note_interval_seq_cls
+            note_interval_seq_cls,
+            note_seq_cls
         )
 
         self._init_naturals()
