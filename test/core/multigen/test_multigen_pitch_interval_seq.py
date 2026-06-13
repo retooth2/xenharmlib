@@ -1391,3 +1391,4 @@ def test_to_scale(tuning, diff_vecs, pitch_vec, pitch_vecs):
     )
 
     assert interval_seq.to_scale(pitch) == scale
+    assert pitch.scale(interval_seq) == scale
