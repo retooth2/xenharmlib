@@ -181,6 +181,241 @@ def test_abs(tuning,
 
 
 @pytest.mark.parametrize(
+    'tuning, pitch_index_a, pitch_index_b',
+    [
+        (edo31,  2,  52),
+        (edo12,  1,  9),
+        (edo24,  2,  25),
+    ]
+)
+def test_neg(tuning,
+             pitch_index_a,
+             pitch_index_b):
+    """
+    Test if negative value of interval is implemented correctly
+    """
+
+    interval_a = PitchInterval.from_source_and_target(
+        tuning.pitch(pitch_index_a),
+        tuning.pitch(pitch_index_b),
+    )
+    interval_b = PitchInterval.from_source_and_target(
+        tuning.pitch(pitch_index_b),
+        tuning.pitch(pitch_index_a),
+    )
+    assert -interval_a == interval_b
+    assert -interval_b == interval_a
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff_a, pitch_diff_b, result_pitch_diff',
+    [
+        (edo31,  18,  7, 25),
+        (edo12,  16,  0, 16),
+        (edo24,  -2,  12, 10),
+    ]
+)
+def test_add(tuning,
+             pitch_diff_a,
+             pitch_diff_b,
+             result_pitch_diff):
+    """
+    Test if addition on intervals is implemented correctly
+    """
+
+    interval_a = tuning.diff_interval(pitch_diff_a)
+    interval_b = tuning.diff_interval(pitch_diff_b)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval_a + interval_b == result_interval
+    assert interval_b + interval_a == result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff_a, pitch_diff_b, result_pitch_diff',
+    [
+        (edo31,  18,  7, 11),
+        (edo12,  16,  0, 16),
+        (edo12,  0,  3, -3),
+        (edo24,  -2,  12, -14),
+    ]
+)
+def test_sub(tuning,
+             pitch_diff_a,
+             pitch_diff_b,
+             result_pitch_diff):
+    """
+    Test if subtraction on intervals is implemented correctly
+    """
+
+    interval_a = tuning.diff_interval(pitch_diff_a)
+    interval_b = tuning.diff_interval(pitch_diff_b)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval_a - interval_b == result_interval
+    assert interval_b - interval_a == -result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, scalar, result_pitch_diff',
+    [
+        (edo31,  18,  3, 54),
+        (edo12,  16,  0, 0),
+        (edo12,  0,  3, 0),
+        (edo24,  -2,  12, -24),
+        (edo24,  9,  -2, -18),
+    ]
+)
+def test_mul(tuning,
+             pitch_diff,
+             scalar,
+             result_pitch_diff):
+    """
+    Test if scalar multiplication on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval * scalar == result_interval
+    assert scalar * interval == result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, sign',
+    [
+        (edo31,  18,  1),
+        (edo12,  16,  1),
+        (edo12,  0,  0),
+        (edo24,  -2,  -1),
+        (edo24,  -9,  -1),
+    ]
+)
+def test_sign(tuning,
+              pitch_diff,
+              sign):
+    """
+    Test if sign property on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    assert interval.sign == sign
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, is_simple',
+    [
+        (edo31,  18, True),
+        (edo31,  -33, False),
+        (edo12,  0, True),
+        (edo12,  12, True),
+        (edo12,  18, False),
+        (edo12,  19, False),
+        (edo24,  -24, True),
+    ]
+)
+def test_simple_compound(tuning,
+                         pitch_diff,
+                         is_simple):
+    """
+    Test if simple and compound property on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, result_pitch_diff',
+    [
+        (edo31,  18, 18),
+        (edo31,  -33, -2),
+        (edo12,  0, 0),
+        (edo12,  18, 6),
+        (edo12,  19, 7),
+        (edo24,  -24, -24),
+    ]
+)
+def test_to_simple(tuning,
+                   pitch_diff,
+                   result_pitch_diff):
+    """
+    Test if to_simple method on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval.to_simple() == result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, result_pitch_diff',
+    [
+        (edo31,  18, 13),
+        (edo31,  -33, 64),
+        (edo12,  0, 12),
+        (edo12,  12, 0),
+        (edo12,  18, -6),
+        (edo12,  19, -7),
+        (edo24,  12, 12),
+    ]
+)
+def test_inversion(tuning,
+                   pitch_diff,
+                   result_pitch_diff):
+    """
+    Test if inversion method on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval.inversion() == result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, result_pitch_diff',
+    [
+        (edo31,  18, 13),
+        (edo31,  -16, 15),
+        (edo12,  0, 0),
+        (edo12,  18, 6),
+        (edo12,  19, 5),
+        (edo24,  -22, 2),
+    ]
+)
+def test_ic_normalized(tuning,
+                       pitch_diff,
+                       result_pitch_diff):
+    """
+    Test if ic normalization on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    result_interval = tuning.diff_interval(result_pitch_diff)
+    assert interval.ic_normalized() == result_interval
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_diff, ic_index',
+    [
+        (edo31,  18, 13),
+        (edo31,  -16, 15),
+        (edo12,  0, 0),
+        (edo12,  18, 6),
+        (edo12,  19, 5),
+        (edo24,  -22, 2),
+    ]
+)
+def test_ic_index(tuning,
+                  pitch_diff,
+                  ic_index):
+    """
+    Test if ic_index attribute on intervals is implemented correctly
+    """
+
+    interval = tuning.diff_interval(pitch_diff)
+    assert interval.ic_index == ic_index
+
+
+@pytest.mark.parametrize(
     'tuning, pitch_index_a, pitch_index_b, cents',
     [
         (edo12, 6, 8, 200),

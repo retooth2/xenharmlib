@@ -706,6 +706,33 @@ class NoteIntervalABC(IndexedInterval[IndexT, NoteT], ABC):
         target_note = self.ref_note.transpose(self)
         return self.notation.interval(target_note, self.ref_note)
 
+    def __neg__(self) -> Self:
+        """
+        Returns the negative of this note pitch interval. On downwards
+        interval it returns an upwards interval of the same absolute
+        size. On upwards intervals it returns the corresponding
+        downwards interval
+        """
+
+        target_note = self.ref_note.transpose(self)
+        return self.notation.interval(target_note, self.ref_note)
+
+    def __add__(self, other) -> Self:
+        """
+        Returns the combination of two intervals
+        """
+        if not isinstance(other, NoteIntervalABC):
+            raise TypeError(
+                f"unsupported operand type(s) for +: "
+                f"'{type(self)}' and '{type(other)}'"
+            )
+        if self.origin_context is not other.origin_context:
+            raise IncompatibleOriginContexts(
+                'Intervals must originate from the same notation context'
+            )
+        target_pitch = self.ref_note.transpose(self).transpose(other)
+        return self.origin_context.interval(self.ref_note, target_pitch)
+
     # read-only properties
 
     @property
@@ -745,14 +772,107 @@ class NoteIntervalABC(IndexedInterval[IndexT, NoteT], ABC):
         tuning = self.notation.tuning
         return tuning.interval(note_a.pitch, note_b.pitch)
 
+    @abstractmethod
+    def is_notated_same(self, other) -> bool:
+        """
+        (Must be implemented by subclasses)
+        Returns True, if this interval is notated the same
+        way as the other, False otherwise
+
+        :param other: Another interval of the same
+            notation
+        """
+
 
 class PeriodicNoteInterval(NoteIntervalABC[PeriodicIndexT, NoteT]):
     """
     Abstract base class for intervals referring to notations
     of periodic tunings.
-
-    Implements the method :meth:`get_generator_distance`
     """
+
+    @property
+    def is_compound(self) -> bool:
+        """
+        Returns True if this interval is a compound interval,
+        False otherwise. A compound interval is defined as
+        an interval whose absolute value is strictly greater
+        than the equivalency interval (meaning the equivalency
+        interval itself and its negation are not considered
+        compound)
+        """
+        return abs(self) > self.origin_context.eq_interval
+
+    @property
+    def is_simple(self) -> bool:
+        """
+        Returns True if this interval is a simple interval,
+        False otherwise. A simple interval is defined as
+        an interval whose absolute value is lesser or equal
+        than the equivalency interval (meaning the equivalency
+        interval itself and its negation are considered a simple
+        interval)
+        """
+        return abs(self) <= self.origin_context.eq_interval
+
+    def to_simple(self) -> Self:
+        """
+        Returns the corresponding simple interval if this
+        is a compound interval (or the interval itself if
+        it is already simple)
+
+        The method preserves direction, so if this interval
+        is a downward interval, the resulting interval will
+        also be a downward interval.
+        """
+
+        interval = self
+        eq_interval = self.origin_context.eq_interval
+
+        while interval.is_compound:
+            # if interval is pointing upward, subtract
+            # the equivalency interval successively.
+            # if it points downwards, add it.
+            interval += (-1) * self.sign * eq_interval
+
+        return interval
+
+    def inversion(self) -> Self:
+        """
+        Returns the inversion of this interval. The inversion
+        is calculated by subtracting this interval from the
+        equivalency interval.
+        """
+
+        return self.origin_context.eq_interval - self
+
+    def ic_normalized(self) -> Self:
+        """
+        Returns an interval class normalized version of this
+        interval. The interval normalized version is calculated
+        by converting (if necessary) this interval into a simple
+        interval, normalizing it to a upwards interval and then
+        building the minimum from that result and its inversion.
+        """
+        a = abs(self.to_simple())
+        b = a.inversion()
+        return min(a, b)
+
+    @property
+    def ic_index(self) -> PeriodicIndexT:
+        """
+        Returns the interval class index of this interval
+        (often simply called "interval class" or "ic")
+        as known from pitch class set theory.
+
+        The interval class is the shortest distance in pitch
+        class space between two unordered pitch classes.
+
+        It is calculated by comparing the absolute value of
+        the simple portion of the interval and its inversion,
+        returning whatever pitch difference is smaller, so
+        e.g. in 12-EDO the ic class for P5 is min(7, 5) = 5
+        """
+        return self.ic_normalized().pitch_diff
 
 
 class SDPeriodicNoteIntervalMixin:
@@ -901,6 +1021,23 @@ class NatAccNoteInterval(PeriodicNoteInterval[PeriodicIndexT, NatAccNoteT]):
         1-based index)
         """
         return self._number
+
+    def is_notated_same(self, other) -> bool:
+        """
+        Returns True, if this interval is notated the same
+        way as the other, False otherwise
+
+        :param other: Another interval to compare
+        """
+
+        if other.notation is not self.notation:
+            raise IncompatibleOriginContexts(
+                'Intervals must originate from the same notation context'
+            )
+
+        return (self.symbol == other.symbol) and (
+            self.number == other.number
+        )
 
     @classmethod
     def from_notes(cls, note_a: NatAccNoteT, note_b: NatAccNoteT) -> Self:

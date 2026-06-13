@@ -1050,6 +1050,7 @@ def test_is_seq_equivalent(tuning, input_pi_a, input_pi_b, expected):
 @pytest.mark.parametrize(
     'tuning_a, input_pi_a, tuning_b, input_pi_b, expected',
     [
+        (edo12, [0, 4, 7], edo24, [0, 8, 14], True),
         (edo12, [5, 8, 7], edo24, [10, 14, 16], True),
         (edo12, [5, 8, 7], edo24, [34, 38, 40], True),
         (edo12, [5, 8, 7], edo24, [38, 40, 58], False),

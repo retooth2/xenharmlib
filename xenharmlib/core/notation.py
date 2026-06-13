@@ -35,6 +35,8 @@ from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_seq import NoteSeq
+from .note_seq import NatAccNoteSeq
 from .note_interval_seq import NoteIntervalSeq
 from .note_interval_seq import NatAccNoteIntervalSeq
 from .note_scale import NoteScale
@@ -56,11 +58,12 @@ NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
+NoteSeqT = TypeVar('IntervalSeqT', bound=NoteSeq)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
 class NotationABC(
-    OriginContext[IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT]
+    OriginContext[IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT, NoteSeqT]
 ):
     """
     Abstract base class for all notations. A notation can be
@@ -88,13 +91,15 @@ class NotationABC(
         note_cls: type[NoteT],
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
-        note_interval_seq_cls: type[IntervalSeqT]
+        note_interval_seq_cls: type[IntervalSeqT],
+        note_seq_cls: type[IntervalSeqT]
     ):
         super().__init__(
             note_cls,
             note_interval_cls,
             note_scale_cls,
-            note_interval_seq_cls
+            note_interval_seq_cls,
+            note_seq_cls
         )
         self._tuning = tuning
         self._enharm_strategy = None
@@ -386,7 +391,8 @@ class NatAccNotation(
         NatAccNote,
         NatAccNoteInterval,
         NatAccNoteScale,
-        NatAccNoteIntervalSeq
+        NatAccNoteIntervalSeq,
+        NatAccNoteSeq
     ]
 ):
     """
@@ -436,6 +442,7 @@ class NatAccNotation(
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
         note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
+        note_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteSeq,
     ):
 
         super().__init__(
@@ -443,7 +450,8 @@ class NatAccNotation(
             note_cls,
             note_interval_cls,
             note_scale_cls,
-            note_interval_seq_cls
+            note_interval_seq_cls,
+            note_seq_cls,
         )
 
         self._acc_weights = acc_weights
@@ -490,6 +498,15 @@ class NatAccNotation(
             )
 
         return note
+
+    @property
+    def eq_interval(self) -> NatAccNoteInterval:
+        """
+        The equivalency interval of this tuning
+        """
+        return self.interval(
+            self.zero_element, self.zero_element.transpose_bi_index(1)
+        )
 
     # we define the function w(A) from the definition and (for
     # implementation detail reasons) also the inverse function

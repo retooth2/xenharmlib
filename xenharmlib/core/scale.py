@@ -855,18 +855,20 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         :param other: Another periodic scale
         """
 
-        if self.tuning is other.tuning:
-            return self.pc_indices == other.pc_indices
+        if self.tuning.eq_ratio != other.tuning.eq_ratio:
+            raise IncompatibleOriginContexts(
+                'Equivalency can only be tested for scales from tunings '
+                'with the same equivalency interval'
+            )
 
-        if self.tuning.eq_ratio == other.tuning.eq_ratio:
-            bi_diff = self[0].bi_index - other[0].bi_index
-            t_other = other.transpose_bi_index(bi_diff)
-            return self == t_other
+        if len(self) != len(other):
+            return False
 
-        raise IncompatibleOriginContexts(
-            'Equivalency can only be tested for scales from tunings '
-            'with the same equivalency interval'
-        )
+        for a, b in zip(self, other):
+            if not a.is_equivalent(b):
+                return False
+
+        return True
 
     def is_set_equivalent(self, other: PeriodicScale) -> bool:
         """
@@ -885,9 +887,6 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         :param other: Another periodic scale
         """
-
-        if self.tuning is other.tuning:
-            return set(self.pc_indices) == set(other.pc_indices)
 
         if self.tuning.eq_ratio == other.tuning.eq_ratio:
             n_self = self.pcs_normalized()
