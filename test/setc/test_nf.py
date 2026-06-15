@@ -65,10 +65,9 @@ def test_nf_forte_pitch(
 
     for order in range(0, len(input_scale)):
         input_scale = input_scale.rotation(order)
-
-    n_scale = setc.nf_forte(input_scale)
-    assert n_scale == output_scale
-    assert n_scale.pc_indices == output_pci
+        n_scale = setc.nf_forte(input_scale)
+        assert n_scale == output_scale
+        assert n_scale.pc_indices == output_pci
 
 
 def test_nf_forte_non_period_normalized():
