@@ -156,8 +156,8 @@ MultiGenIntervalSeqT = TypeVar(
 MultiGenIntervalFanT = TypeVar(
     'MultiGenIntervalFanT', bound=MultiGenPitchIntervalFan
 )
-MultiGenPitchSeqT = TypeVar(
-    'MultiGenPitchSeqT', bound=MultiGenPitchSeq
+MultiGenSeqT = TypeVar(
+    'MultiGenSeqT', bound=MultiGenPitchSeq
 )
 
 
@@ -169,7 +169,7 @@ class MultiGenTuning(
         MultiGenScaleT,
         MultiGenIntervalSeqT,
         MultiGenIntervalFanT,
-        MultiGenPitchSeqT,
+        MultiGenSeqT,
     ]
 ):
     """
@@ -205,7 +205,7 @@ class MultiGenTuning(
         pitch_interval_fan_cls: type[
             MultiGenIntervalFanT
         ] = MultiGenPitchIntervalFan,
-        pitch_seq_cls: type[MultiGenPitchSeqT] = MultiGenPitchSeq,
+        pitch_seq_cls: type[MultiGenSeqT] = MultiGenPitchSeq,
     ):
 
         self._lattice = Lattice(generators)
@@ -334,7 +334,7 @@ class MultiGenTuning(
 
     def vec_seq(
         self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
-    ) -> MultiGenPitchSeqT:
+    ) -> MultiGenSeqT:
         """
         Convenience function to create a sequence from an iterable
         of integer vectors defining all the exponents of the
