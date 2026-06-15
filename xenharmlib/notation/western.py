@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
+from ..core.frequencies import Frequency
+from ..core.frequencies import Hz440C0
 from .updown import UpDownNotation
 from .updown import UpDownNote
 from .updown import UpDownNoteInterval
@@ -85,9 +87,14 @@ class WesternNotation(UpDownNotation):
     A4 set to 440Hz, interval system with perfect and
     imperfect interval qualities, etc)
 
-    Additional, optional keyword-only arguments:
-    (only relevant if you want to develop your own notation
-     class based on this one)
+    Optional keyword-only arguments
+
+    :param ref_frequency: The reference frequency of C0.
+        Defaults to the frequency for C0 that is equivalent
+        to A4 = 440Hz (about 16.35 Hz)
+
+    The following optional keyword-only arguments are only
+    relevant if you are building your own notation class:
 
     :param note_cls: The python class that is used for the note
         object returned from the note method.
@@ -114,9 +121,10 @@ class WesternNotation(UpDownNotation):
         note_interval_cls=WesternNoteInterval,
         note_scale_cls=WesternNoteScale,
         note_interval_seq_cls=WesternNoteIntervalSeq,
+        ref_frequency: Frequency = Hz440C0,
     ):
 
-        tuning = EDOTuning(12)
+        tuning = EDOTuning(12, ref_frequency=ref_frequency)
 
         super().__init__(
             tuning,
