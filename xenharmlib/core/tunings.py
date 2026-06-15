@@ -50,6 +50,10 @@ from .pitch_interval_seq import PitchIntervalSeq
 from .pitch_interval_seq import PeriodicPitchIntervalSeq
 from .pitch_interval_seq import EDPitchIntervalSeq
 from .pitch_interval_seq import EDOPitchIntervalSeq
+from .pitch_interval_fan import PitchIntervalFan
+from .pitch_interval_fan import PeriodicPitchIntervalFan
+from .pitch_interval_fan import EDPitchIntervalFan
+from .pitch_interval_fan import EDOPitchIntervalFan
 from .pitch_seq import PitchSeq
 from .pitch_seq import PeriodicPitchSeq
 from .pitch_seq import EDPitchSeq
@@ -68,13 +72,22 @@ from ..exc import InvalidPitchClassIndex
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=PitchIntervalSeq)
+IntervalFanT = TypeVar('IntervalSeqT', bound=PitchIntervalFan)
 SeqT = TypeVar('SeqT', bound=PitchSeq)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
 class TuningABC(
-    OriginContext[IndexT, PitchT, IntervalT, ScaleT, IntervalSeqT, SeqT],
+    OriginContext[
+        IndexT,
+        PitchT,
+        IntervalT,
+        ScaleT,
+        IntervalSeqT,
+        IntervalFanT,
+        SeqT
+    ],
     TuningLike
 ):
     """
@@ -112,6 +125,7 @@ class TuningABC(
         pitch_interval_cls: type[IntervalT],
         pitch_scale_cls: type[ScaleT],
         pitch_interval_seq_cls: type[IntervalSeqT],
+        pitch_interval_fan_cls: type[IntervalFanT],
         pitch_seq_cls: type[SeqT],
         ref_frequency: Frequency,
     ):
@@ -121,6 +135,7 @@ class TuningABC(
             pitch_interval_cls,
             pitch_scale_cls,
             pitch_interval_seq_cls,
+            pitch_interval_fan_cls,
             pitch_seq_cls
         )
         self.ref_frequency = ref_frequency
@@ -233,6 +248,10 @@ PeriodicIntervalSeqT = TypeVar(
     'PeriodicIntervalSeqT',
     bound=PeriodicPitchIntervalSeq
 )
+PeriodicIntervalFanT = TypeVar(
+    'PeriodicIntervalFanT',
+    bound=PeriodicPitchIntervalFan
+)
 PeriodicSeqT = TypeVar('PeriodicSeqT', bound=PeriodicPitchSeq)
 PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
@@ -244,6 +263,7 @@ class PeriodicTuning(
         PeriodicIntervalT,
         PeriodicScaleT,
         PeriodicIntervalSeqT,
+        PeriodicIntervalFanT,
         PeriodicSeqT
     ]
 ):
@@ -289,6 +309,7 @@ class PeriodicTuning(
         pitch_interval_cls: type[PeriodicIntervalT],
         pitch_scale_cls: type[PeriodicScaleT],
         pitch_interval_seq_cls: type[PeriodicIntervalSeqT],
+        pitch_interval_fan_cls: type[PeriodicIntervalFanT],
         pitch_seq_cls: type[PeriodicSeqT],
         ref_frequency: Frequency,
     ):
@@ -298,6 +319,7 @@ class PeriodicTuning(
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
             pitch_interval_seq_cls=pitch_interval_seq_cls,
+            pitch_interval_fan_cls=pitch_interval_fan_cls,
             pitch_seq_cls=pitch_seq_cls,
             ref_frequency=ref_frequency,
         )
@@ -546,6 +568,7 @@ class EDTuning(
         EDPitchInterval,
         EDPitchScale,
         EDPitchIntervalSeq,
+        EDPitchIntervalFan,
         EDPitchSeq,
     ],
     SDPeriodicTuningMixin
@@ -596,6 +619,7 @@ class EDTuning(
         pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
         pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
         pitch_interval_seq_cls: type[EDPitchIntervalSeq] = EDPitchIntervalSeq,
+        pitch_interval_fan_cls: type[EDPitchIntervalFan] = EDPitchIntervalFan,
         pitch_seq_cls: type[EDPitchSeq] = EDPitchSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
@@ -607,6 +631,7 @@ class EDTuning(
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
             pitch_interval_seq_cls=pitch_interval_seq_cls,
+            pitch_interval_fan_cls=pitch_interval_fan_cls,
             pitch_seq_cls=pitch_seq_cls,
             ref_frequency=ref_frequency,
         )
@@ -697,6 +722,7 @@ class EDOTuning(EDTuning):
         pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
         pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
         pitch_interval_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalSeq,
+        pitch_interval_fan_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalFan,
         pitch_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
@@ -708,6 +734,7 @@ class EDOTuning(EDTuning):
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
             pitch_interval_seq_cls=pitch_interval_seq_cls,
+            pitch_interval_fan_cls=pitch_interval_fan_cls,
             pitch_seq_cls=pitch_seq_cls,
             ref_frequency=ref_frequency,
         )

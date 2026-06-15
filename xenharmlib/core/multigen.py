@@ -42,6 +42,7 @@ from .pitch import PeriodicPitchInterval
 from .pitch_scale import PeriodicPitchScale
 from .pitch_seq import PeriodicPitchSeq
 from .pitch_interval_seq import PeriodicPitchIntervalSeq
+from .pitch_interval_fan import PeriodicPitchIntervalFan
 
 
 class MultiGenPitch(PeriodicPitch[LatticePoint]):
@@ -112,6 +113,23 @@ class MultiGenPitchIntervalSeq(
         )
 
 
+class MultiGenPitchIntervalFan(
+    PeriodicPitchIntervalFan[LatticePoint, MultiGenPitchInterval]
+):
+
+    def __repr__(self) -> str:
+        base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
+        base_string = ', '.join(base_strings)
+        vec_strings = [
+            interval.pitch_diff.short_repr for interval in self
+        ]
+        vec_string = ', '.join(vec_strings)
+        return (
+            f'{self.__class__.__name__}([{vec_string}], '
+            f'G=({base_string}))'
+        )
+
+
 class MultiGenPitchSeq(
     PeriodicPitchSeq[LatticePoint, MultiGenPitch]
 ):
@@ -135,6 +153,9 @@ MultiGenScaleT = TypeVar('MultiGenScaleT', bound=MultiGenPitchScale)
 MultiGenIntervalSeqT = TypeVar(
     'MultiGenIntervalSeqT', bound=MultiGenPitchIntervalSeq
 )
+MultiGenIntervalFanT = TypeVar(
+    'MultiGenIntervalFanT', bound=MultiGenPitchIntervalFan
+)
 MultiGenPitchSeqT = TypeVar(
     'MultiGenPitchSeqT', bound=MultiGenPitchSeq
 )
@@ -147,6 +168,7 @@ class MultiGenTuning(
         MultiGenIntervalT,
         MultiGenScaleT,
         MultiGenIntervalSeqT,
+        MultiGenIntervalFanT,
         MultiGenPitchSeqT,
     ]
 ):
@@ -180,6 +202,9 @@ class MultiGenTuning(
         pitch_interval_seq_cls: type[
             MultiGenIntervalSeqT
         ] = MultiGenPitchIntervalSeq,
+        pitch_interval_fan_cls: type[
+            MultiGenIntervalFanT
+        ] = MultiGenPitchIntervalFan,
         pitch_seq_cls: type[MultiGenPitchSeqT] = MultiGenPitchSeq,
     ):
 
@@ -200,6 +225,7 @@ class MultiGenTuning(
             pitch_interval_cls,
             pitch_scale_cls,
             pitch_interval_seq_cls,
+            pitch_interval_fan_cls,
             pitch_seq_cls,
             ref_frequency,
         )
@@ -321,5 +347,23 @@ class MultiGenTuning(
         """
         _vectors = [] if vectors is None else vectors
         return self.diff_interval_seq(
+            [self.lattice.point(v) for v in _vectors]
+        )
+
+    def vec_interval_fan(
+        self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
+    ) -> MultiGenIntervalFanT:
+        """
+        Convenience function to create an interval fan from an
+        iterable of integer vectors defining all the exponents
+        of the generators of each respective interval in the
+        sequence, so for example in a pythagorean tuning with
+        generators 2 and 3 the value [(0, 0), (-7, 4), (-1, 1)]
+        produces the interval fan of the major triad.
+
+        :param vectors: An iterable of integer tuples
+        """
+        _vectors = [] if vectors is None else vectors
+        return self.diff_interval_fan(
             [self.lattice.point(v) for v in _vectors]
         )

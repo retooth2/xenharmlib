@@ -1144,6 +1144,152 @@ def test_to_note_intervals(notation, input_pairs, intervals):
 
 
 @pytest.mark.parametrize(
+    'notation, input_pairs, interval_notes',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            [
+                (('A+', 0), ('A+', 0)),
+                (('A+', 0), ('B+', 0)),
+                (('A+', 0), ('D+', 0))
+            ],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('B+', 0), ('C', 1)],
+            [
+                (('A', 0), ('A', 0)),
+                (('A', 0), ('B+', 0)),
+                (('A', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [('B', -1), ('B+', 0), ('C', 1)],
+            [
+                (('B', -1), ('B', -1)),
+                (('B', -1), ('B+', 0)),
+                (('B', -1), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [],
+            []
+        ),
+    ]
+)
+def test_to_interval_fan_no_param(notation, input_pairs, interval_notes):
+    """
+    Test if to_interval_fan method works correctly
+    without giving additional ref parameter
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_intervals = []
+    for note_a, note_b in interval_notes:
+        interval = notation.note(*note_a).interval(
+            notation.note(*note_b)
+        )
+        note_intervals.append(interval)
+
+    ifan = notation.interval_fan(note_intervals)
+    assert scale.to_interval_fan() == ifan
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, ref_pair, interval_notes',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            ('B+', 0),
+            [
+                (('B+', 0), ('A+', 0)),
+                (('B+', 0), ('B+', 0)),
+                (('B+', 0), ('D+', 0))
+            ],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('B+', 0), ('C', 1)],
+            ('A', 0),
+            [
+                (('A', 0), ('A', 0)),
+                (('A', 0), ('B+', 0)),
+                (('A', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [('B', -1), ('B+', 0), ('C', 1)],
+            ('B', 0),
+            [
+                (('B', 0), ('B', -1)),
+                (('B', 0), ('B+', 0)),
+                (('B', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [],
+            ('B', 0),
+            [],
+        ),
+    ]
+)
+def test_to_interval_fan_ref_param(
+    notation, input_pairs, ref_pair, interval_notes
+):
+    """
+    Test if to_interval_fan method works correctly
+    when giving additional ref parameter
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_intervals = []
+    for note_a, note_b in interval_notes:
+        interval = notation.note(*note_a).interval(
+            notation.note(*note_b)
+        )
+        note_intervals.append(interval)
+
+    ref = notation.note(*ref_pair)
+    ifan = notation.interval_fan(note_intervals)
+    assert scale.to_interval_fan(ref) == ifan
+
+
+def test_to_interval_fan_incompatible_origin_context():
+    """
+    Test if to_interval_fan method raises error
+    when giving incompatible ref parameter
+    """
+
+    scale = NoteScale(
+        n_edo12,
+        [n_edo12.note(*pair) for pair in [('A+', 0), ('B', 1)]]
+    )
+
+    ref = n_edo24.note('A+', 0)
+    with pytest.raises(IncompatibleOriginContexts) as excinfo:
+        scale.to_interval_fan(ref)
+    assert (
+        excinfo.value.args[0] ==
+        f'The ref parameter {ref} does not originate from context '
+        f'{scale.origin_context}. Cannot construct interval fan.'
+    )
+
+
+@pytest.mark.parametrize(
     'notation, input_pairs, interval, result_pairs',
     [
         (

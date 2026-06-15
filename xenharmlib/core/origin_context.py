@@ -32,18 +32,28 @@ from .protocols import Index
 from .interval import Interval
 from .scale import Scale
 from .interval_seq import IntervalSeq
+from .interval_fan import IntervalFan
 
 IndexT = TypeVar('IndexT', bound=Index)
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=IntervalSeq)
-FreqReprSeqT = TypeVar('IntervalSeqT', bound=FreqReprSeq)
+FreqReprSeqT = TypeVar('FreqReprSeqT', bound=FreqReprSeq)
+IntervalFanT = TypeVar('IntervalFanT', bound=IntervalFan)
 
 
 class OriginContext(
     ABC,
-    Generic[IndexT, FreqReprT, IntervalT, ScaleT, IntervalSeqT, FreqReprSeqT]
+    Generic[
+        IndexT,
+        FreqReprT,
+        IntervalT,
+        ScaleT,
+        IntervalSeqT,
+        IntervalFanT,
+        FreqReprSeqT
+    ]
 ):
     """
     OriginContext is the abstract base class for both tunings and notations.
@@ -65,6 +75,7 @@ class OriginContext(
         interval_cls: type[IntervalT],
         scale_cls: type[ScaleT],
         interval_seq_cls: type[IntervalSeqT],
+        interval_fan_cls: type[IntervalFanT],
         freq_repr_seq_cls: type[FreqReprSeqT],
     ):
 
@@ -72,6 +83,7 @@ class OriginContext(
         self._interval_cls = interval_cls
         self._scale_cls = scale_cls
         self._interval_seq_cls = interval_seq_cls
+        self._interval_fan_cls = interval_fan_cls
         self._freq_repr_seq_cls = freq_repr_seq_cls
 
     @property
@@ -184,6 +196,23 @@ class OriginContext(
 
         return self._interval_seq_cls(self, intervals)
 
+    def interval_fan(
+        self,
+        intervals: Optional[Sequence[IntervalT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval fan having the interval fan type
+        this origin context was configured with
+
+        :raises IncompatibleOriginContexts: If at least one given
+            element has a different origin context than this one
+
+        :param intervals: A list of intervals originating from this
+            context
+        """
+
+        return self._interval_fan_cls(self, intervals)
+
     def seq(
         self,
         elements: Optional[Sequence[FreqReprT]] = None
@@ -225,3 +254,29 @@ class OriginContext(
         ]
 
         return self.interval_seq(intervals)
+
+    def diff_interval_fan(
+        self,
+        pitch_diffs: Optional[Sequence[IndexT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval fan from an iterable of pitch index
+        differences, for example:
+
+        >>> from xenharmlib import EDOTuning
+        >>> edo12 = EDOTuning(12)
+        >>> major_chord = edo12.diff_interval_fan([4, 7])
+        >>> minor_chord = edo12.diff_interval_fan([3, 7])
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        if not pitch_diffs:
+            return self.interval_fan()
+
+        intervals = [
+            self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs
+        ]
+
+        return self.interval_fan(intervals)

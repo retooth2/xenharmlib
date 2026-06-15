@@ -349,6 +349,27 @@ class Scale(Sequence[FreqReprT], ABC):
             intervals.append(self[i].interval(self[i + 1]))
         return self.origin_context.interval_seq(intervals)
 
+    def to_interval_fan(self, ref: Optional[Self] = None):
+        """
+        Returns this scale represented as an interval fan
+        """
+
+        if len(self) == 0:
+            return self.origin_context.interval_fan()
+
+        _ref = self[0] if ref is None else ref
+
+        if _ref.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                f'The ref parameter {_ref} does not originate from context '
+                f'{self.origin_context}. Cannot construct interval fan.'
+            )
+
+        intervals = []
+        for element in self:
+            intervals.append(_ref.interval(element))
+        return self.origin_context.interval_fan(intervals)
+
     def spec_interval(self, source_index, target_index):
         """
         Returns the specific interval for a generic interval.
