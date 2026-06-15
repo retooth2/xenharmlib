@@ -357,7 +357,7 @@ class MultiGenTuning(
         an iterable of integer vectors defining all the exponents
         of the generators of each respective interval in the
         sequence, so for example in a pythagorean tuning with
-        generators 2 and 3 the value [(0, 0), (-7, 4), (-1, 1)]
+        generators 2 and 3 the value [(-7, 4), (6, -3)]
         produces the interval sequence of the major triad.
 
         :param vectors: An iterable of integer tuples
