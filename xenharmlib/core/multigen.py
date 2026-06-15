@@ -221,13 +221,13 @@ class MultiGenTuning(
         super().__init__(
             period_length,
             period_length.frequency_ratio,
-            pitch_cls,
-            pitch_interval_cls,
-            pitch_scale_cls,
-            pitch_interval_seq_cls,
-            pitch_interval_fan_cls,
-            pitch_seq_cls,
-            ref_frequency,
+            pitch_cls=pitch_cls,
+            pitch_interval_cls=pitch_interval_cls,
+            pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
+            pitch_interval_fan_cls=pitch_interval_fan_cls,
+            pitch_seq_cls=pitch_seq_cls,
+            ref_frequency=ref_frequency,
         )
 
     @property

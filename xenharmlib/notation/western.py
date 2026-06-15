@@ -84,10 +84,32 @@ class WesternNotation(UpDownNotation):
     western notation (12 notes per octave, equally tempered,
     A4 set to 440Hz, interval system with perfect and
     imperfect interval qualities, etc)
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation
+     class based on this one)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
+        *,
         note_cls=WesternNote,
         note_interval_cls=WesternNoteInterval,
         note_scale_cls=WesternNoteScale,
@@ -98,10 +120,10 @@ class WesternNotation(UpDownNotation):
 
         super().__init__(
             tuning,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls
+            note_cls=note_cls,
+            note_interval_cls=note_interval_cls,
+            note_scale_cls=note_scale_cls,
+            note_interval_seq_cls=note_interval_seq_cls,
         )
 
         # initialize default enharmonic strategy

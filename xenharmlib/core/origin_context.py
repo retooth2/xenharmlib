@@ -71,6 +71,7 @@ class OriginContext(
 
     def __init__(
         self,
+        *,
         freq_repr_cls: type[FreqReprT],
         interval_cls: type[IntervalT],
         scale_cls: type[ScaleT],

@@ -79,26 +79,37 @@ class NotationABC(
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
-    string interface to the underlying integer system.
-
-    Notations in the core package are defined as generics
-    with three type variables: One for the note class,
-    one for the interval class, and one for the scale class.
+    string interface to the underlying integer or lattice
+    point system.
 
     :param tuning: The tuning for which the notation should
         be constructed
-    :param note_cls: The python class that is used to generate
-        the note object in the note method.
-    :param note_interval_cls: The python class that is used to
-        generate a note interval object in the note_interval
-        method.
-    :param note_scale_cls: The python class that is used to
-        generate a note scale object in the note_scale method.
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
+        *,
         note_cls: type[NoteT],
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
@@ -107,12 +118,12 @@ class NotationABC(
         note_seq_cls: type[NoteSeqT]
     ):
         super().__init__(
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls,
-            note_interval_fan_cls,
-            note_seq_cls
+            freq_repr_cls=note_cls,
+            interval_cls=note_interval_cls,
+            scale_cls=note_scale_cls,
+            interval_seq_cls=note_interval_seq_cls,
+            interval_fan_cls=note_interval_fan_cls,
+            freq_repr_seq_cls=note_seq_cls,
         )
         self._tuning = tuning
         self._enharm_strategy = None
@@ -438,20 +449,33 @@ class NatAccNotation(
     :param acc_weight: A vector defining a mapping between the
         (unweighted) accidental sum vector and the (weighted)
         accidental diff vector
-    :param note_cls: Note class used in the :meth:`note` builder
-        method (optional, defaults to the class NatAccNote)
-    :param note_interval_cls: Note interval class used in the
-        :meth:`note_interval` builder method (optional, defaults
-        to the class NatAccNoteInterval)
-    :param note_scale_cls: Note scale class used in the
-        :meth:`note_scale` builder method (optional, defaults
-        to the class NatAccNoteScale)
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
         acc_weights: Tuple[PeriodicIndexT, ...],
+        *,
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
@@ -462,12 +486,12 @@ class NatAccNotation(
 
         super().__init__(
             tuning,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls,
-            note_interval_fan_cls,
-            note_seq_cls,
+            note_cls=note_cls,
+            note_interval_cls=note_interval_cls,
+            note_scale_cls=note_scale_cls,
+            note_interval_seq_cls=note_interval_seq_cls,
+            note_interval_fan_cls=note_interval_fan_cls,
+            note_seq_cls=note_seq_cls,
         )
 
         self._acc_weights = acc_weights
