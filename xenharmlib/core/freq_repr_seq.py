@@ -206,7 +206,6 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         if seq.origin_context is not self.origin_context:
             raise IncompatibleOriginContexts(
                 "Sequences have different origin contexts"
-                "origin context"
             )
 
         len_seq = len(seq)
