@@ -35,16 +35,16 @@ def test_init_pitch_diff(tuning,
             tuning.pitch(pitch_index_b),
         )
 
-    interval.ref_pitch == tuning.pitch(pitch_index_a)
-    interval.pitch_diff == pitch_diff
+    assert interval.ref_pitch == tuning.pitch(pitch_index_a)
+    assert interval.pitch_diff == pitch_diff
 
     interval = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
 
-    interval.ref_pitch == tuning.pitch(pitch_index_a)
-    interval.pitch_diff == pitch_diff
+    assert interval.ref_pitch == tuning.pitch(pitch_index_a)
+    assert interval.pitch_diff == pitch_diff
 
 
 @pytest.mark.parametrize(
