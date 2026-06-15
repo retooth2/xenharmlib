@@ -332,6 +332,23 @@ class MultiGenTuning(
         _vectors = [] if vectors is None else vectors
         return self.index_scale([self.lattice.point(v) for v in _vectors])
 
+    def vec_seq(
+        self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
+    ) -> MultiGenPitchSeqT:
+        """
+        Convenience function to create a sequence from an iterable
+        of integer vectors defining all the exponents of the
+        generators of each respective pitch in the sequence,
+        so for example in a pythagorean tuning with generators
+        2 and 3 the value [(0, 0), (-7, 4), (-1, 1)] produces
+        the C0 major triad sequence
+
+        :param vectors: An iterable of integer tuples
+        """
+
+        _vectors = [] if vectors is None else vectors
+        return self.index_seq([self.lattice.point(v) for v in _vectors])
+
     def vec_interval_seq(
         self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
     ) -> MultiGenIntervalSeqT:

@@ -219,6 +219,32 @@ def test_vec_scale(tuning, vecs):
 
 
 @pytest.mark.parametrize(
+    'tuning, vecs',
+    [
+        (
+            multigen_23,
+            [(0, -3), (5, -6), (-6, 1), (-1, -2), (-7, 2)],
+        ),
+        (
+            multigen_235,
+            [(-1, 0, -1), (0, -2, 0), (1, -1, -1), (-1, -1, 0)],
+        )
+    ]
+)
+def test_vec_seq(tuning, vecs):
+    """
+    Test if vec_seq works correctly
+    """
+
+    seq = tuning.vec_seq(vecs)
+    expected_seq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in vecs]
+    )
+    assert seq == expected_seq
+    assert seq.pitch_indices == [tuning.lattice.point(vec) for vec in vecs]
+
+
+@pytest.mark.parametrize(
     'tuning',
     [multigen_23, multigen_25, multigen_235, multigen_257]
 )
