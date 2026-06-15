@@ -126,53 +126,43 @@ class FreqRepr(ABC):
     # FIXME: type annotation is omitted here because types have
     # cicular dependencies (we need to find a good solution for
     # this problem soon)
-    def scale(self, interval_seq):
+    def scale(self, istruct):
         """
-        Returns a scale that starts with this note and continues
-        with the given interval structure
+        Depending on given parameter this method constructs a new
+        scale with this pitch/note as a starting point (if an
+        interval sequence is given), or as a reference point
+        (if an interval fan is given)
 
-        :param interval_seq: An interval sequence of the same
-            origin context
+        :param istruct: An interval sequence or interval fan of
+            the same origin context
         """
 
-        if interval_seq.origin_context is not self.origin_context:
+        if istruct.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                'The interval structure does not originate from the '
+                'same origin context'
+            )
+
+        return istruct.to_scale(self)
+
+    def seq(self, istruct):
+        """
+        Depending on given parameter this method constructs a new
+        sequence with this pitch/note as a starting point (if an
+        interval sequence is given), or as a reference point
+        (if an interval fan is given)
+
+        :param istruct: An interval sequence or interval fan of
+            the same origin context
+        """
+
+        if istruct.origin_context is not self.origin_context:
             raise IncompatibleOriginContexts(
                 'The interval sequence does not originate from the '
                 'same origin context'
             )
 
-        current = self
-        scale_elements = [self]
-
-        for interval in interval_seq:
-            current = current.transpose(interval)
-            scale_elements.append(current)
-
-        return self.origin_context.scale(scale_elements)
-
-    def seq(self, interval_seq):
-        """
-        Returns a sequence that starts with this note and
-        continues according to the given interval structure
-
-        :param interval_seq: An interval sequence of the same
-            origin context
-        """
-
-        if interval_seq.origin_context is not self.origin_context:
-            raise IncompatibleOriginContexts(
-                'The interval sequence does not originate from the '
-                'same origin context'
-            )
-
-        current = self
-        seq_elements = [self]
-
-        for interval in interval_seq:
-            current = current.transpose(interval)
-            seq_elements.append(current)
-
-        return self.origin_context.seq(seq_elements)
+        return istruct.to_seq(self)
 
 
 IndexT = TypeVar('IndexT', bound=Index)

@@ -3480,3 +3480,107 @@ def test_to_interval_seq(tuning, input_vecs, result_vecs):
         [tuning.lattice.point(vec) for vec in result_vecs]
     )
     assert scale.to_interval_seq() == iseq
+
+
+@pytest.mark.parametrize(
+    'tuning, input_vecs, result_vecs',
+    [
+        (
+            multigen_235,
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1)],
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1)],
+        ),
+        (
+            multigen_235,
+            [(1, 2, 3), (2, 3, 2), (-1, 2, 4), (0, 3, 3), (-2, 3, 4)],
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1), (-1, 1, 0), (-3, 1, 1)],
+        ),
+        (
+            multigen_23,
+            [],
+            [],
+        ),
+    ]
+)
+def test_to_interval_fan_no_param(tuning, input_vecs, result_vecs):
+    """
+    Test if to_interval_fan works correctly
+    without giving a ref parameter
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(tuning.lattice.point(vec)) for vec in input_vecs]
+    )
+    ifan = tuning.diff_interval_fan(
+        [tuning.lattice.point(vec) for vec in result_vecs]
+    )
+    assert scale.to_interval_fan() == ifan
+
+
+@pytest.mark.parametrize(
+    'tuning, input_vecs, ref_pi, result_vecs',
+    [
+        (
+            multigen_235,
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1)],
+            (0, 0, 0),
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1)],
+        ),
+        (
+            multigen_235,
+            [(1, 2, 3), (2, 3, 2), (-1, 2, 4), (0, 3, 3), (-2, 3, 4)],
+            (1, 2, 3),
+            [(0, 0, 0), (1, 1, -1), (-2, 0, 1), (-1, 1, 0), (-3, 1, 1)],
+        ),
+        (
+            multigen_235,
+            [(1, 2, 3), (2, 3, 2), (-1, 2, 4), (0, 3, 3), (-2, 3, 4)],
+            (-1, 1, 0),
+            [(2, 1, 3), (3, 2, 2), (0, 1, 4), (1, 2, 3), (-1, 2, 4)],
+        ),
+        (
+            multigen_23,
+            [],
+            (0, 1),
+            [],
+        ),
+    ]
+)
+def test_to_interval_fan_reference_param(
+    tuning, input_vecs, ref_pi, result_vecs
+):
+    """
+    Test if to_interval_fan works correctly
+    with giving reference parameter
+    """
+
+    scale = tuning.scale(
+        [tuning.pitch(tuning.lattice.point(vec)) for vec in input_vecs]
+    )
+    ifan = tuning.diff_interval_fan(
+        [tuning.lattice.point(vec) for vec in result_vecs]
+    )
+
+    ref = tuning.vec_pitch(ref_pi)
+    assert scale.to_interval_fan(ref) == ifan
+
+
+def test_to_interval_fan_incompatible_origin_context():
+    """
+    Test if to_interval_fan method raises correct error
+    when giving incompatible reference parameter
+    """
+
+    scale = multigen_235.vec_scale(
+        [(0, 0, 0), (1, 2, 3)]
+    )
+
+    ref = multigen_23.vec_pitch((1, 2))
+
+    with pytest.raises(IncompatibleOriginContexts) as excinfo:
+        scale.to_interval_fan(ref)
+    assert (
+        excinfo.value.args[0] ==
+        f'The ref parameter {ref} does not originate from context '
+        f'{scale.origin_context}. Cannot construct interval fan.'
+    )

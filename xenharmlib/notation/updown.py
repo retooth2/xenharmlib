@@ -25,6 +25,7 @@ from ..core.notes import SDPeriodicNoteMixin
 from ..core.notes import SDPeriodicNoteIntervalMixin
 from ..core.note_scale import NatAccNoteScale
 from ..core.note_interval_seq import NatAccNoteIntervalSeq
+from ..core.note_interval_fan import NatAccNoteIntervalFan
 from ..core.note_seq import NatAccNoteSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
@@ -50,6 +51,10 @@ class UpDownNoteScale(NatAccNoteScale[int, UpDownNote]):
 
 
 class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq[int, UpDownNoteInterval]):
+    pass
+
+
+class UpDownNoteIntervalFan(NatAccNoteIntervalFan[int, UpDownNoteInterval]):
     pass
 
 
@@ -137,6 +142,7 @@ class UpDownNotation(NatAccNotation[int]):
         note_interval_cls=UpDownNoteInterval,
         note_scale_cls=UpDownNoteScale,
         note_interval_seq_cls=UpDownNoteIntervalSeq,
+        note_interval_fan_cls=UpDownNoteIntervalFan,
         note_seq_cls=UpDownNoteSeq,
     ):
 
@@ -157,6 +163,7 @@ class UpDownNotation(NatAccNotation[int]):
             note_interval_cls,
             note_scale_cls,
             note_interval_seq_cls,
+            note_interval_fan_cls,
             note_seq_cls
         )
 

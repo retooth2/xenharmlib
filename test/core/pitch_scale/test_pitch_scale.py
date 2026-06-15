@@ -740,6 +740,75 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
 
 
 @pytest.mark.parametrize(
+    'tuning, input_pi, interval_diffs',
+    [
+        (edo12, [3, 7, 8], [0, 4, 5]),
+        (edo31, [4, 8, 10, 22, 23], [0, 4, 6, 18, 19]),
+        (ed13_3, [-2, 8, 15, 66], [0, 10, 17, 68]),
+        (ed13_3, [], []),
+    ]
+)
+def test_to_interval_fan_no_param(tuning, input_pi, interval_diffs):
+    """
+    Test if to_interval_fan method works correctly
+    without giving additional parameters
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    result = tuning.diff_interval_fan(interval_diffs)
+
+    assert scale.to_interval_fan() == result
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, ref_pi, interval_diffs',
+    [
+        (edo12, [3, 7, 8], 3, [0, 4, 5]),
+        (edo31, [4, 8, 10, 22, 23], 2, [2, 6, 8, 20, 21]),
+        (ed13_3, [-2, 8, 15, 66], -1, [-1, 9, 16, 67]),
+        (ed13_3, [], 3, []),
+    ]
+)
+def test_to_interval_fan_reference_param(
+    tuning, input_pi, ref_pi, interval_diffs
+):
+    """
+    Test if to_interval_fan method works correctly
+    with giving reference parameter
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    result = tuning.diff_interval_fan(interval_diffs)
+
+    ref = tuning.pitch(ref_pi)
+    assert scale.to_interval_fan(ref) == result
+
+
+def test_to_interval_fan_incompatible_origin_context():
+    """
+    Test if to_interval_fan method raises correct error
+    when giving incompatible reference parameter
+    """
+
+    scale = edo24.index_scale([1, 2, 3, 5])
+    ref = edo12.pitch(3)
+
+    with pytest.raises(IncompatibleOriginContexts) as excinfo:
+        scale.to_interval_fan(ref)
+    assert (
+        excinfo.value.args[0] ==
+        f'The ref parameter {ref} does not originate from context '
+        f'{scale.origin_context}. Cannot construct interval fan.'
+    )
+
+
+@pytest.mark.parametrize(
     'tuning, input_pi, diff, result_pi',
     [
         (edo12, [3, 7, 8], 2, [5, 9, 10]),

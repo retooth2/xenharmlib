@@ -39,6 +39,8 @@ from .note_seq import NoteSeq
 from .note_seq import NatAccNoteSeq
 from .note_interval_seq import NoteIntervalSeq
 from .note_interval_seq import NatAccNoteIntervalSeq
+from .note_interval_fan import NoteIntervalFan
+from .note_interval_fan import NatAccNoteIntervalFan
 from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
@@ -58,12 +60,21 @@ NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
-NoteSeqT = TypeVar('IntervalSeqT', bound=NoteSeq)
+IntervalFanT = TypeVar('IntervalFanT', bound=NoteIntervalFan)
+NoteSeqT = TypeVar('NoteSeqT', bound=NoteSeq)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
 class NotationABC(
-    OriginContext[IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT, NoteSeqT]
+    OriginContext[
+        IndexT,
+        NoteT,
+        IntervalT,
+        ScaleT,
+        IntervalSeqT,
+        IntervalFanT,
+        NoteSeqT
+    ]
 ):
     """
     Abstract base class for all notations. A notation can be
@@ -92,13 +103,15 @@ class NotationABC(
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
         note_interval_seq_cls: type[IntervalSeqT],
-        note_seq_cls: type[IntervalSeqT]
+        note_interval_fan_cls: type[IntervalFanT],
+        note_seq_cls: type[NoteSeqT]
     ):
         super().__init__(
             note_cls,
             note_interval_cls,
             note_scale_cls,
             note_interval_seq_cls,
+            note_interval_fan_cls,
             note_seq_cls
         )
         self._tuning = tuning
@@ -392,6 +405,7 @@ class NatAccNotation(
         NatAccNoteInterval,
         NatAccNoteScale,
         NatAccNoteIntervalSeq,
+        NatAccNoteIntervalFan,
         NatAccNoteSeq
     ]
 ):
@@ -442,7 +456,8 @@ class NatAccNotation(
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
         note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
-        note_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteSeq,
+        note_interval_fan_cls: type[NatAccNoteIntervalFan] = NatAccNoteIntervalFan,
+        note_seq_cls: type[NatAccNoteSeq] = NatAccNoteSeq,
     ):
 
         super().__init__(
@@ -451,6 +466,7 @@ class NatAccNotation(
             note_interval_cls,
             note_scale_cls,
             note_interval_seq_cls,
+            note_interval_fan_cls,
             note_seq_cls,
         )
 
