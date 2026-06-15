@@ -113,9 +113,7 @@ def compact_forte(scale: ScaleT) -> ScaleT:
 
     if len(r1_candidates) == 1:
         result = r1_candidates[0]
-        return result.transpose_bi_index(
-            -result[0].bi_index
-        )
+        return result.transpose_bi_index(-result[0].bi_index)
 
     # second round
     # ------------
@@ -150,9 +148,7 @@ def compact_forte(scale: ScaleT) -> ScaleT:
 
     if len(r2_candidates) == 1:
         result = r2_candidates[0]
-        return result.transpose_bi_index(
-            -result[0].bi_index
-        )
+        return result.transpose_bi_index(-result[0].bi_index)
 
     # third round
     # -----------
@@ -166,9 +162,7 @@ def compact_forte(scale: ScaleT) -> ScaleT:
         if r2_candidate[0].pc_index < best_candidate[0].pc_index:
             best_candidate = r2_candidate
 
-    return best_candidate.transpose_bi_index(
-        -best_candidate[0].bi_index
-    )
+    return best_candidate.transpose_bi_index(-best_candidate[0].bi_index)
 
 
 def nf_rahn(scale: ScaleT) -> ScaleT:
@@ -200,9 +194,7 @@ def nf_rahn(scale: ScaleT) -> ScaleT:
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'nf_rahn is only defined on period normalized scales'
-        )
+        raise ValueError('nf_rahn is only defined on period normalized scales')
 
     return compact_rahn(scale)
 
@@ -272,9 +264,7 @@ def compact_rahn(scale: ScaleT) -> ScaleT:
 
     if len(candidates) == 1:
         result = candidates[0]
-        return result.transpose_bi_index(
-            -result[0].bi_index
-        )
+        return result.transpose_bi_index(-result[0].bi_index)
 
     # second round
     # -----------
@@ -288,6 +278,4 @@ def compact_rahn(scale: ScaleT) -> ScaleT:
         if r1_candidate[0].pc_index < best_candidate[0].pc_index:
             best_candidate = r1_candidate
 
-    return best_candidate.transpose_bi_index(
-        -best_candidate[0].bi_index
-    )
+    return best_candidate.transpose_bi_index(-best_candidate[0].bi_index)

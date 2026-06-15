@@ -47,9 +47,7 @@ class PitchIntervalSeq(IntervalSeq[IndexT, PitchIntervalT]):
     """
 
     def __init__(
-        self,
-        tuning,
-        intervals: Optional[List[PitchIntervalT]] = None
+        self, tuning, intervals: Optional[List[PitchIntervalT]] = None
     ):
         super().__init__(tuning, intervals)
         self.tuning = tuning
@@ -77,6 +75,7 @@ class PeriodicPitchIntervalSeq(
     :param tuning: The tuning this pitch interval sequence originates from
     :param intervals: A sequence of pitch intervals
     """
+
     pass
 
 
@@ -87,6 +86,7 @@ class EDPitchIntervalSeq(PeriodicPitchIntervalSeq[int, EDPitchInterval]):
     :param tuning: The tuning this pitch interval sequence originates from
     :param intervals: A sequence of pitch intervals
     """
+
     pass
 
 
@@ -98,4 +98,5 @@ class EDOPitchIntervalSeq(EDPitchIntervalSeq):
     :param tuning: The tuning this pitch interval sequence originates from
     :param intervals: A sequence of pitch intervals
     """
+
     pass

@@ -39,11 +39,7 @@ class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
     :param elements: A sequence of pitches
     """
 
-    def __init__(
-        self,
-        tuning,
-        elements: Optional[List[PitchT]] = None
-    ):
+    def __init__(self, tuning, elements: Optional[List[PitchT]] = None):
         super().__init__(tuning, elements)
         self.tuning = tuning
 
@@ -116,6 +112,7 @@ class EDPitchSeq(PeriodicPitchSeq[int, EDPitch]):
     :param tuning: The tuning this pitch sequence originates from
     :param elements: A sequence of pitches
     """
+
     pass
 
 
@@ -126,4 +123,5 @@ class EDOPitchSeq(EDPitchSeq):
     :param tuning: The tuning this pitch sequence originates from
     :param elements: A sequence of pitches
     """
+
     pass

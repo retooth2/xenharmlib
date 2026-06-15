@@ -188,7 +188,7 @@ class UpDownNotation(NatAccNotation[int]):
             note_scale_cls=note_scale_cls,
             note_interval_seq_cls=note_interval_seq_cls,
             note_interval_fan_cls=note_interval_fan_cls,
-            note_seq_cls=note_seq_cls
+            note_seq_cls=note_seq_cls,
         )
 
         self._init_naturals()
@@ -537,8 +537,7 @@ class UpDownNotation(NatAccNotation[int]):
         #      vvm        vm          m         ^m          ^m
 
         imp_min_arith = SymbolArithmetic(
-            dimensions=dimensions,
-            offset=(-1, 0) if dimensions == 2 else (-1,)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
         add_first_dim_symbol(
             imp_min_arith, "m", 0, min_occurence=1, max_occurence=1, position=1
@@ -588,8 +587,7 @@ class UpDownNotation(NatAccNotation[int]):
         #      vvd        vd          d         ^d         ^^d
 
         imp_dim_arith = SymbolArithmetic(
-            dimensions=dimensions,
-            offset=(-1, 0) if dimensions == 2 else (-1,)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
         add_first_dim_symbol(
             imp_dim_arith, "d", -1, min_occurence=1, position=1
@@ -726,7 +724,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = start_note if sharpness > 0 else end_note
 
@@ -758,7 +756,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = end_note if sharpness > 0 else start_note
 
@@ -786,7 +784,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (i,) if sharpness == 0 else (0, i)
@@ -810,7 +808,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (-i,) if sharpness == 0 else (0, -i)

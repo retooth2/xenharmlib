@@ -46,10 +46,7 @@ class WesternNote(UpDownNote):
 class WesternNoteInterval(UpDownNoteInterval):
 
     def __repr__(self) -> str:
-        return (
-            f'{self.__class__.__name__}('
-            f'{self.symbol}, {self.number})'
-        )
+        return f'{self.__class__.__name__}({self.symbol}, {self.number})'
 
 
 class WesternNoteScale(UpDownNoteScale):
@@ -60,10 +57,7 @@ class WesternNoteScale(UpDownNoteScale):
             note_symbols.append(note.short_repr)
         note_symbols = ', '.join(note_symbols)
         note_symbols = '[' + note_symbols + ']'
-        return (
-            f'{self.__class__.__name__}('
-            f'{note_symbols})'
-        )
+        return f'{self.__class__.__name__}({note_symbols})'
 
 
 class WesternNoteIntervalSeq(UpDownNoteIntervalSeq):
@@ -74,10 +68,7 @@ class WesternNoteIntervalSeq(UpDownNoteIntervalSeq):
             interval_symbols.append(interval.short_repr)
         interval_symbols = ', '.join(interval_symbols)
         interval_symbols = '[' + interval_symbols + ']'
-        return (
-            f'{self.__class__.__name__}('
-            f'{interval_symbols})'
-        )
+        return f'{self.__class__.__name__}({interval_symbols})'
 
 
 class WesternNotation(UpDownNotation):

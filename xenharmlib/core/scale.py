@@ -730,8 +730,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         last = self[-1]
 
         return (
-            root.is_equivalent(last) and
-            (last.bi_index - root.bi_index) == 1
+            root.is_equivalent(last) and (last.bi_index - root.bi_index) == 1
         )
 
     def zp_normalized(self) -> Self:

@@ -31,10 +31,7 @@ FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 ScaleT = TypeVar('ScaleT', bound=PeriodicScale)
 
 
-def scale_element(
-    scale: PeriodicScale[FreqReprT],
-    index: int
-) -> FreqReprT:
+def scale_element(scale: PeriodicScale[FreqReprT], index: int) -> FreqReprT:
     """
     Gets an element at a given index from the periodic extension of a
     period normalized scale.
@@ -96,9 +93,7 @@ def index(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> int:
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'index is only defined on period normalized scales'
-        )
+        raise ValueError('index is only defined on period normalized scales')
 
     if scale.origin_context is not element.origin_context:
         raise IncompatibleOriginContexts(
@@ -113,7 +108,7 @@ def index(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> int:
             f'{element} was not found in periodic extension of the scale'
         )
 
-    bi_index_diff = (element.bi_index - maybe_equivalent.bi_index)
+    bi_index_diff = element.bi_index - maybe_equivalent.bi_index
     return i + (bi_index_diff * len(scale))
 
 
@@ -142,9 +137,7 @@ def is_in(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> bool:
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'is_in is only defined on period normalized scales'
-        )
+        raise ValueError('is_in is only defined on period normalized scales')
 
     if scale.origin_context is not element.origin_context:
         raise IncompatibleOriginContexts(
@@ -159,24 +152,18 @@ def is_in(scale: PeriodicScale[FreqReprT], element: FreqReprT) -> bool:
 
 @overload
 def scalar_transpose(
-    ref_scale: ScaleT,
-    transposable: FreqReprT,
-    steps: int
+    ref_scale: ScaleT, transposable: FreqReprT, steps: int
 ) -> FreqReprT: ...
 
 
 @overload
 def scalar_transpose(
-    ref_scale: ScaleT,
-    transposable: ScaleT,
-    steps: int
+    ref_scale: ScaleT, transposable: ScaleT, steps: int
 ) -> ScaleT: ...
 
 
 def scalar_transpose(
-    ref_scale: ScaleT,
-    transposable: ScaleT | FreqReprT,
-    steps: int
+    ref_scale: ScaleT, transposable: ScaleT | FreqReprT, steps: int
 ) -> ScaleT | FreqReprT:
     """
     Scalar transposition moves a note, pitch or scale along the
@@ -217,9 +204,7 @@ def scalar_transpose(
     """
 
     if not ref_scale.is_period_normalized:
-        raise ValueError(
-            'ref_scale must be period normalized'
-        )
+        raise ValueError('ref_scale must be period normalized')
 
     if ref_scale.origin_context is not transposable.origin_context:
         raise IncompatibleOriginContexts(
@@ -233,17 +218,14 @@ def scalar_transpose(
 
     elements = []
     for element in transposable:
-        elements.append(
-            scalar_transpose(ref_scale, element, steps)
-        )
+        elements.append(scalar_transpose(ref_scale, element, steps))
 
     context = ref_scale.origin_context
     return context.scale(elements)
 
 
 def partial(
-    scale: ScaleT,
-    mask_expr: int | Tuple[int | EllipsisType, ...]
+    scale: ScaleT, mask_expr: int | Tuple[int | EllipsisType, ...]
 ) -> ScaleT:
     """
     Returns a new scale consisting of a selection of indices
@@ -288,9 +270,7 @@ def partial(
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'partial is only defined on period normalized scales'
-        )
+        raise ValueError('partial is only defined on period normalized scales')
 
     mask = InfiniteIndexMask(mask_expr)
     elements = []

@@ -67,13 +67,7 @@ IndexT = TypeVar('IndexT', bound=Index)
 
 class NotationABC(
     OriginContext[
-        IndexT,
-        NoteT,
-        IntervalT,
-        ScaleT,
-        IntervalSeqT,
-        IntervalFanT,
-        NoteSeqT
+        IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT, IntervalFanT, NoteSeqT
     ]
 ):
     """
@@ -115,7 +109,7 @@ class NotationABC(
         note_scale_cls: type[ScaleT],
         note_interval_seq_cls: type[IntervalSeqT],
         note_interval_fan_cls: type[IntervalFanT],
-        note_seq_cls: type[NoteSeqT]
+        note_seq_cls: type[NoteSeqT],
     ):
         super().__init__(
             freq_repr_cls=note_cls,
@@ -417,7 +411,7 @@ class NatAccNotation(
         NatAccNoteScale,
         NatAccNoteIntervalSeq,
         NatAccNoteIntervalFan,
-        NatAccNoteSeq
+        NatAccNoteSeq,
     ]
 ):
     """
@@ -479,8 +473,12 @@ class NatAccNotation(
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
-        note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
-        note_interval_fan_cls: type[NatAccNoteIntervalFan] = NatAccNoteIntervalFan,
+        note_interval_seq_cls: type[
+            NatAccNoteIntervalSeq
+        ] = NatAccNoteIntervalSeq,
+        note_interval_fan_cls: type[
+            NatAccNoteIntervalFan
+        ] = NatAccNoteIntervalFan,
         note_seq_cls: type[NatAccNoteSeq] = NatAccNoteSeq,
     ):
 
@@ -701,8 +699,8 @@ class NatAccNotation(
             interval 1)
         """
 
-        natc_symbol, acc_symbol, natc_index, acc_sum_vector = self.parse_pc_symbol(
-            pc_symbol
+        natc_symbol, acc_symbol, natc_index, acc_sum_vector = (
+            self.parse_pc_symbol(pc_symbol)
         )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
         natc_pitch_index = self.nat_index_to_pitch_index(natc_index)
@@ -864,9 +862,9 @@ class NatAccNotation(
         acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
             acc_sum_vector
         )
-        pitch_diff_zero = reduce(
-            operator.add, acc_diff_vector
-        ) + nat_pitch_diff
+        pitch_diff_zero = (
+            reduce(operator.add, acc_diff_vector) + nat_pitch_diff
+        )
         pitch_diff = pitch_diff_zero - ref_note.pitch_index
 
         tuning = self.tuning
@@ -907,7 +905,7 @@ class NatAccNotation(
     def pc_scale(
         self,
         pc_symbols: Optional[List[str]] = None,
-        root_nat_bi_index: int = 0
+        root_nat_bi_index: int = 0,
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.

@@ -172,7 +172,7 @@ class LatticePoint:
         ratio = 1
         for x, base in zip(vector, base):
             if x >= 0:
-                ratio *= base ** x
+                ratio *= base**x
             else:
                 ratio *= FrequencyRatio(1, base ** (-x))
 
@@ -192,8 +192,11 @@ class LatticePoint:
 
     def __repr__(self) -> str:
         return (
-            'LatticePoint(' + str(self.vector) + ' ^= ' +
-            str(self.frequency_ratio) + ')'
+            'LatticePoint('
+            + str(self.vector)
+            + ' ^= '
+            + str(self.frequency_ratio)
+            + ')'
         )
 
     @property
@@ -226,22 +229,14 @@ class LatticePoint:
     def __add__(self, other: Self) -> Self:
 
         self._ensure_sametype_operand(other, '+')
-        vector = componentwise(
-            operator.add,
-            self.vector,
-            other.vector
-        )
+        vector = componentwise(operator.add, self.vector, other.vector)
         return self.__class__(vector, self.base)
 
     __radd__ = __add__
 
     def __sub__(self, other: Self) -> Self:
         self._ensure_sametype_operand(other, '-')
-        vector = componentwise(
-            operator.sub,
-            self.vector,
-            other.vector
-        )
+        vector = componentwise(operator.sub, self.vector, other.vector)
         return self.__class__(vector, self.base)
 
     __rsub__ = __sub__
@@ -309,7 +304,7 @@ class LatticePoint:
         if self >= zero:
             return self
         else:
-            return (-self)
+            return -self
 
     def __neg__(self) -> Self:
         vector = tuple(map(lambda x: -x, self.vector))

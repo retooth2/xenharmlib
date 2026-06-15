@@ -87,19 +87,13 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         return False
 
     def __add__(self, other: Self) -> Self:
-        return self.origin_context.interval_seq(
-            list(self) + list(other)
-        )
+        return self.origin_context.interval_seq(list(self) + list(other))
 
     def __mul__(self, scalar: int) -> Self:
-        return self.origin_context.interval_seq(
-            scalar * list(self)
-        )
+        return self.origin_context.interval_seq(scalar * list(self))
 
     def __rmul__(self, scalar: int) -> Self:
-        return self.origin_context.interval_seq(
-            scalar * list(self)
-        )
+        return self.origin_context.interval_seq(scalar * list(self))
 
     @overload
     def __getitem__(self, index_or_slice: int) -> IntervalT: ...
@@ -107,9 +101,7 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
     @overload
     def __getitem__(self, index_or_slice: slice) -> Self: ...
 
-    def __getitem__(
-        self, index_or_slice: int | slice
-    ) -> IntervalT | Self:
+    def __getitem__(self, index_or_slice: int | slice) -> IntervalT | Self:
 
         if type(index_or_slice) is slice:
             partial = self._intervals[index_or_slice]
@@ -159,9 +151,7 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         return True
 
     def with_interval(
-        self,
-        interval: IntervalT,
-        insert_pos: Optional[int] = None
+        self, interval: IntervalT, insert_pos: Optional[int] = None
     ) -> Self:
         """
         Returns a new interval sequence containing all intervals

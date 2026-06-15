@@ -86,13 +86,10 @@ class MultiGenPitchScale(PeriodicPitchScale[LatticePoint, MultiGenPitch]):
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            pitch.pitch_index.short_repr for pitch in self
-        ]
+        vec_strings = [pitch.pitch_index.short_repr for pitch in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -103,13 +100,10 @@ class MultiGenPitchIntervalSeq(
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            interval.pitch_diff.short_repr for interval in self
-        ]
+        vec_strings = [interval.pitch_diff.short_repr for interval in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -120,30 +114,22 @@ class MultiGenPitchIntervalFan(
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            interval.pitch_diff.short_repr for interval in self
-        ]
+        vec_strings = [interval.pitch_diff.short_repr for interval in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
-class MultiGenPitchSeq(
-    PeriodicPitchSeq[LatticePoint, MultiGenPitch]
-):
+class MultiGenPitchSeq(PeriodicPitchSeq[LatticePoint, MultiGenPitch]):
 
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            element.pitch_index.short_repr for element in self
-        ]
+        vec_strings = [element.pitch_index.short_repr for element in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -156,9 +142,7 @@ MultiGenIntervalSeqT = TypeVar(
 MultiGenIntervalFanT = TypeVar(
     'MultiGenIntervalFanT', bound=MultiGenPitchIntervalFan
 )
-MultiGenSeqT = TypeVar(
-    'MultiGenSeqT', bound=MultiGenPitchSeq
-)
+MultiGenSeqT = TypeVar('MultiGenSeqT', bound=MultiGenPitchSeq)
 
 
 class MultiGenTuning(
@@ -247,10 +231,7 @@ class MultiGenTuning(
     # we overwrite diff-interval builder methods to provide for
     # nicer error messages in case a wrong parameter is given
 
-    def diff_interval(
-        self,
-        pitch_diff: LatticePoint
-    ) -> MultiGenIntervalT:
+    def diff_interval(self, pitch_diff: LatticePoint) -> MultiGenIntervalT:
         """
         Returns an interval the size of a given pitch index difference.
 

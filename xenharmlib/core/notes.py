@@ -538,9 +538,7 @@ class NatAccNote(PeriodicNoteABC[PeriodicIndexT]):
             )
 
         acc_sum_vector = componentwise(
-            operator.add,
-            self.acc_sum_vector,
-            acc_sum_vector
+            operator.add, self.acc_sum_vector, acc_sum_vector
         )
         return self.notation.note_by_numdef(self.nat_index, acc_sum_vector)
 
@@ -588,9 +586,7 @@ class NatAccNote(PeriodicNoteABC[PeriodicIndexT]):
             )
 
         acc_diff_vector = componentwise(
-            operator.add,
-            self.acc_diff_vector,
-            acc_diff_vector
+            operator.add, self.acc_diff_vector, acc_diff_vector
         )
 
         acc_sum_vector = self.notation.acc_diff_vector_to_acc_sum_vector(
@@ -650,9 +646,7 @@ class NatAccNote(PeriodicNoteABC[PeriodicIndexT]):
             interval.acc_sum_vector,
         )
         new_acc_sum_vector = componentwise(
-            operator.add,
-            balance_vector,
-            unbalanced_vector
+            operator.add, balance_vector, unbalanced_vector
         )
 
         return self.notation.note_by_numdef(new_nat_index, new_acc_sum_vector)
@@ -1035,9 +1029,7 @@ class NatAccNoteInterval(PeriodicNoteInterval[PeriodicIndexT, NatAccNoteT]):
                 'Intervals must originate from the same notation context'
             )
 
-        return (self.symbol == other.symbol) and (
-            self.number == other.number
-        )
+        return (self.symbol == other.symbol) and (self.number == other.number)
 
     @classmethod
     def from_notes(cls, note_a: NatAccNoteT, note_b: NatAccNoteT) -> Self:
@@ -1093,23 +1085,19 @@ class NatAccNoteInterval(PeriodicNoteInterval[PeriodicIndexT, NatAccNoteT]):
 
         # delta ^= p(n2) - p(n1) - q(n2 - n1)
         delta = (
-            target.nat_pitch_index -
-            source.nat_pitch_index -
-            new_nat_pitch_diff
+            target.nat_pitch_index
+            - source.nat_pitch_index
+            - new_nat_pitch_diff
         )
 
         # find balancing accidental sum vector (A')
         balance_vector = notation.get_acc_sum_balance_vector(delta)
 
         unbalanced_vector = componentwise(
-            operator.sub,
-            target.acc_sum_vector,
-            source.acc_sum_vector
+            operator.sub, target.acc_sum_vector, source.acc_sum_vector
         )
         new_acc_sum_vector = componentwise(
-            operator.add,
-            unbalanced_vector,
-            balance_vector
+            operator.add, unbalanced_vector, balance_vector
         )
 
         frequency_ratio = target.frequency / source.frequency
