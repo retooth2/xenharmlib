@@ -212,7 +212,7 @@ class LatticePoint:
         if not isinstance(other, type(self)):
             raise TypeError(
                 f"unsupported operand type(s) for {op_str}: "
-                f"'{type(self)}' and '{type(other)}'"
+                f"'{type(self).__name__}' and '{type(other).__name__}'"
             )
 
         if self.base != other.base:
@@ -233,6 +233,8 @@ class LatticePoint:
         )
         return self.__class__(vector, self.base)
 
+    __radd__ = __add__
+
     def __sub__(self, other: Self) -> Self:
         self._ensure_sametype_operand(other, '-')
         vector = componentwise(
@@ -241,6 +243,8 @@ class LatticePoint:
             other.vector
         )
         return self.__class__(vector, self.base)
+
+    __rsub__ = __sub__
 
     def __divmod__(self, other: Self) -> Self:
 
@@ -290,7 +294,7 @@ class LatticePoint:
         if not isinstance(other, int):
             raise TypeError(
                 f"unsupported operand type(s) for *: "
-                f"'{type(self)}' and '{type(other)}'"
+                f"'{type(self).__name__}' and '{type(other).__name__}'"
             )
 
         vector = scalar_op(operator.mul, self.vector, other)

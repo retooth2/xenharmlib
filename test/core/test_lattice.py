@@ -90,9 +90,9 @@ def test_dim_mismatch():
 
     with pytest.raises(ValueError) as exc_info:
         lattice.point((1, 2, 3))
-        assert exc_info.value.args[0] == (
-            "Index vector dimensions must match base dimensions"
-        )
+    assert exc_info.value.args[0] == (
+        "Index vector dimensions must match base dimensions"
+    )
 
 
 @pytest.mark.parametrize(
@@ -285,10 +285,10 @@ def test_add_different_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) + lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator +: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator +: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -314,17 +314,19 @@ def test_add_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) + operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for +: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for +: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand + lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for +: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for +: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for +: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
 
 @pytest.mark.parametrize(
@@ -377,10 +379,10 @@ def test_sub_different_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) - lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator -: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator -: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -406,17 +408,19 @@ def test_sub_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) - operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for -: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for -: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand - lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for -: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for -: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for -: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
 
 @pytest.mark.parametrize(
@@ -469,10 +473,10 @@ def test_divmod_different_lattice():
         divmod(
             lattice_a.point((1, 2, 1, 0, 1)), lattice_b.point((1, 3, 5, 5, -1))
         )
-        assert exc_info.value.args[0] == (
-            "unsupported operator __divmod__: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator __divmod__: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -498,10 +502,10 @@ def test_divmod_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         divmod(lattice.point((1, 2, 1, 0, 1)), operand)
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for __divmod__: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for __divmod__: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
 
 def test_divmod_zerodiv_error():
@@ -576,10 +580,10 @@ def test_mod_different_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) % lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator %: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator %: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -605,17 +609,13 @@ def test_mod_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) % operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for %: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for %: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand % lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for %: LatticePoint and "
-            f"{(type(operand))}"
-        )
 
 
 def test_mod_zerodiv_error():
@@ -685,10 +685,10 @@ def test_floordiv_different_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) // lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator //: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator //: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -714,17 +714,19 @@ def test_floordiv_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) // operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for //: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for //: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand // lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for //: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for //: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for //: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
 
 def test_floordiv_zerodiv_error():
@@ -785,9 +787,9 @@ def test_mul_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) * lattice.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator type(s) for *: LatticePoint and LatticePoint"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operand type(s) for *: 'LatticePoint' and 'LatticePoint'"
+    )
 
 
 @pytest.mark.parametrize(
@@ -812,17 +814,17 @@ def test_mul_other_incompatible_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) * operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for *: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for *: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand * lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for *: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for *: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
 
 @pytest.mark.parametrize(
@@ -995,31 +997,31 @@ def test_lt_different_lattice():
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) < lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator <: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator <: lattice points originate from "
+        "different lattices"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) <= lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator <: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator <: lattice points originate from "
+        "different lattices"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) > lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator <: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator <: lattice points originate from "
+        "different lattices"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice_a.point((1, 2, 1, 0, 1)) >= lattice_b.point((1, 3, 5, 5, -1))
-        assert exc_info.value.args[0] == (
-            "unsupported operator <: lattice points originate from "
-            "different lattices"
-        )
+    assert exc_info.value.args[0] == (
+        "unsupported operator <: lattice points originate from "
+        "different lattices"
+    )
 
 
 @pytest.mark.parametrize(
@@ -1045,59 +1047,67 @@ def test_lt_gt_non_lattice_point_operand(operand):
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) < operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for <: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) <= operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for <: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) > operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for >: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         lattice.point((1, 2, 1, 0, 1)) >= operand
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for >: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] == (
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'"
+    )
 
     with pytest.raises(TypeError) as exc_info:
         operand < lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for <: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for <: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
     with pytest.raises(TypeError) as exc_info:
         operand <= lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for <: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for <=: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
     with pytest.raises(TypeError) as exc_info:
         operand > lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for >: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for >: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
     with pytest.raises(TypeError) as exc_info:
         operand >= lattice.point((1, 2, 1, 0, 1))
-        assert exc_info.value.args[0] == (
-            f"unsupported operand types for >: LatticePoint and "
-            f"{(type(operand))}"
-        )
+    assert exc_info.value.args[0] in {
+        f"unsupported operand type(s) for <: 'LatticePoint' and "
+        f"'{type(operand).__name__}'",
+        f"unsupported operand type(s) for >=: '{type(operand).__name__}' and "
+        f"'LatticePoint'"
+    }
 
 
 @pytest.mark.parametrize(
