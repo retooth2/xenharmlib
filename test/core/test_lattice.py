@@ -925,6 +925,7 @@ def test_eq_same_lattice(tuple_a, tuple_b, equal):
 
     assert (a == b) is equal
     assert (b == a) is equal
+    assert (hash(a) == hash(b)) is equal
 
 
 def test_non_eq_different_lattice():

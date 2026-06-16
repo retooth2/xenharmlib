@@ -107,6 +107,13 @@ def test_eq():
     assert seq_a == seq_e
     assert seq_a != seq_c
     assert seq_a != seq_d
+
+    assert hash(seq_a) == hash(seq_a)
+    assert hash(seq_a) == hash(seq_b)
+    assert hash(seq_a) == hash(seq_e)
+    assert hash(seq_a) != hash(seq_c)
+    assert hash(seq_a) != hash(seq_d)
+
     assert 'XYZ' != seq_a
     assert 3 != seq_a
     assert seq_a != 'XYZ'

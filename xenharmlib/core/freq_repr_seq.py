@@ -81,6 +81,9 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         """
         return self._origin_context
 
+    def __hash__(self):
+        return hash(('FreqReprSeq', ) + tuple(self.frequencies))
+
     def __contains__(self, o: object) -> bool:
 
         if isinstance(o, FreqRepr):

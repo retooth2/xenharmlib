@@ -276,6 +276,9 @@ def test_note_interval_eq(
     assert interval_ab == interval_cd
     assert interval_cd == interval_ab
 
+    assert hash(interval_ab) == hash(interval_cd)
+    assert hash(interval_cd) == hash(interval_ab)
+
 
 @pytest.mark.parametrize(
     'not_an_interval',
@@ -370,6 +373,9 @@ def test_note_interval_eq_pitch(
     assert interval_ab == interval_cd
     assert interval_cd == interval_ab
 
+    assert hash(interval_ab) == hash(interval_cd)
+    assert hash(interval_cd) == hash(interval_ab)
+
 
 @pytest.mark.parametrize(
     'notation, pc_symbol_a, nat_bi_index_a, '
@@ -399,6 +405,9 @@ def test_note_interval_eq_abs(
     assert interval_ab != interval_ba
     assert abs(interval_ab) == abs(interval_ba)
     assert abs(interval_ba) == interval_ab
+
+    assert hash(abs(interval_ab)) == hash(abs(interval_ba))
+    assert hash(abs(interval_ba)) == hash(interval_ab)
 
 
 @pytest.mark.parametrize(

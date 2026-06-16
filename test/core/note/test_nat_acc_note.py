@@ -399,6 +399,9 @@ def test_note_eq(
     assert note_a == note_b
     assert note_b == note_a
 
+    assert hash(note_a) == hash(note_b)
+    assert hash(note_b) == hash(note_a)
+
 
 @pytest.mark.parametrize(
     'not_a_note',
@@ -477,6 +480,8 @@ def test_note_eq_pitch(
     pitch = tuning.pitch(pitch_index)
     assert note == pitch
     assert pitch == note
+
+    assert hash(note) == hash(pitch)
 
 
 @pytest.mark.parametrize(

@@ -145,10 +145,19 @@ def test_eq():
     interval_seq_e = edo24.diff_interval_seq([2, 4, 6])
 
     assert interval_seq_a == interval_seq_a
+    assert interval_seq_a == interval_seq_a
     assert interval_seq_a == interval_seq_b
     assert interval_seq_a == interval_seq_e
     assert interval_seq_a != interval_seq_c
     assert interval_seq_a != interval_seq_d
+
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_b)
+    assert hash(interval_seq_a) == hash(interval_seq_e)
+    assert hash(interval_seq_a) != hash(interval_seq_c)
+    assert hash(interval_seq_a) != hash(interval_seq_d)
+
     assert 'XYZ' != interval_seq_a
     assert 3 != interval_seq_a
     assert interval_seq_a != 'XYZ'

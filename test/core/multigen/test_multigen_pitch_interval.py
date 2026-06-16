@@ -245,6 +245,7 @@ def test_eq(
     interval_b = tuning_b.diff_interval(tuning_b.lattice.point(diff_vec_b))
 
     assert interval_a == interval_b
+    assert hash(interval_a) == hash(interval_b)
 
 
 @pytest.mark.parametrize(

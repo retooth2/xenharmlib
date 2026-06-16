@@ -219,6 +219,7 @@ def test_eq(pitch_a, pitch_b):
     equal if they have the same frequency
     """
     assert pitch_a == pitch_b
+    assert hash(pitch_a) == hash(pitch_b)
 
 
 @pytest.mark.parametrize(

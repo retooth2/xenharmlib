@@ -91,6 +91,9 @@ class Scale(Sequence[FreqReprT], ABC):
     def __len__(self) -> int:
         return len(self._sorted_elements)
 
+    def __hash__(self):
+        return hash(('Scale', ) + tuple(self.frequencies))
+
     def __contains__(self, o: object) -> bool:
 
         if isinstance(o, FreqRepr):

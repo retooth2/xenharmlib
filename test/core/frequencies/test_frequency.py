@@ -1301,6 +1301,7 @@ def test_mod_type_error(a, b):
 def test_eq(a, b):
     assert a == b
     assert b == a
+    assert hash(a) == hash(b)
 
 
 @pytest.mark.parametrize(

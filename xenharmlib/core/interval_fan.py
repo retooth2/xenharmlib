@@ -82,6 +82,9 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         """
         return self._origin_context
 
+    def __hash__(self):
+        return hash(('IntervalFan', ) + tuple(self.frequency_ratios))
+
     def __contains__(self, o: object) -> bool:
         if isinstance(o, Interval):
             return o in self._intervals

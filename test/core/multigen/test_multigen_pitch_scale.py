@@ -185,6 +185,13 @@ def test_eq():
     assert scale_a == scale_e
     assert scale_a != scale_c
     assert scale_a != scale_d
+
+    assert hash(scale_a) == hash(scale_a)
+    assert hash(scale_a) == hash(scale_b)
+    assert hash(scale_a) == hash(scale_e)
+    assert hash(scale_a) != hash(scale_c)
+    assert hash(scale_a) != hash(scale_d)
+
     assert 'XYZ' != scale_a
     assert 3 != scale_a
     assert scale_a != 'XYZ'

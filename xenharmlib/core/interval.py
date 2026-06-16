@@ -64,6 +64,9 @@ class Interval(ABC, Generic[FreqReprT]):
         """
         return self._frequency_ratio
 
+    def __hash__(self):
+        return hash(('Interval', self.frequency_ratio))
+
     @property
     def sign(self) -> int:
         """

@@ -224,6 +224,7 @@ def test_eq(
     pitch_b = tuning_b.pitch(tuning_b.lattice.point(pitch_vec_b))
 
     assert pitch_a == pitch_b
+    assert hash(pitch_a) == hash(pitch_b)
 
 
 @pytest.mark.parametrize(

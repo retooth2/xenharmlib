@@ -128,6 +128,7 @@ def test_eq(tuning_ab,
             tuning_cd.pitch(pitch_index_d),
         )
     assert interval_ab == interval_cd
+    assert hash(interval_ab) == hash(interval_cd)
 
     interval_ab = PitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
@@ -138,6 +139,7 @@ def test_eq(tuning_ab,
         tuning_cd.pitch(pitch_index_d),
     )
     assert interval_ab == interval_cd
+    assert hash(interval_ab) == hash(interval_cd)
 
 
 @pytest.mark.parametrize(

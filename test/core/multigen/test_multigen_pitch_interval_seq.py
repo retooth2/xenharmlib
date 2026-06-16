@@ -236,6 +236,13 @@ def test_eq():
     assert interval_seq_a == interval_seq_e
     assert interval_seq_a != interval_seq_c
     assert interval_seq_a != interval_seq_d
+
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_b)
+    assert hash(interval_seq_a) == hash(interval_seq_e)
+    assert hash(interval_seq_a) != hash(interval_seq_c)
+    assert hash(interval_seq_a) != hash(interval_seq_d)
+
     assert 'XYZ' != interval_seq_a
     assert 3 != interval_seq_a
     assert interval_seq_a != 'XYZ'
