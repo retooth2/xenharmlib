@@ -45,11 +45,7 @@ class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
     :param elements: A sequence of pitches
     """
 
-    def __init__(
-        self,
-        notation,
-        elements: Optional[List[PitchT]] = None
-    ):
+    def __init__(self, notation, elements: Optional[List[PitchT]] = None):
         super().__init__(notation, elements)
         self._notation = notation
 
@@ -92,9 +88,7 @@ class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
 
     @property
     def pitch_seq(self):
-        return self.tuning.seq(
-            [element.pitch for element in self]
-        )
+        return self.tuning.seq([element.pitch for element in self])
 
     @property
     def pitch_indices(self) -> List[IndexT]:

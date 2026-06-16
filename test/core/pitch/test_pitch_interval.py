@@ -35,16 +35,16 @@ def test_init_pitch_diff(tuning,
             tuning.pitch(pitch_index_b),
         )
 
-    interval.ref_pitch == tuning.pitch(pitch_index_a)
-    interval.pitch_diff == pitch_diff
+    assert interval.ref_pitch == tuning.pitch(pitch_index_a)
+    assert interval.pitch_diff == pitch_diff
 
     interval = PitchInterval.from_source_and_target(
         tuning.pitch(pitch_index_a),
         tuning.pitch(pitch_index_b),
     )
 
-    interval.ref_pitch == tuning.pitch(pitch_index_a)
-    interval.pitch_diff == pitch_diff
+    assert interval.ref_pitch == tuning.pitch(pitch_index_a)
+    assert interval.pitch_diff == pitch_diff
 
 
 @pytest.mark.parametrize(
@@ -128,6 +128,7 @@ def test_eq(tuning_ab,
             tuning_cd.pitch(pitch_index_d),
         )
     assert interval_ab == interval_cd
+    assert hash(interval_ab) == hash(interval_cd)
 
     interval_ab = PitchInterval.from_source_and_target(
         tuning_ab.pitch(pitch_index_a),
@@ -138,6 +139,7 @@ def test_eq(tuning_ab,
         tuning_cd.pitch(pitch_index_d),
     )
     assert interval_ab == interval_cd
+    assert hash(interval_ab) == hash(interval_cd)
 
 
 @pytest.mark.parametrize(

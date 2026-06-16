@@ -172,7 +172,7 @@ class LatticePoint:
         ratio = 1
         for x, base in zip(vector, base):
             if x >= 0:
-                ratio *= base ** x
+                ratio *= base**x
             else:
                 ratio *= FrequencyRatio(1, base ** (-x))
 
@@ -192,8 +192,11 @@ class LatticePoint:
 
     def __repr__(self) -> str:
         return (
-            'LatticePoint(' + str(self.vector) + ' ^= ' +
-            str(self.frequency_ratio) + ')'
+            'LatticePoint('
+            + str(self.vector)
+            + ' ^= '
+            + str(self.frequency_ratio)
+            + ')'
         )
 
     @property
@@ -212,7 +215,7 @@ class LatticePoint:
         if not isinstance(other, type(self)):
             raise TypeError(
                 f"unsupported operand type(s) for {op_str}: "
-                f"'{type(self)}' and '{type(other)}'"
+                f"'{type(self).__name__}' and '{type(other).__name__}'"
             )
 
         if self.base != other.base:
@@ -226,21 +229,17 @@ class LatticePoint:
     def __add__(self, other: Self) -> Self:
 
         self._ensure_sametype_operand(other, '+')
-        vector = componentwise(
-            operator.add,
-            self.vector,
-            other.vector
-        )
+        vector = componentwise(operator.add, self.vector, other.vector)
         return self.__class__(vector, self.base)
+
+    __radd__ = __add__
 
     def __sub__(self, other: Self) -> Self:
         self._ensure_sametype_operand(other, '-')
-        vector = componentwise(
-            operator.sub,
-            self.vector,
-            other.vector
-        )
+        vector = componentwise(operator.sub, self.vector, other.vector)
         return self.__class__(vector, self.base)
+
+    __rsub__ = __sub__
 
     def __divmod__(self, other: Self) -> Self:
 
@@ -290,7 +289,7 @@ class LatticePoint:
         if not isinstance(other, int):
             raise TypeError(
                 f"unsupported operand type(s) for *: "
-                f"'{type(self)}' and '{type(other)}'"
+                f"'{type(self).__name__}' and '{type(other).__name__}'"
             )
 
         vector = scalar_op(operator.mul, self.vector, other)
@@ -305,7 +304,7 @@ class LatticePoint:
         if self >= zero:
             return self
         else:
-            return (-self)
+            return -self
 
     def __neg__(self) -> Self:
         vector = tuple(map(lambda x: -x, self.vector))

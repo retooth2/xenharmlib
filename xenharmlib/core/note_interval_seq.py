@@ -36,9 +36,7 @@ class NoteIntervalSeq(IntervalSeq[IndexT, NoteIntervalT]):
     """
 
     def __init__(
-        self,
-        notation,
-        intervals: Optional[List[NoteIntervalT]] = None
+        self, notation, intervals: Optional[List[NoteIntervalT]] = None
     ):
         super().__init__(notation, intervals)
         self.notation = notation
@@ -108,4 +106,5 @@ class NatAccNoteIntervalSeq(
     :param notation: The notation this interval sequences originates from
     :param intervals: A list of intervals from the same notation
     """
+
     pass

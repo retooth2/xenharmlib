@@ -86,13 +86,10 @@ class MultiGenPitchScale(PeriodicPitchScale[LatticePoint, MultiGenPitch]):
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            pitch.pitch_index.short_repr for pitch in self
-        ]
+        vec_strings = [pitch.pitch_index.short_repr for pitch in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -103,13 +100,10 @@ class MultiGenPitchIntervalSeq(
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            interval.pitch_diff.short_repr for interval in self
-        ]
+        vec_strings = [interval.pitch_diff.short_repr for interval in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -120,30 +114,22 @@ class MultiGenPitchIntervalFan(
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            interval.pitch_diff.short_repr for interval in self
-        ]
+        vec_strings = [interval.pitch_diff.short_repr for interval in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
-class MultiGenPitchSeq(
-    PeriodicPitchSeq[LatticePoint, MultiGenPitch]
-):
+class MultiGenPitchSeq(PeriodicPitchSeq[LatticePoint, MultiGenPitch]):
 
     def __repr__(self) -> str:
         base_strings = [ratio.short_repr for ratio in self.tuning.lattice.base]
         base_string = ', '.join(base_strings)
-        vec_strings = [
-            element.pitch_index.short_repr for element in self
-        ]
+        vec_strings = [element.pitch_index.short_repr for element in self]
         vec_string = ', '.join(vec_strings)
         return (
-            f'{self.__class__.__name__}([{vec_string}], '
-            f'G=({base_string}))'
+            f'{self.__class__.__name__}([{vec_string}], G=({base_string}))'
         )
 
 
@@ -156,9 +142,7 @@ MultiGenIntervalSeqT = TypeVar(
 MultiGenIntervalFanT = TypeVar(
     'MultiGenIntervalFanT', bound=MultiGenPitchIntervalFan
 )
-MultiGenPitchSeqT = TypeVar(
-    'MultiGenPitchSeqT', bound=MultiGenPitchSeq
-)
+MultiGenSeqT = TypeVar('MultiGenSeqT', bound=MultiGenPitchSeq)
 
 
 class MultiGenTuning(
@@ -169,7 +153,7 @@ class MultiGenTuning(
         MultiGenScaleT,
         MultiGenIntervalSeqT,
         MultiGenIntervalFanT,
-        MultiGenPitchSeqT,
+        MultiGenSeqT,
     ]
 ):
     """
@@ -205,7 +189,7 @@ class MultiGenTuning(
         pitch_interval_fan_cls: type[
             MultiGenIntervalFanT
         ] = MultiGenPitchIntervalFan,
-        pitch_seq_cls: type[MultiGenPitchSeqT] = MultiGenPitchSeq,
+        pitch_seq_cls: type[MultiGenSeqT] = MultiGenPitchSeq,
     ):
 
         self._lattice = Lattice(generators)
@@ -221,13 +205,13 @@ class MultiGenTuning(
         super().__init__(
             period_length,
             period_length.frequency_ratio,
-            pitch_cls,
-            pitch_interval_cls,
-            pitch_scale_cls,
-            pitch_interval_seq_cls,
-            pitch_interval_fan_cls,
-            pitch_seq_cls,
-            ref_frequency,
+            pitch_cls=pitch_cls,
+            pitch_interval_cls=pitch_interval_cls,
+            pitch_scale_cls=pitch_scale_cls,
+            pitch_interval_seq_cls=pitch_interval_seq_cls,
+            pitch_interval_fan_cls=pitch_interval_fan_cls,
+            pitch_seq_cls=pitch_seq_cls,
+            ref_frequency=ref_frequency,
         )
 
     @property
@@ -247,10 +231,7 @@ class MultiGenTuning(
     # we overwrite diff-interval builder methods to provide for
     # nicer error messages in case a wrong parameter is given
 
-    def diff_interval(
-        self,
-        pitch_diff: LatticePoint
-    ) -> MultiGenIntervalT:
+    def diff_interval(self, pitch_diff: LatticePoint) -> MultiGenIntervalT:
         """
         Returns an interval the size of a given pitch index difference.
 
@@ -332,6 +313,23 @@ class MultiGenTuning(
         _vectors = [] if vectors is None else vectors
         return self.index_scale([self.lattice.point(v) for v in _vectors])
 
+    def vec_seq(
+        self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
+    ) -> MultiGenSeqT:
+        """
+        Convenience function to create a sequence from an iterable
+        of integer vectors defining all the exponents of the
+        generators of each respective pitch in the sequence,
+        so for example in a pythagorean tuning with generators
+        2 and 3 the value [(0, 0), (-7, 4), (-1, 1)] produces
+        the C0 major triad sequence
+
+        :param vectors: An iterable of integer tuples
+        """
+
+        _vectors = [] if vectors is None else vectors
+        return self.index_seq([self.lattice.point(v) for v in _vectors])
+
     def vec_interval_seq(
         self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
     ) -> MultiGenIntervalSeqT:
@@ -340,7 +338,7 @@ class MultiGenTuning(
         an iterable of integer vectors defining all the exponents
         of the generators of each respective interval in the
         sequence, so for example in a pythagorean tuning with
-        generators 2 and 3 the value [(0, 0), (-7, 4), (-1, 1)]
+        generators 2 and 3 the value [(-7, 4), (6, -3)]
         produces the interval sequence of the major triad.
 
         :param vectors: An iterable of integer tuples

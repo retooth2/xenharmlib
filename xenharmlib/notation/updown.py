@@ -133,11 +133,35 @@ class UpDownNotation(NatAccNotation[int]):
       ambigouity when transposing notes (There is e.g. no strict
       definition whether in 31-EDO C0 transposed by ~3 results in
       the note vE or ^Em)
+
+    :param tuning: The EDO tuning this notation wraps
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation
+     class based on this one)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
+        *,
         note_cls=UpDownNote,
         note_interval_cls=UpDownNoteInterval,
         note_scale_cls=UpDownNoteScale,
@@ -159,12 +183,12 @@ class UpDownNotation(NatAccNotation[int]):
         super().__init__(
             tuning,
             acc_weights,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls,
-            note_interval_fan_cls,
-            note_seq_cls
+            note_cls=note_cls,
+            note_interval_cls=note_interval_cls,
+            note_scale_cls=note_scale_cls,
+            note_interval_seq_cls=note_interval_seq_cls,
+            note_interval_fan_cls=note_interval_fan_cls,
+            note_seq_cls=note_seq_cls,
         )
 
         self._init_naturals()
@@ -513,8 +537,7 @@ class UpDownNotation(NatAccNotation[int]):
         #      vvm        vm          m         ^m          ^m
 
         imp_min_arith = SymbolArithmetic(
-            dimensions=dimensions,
-            offset=(-1, 0) if dimensions == 2 else (-1,)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
         add_first_dim_symbol(
             imp_min_arith, "m", 0, min_occurence=1, max_occurence=1, position=1
@@ -564,8 +587,7 @@ class UpDownNotation(NatAccNotation[int]):
         #      vvd        vd          d         ^d         ^^d
 
         imp_dim_arith = SymbolArithmetic(
-            dimensions=dimensions,
-            offset=(-1, 0) if dimensions == 2 else (-1,)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
         add_first_dim_symbol(
             imp_dim_arith, "d", -1, min_occurence=1, position=1
@@ -702,7 +724,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = start_note if sharpness > 0 else end_note
 
@@ -734,7 +756,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = end_note if sharpness > 0 else start_note
 
@@ -762,7 +784,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (i,) if sharpness == 0 else (0, i)
@@ -786,7 +808,7 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (-i,) if sharpness == 0 else (0, -i)

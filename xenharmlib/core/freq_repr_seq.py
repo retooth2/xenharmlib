@@ -81,6 +81,9 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         """
         return self._origin_context
 
+    def __hash__(self):
+        return hash(('FreqReprSeq', ) + tuple(self.frequencies))
+
     def __contains__(self, o: object) -> bool:
 
         if isinstance(o, FreqRepr):
@@ -98,19 +101,13 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         return False
 
     def __add__(self, other: Self) -> Self:
-        return self.origin_context.seq(
-            list(self) + list(other)
-        )
+        return self.origin_context.seq(list(self) + list(other))
 
     def __mul__(self, scalar: int) -> Self:
-        return self.origin_context.seq(
-            scalar * list(self)
-        )
+        return self.origin_context.seq(scalar * list(self))
 
     def __rmul__(self, scalar: int) -> Self:
-        return self.origin_context.seq(
-            scalar * list(self)
-        )
+        return self.origin_context.seq(scalar * list(self))
 
     @overload
     def __getitem__(self, index_or_slice: int) -> FreqReprT: ...
@@ -118,9 +115,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
     @overload
     def __getitem__(self, index_or_slice: slice) -> Self: ...
 
-    def __getitem__(
-        self, index_or_slice: int | slice
-    ) -> FreqReprT | Self:
+    def __getitem__(self, index_or_slice: int | slice) -> FreqReprT | Self:
 
         if type(index_or_slice) is slice:
             partial = self._elements[index_or_slice]
@@ -171,9 +166,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         return True
 
     def with_element(
-        self,
-        element: FreqReprT,
-        insert_pos: Optional[int] = None
+        self, element: FreqReprT, insert_pos: Optional[int] = None
     ) -> Self:
         """
         Returns a new sequence containing all elements
@@ -192,8 +185,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
         if element.origin_context is not self.origin_context:
             raise IncompatibleOriginContexts(
-                "Sequence and new element have a different"
-                "origin context"
+                "Sequence and new element have a different origin context"
             )
 
         if insert_pos is None:
@@ -217,7 +209,6 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         if seq.origin_context is not self.origin_context:
             raise IncompatibleOriginContexts(
                 "Sequences have different origin contexts"
-                "origin context"
             )
 
         len_seq = len(seq)

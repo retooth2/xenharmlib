@@ -149,6 +149,13 @@ def test_eq():
     assert interval_fan_a == interval_fan_e
     assert interval_fan_a != interval_fan_c
     assert interval_fan_a != interval_fan_d
+
+    assert hash(interval_fan_a) == hash(interval_fan_a)
+    assert hash(interval_fan_a) == hash(interval_fan_b)
+    assert hash(interval_fan_a) == hash(interval_fan_e)
+    assert hash(interval_fan_a) != hash(interval_fan_c)
+    assert hash(interval_fan_a) != hash(interval_fan_d)
+
     assert 'XYZ' != interval_fan_a
     assert 3 != interval_fan_a
     assert interval_fan_a != 'XYZ'

@@ -490,15 +490,14 @@ class FrequencyRatio:
         # types, e.g. hash(3) == hash(Fraction(3, 1)) == hash(3.0)
 
         if not (
-            isinstance(numerator, sp.Expr) or
-            isinstance(denominator, sp.Expr) or
-            isinstance(numerator, FrequencyRatio) or
-            isinstance(denominator, FrequencyRatio)
+            isinstance(numerator, sp.Expr)
+            or isinstance(denominator, sp.Expr)
+            or isinstance(numerator, FrequencyRatio)
+            or isinstance(denominator, FrequencyRatio)
         ):
 
-            if (
-                isinstance(numerator, numbers.Rational) and
-                isinstance(denominator, numbers.Rational)
+            if isinstance(numerator, numbers.Rational) and isinstance(
+                denominator, numbers.Rational
             ):
                 self._hash = hash(Fraction(numerator, denominator))
             else:

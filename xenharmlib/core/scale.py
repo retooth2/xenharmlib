@@ -91,6 +91,9 @@ class Scale(Sequence[FreqReprT], ABC):
     def __len__(self) -> int:
         return len(self._sorted_elements)
 
+    def __hash__(self):
+        return hash(('Scale', ) + tuple(self.frequencies))
+
     def __contains__(self, o: object) -> bool:
 
         if isinstance(o, FreqRepr):
@@ -730,8 +733,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         last = self[-1]
 
         return (
-            root.is_equivalent(last) and
-            (last.bi_index - root.bi_index) == 1
+            root.is_equivalent(last) and (last.bi_index - root.bi_index) == 1
         )
 
     def zp_normalized(self) -> Self:

@@ -44,9 +44,7 @@ class PitchIntervalFan(IntervalFan[IndexT, PitchIntervalT]):
     """
 
     def __init__(
-        self,
-        tuning,
-        intervals: Optional[List[PitchIntervalT]] = None
+        self, tuning, intervals: Optional[List[PitchIntervalT]] = None
     ):
         super().__init__(tuning, intervals)
         self.tuning = tuning
@@ -74,6 +72,7 @@ class PeriodicPitchIntervalFan(
     :param tuning: The tuning this pitch interval fan originates from
     :param intervals: A fan of pitch intervals
     """
+
     pass
 
 
@@ -84,6 +83,7 @@ class EDPitchIntervalFan(PeriodicPitchIntervalFan[int, EDPitchInterval]):
     :param tuning: The tuning this pitch interval fan originates from
     :param intervals: A fan of pitch intervals
     """
+
     pass
 
 
@@ -95,4 +95,5 @@ class EDOPitchIntervalFan(EDPitchIntervalFan):
     :param tuning: The tuning this pitch interval fan originates from
     :param intervals: A sequence of pitch intervals
     """
+
     pass

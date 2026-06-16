@@ -80,15 +80,9 @@ IndexT = TypeVar('IndexT', bound=Index)
 
 class TuningABC(
     OriginContext[
-        IndexT,
-        PitchT,
-        IntervalT,
-        ScaleT,
-        IntervalSeqT,
-        IntervalFanT,
-        SeqT
+        IndexT, PitchT, IntervalT, ScaleT, IntervalSeqT, IntervalFanT, SeqT
     ],
-    TuningLike
+    TuningLike,
 ):
     """
     The most abstract tuning class and the base class for all
@@ -102,25 +96,37 @@ class TuningABC(
     the method :meth:`~.TuningABC.get_frequency_for_index` and
     and setting appropriate constructor arguments.
 
-    The constructor arguments are:
+    Mandatory keyword-only argument:
 
-    :param pitch_cls: The python class for the pitch that is
-        used to generate a pitch object in the
-        :meth:`~.AbstractTuning.pitch` method.
-        (Not to be confused with the 'pitch class' of pitches
-        in periodic tunings)
-    :param pitch_interval_cls: The python class for the pitch
-        interval that is used to generate a pitch interval object
-        in the :meth:`~AbstractTuning.pitch_interval` method.
-    :param pitch_scale_cls: The python class for the pitch
-        scale that is used to generate a pitch scale object
-        in the :meth:`~AbstractTuning.pitch_scale` method.
-    :param ref_frequency: A reference frequency on which this
-        tuning is built.
+    :param ref_frequency: Frequency of the zero pitch (pitch
+        with pitch index 0, or in case of lattice points the
+        0 vector)
+
+    Optional keyword-only arguments:
+    (only relevant if you want to develop your own custom
+    tuning class inheriting from this class)
+
+    :param pitch_cls: The python class that is used for the pitch
+        object returned from the pitch method.
+    :param pitch_interval_cls: The python class that is used for
+        the pitch interval object returned from the interval
+        builder methods.
+    :param pitch_scale_cls: The python class that is used for the
+        pitch scale object returned from the scale builder methods.
+    :param pitch_interval_seq_cls: The python class that is used
+        for the pitch interval sequence object returned from the
+        interval sequence builder methods.
+    :param pitch_interval_fan_cls: The python class that is used
+        for the pitch interval fan object returned from the
+        interval fan builder methods.
+    :param pitch_seq_cls: The python class that is used for the
+        pitch sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
+        *,
         pitch_cls: type[PitchT],
         pitch_interval_cls: type[IntervalT],
         pitch_scale_cls: type[ScaleT],
@@ -131,12 +137,12 @@ class TuningABC(
     ):
 
         super().__init__(
-            pitch_cls,
-            pitch_interval_cls,
-            pitch_scale_cls,
-            pitch_interval_seq_cls,
-            pitch_interval_fan_cls,
-            pitch_seq_cls
+            freq_repr_cls=pitch_cls,
+            interval_cls=pitch_interval_cls,
+            scale_cls=pitch_scale_cls,
+            interval_seq_cls=pitch_interval_seq_cls,
+            interval_fan_cls=pitch_interval_fan_cls,
+            freq_repr_seq_cls=pitch_seq_cls,
         )
         self.ref_frequency = ref_frequency
 
@@ -245,12 +251,10 @@ PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIntervalT = TypeVar('PeriodicIntervalT', bound=PeriodicPitchInterval)
 PeriodicScaleT = TypeVar('PeriodicScaleT', bound=PeriodicPitchScale)
 PeriodicIntervalSeqT = TypeVar(
-    'PeriodicIntervalSeqT',
-    bound=PeriodicPitchIntervalSeq
+    'PeriodicIntervalSeqT', bound=PeriodicPitchIntervalSeq
 )
 PeriodicIntervalFanT = TypeVar(
-    'PeriodicIntervalFanT',
-    bound=PeriodicPitchIntervalFan
+    'PeriodicIntervalFanT', bound=PeriodicPitchIntervalFan
 )
 PeriodicSeqT = TypeVar('PeriodicSeqT', bound=PeriodicPitchSeq)
 PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
@@ -264,7 +268,7 @@ class PeriodicTuning(
         PeriodicScaleT,
         PeriodicIntervalSeqT,
         PeriodicIntervalFanT,
-        PeriodicSeqT
+        PeriodicSeqT,
     ]
 ):
     """
@@ -285,26 +289,40 @@ class PeriodicTuning(
 
     :param period_length: The number of pitches that constitute
         a period (for example 12 in 12EDO)
-    :param eq_ratio: A frequency ratio that defines the
-        equivalency interval
-    :param pitch_cls: The python class for the pitch that is
-        used to generate a pitch object in the pitch method.
-        (Not to be confused with the 'pitch class' of pitches
-        in periodic tunings)
-    :param pitch_interval_cls: The python class for the pitch
-        interval that is used to generate a pitch interval
-        object in the pitch interval method.
-    :param pitch_scale_cls: The python class for the pitch
-        scale that is used to generate a pitch scale object
-        in the pitch scale method.
-    :param ref_frequency: A reference frequency on which this
-        tuning is build.
+    :param eq_ratio: The frequency factor defining the base
+        interval (e.g. 2 for an octave, 3/2 for a fifth)
+
+    Mandatory keyword-only argument
+
+    :param ref_frequency: A reference frequency on which this tuning
+        is built (i.e. the frequency of the zero element)
+
+    The following optional keyword-only arguments are only
+    relevant if you are building your own tuning class:
+
+    :param pitch_cls: The python class that is used for the pitch
+        object returned from the pitch method.
+    :param pitch_interval_cls: The python class that is used for
+        the pitch interval object returned from the interval
+        builder methods.
+    :param pitch_scale_cls: The python class that is used for the
+        pitch scale object returned from the scale builder methods.
+    :param pitch_interval_seq_cls: The python class that is used
+        for the pitch interval sequence object returned from the
+        interval sequence builder methods.
+    :param pitch_interval_fan_cls: The python class that is used
+        for the pitch interval fan object returned from the
+        interval fan builder methods.
+    :param pitch_seq_cls: The python class that is used for the
+        pitch sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         period_length: PeriodicIndexT,
         eq_ratio: FrequencyRatio,
+        *,
         pitch_cls: type[PeriodicPitchT],
         pitch_interval_cls: type[PeriodicIntervalT],
         pitch_scale_cls: type[PeriodicScaleT],
@@ -360,7 +378,7 @@ class PeriodicTuning(
     def pc_scale(
         self,
         pc_indices: Optional[List[PeriodicIndexT]] = None,
-        root_bi_index: int = 0
+        root_bi_index: int = 0,
     ) -> PeriodicScaleT:
         """
         Constructs a pitch scale from a list of pitch class indices.
@@ -571,7 +589,7 @@ class EDTuning(
         EDPitchIntervalFan,
         EDPitchSeq,
     ],
-    SDPeriodicTuningMixin
+    SDPeriodicTuningMixin,
 ):
     """
     EDTuning ("equal division tuning") takes a base interval
@@ -592,29 +610,40 @@ class EDTuning(
         interval
     :param eq_ratio: The frequency factor defining the base
         interval (e.g. 2 for an octave, 3/2 for a fifth)
-    :param pitch_cls: (Optional) The python class for the pitch
-        that is used to generate a pitch object in the pitch
-        method. (Not to be confused with the 'pitch class' of
-        pitches in periodic tunings). Defaults to
-        :class:`~xenharmlib.core.pitch.EDPitch`
-    :param pitch_interval_cls: (Optional) The python class
-        for the pitch interval that is used to generate a
-        pitch interval object in the pitch interval method.
-        Defaults to :class:`~xenharmlib.core.pitch.EDPitchInterval`
-    :param pitch_scale_cls: (Optional) The python class for the pitch
-        scale that is used to generate a pitch scale object
-        in the pitch scale method. Defaults to
-        :class:`~xenharmlib.core.pitch_scale.EDPitchScale`
-    :param ref_frequency: (Optional) A reference frequency on
-        which this tuning is built. For EDTunings this is the
-        lowest pitch (pitch index 0). Defaults to the frequency
-        for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
+
+    Optional keyword-only arguments
+
+    :param ref_frequency: A reference frequency on which this tuning
+        is built. For EDTunings this is the lowest pitch (pitch index
+        0). Defaults to the frequency for C0 in EDO tunings for
+        A4 = 440Hz (about 16.35 Hz)
+
+    The following optional keyword-only arguments are only
+    relevant if you are building your own tuning class:
+
+    :param pitch_cls: The python class that is used for the pitch
+        object returned from the pitch method.
+    :param pitch_interval_cls: The python class that is used for
+        the pitch interval object returned from the interval
+        builder methods.
+    :param pitch_scale_cls: The python class that is used for the
+        pitch scale object returned from the scale builder methods.
+    :param pitch_interval_seq_cls: The python class that is used
+        for the pitch interval sequence object returned from the
+        interval sequence builder methods.
+    :param pitch_interval_fan_cls: The python class that is used
+        for the pitch interval fan object returned from the
+        interval fan builder methods.
+    :param pitch_seq_cls: The python class that is used for the
+        pitch sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         divisions,
         eq_ratio: FrequencyRatio,
+        *,
         pitch_cls: type[EDPitch] = EDPitch,
         pitch_interval_cls: type[EDPitchInterval] = EDPitchInterval,
         pitch_scale_cls: type[EDPitchScale] = EDPitchScale,
@@ -695,34 +724,49 @@ class EDOTuning(EDTuning):
     EDOTuning ("equal division of the octave tuning") divides an
     octave into pitches equally spaced from each other.
 
-    :param divisions: The number of divisions of the octave
-    :param pitch_cls: (Optional) The python class for the pitch
-        that is used to generate a pitch object in the pitch
-        method. (Not to be confused with the 'pitch class' of
-        pitches in periodic tunings). Defaults to
-        :class:`~xenharmlib.core.pitch.EDOPitch`
-    :param pitch_interval_cls: (Optional) The python class for
-        the pitch interval that is used to generate a pitch
-        interval object in the pitch interval method. Defaults
-        to :class:`~xenharmlib.core.pitch.EDOPitchInterval`
-    :param pitch_scale_cls: (Optional) The python class for
-        the pitch scale that is used to generate a pitch scale
-        object in the pitch scale method. Defaults to
-        :class:`~xenharmlib.core.pitch_scale.EDOPitchScale`
-    :param ref_frequency: (Optional) A reference frequency on
-        which this tuning is built. For EDOTunings this is the
-        lowest pitch (pitch index 0). Defaults to the frequency
-        for C0 in EDO tunings for A4 = 440Hz (about 16.35 Hz)
+    :param divisions: The number of divisions of the base interval
+
+    Optional keyword-only arguments
+
+    :param ref_frequency: A reference frequency on which this tuning
+        is built. For EDOTunings this is the lowest pitch (pitch index
+        0). Defaults to the frequency for C0 in EDO tunings for
+        A4 = 440Hz (about 16.35 Hz)
+
+    The following optional keyword-only arguments are only
+    relevant if you are building your own tuning class:
+
+    :param pitch_cls: The python class that is used for the pitch
+        object returned from the pitch method.
+    :param pitch_interval_cls: The python class that is used for
+        the pitch interval object returned from the interval
+        builder methods.
+    :param pitch_scale_cls: The python class that is used for the
+        pitch scale object returned from the scale builder methods.
+    :param pitch_interval_seq_cls: The python class that is used
+        for the pitch interval sequence object returned from the
+        interval sequence builder methods.
+    :param pitch_interval_fan_cls: The python class that is used
+        for the pitch interval fan object returned from the
+        interval fan builder methods.
+    :param pitch_seq_cls: The python class that is used for the
+        pitch sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         divisions,
+        *,
         pitch_cls: type[EDOPitch] = EDOPitch,
         pitch_interval_cls: type[EDOPitchInterval] = EDOPitchInterval,
         pitch_scale_cls: type[EDOPitchScale] = EDOPitchScale,
-        pitch_interval_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalSeq,
-        pitch_interval_fan_cls: type[EDOPitchIntervalSeq] = EDOPitchIntervalFan,
+        pitch_interval_seq_cls: type[
+            EDOPitchIntervalSeq
+        ] = EDOPitchIntervalSeq,
+        pitch_interval_fan_cls: type[
+            EDOPitchIntervalSeq
+        ] = EDOPitchIntervalFan,
         pitch_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchSeq,
         ref_frequency: Frequency = Hz440C0,
     ):

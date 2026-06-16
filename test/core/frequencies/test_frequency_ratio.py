@@ -2243,6 +2243,7 @@ def test_lt_bogus(x, y):
 def test_eq(x, y):
     assert x == y
     assert y == x
+    assert hash(x) == hash(y)
 
 
 @pytest.mark.parametrize(

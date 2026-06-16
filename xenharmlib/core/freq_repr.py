@@ -187,7 +187,7 @@ class IndexedFreqRepr(FreqRepr, Generic[IndexT]):
         self._pitch_index = pitch_index
 
     def __hash__(self):
-        return hash(self._pitch_index)
+        return hash(('FreqRepr', self.frequency))
 
     @property
     def pitch_index(self) -> IndexT:
