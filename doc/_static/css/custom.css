@@ -15,3 +15,8 @@
 .admonition-new-release p {
     margin-top: 0;
 }
+
+.sphinx-tabs-tab {
+    padding: 10pt !important;
+    color: #000 !important;
+}
