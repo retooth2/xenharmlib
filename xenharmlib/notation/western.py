@@ -20,6 +20,8 @@ from .updown import UpDownNote
 from .updown import UpDownNoteInterval
 from .updown import UpDownNoteScale
 from .updown import UpDownNoteIntervalSeq
+from .updown import UpDownNoteIntervalFan
+from .updown import UpDownNoteSeq
 from .updown import DownwardsEnharmStrategy
 from .updown import UpwardsEnharmStrategy
 from ..core.tunings import EDOTuning
@@ -71,6 +73,28 @@ class WesternNoteIntervalSeq(UpDownNoteIntervalSeq):
         return f'{self.__class__.__name__}({interval_symbols})'
 
 
+class WesternNoteIntervalFan(UpDownNoteIntervalFan):
+
+    def __repr__(self):
+        interval_symbols = []
+        for interval in self:
+            interval_symbols.append(interval.short_repr)
+        interval_symbols = ', '.join(interval_symbols)
+        interval_symbols = '[' + interval_symbols + ']'
+        return f'{self.__class__.__name__}({interval_symbols})'
+
+
+class WesternNoteSeq(UpDownNoteSeq):
+
+    def __repr__(self):
+        note_symbols = []
+        for note in self:
+            note_symbols.append(note.short_repr)
+        note_symbols = ', '.join(note_symbols)
+        note_symbols = '[' + note_symbols + ']'
+        return f'{self.__class__.__name__}({note_symbols})'
+
+
 class WesternNotation(UpDownNotation):
     """
     WesternNotation is an implementation of the contemporary
@@ -112,6 +136,8 @@ class WesternNotation(UpDownNotation):
         note_interval_cls=WesternNoteInterval,
         note_scale_cls=WesternNoteScale,
         note_interval_seq_cls=WesternNoteIntervalSeq,
+        note_interval_fan_cls=WesternNoteIntervalFan,
+        note_seq_cls=WesternNoteSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
@@ -123,6 +149,8 @@ class WesternNotation(UpDownNotation):
             note_interval_cls=note_interval_cls,
             note_scale_cls=note_scale_cls,
             note_interval_seq_cls=note_interval_seq_cls,
+            note_interval_fan_cls=note_interval_fan_cls,
+            note_seq_cls=note_seq_cls,
         )
 
         # initialize default enharmonic strategy
