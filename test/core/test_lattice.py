@@ -108,7 +108,7 @@ def test_dim_mismatch():
                 )
             ),
             (-1, 1, 0, 0),
-            'LatticePoint((-1, 1, 0, 0) ^= FrequencyRatio(3/2))'
+            'LatticePoint(-1, 1, 0, 0)'
         ),
         (
             Lattice(
@@ -120,7 +120,7 @@ def test_dim_mismatch():
                 )
             ),
             (0, 1, 0, 0),
-            'LatticePoint((0, 1, 0, 0) ^= FrequencyRatio(3))'
+            'LatticePoint(0, 1, 0, 0)'
         ),
         (
             Lattice(
@@ -132,7 +132,7 @@ def test_dim_mismatch():
                 )
             ),
             (-1, 0, 0, 0),
-            'LatticePoint((-1, 0, 0, 0) ^= FrequencyRatio(1/2))'
+            'LatticePoint(-1, 0, 0, 0)'
         ),
         (
             Lattice(
@@ -144,7 +144,7 @@ def test_dim_mismatch():
                 )
             ),
             (0, 0, 0, 0),
-            'LatticePoint((0, 0, 0, 0) ^= FrequencyRatio(1))'
+            'LatticePoint(0, 0, 0, 0)'
         ),
     ]
 )
