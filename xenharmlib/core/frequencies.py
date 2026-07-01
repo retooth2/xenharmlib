@@ -28,6 +28,7 @@ from typing import overload
 from typing import Self
 from typing import TypeAlias
 from typing import List
+from typing import Tuple
 from typing import Optional
 from functools import total_ordering
 from fractions import Fraction
@@ -771,7 +772,7 @@ class FrequencyRatio:
         return repr(self.sp_expr)
 
     @classmethod
-    def from_monzo(cls, monzo: List[int]):
+    def from_monzo(cls, monzo: Tuple[int, ...]):
         """
         Creates a frequency ratio from a monzo. A monzo is a
         list of exponents for the prime numbers, for example, the
@@ -844,7 +845,7 @@ class FrequencyRatio:
             if numerator == 1 and denominator == 1:
                 break
 
-        return monzo
+        return tuple(monzo)
 
     @property
     def cents(self):
