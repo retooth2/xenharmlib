@@ -191,7 +191,7 @@ class NotationABC(
 
         return self.enharm_strategy.guess_note(self, pitch)
 
-    def guess_note_interval(self, pitch_interval) -> NoteT:
+    def guess_note_interval(self, pitch_interval) -> IntervalT:
         """
         Guesses a note interval from a pitch interval using the preferred
         enharmonic strategy of this notation
@@ -208,7 +208,7 @@ class NotationABC(
 
         return self.enharm_strategy.guess_note_interval(self, pitch_interval)
 
-    def guess_note_scale(self, pitch_scale) -> NoteT:
+    def guess_note_scale(self, pitch_scale) -> ScaleT:
         """
         Guesses a note scale from a pitch scale using the preferred
         enharmonic strategy of this notation
