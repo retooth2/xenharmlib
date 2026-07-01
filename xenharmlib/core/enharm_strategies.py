@@ -284,7 +284,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
         note_intervals = []
         for pitch_interval in pitch_interval_seq:
-            note_interval = self.guess_interval(notation, pitch_interval)
+            note_interval = self.guess_note_interval(notation, pitch_interval)
             note_intervals.append(note_interval)
         return notation.interval_seq(note_intervals)
 
@@ -298,7 +298,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
         note_intervals = []
         for pitch_interval in pitch_interval_fan:
-            note_interval = self.guess_interval(notation, pitch_interval)
+            note_interval = self.guess_note_interval(notation, pitch_interval)
             note_intervals.append(note_interval)
         return notation.interval_fan(note_intervals)
 
