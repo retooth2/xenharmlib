@@ -89,7 +89,7 @@ def make_nat_acc_test_notation(tuning):
 
     notation = MyNatAccNotation(tuning, acc_weights=(1,))
 
-    for nat_pc_index in range(0, tuning.period_length, 2):
+    for nat_pc_index in range(0, tuning.eq_diff, 2):
         natc_symbol = ALPHABET.pop(0)
         notation.append_natural(natc_symbol, nat_pc_index)
 
@@ -129,7 +129,7 @@ def make_nat_acc_test_notation(tuning):
     cringe.add_arithmetic(cringe_upper)
     cringe.add_arithmetic(cringe_lower)
 
-    for nat_diffc in range(0, tuning.period_length // 2):
+    for nat_diffc in range(0, tuning.eq_diff // 2):
         if nat_diffc % 2 == 0:
             notation.set_interval_symbol_code(
                 nat_diffc, funky

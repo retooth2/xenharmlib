@@ -311,7 +311,7 @@ class SDPeriodicPitchScaleMixin:
         complement = []
 
         full_scale = self.tuning.scale(
-            self.tuning.pitch_range(self.tuning.period_length)
+            self.tuning.pitch_range(self.tuning.eq_diff)
         )
 
         for pitch in full_scale:

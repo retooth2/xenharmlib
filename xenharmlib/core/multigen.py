@@ -200,11 +200,11 @@ class MultiGenTuning(
                 'as the generator vector'
             )
 
-        period_length = self._lattice.point(period_vec)
+        eq_diff = self._lattice.point(period_vec)
 
         super().__init__(
-            period_length,
-            period_length.frequency_ratio,
+            eq_diff,
+            eq_diff.frequency_ratio,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,

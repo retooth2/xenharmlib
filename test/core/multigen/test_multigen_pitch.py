@@ -498,7 +498,7 @@ def test_pc_index_bi_index(
     assert pitch.pc_index == pc_index
     assert pitch.bi_index == bi_index
     assert pitch.pc_index + (
-        pitch.bi_index * tuning.period_length
+        pitch.bi_index * tuning.eq_diff
     ) == pitch_index
 
 

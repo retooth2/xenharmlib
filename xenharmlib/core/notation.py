@@ -775,7 +775,7 @@ class NatAccNotation(
 
         nat_bi_index, natc_index = divmod(nat_index, self.nat_count)
         natc_pitch_index = self.natc_pitch_indices[natc_index]
-        return natc_pitch_index + self.tuning.period_length * nat_bi_index
+        return natc_pitch_index + self.tuning.eq_diff * nat_bi_index
 
     # we define the q(m) function from the definition
 
@@ -791,7 +791,7 @@ class NatAccNotation(
         abs_nat_bi_diff, abs_natc_diff = divmod(abs(nat_diff), self.nat_count)
         abs_natc_pitch_diff = self.natc_pitch_indices[abs_natc_diff]
         abs_pitch_diff = (
-            abs_natc_pitch_diff + self.tuning.period_length * abs_nat_bi_diff
+            abs_natc_pitch_diff + self.tuning.eq_diff * abs_nat_bi_diff
         )
 
         if nat_diff >= 0:
@@ -826,7 +826,7 @@ class NatAccNotation(
 
         tuning = self.tuning
         pitch_index = (
-            natc_pitch_index + tuning.period_length * nat_bi_index
+            natc_pitch_index + tuning.eq_diff * nat_bi_index
         ) + acc_value
         frequency = tuning.get_frequency_for_index(pitch_index)
 
@@ -1071,7 +1071,7 @@ class NatAccNotation(
         """
 
         pitch_index = self.nat_index_to_pitch_index(nat_index)
-        return pitch_index % self.tuning.period_length
+        return pitch_index % self.tuning.eq_diff
 
     def is_natural(self, pitch_index: PeriodicIndexT) -> bool:
         """
@@ -1081,7 +1081,7 @@ class NatAccNotation(
         :param pitch_index: The pitch index to consider
         """
 
-        pc_index = pitch_index % self.tuning.period_length
+        pc_index = pitch_index % self.tuning.eq_diff
         return pc_index in self.natc_pc_indices
 
     @property
@@ -1109,7 +1109,7 @@ class NatAccNotation(
         """
 
         return [
-            natc_pitch_index % self.tuning.period_length
+            natc_pitch_index % self.tuning.eq_diff
             for natc_pitch_index in self.natc_pitch_indices
         ]
 

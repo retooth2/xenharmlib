@@ -992,7 +992,7 @@ def test_simple_compound_imperfect(
     Test if is_simple and is_compound works for imperfect EDOs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1024,7 +1024,7 @@ def test_to_simple_imperfect(
     Test if to_simple works for imperfect EDOs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1057,7 +1057,7 @@ def test_inversion_imperfect(
     Test if inversion works for imperfect EDOs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1089,7 +1089,7 @@ def test_ic_normalized_ic_index_imperfect(
     Test if ic normalization and ic_index works for imperfect EDOs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1322,7 +1322,7 @@ def test_simple_compound_imperfect_updown(
     with ups and downs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1361,7 +1361,7 @@ def test_to_simple_imperfect_updown(
     Test if to_simple works for imperfect EDOs with ups/downs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1400,7 +1400,7 @@ def test_inversion_imperfect_updown(
     Test if inversion works for imperfect EDOs with ups/downs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)
@@ -1437,7 +1437,7 @@ def test_ic_normalized_ic_index_imperfect_updown(
     with ups/downs
     """
 
-    if n_edo.edo_category == 'supersharp' or n_edo.tuning.period_length < 12:
+    if n_edo.edo_category == 'supersharp' or n_edo.tuning.eq_diff < 12:
         return  # they are too weird to test this, sorry
 
     interval = n_edo.shorthand_interval(*shorthand_name)

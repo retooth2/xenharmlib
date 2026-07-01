@@ -158,10 +158,9 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
     def __init__(self, tuning, frequency, pitch_index: PeriodicIndexT):
 
         super().__init__(tuning, frequency, pitch_index)
-        tuning_len = tuning.period_length
 
-        self._pc_index = pitch_index % tuning_len
-        self._bi_index = pitch_index // tuning_len
+        self._pc_index = pitch_index % tuning.eq_diff
+        self._bi_index = pitch_index // tuning.eq_diff
 
     @property
     def pc_index(self) -> PeriodicIndexT:
@@ -190,9 +189,8 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
             between this pitch and the resulting one
         """
 
-        tuning_len = self.tuning.period_length
         bi_index = self._bi_index + bi_diff
-        pitch_index = self._pc_index + bi_index * tuning_len
+        pitch_index = self._pc_index + bi_index * self.tuning.eq_diff
         return self.tuning.pitch(pitch_index)
 
     def pcs_normalized(self) -> Self:
@@ -268,7 +266,7 @@ class SDPeriodicPitchMixin:
                 break
 
             g_index += 1
-            pc_index = (pc_index + gen_pc) % self.tuning.period_length
+            pc_index = (pc_index + gen_pc) % self.tuning.eq_diff
 
         return g_index
 
@@ -579,7 +577,7 @@ class SDPeriodicPitchIntervalMixin:
         i_target = target.get_generator_index(generator_pitch)
         i_diff = i_target - i_zero
 
-        return min(i_diff, self.tuning.period_length - i_diff)
+        return min(i_diff, self.tuning.eq_diff - i_diff)
 
 
 class EDPitchInterval(
