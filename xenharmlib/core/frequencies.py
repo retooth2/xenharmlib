@@ -361,6 +361,12 @@ class Frequency:
         """
         return float(self.sp_expr.evalf())
 
+    def to_int(self) -> int:
+        """
+        Converts this object into an integer
+        """
+        return int(self.sp_expr.evalf())
+
     def __round__(self, ndigits: int = 0) -> float:
         return round(float(self.sp_expr), ndigits)
 
@@ -734,6 +740,12 @@ class FrequencyRatio:
         Converts this object into a floating point number
         """
         return float(self.sp_expr.evalf())
+
+    def to_int(self) -> int:
+        """
+        Converts this object into an integer
+        """
+        return int(self.sp_expr.evalf())
 
     def __round__(self, ndigits: int = 0) -> float:
         return round(float(self.sp_expr), ndigits)
