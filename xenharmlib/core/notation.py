@@ -27,6 +27,7 @@ from typing import Dict
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Sequence
 from warnings import warn
 from abc import abstractmethod
 
@@ -223,6 +224,120 @@ class NotationABC(
             )
 
         return self.enharm_strategy.guess_note_scale(self, pitch_scale)
+
+    def guess_note_interval_seq(self, pitch_interval_seq) -> IntervalSeqT:
+        """
+        Guesses a note interval sequence from a pitch interval
+        sequence using the preferred enharmonic strategy of this
+        notation
+
+        :pitch_interval_seq: A pitch interval sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_seq(
+            self, pitch_interval_seq
+        )
+
+    def guess_note_interval_fan(self, pitch_interval_fan) -> IntervalFanT:
+        """
+        Guesses a note interval fan from a pitch interval fan
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_interval_fan: A pitch interval fan object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_fan.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval fan must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_fan(
+            self, pitch_interval_fan
+        )
+
+    def guess_note_seq(self, pitch_seq) -> NoteSeqT:
+        """
+        Guesses a note sequence from a pitch sequence
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_seq: A pitch sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_seq(
+            self, pitch_seq
+        )
+
+    def diff_interval_seq(
+        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval sequence from an iterable of pitch index
+        differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_seq(
+            self.tuning.diff_interval_seq(pitch_diffs)
+        )
+
+    def diff_interval_fan(
+        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+    ) -> IntervalFanT:
+        """
+        Returns a note interval fan from an iterable of pitch
+        index differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_fan(
+            self.tuning.diff_interval_fan(pitch_diffs)
+        )
+
+    def index_scale(
+        self, pitch_indices: Optional[List[IndexT]] = None
+    ) -> ScaleT:
+        """
+        Constructs a note scale from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_scale(
+            self.tuning.index_scale(pitch_indices)
+        )
+
+    def index_seq(
+        self, pitch_indices: Optional[List[IndexT]] = None
+    ) -> NoteSeqT:
+        """
+        Constructs a note sequence from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_seq(
+            self.tuning.index_seq(pitch_indices)
+        )
 
 
 class IncompleteNotation(Exception):

@@ -97,6 +97,51 @@ class EnharmonicStrategy:
             f'scale from a pitch scale is therefore not possible'
         )
 
+    def guess_note_interval_seq(self, notation, pitch_interval_seq):
+        """
+        Notation.guess_note_interval_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_seq: The pitch interval sequence object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_interval_seq method. Creating a '
+            f'note interval sequence from a pitch interval sequence '
+            f'is therefore not possible'
+        )
+
+    def guess_note_interval_fan(self, notation, pitch_interval_fan):
+        """
+        Notation.guess_note_interval_fan relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_fan: The pitch interval fan object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_interval_fan method. Creating a '
+            f'note interval fan from a pitch interval fan is therefore '
+            f'not possible'
+        )
+
+    def guess_note_seq(self, notation, pitch_seq):
+        """
+        Notation.guess_note_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_seq: The pitch sequence object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_seq method. Creating a '
+            f'note sequence from a pitch sequence is therefore '
+            f'not possible'
+        )
+
     def note_transpose(self, note, pitch_diff: int):
         """
         Note.transpose relays to here if the interval argument was
@@ -228,6 +273,48 @@ class PCBlueprintStrategy(EnharmonicStrategy):
             note = self.guess_note(notation, pitch)
             notes.append(note)
         return notation.scale(notes)
+
+    def guess_note_interval_seq(self, notation, pitch_interval_seq):
+        """
+        Notation.guess_note_interval_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_seq: The pitch interval sequence object
+        """
+
+        note_intervals = []
+        for pitch_interval in pitch_interval_seq:
+            note_interval = self.guess_interval(notation, pitch_interval)
+            note_intervals.append(note_interval)
+        return notation.interval_seq(note_intervals)
+
+    def guess_note_interval_fan(self, notation, pitch_interval_fan):
+        """
+        Notation.guess_note_interval_fan relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_fan: The pitch interval fan object
+        """
+
+        note_intervals = []
+        for pitch_interval in pitch_interval_fan:
+            note_interval = self.guess_interval(notation, pitch_interval)
+            note_intervals.append(note_interval)
+        return notation.interval_fan(note_intervals)
+
+    def guess_note_seq(self, notation, pitch_seq):
+        """
+        Notation.guess_note_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_seq: The pitch sequence object
+        """
+
+        notes = []
+        for pitch in pitch_seq:
+            note = self.guess_note(notation, pitch)
+            notes.append(note)
+        return notation.seq(notes)
 
     def note_transpose(self, note, pitch_diff: int):
         """
