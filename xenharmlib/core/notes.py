@@ -123,8 +123,8 @@ class PeriodicNoteABC(NoteABC[PeriodicIndexT], PeriodicPitchLike):
 
     def __init__(self, notation, frequency, pitch_index):
         super().__init__(notation, frequency, pitch_index)
-        self._pc_index = pitch_index % notation.tuning.eq_diff
-        self._bi_index = pitch_index // notation.tuning.eq_diff
+        self._pc_index = pitch_index % notation.eq_diff
+        self._bi_index = pitch_index // notation.eq_diff
 
     @property
     def pc_index(self) -> PeriodicIndexT:
