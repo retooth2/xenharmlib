@@ -15,6 +15,7 @@
 
 from typing import Generator
 from typing import Tuple
+from typing import Any
 
 # even though we already have numpy as dependency we want to
 # define our own vector operations. there are two reasons:
@@ -68,6 +69,28 @@ def scalar_op(operator, vector: Tuple, scalar) -> Tuple:
     return result
 
 
+def pad_tuple(tuple_: Tuple[Any, ...], value, length: int) -> Tuple[Any, ...]:
+    """
+    Pads a tuple with a value so it has the desired length.
+
+    :param tuple_: The unpadded tuple
+    :param value: The value used for padding
+    :param length: The desired length of the result
+
+    :raises ValueError: If length is smaller than tuple
+    """
+
+    diff = length - len(tuple_)
+    if diff < 0:
+        raise ValueError(
+            'Unpadded tuple is already bigger than desired length'
+        )
+
+    for i in range(0, diff):
+        tuple_ = tuple_ + (value,)
+    return tuple_
+
+
 def get_primes(n: int) -> Generator:
     """
     Generates a finite list of primes
@@ -79,6 +102,27 @@ def get_primes(n: int) -> Generator:
         yield prime
         if i == n:
             break
+
+
+def get_primes_until(limit: int) -> Generator:
+    """
+    Generates a finite list of primes until a given prime
+
+    :raises ValueError: if given parameter is not a prime number
+
+    :param limit: The last prime in the list
+    """
+
+    for prime in get_all_primes():
+
+        if prime > limit:
+            raise ValueError('Given limit is not a prime number')
+
+        if prime == limit:
+            yield prime
+            break
+
+        yield prime
 
 
 def get_all_primes() -> Generator:
