@@ -342,6 +342,14 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
+    def to_seq(self):
+        """
+        Returns this scale represented as sequence of frequency
+        representations
+        """
+
+        return self.origin_context.seq(self)
+
     def to_interval_seq(self):
         """
         Returns this scale represented as an interval sequence
