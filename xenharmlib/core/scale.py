@@ -529,6 +529,30 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return self.symmetric_difference(other)
 
+    def __le__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset
+        """
+        return self.is_subset(other)
+
+    def __lt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset / proper=True
+        """
+        return self.is_subset(other, proper=True)
+
+    def __ge__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset
+        """
+        return self.is_superset(other)
+
+    def __gt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset / proper=True
+        """
+        return self.is_superset(other, proper=True)
+
     def is_disjoint(self, other: Self) -> bool:
         """
         Determines if this scale has any common elements

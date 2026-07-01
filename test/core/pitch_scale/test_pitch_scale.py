@@ -1291,6 +1291,7 @@ def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b) == expected
+    assert (scale_a <= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1320,6 +1321,7 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b, proper=True) == expected
+    assert (scale_a < scale_b) == expected
 
 
 def test_is_subset_incompatible_origin_contexts():
@@ -1375,6 +1377,7 @@ def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b) == expected
+    assert (scale_a >= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1404,6 +1407,7 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b, proper=True) == expected
+    assert (scale_a > scale_b) == expected
 
 
 def test_is_superset_incompatible_origin_contexts():
