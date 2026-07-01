@@ -105,11 +105,11 @@ class OriginContext(
         """
 
     @property
-    def zero_diff(self) -> IndexT:
+    def unison_diff(self) -> IndexT:
         """
-        The zero diff is a reference point, in tunings with integer
-        indexing this is 0, in tunings with lattice indexing this is
-        typically the zero-vector.
+        The unison diff is the pitch difference of the unison interval.
+        In tunings with integer indexing this is 0, in tunings with
+        lattice indexing this is typically the zero-vector.
         """
         return self.interval(self.zero_element, self.zero_element).pitch_diff
 
