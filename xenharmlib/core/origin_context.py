@@ -211,7 +211,7 @@ class OriginContext(
 
     def seq(
         self, elements: Optional[Sequence[FreqReprT]] = None
-    ) -> IntervalSeqT:
+    ) -> FreqReprSeqT:
         """
         Returns a pitch/note sequence
 
@@ -251,7 +251,7 @@ class OriginContext(
 
     def diff_interval_fan(
         self, pitch_diffs: Optional[Sequence[IndexT]] = None
-    ) -> IntervalSeqT:
+    ) -> IntervalFanT:
         """
         Returns an interval fan from an iterable of pitch index
         differences, for example:
