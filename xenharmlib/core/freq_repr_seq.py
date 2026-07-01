@@ -22,7 +22,7 @@ from typing import Generic
 from typing import Optional
 from typing import overload
 from typing import Self
-from typing import List
+from typing import Iterable
 from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
@@ -55,7 +55,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
     """
 
     def __init__(
-        self, origin_context, elements: Optional[Sequence[FreqReprT]] = None
+        self, origin_context, elements: Optional[Iterable[FreqReprT]] = None
     ):
 
         self._origin_context = origin_context
@@ -65,14 +65,15 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         else:
             _elements = elements
 
+        self._elements = []
+
         for element in _elements:
             if element.origin_context is not self.origin_context:
                 raise IncompatibleOriginContexts(
                     f'The element {element} does not originate from context '
                     f'{origin_context}. Cannot construct sequence.'
                 )
-
-        self._elements = _elements
+            self._elements.append(element)
 
     @property
     def origin_context(self):

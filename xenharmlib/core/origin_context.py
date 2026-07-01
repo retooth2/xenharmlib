@@ -20,7 +20,6 @@ is the abstract base class for tunings and notations
 
 from typing import Optional
 from typing import Iterable
-from typing import Sequence
 from typing import Generic
 from typing import TypeVar
 from abc import ABC
@@ -160,9 +159,6 @@ class OriginContext(
         b = a.transpose(pitch_diff)
         return a.interval(b)
 
-    # FIXME: scale and interval_seq have Iterable and Sequence requirement
-    # respectively, should be uniform
-
     def scale(self, elements: Optional[Iterable[FreqReprT]] = None) -> ScaleT:
         """
         Returns a scale having the scale type this origin context
@@ -178,7 +174,7 @@ class OriginContext(
         return self._scale_cls(self, elements)
 
     def interval_seq(
-        self, intervals: Optional[Sequence[IntervalT]] = None
+        self, intervals: Optional[Iterable[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence having the interval sequence type
@@ -194,7 +190,7 @@ class OriginContext(
         return self._interval_seq_cls(self, intervals)
 
     def interval_fan(
-        self, intervals: Optional[Sequence[IntervalT]] = None
+        self, intervals: Optional[Iterable[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval fan having the interval fan type
@@ -210,7 +206,7 @@ class OriginContext(
         return self._interval_fan_cls(self, intervals)
 
     def seq(
-        self, elements: Optional[Sequence[FreqReprT]] = None
+        self, elements: Optional[Iterable[FreqReprT]] = None
     ) -> FreqReprSeqT:
         """
         Returns a pitch/note sequence
@@ -225,7 +221,7 @@ class OriginContext(
         return self._freq_repr_seq_cls(self, elements)
 
     def diff_interval_seq(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence from an iterable of pitch index
@@ -250,7 +246,7 @@ class OriginContext(
         return self.interval_seq(intervals)
 
     def diff_interval_fan(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalFanT:
         """
         Returns an interval fan from an iterable of pitch index

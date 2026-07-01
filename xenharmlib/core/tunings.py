@@ -27,6 +27,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 from typing import Optional
 from warnings import warn
 
@@ -182,15 +183,15 @@ class TuningABC(
         return self.interval(pitch_a, pitch_b)
 
     def index_scale(
-        self, pitch_indices: Optional[List[IndexT]] = None
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
     ) -> ScaleT:
         """
-        Constructs a pitch scale from a list of pitch indices.
+        Constructs a pitch scale from an iterable of pitch indices.
         According to the definition of a scale indices occuring
         multiple times will only be considered once. The list
         of indices will also be sorted automatically.
 
-        :param pitch_indices: A list of pitch indices
+        :param pitch_indices: An iterable of pitch indices
         """
 
         if pitch_indices is None:
@@ -203,12 +204,12 @@ class TuningABC(
         return self.scale(pitches)
 
     def index_seq(
-        self, pitch_indices: Optional[List[IndexT]] = None
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
     ) -> ScaleT:
         """
-        Constructs a pitch sequence from a list of pitch indices.
+        Constructs a pitch sequence from an iterable of pitch indices.
 
-        :param pitch_indices: A list of pitch indices
+        :param pitch_indices: An iterable of pitch indices
         """
 
         if pitch_indices is None:
@@ -374,6 +375,9 @@ class PeriodicTuning(
         return self.interval(
             self.zero_element, self.zero_element.transpose_bi_index(1)
         )
+
+    # FIXME: should pc_scale also be compatible to generator
+    # parameters as pc_indices input?
 
     def pc_scale(
         self,

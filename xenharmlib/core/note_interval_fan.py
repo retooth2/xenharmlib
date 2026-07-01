@@ -21,7 +21,7 @@ from .protocols import Index
 from .protocols import PeriodicIndex
 from typing import Optional
 from typing import TypeVar
-from typing import List
+from typing import Iterable
 
 NoteIntervalT = TypeVar('NoteIntervalT', bound=NoteIntervalABC)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -36,7 +36,7 @@ class NoteIntervalFan(IntervalFan[IndexT, NoteIntervalT]):
     """
 
     def __init__(
-        self, notation, intervals: Optional[List[NoteIntervalT]] = None
+        self, notation, intervals: Optional[Iterable[NoteIntervalT]] = None
     ):
         super().__init__(notation, intervals)
         self.notation = notation

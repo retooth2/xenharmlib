@@ -20,6 +20,7 @@ from typing import Optional
 from typing import overload
 from typing import Self
 from typing import List
+from typing import Iterable
 from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
@@ -55,7 +56,7 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
     """
 
     def __init__(
-        self, origin_context, intervals: Optional[Sequence[IntervalT]] = None
+        self, origin_context, intervals: Optional[Iterable[IntervalT]] = None
     ):
 
         self._origin_context = origin_context
@@ -65,14 +66,15 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         else:
             _intervals = intervals
 
+        self._intervals = []
+
         for element in _intervals:
             if element.origin_context is not self.origin_context:
                 raise IncompatibleOriginContexts(
                     f'The element {element} does not originate from context '
                     f'{origin_context}. Cannot construct interval sequence.'
                 )
-
-        self._intervals = _intervals
+            self._intervals.append(element)
 
     @property
     def origin_context(self):

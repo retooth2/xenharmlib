@@ -32,6 +32,7 @@ from typing import Generic
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 
 PitchT = TypeVar('PitchT', bound=NoteABC)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -45,7 +46,7 @@ class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
     :param elements: A sequence of pitches
     """
 
-    def __init__(self, notation, elements: Optional[List[PitchT]] = None):
+    def __init__(self, notation, elements: Optional[Iterable[PitchT]] = None):
         super().__init__(notation, elements)
         self._notation = notation
 

@@ -27,7 +27,7 @@ from typing import Dict
 from typing import Optional
 from typing import TypeVar
 from typing import List
-from typing import Sequence
+from typing import Iterable
 from warnings import warn
 from abc import abstractmethod
 
@@ -284,7 +284,7 @@ class NotationABC(
         )
 
     def diff_interval_seq(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence from an iterable of pitch index
@@ -299,7 +299,7 @@ class NotationABC(
         )
 
     def diff_interval_fan(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalFanT:
         """
         Returns a note interval fan from an iterable of pitch
@@ -314,7 +314,7 @@ class NotationABC(
         )
 
     def index_scale(
-        self, pitch_indices: Optional[List[IndexT]] = None
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
     ) -> ScaleT:
         """
         Constructs a note scale from a list of pitch indices.
@@ -327,7 +327,7 @@ class NotationABC(
         )
 
     def index_seq(
-        self, pitch_indices: Optional[List[IndexT]] = None
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
     ) -> NoteSeqT:
         """
         Constructs a note sequence from a list of pitch indices.
@@ -1016,6 +1016,9 @@ class NatAccNotation(
             notes.append(note)
 
         return self.scale(notes)
+
+    # FIXME: should implementation here also allow iterable / generator
+    # type as a valid input?
 
     def pc_scale(
         self,

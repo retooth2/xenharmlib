@@ -35,6 +35,7 @@ from bisect import insort
 from typing import Generic
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 from typing import Self
 from typing import Optional
 from warnings import warn
@@ -115,7 +116,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
     * is_superset
     """
 
-    def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
+    def __init__(self, tuning, pitches: Optional[Iterable[PitchT]] = None):
         super().__init__(tuning, pitches)
         self.tuning = tuning
 

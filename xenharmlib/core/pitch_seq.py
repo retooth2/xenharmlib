@@ -26,6 +26,7 @@ from typing import Generic
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -39,7 +40,7 @@ class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
     :param elements: A sequence of pitches
     """
 
-    def __init__(self, tuning, elements: Optional[List[PitchT]] = None):
+    def __init__(self, tuning, elements: Optional[Iterable[PitchT]] = None):
         super().__init__(tuning, elements)
         self.tuning = tuning
 
