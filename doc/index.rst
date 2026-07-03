@@ -45,89 +45,103 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
 .. testcode::
 
-   from xenharmlib import EDOTuning
-   from xenharmlib import play
-   from xenharmlib import UpDownNotation
+   from xenharmlib import PrimeLimitTuning
+   from xenharmlib import FrequencyRatio
+   from xenharmlib.periodic import partial
 
-   # create a supermajor 7 chord on vD for an
-   # equal temperament with 31 notes per octave
+   limit11 = PrimeLimitTuning(11)
 
-   edo31 = EDOTuning(31)
-   n_edo31 = UpDownNotation(edo31)
+   # generate a scale built from the pure
+   # harmonic series up to the 11th prime
 
-   d_down = n_edo31.note('vD', 4)
-   SM3 = n_edo31.shorthand_interval('^M', 3)
-   P5 = n_edo31.shorthand_interval('P', 5)
-   m7 = n_edo31.shorthand_interval('m', 7)
+   scale = limit11.ratio_scale(
+       FrequencyRatio(k) for k in range(1, 12)
+   ).period_normalized()
+   print(scale)
 
-   chord = n_edo31.scale(
-      [
-         d_down,
-         d_down.transpose(SM3),
-         d_down.transpose(P5),
-         d_down.transpose(m7),
-      ]
-   )
-   print(chord)
+   # show the harmonic structure of the second triad
+   # in the scale as an enumerated chord expression
+
+   triad = partial(scale, (1, 3, 5))
+   ifan = triad.to_interval_fan()
+   print(ifan.to_ec_expr())
 
 .. testoutput::
 
-   UpDownNoteScale([vD4, F#4, vA4, vC5], 31-EDO)
-
-.. code-block:: python
-
-   play(chord)
-
-.. raw:: html
-
-   <audio controls="controls">
-         <source src="_static/sounds/edo31_vD_supermajor7_scale.wav" type="audio/wav">
-         Your browser does not support the <code>audio</code> element. 
-   </audio>
-
-.. code-block:: python
-
-   play(chord, duration=1, play_as_chord=True)
-
-.. raw:: html
-
-   <audio controls="controls">
-         <source src="_static/sounds/edo31_vD_supermajor7_chord.wav" type="audio/wav">
-         Your browser does not support the <code>audio</code> element. 
-   </audio>
+   PrimeLimitPitchScale([1, 9/8, 5/4, 11/8, 3/2, 7/4], 11-Limit)
+   9:11:14
 
 -----------
 
 .. testcode::
 
-   from xenharmlib import EDTuning
-   from xenharmlib import FrequencyRatio
+   from xenharmlib import EDOTuning
+   from xenharmlib import UpDownNotation
 
-   # analyze group theoretical properties of
-   # Bohlen-Pierce tunings
+   # create a supermajor 7 chord in up/down notation for
+   # a tuning defined by 31 divisions of the octave and
+   # show the named interval distances between the notes
 
-   bp = EDTuning(13, FrequencyRatio(3))
+   edo31 = EDOTuning(31)
+   n_edo31 = UpDownNotation(edo31)
 
-   p1 = bp.pitch(4)
-   p2 = bp.pitch(18)
-   i1 = bp.interval(p1, p2)
+   CsupM7 = n_edo31.pc_scale(['C', '^E', 'G', 'Bb'])
+   iseq = CsupM7.to_interval_seq()
+   print(iseq)
 
-   print(p1.pc_index)
-   print(p2.pc_index)
-   print(i1.frequency_ratio)
+   # use the interval sequence object as a blueprint to
+   # create supermajor 7 chords with different root notes
 
-   dist = i1.get_generator_distance(
-      bp.pitch(7)
-   )
-   print(dist)
+   print(n_edo31.note('vD', 4).scale(iseq))
+   print(n_edo31.note('E#', 4).scale(iseq))
 
 .. testoutput::
-   :hide:
 
-   4
-   5
-   FrequencyRatio(3*3**(1/13))
-   2
+   UpDownNoteIntervalSeq([^M3, vm3, m3], 31-EDO)
+   UpDownNoteScale([vD4, F#4, vA4, vC5], 31-EDO)
+   UpDownNoteScale([E#4, ^Gx4, B#4, D#5], 31-EDO)
+
+Features
+---------------
+
+A selection of things supported by xenharmlib:
+
+* Scale, interval, sequence and abstract scale calculation in **any
+  regular temperament** (including, but not limited to: Western, Turkish
+  Makam, Slendro, Just Intonation / Prime Limit Tunings, Quarter-Comma
+  Meantone, Bohlen-Pierce, Wendy Carlos' Gamma Tuning)
+* Western notation (including interval naming)
+* Up/Down notation (a superset of Western notation)
+* Complete interval arithmetic with awareness of harmonic function
+* Posttonal analysis: Normal form & prime form calculation, pitch class
+  set arithmetic, interval vector calculation, etc
+* Extraction of playable chord from any scale
+* Structure discovery / Pattern matching in scales
+* Modulation suggestions for arbitrary key changes
+* Approximation of arbitrary frequencies to pitches and notes
+  for spectralist compositions, including error calculation
+
+Roadmap
+-----------------
+
+Planned for 0.5.0
+~~~~~~~~~~~~~~~~~~
+
+* Extended Helmholtz-Ellis JI Pitch Notation
+* Arel-Ezgi-Uzdilek notation
+* Rothenberg propriety and interval matrices
+* Scale generation tools (Euler-Fokker genus, combination product set,
+  Moment-of-Symmetry scales, odd limit scales)
+
+Planned for later versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(not necessarily in chronological order)
+
+* Templates for traditional music (Western Scales, Makam tetrachords, etc)
+* Plugin interface for score rendering backends
+* Advanced posttonal analysis
+* Utilities for transformation theory
 
 Audience & Design Philosophy
 -----------------------------
@@ -144,36 +158,6 @@ Xenharmlib is object-oriented but mostly designed around functional
 programming principles: Objects are considered immutable and methods
 do not alter internal states but return modified versions of the
 original object.
-
-Features
----------------
-
-A selection of things supported by xenharmlib:
-
-* Equal division tunings (e.g. Western, Modern Arabic, Turkish Makam,
-  Bohlen-Pierce, Wendy Carlos' Gamma Scale)
-* Western notation (including interval naming)
-* Up/Down notation (a superset of Western notation)
-* Analysis of intervals, scales, and their relations to one another
-* Group theoretical analysis (integer pitches, pitch classes, etc)
-* Interval sequence pattern matching
-* Modulation suggestions for arbitrary key changes
-* Basic posttonal analysis (normal & prime form calculations, inversion, etc)
-
-Roadmap
------------------
-
-A list of planned features (not necessarily in chronological order):
-
-* Templates for Western music
-* Plugin interface for score rendering backends
-* Advanced posttonal analysis (interval vectors, z-Relations, Forte numbers)
-* Rothenberg propriety and interval matrices
-* MOS scale generation utilities
-* Just Intonation and prime limit tunings
-* Extended Helmholtz-Ellis JI Pitch Notation
-* Odd Limit Tunings
-* Arel-Ezgi-Uzdilek notation
 
 License
 ---------------
