@@ -662,7 +662,7 @@ class NatAccNotation(
     @property
     def eq_interval(self) -> NatAccNoteInterval:
         """
-        The equivalency interval of this tuning
+        The equivalency interval of this notation
         """
         return self.interval(
             self.zero_element, self.zero_element.transpose_bi_index(1)
