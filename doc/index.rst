@@ -115,7 +115,7 @@ A selection of things supported by xenharmlib:
 * Complete interval arithmetic with awareness of harmonic function
 * Posttonal analysis: Normal form & prime form calculation, pitch class
   set arithmetic, interval vector calculation, etc
-* Extraction of playable chord from any scale
+* Extraction of playable chords from any scale
 * Structure discovery / Pattern matching in scales
 * Modulation suggestions for arbitrary key changes
 * Approximation of arbitrary frequencies to pitches and notes
