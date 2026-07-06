@@ -325,10 +325,7 @@ class PitchInterval(IndexedInterval[IndexT, PitchT]):
         while a negative one means 'downward steps')
     :param ref_pitch: A reference pitch for the pitch
         difference. This is necessary for tunings that
-        are not equal step. In just intonation tunings
-        frequency ratios may vary depending on the
-        original pitches used to construct the interval,
-        even if their pitch index difference is the same
+        are not equal step.
     """
 
     def __init__(
