@@ -65,27 +65,6 @@ class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
             f'{self.tuning.name})'
         )
 
-    def retune(self, tuning) -> PitchSeq:
-        """
-        Returns a sequence retuned into a different tuning by
-        approximating every pitch in the sequence with a pitch
-        from the target tuning.
-
-        :param tuning: The target tuning
-
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
-        """
-
-        pitches = []
-
-        for pitch in self:
-            retuned_pitch = pitch.retune(tuning)
-            pitches.append(retuned_pitch)
-
-        return tuning.seq(pitches)
-
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)
 PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)

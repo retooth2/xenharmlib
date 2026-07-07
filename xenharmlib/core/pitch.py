@@ -119,24 +119,29 @@ class Pitch(IndexedFreqRepr[IndexT]):
 
         return self.tuning.pitch(transposed_index)
 
-    def retune(self, tuning: SDTuningLike) -> Pitch:
+    def retune(self, tuning: SDTuningLike) -> Self:
         """
-        Approximates this pitch in a different tuning
+        .. deprecated:: 0.4.0
+           Use :py:meth:`retune_closest` instead.
 
-        :param tuning: The target tuning
+        Gets the frequency representation in a given origin context
+        that is closest to the frequency of this object.
 
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
+        :param origin_context: The target origin context
+
+        :raises NotImplementedError: If the target tuning does not
+            have a proper definition of a closest representation
+            to a given frequency
         """
 
-        if not isinstance(tuning, SDTuningLike):
-            raise IncompatibleOriginContexts(
-                'Retuning is currently only possible if the target '
-                'tuning has a one-dimensional pitch index schema.'
-            )
+        warn(
+            f'{self.__class__.__name__}.retune is deprecated and will '
+            f'be removed 1.0.0. Please use the .retune_closest method. ',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-        return tuning.get_approx_pitch(self.frequency)
+        return self.retune_closest(tuning)
 
 
 PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)

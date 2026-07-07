@@ -196,6 +196,20 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         elements.insert(insert_pos, element)
         return self.origin_context.seq(elements)
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the sequence in a target origin context that is closest
+        to the frequency series of this sequence.
+
+        :param origin_context: The target origin context
+
+        :raises NotImplementedError: If the target context does not
+            have a proper definition of a closest representation
+            to a given frequency
+        """
+
+        return origin_context.closest_seq(self.frequencies)
+
     def is_subseq(self, seq: Self, proper=False):
         """
         Returns True if the given sequence is a subsequence

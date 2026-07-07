@@ -270,6 +270,9 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
 
     def retune(self, tuning) -> PitchScale:
         """
+        .. deprecated:: 0.4.0
+           Use :py:meth:`retune_closest` instead.
+
         Returns a scale retuned into a different tuning by
         approximating every pitch in the scale with a pitch
         from the target tuning.
@@ -280,19 +283,16 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
         to the same pitch in the target tuning.
 
         :param tuning: The target tuning
-
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
         """
 
-        pitches = []
+        warn(
+            f'{self.__class__.__name__}.retune is deprecated and will '
+            f'be removed 1.0.0. Please use the .retune_closest method. ',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-        for pitch in self:
-            retuned_pitch = pitch.retune(tuning)
-            pitches.append(retuned_pitch)
-
-        return tuning.scale(pitches)
+        return self.retune_closest(tuning)
 
 
 class SDPeriodicPitchScaleMixin:

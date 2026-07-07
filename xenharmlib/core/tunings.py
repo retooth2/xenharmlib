@@ -62,6 +62,7 @@ from .pitch_seq import EDOPitchSeq
 from .protocols import Index
 from .protocols import PeriodicIndex
 from .protocols import PitchLike
+from .protocols import PitchIntervalLike
 from .protocols import TuningLike
 from .frequencies import Frequency
 from .frequencies import FrequencyRatio
@@ -476,8 +477,26 @@ class SDTuningMixin:
 
     def get_approx_pitch(self: TuningLike, frequency: Frequency) -> PitchLike:
         """
-        Returns the closest pitch in the tuning
-        to a given frequency.
+        .. deprecated:: 0.4.0
+           Use :py:meth:`closest_freq_repr` instead.
+
+        Returns the closest pitch in the tuning to a given frequency.
+
+        :param frequency: The frequency in Hz
+        """
+        warn(
+            f'{self.__class__.__name__}.get_approx_pitch is deprecated and '
+            f'will be removed in 1.0.0. Please use the method '
+            f'{self.__class__.__name__}.closest_freq_repr instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.closest_freq_repr(frequency)
+
+    def closest_freq_repr(self: TuningLike, frequency: Frequency) -> PitchLike:
+        """
+        Returns the pitch in the tuning that is closest to
+        a given frequency
 
         :param frequency: The frequency in Hz
         """
@@ -529,6 +548,134 @@ class SDTuningMixin:
             return lower_pitch
 
         return higher_pitch
+
+    def closest_interval(
+        self: TuningLike, frequency_ratio: FrequencyRatio
+    ) -> PitchIntervalLike:
+        """
+        Returns the interval in the tuning that is closest to
+        a given frequency ratio.
+
+        :param frequency_ratio: The frequency ratio
+        """
+
+        # first find the appropriate search window
+
+        if frequency_ratio >= self.unison_interval.frequency_ratio:
+            bottom_interval = self.unison_interval
+            i = 0
+            while True:
+                top_interval = self.diff_interval(2**i)
+                if top_interval.frequency_ratio > frequency_ratio:
+                    break
+                i += 1
+        else:
+            top_interval = self.unison_interval
+            i = 0
+            while True:
+                bottom_interval = self.diff_interval(-(2**i))
+                if bottom_interval.frequency_ratio < frequency_ratio:
+                    break
+                i += 1
+
+        # then do binary search
+
+        higher_pd = top_interval.pitch_diff
+        lower_pd = bottom_interval.pitch_diff
+
+        while (higher_pd - lower_pd) > 1:
+
+            middle_pd = lower_pd + (higher_pd - lower_pd) // 2
+            middle_interval = self.diff_interval(middle_pd)
+
+            if middle_interval.frequency_ratio == frequency_ratio:
+                return middle_interval
+            if middle_interval.frequency_ratio < frequency_ratio:
+                lower_pd = middle_pd
+            if middle_interval.frequency_ratio > frequency_ratio:
+                higher_pd = middle_pd
+
+        higher_interval = self.diff_interval(higher_pd)
+        lower_interval = self.diff_interval(lower_pd)
+
+        if abs(lower_interval.frequency_ratio - frequency_ratio) < abs(
+            higher_interval.frequency_ratio - frequency_ratio
+        ):
+            return lower_interval
+
+        return higher_interval
+
+    def closest_scale(
+        self: TuningLike, frequencies: Iterable[Frequency]
+    ):
+        """
+        Returns the scale in the tuning that is closest to
+        a given iterable of frequencies
+
+        :param frequencies: An iterable of frequencies in Hz
+        """
+
+        scale = self.scale()
+        for frequency in frequencies:
+            scale = scale.with_element(
+                self.closest_freq_repr(frequency)
+            )
+
+        return scale
+
+    def closest_interval_seq(
+        self: TuningLike, frequency_ratios: Iterable[FrequencyRatio]
+    ):
+        """
+        Returns the interval sequence in the tuning that is closest
+        to a given iterable of frequency ratios
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        interval_seq = self.interval_seq()
+        for ratio in frequency_ratios:
+            interval_seq = interval_seq.with_interval(
+                self.closest_interval(ratio)
+            )
+
+        return interval_seq
+
+    def closest_interval_fan(
+        self: TuningLike, frequency_ratios: Iterable[FrequencyRatio]
+    ):
+        """
+        Returns the interval fan in the tuning that is closest
+        to a given iterable of frequency ratios
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        interval_fan = self.interval_fan()
+        for ratio in frequency_ratios:
+            interval_fan = interval_fan.with_interval(
+                self.closest_interval(ratio)
+            )
+
+        return interval_fan
+
+    def closest_seq(
+        self: TuningLike, frequencies: Iterable[Frequency]
+    ):
+        """
+        Returns the pitch sequence in the tuning that is closest
+        to a given iterable of frequencies
+
+        :param frequencies: An iterable of frequencies in Hz
+        """
+
+        seq = self.seq()
+        for frequency in frequencies:
+            seq = seq.with_element(
+                self.closest_freq_repr(frequency)
+            )
+
+        return seq
 
 
 class SDPeriodicTuningMixin(SDTuningMixin):
@@ -584,6 +731,7 @@ class SDPeriodicTuningMixin(SDTuningMixin):
 
 
 class EDTuning(
+    SDPeriodicTuningMixin,
     PeriodicTuning[
         int,
         EDPitch,
@@ -593,7 +741,6 @@ class EDTuning(
         EDPitchIntervalFan,
         EDPitchSeq,
     ],
-    SDPeriodicTuningMixin,
 ):
     """
     EDTuning ("equal division tuning") takes a base interval

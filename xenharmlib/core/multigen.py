@@ -259,6 +259,110 @@ class MultiGenTuning(
 
         return self.ref_frequency * pitch_index.frequency_ratio
 
+    def closest_freq_repr(self, frequency: Frequency):
+        """
+        Returns the frequency representation closest to a given
+        frequency. Raises NotImplementedError in here, because
+        a closest frequency representation does not exist in
+        the general case for multi-generator tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest representation to the '
+            'given frequency, either because in this harmonic context '
+            'frequencies can be approximated arbitrarily close (so there '
+            'is no closest representation) or the way in which this '
+            'harmonic context is defined is not restricted enough to '
+            'mathematically deduce a method of approximation.'
+        )
+
+    def closest_interval(self, frequency_ratio: FrequencyRatio):
+        """
+        Returns the interval closest to a given frequency ratio
+        Raises NotImplementedError in here, because a closest
+        interval does not exist in the general case for
+        multi-generator tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest interval to the given '
+            'frequency ratio, either because in this harmonic context '
+            'frequency ratios can be approximated arbitrarily close '
+            '(so there is no closest representation) or the way in '
+            'which this harmonic context is defined is not restricted '
+            'enough to mathematically deduce a method of approximation.'
+        )
+
+    def closest_scale(self, frequencies: Iterable[Frequency]):
+        """
+        Returns the scale closest to a given iterable of frequencies
+        Raises NotImplementedError in here, because a closest scale
+        does not exist in the general case for multi-generator
+        tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest scale to the given series '
+            'of frequencies, either because in this harmonic context '
+            'frequencies can be approximated arbitrarily close (so there '
+            'is no closest representation) or the way in which this '
+            'harmonic context is defined is not restricted enough to '
+            'mathematically deduce a method of approximation.'
+        )
+
+    def closest_interval_seq(self, frequency_ratios: Iterable[FrequencyRatio]):
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios. Raises NotImplementedError in here,
+        because a closest interval sequence does not exist in the
+        general case for multi-generator tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest interval sequence to the '
+            'given series of frequency ratios, either becuase in this '
+            'harmonic context frequency ratios can be approximated '
+            'arbitrarily close (so there is no closest representation) '
+            'or the way in which this harmonic context is defined is '
+            'not restricted enough to mathematically deduce a method '
+            'of approximation.'
+        )
+
+    def closest_interval_fan(self, frequency_ratios: Iterable[FrequencyRatio]):
+        """
+        Returns the interval fan closest to a given iterable of
+        frequency ratios. Raises NotImplementedError in here,
+        because a closest interval sequence does not exist
+        in the general case for multi-generator tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest interval fan to the given '
+            'series of frequency ratios, either becuase in this '
+            'harmonic context frequency ratios can be approximated '
+            'arbitrarily close (so there is no closest representation) '
+            'or the way in which this harmonic context is defined is '
+            'not restricted enough to mathematically deduce a method '
+            'of approximation.'
+        )
+
+    def closest_seq(self, frequencies: Iterable[Frequency]):
+        """
+        Returns the sequence closest to a given iterable of frequencies
+        Raises NotImplementedError in here, because a closest scale
+        does not exist in the general case for multi-generator
+        tunings.
+        """
+
+        raise NotImplementedError(
+            'Not possible to find a closest sequence to the given series '
+            'of frequencies, either because in this harmonic context '
+            'frequencies can be approximated arbitrarily close (so there '
+            'is no closest representation) or the way in which this '
+            'harmonic context is defined is not restricted enough to '
+            'mathematically deduce a method of approximation.'
+        )
+
     @property
     def name(self) -> str:
         ratios = ', '.join([ratio.short_repr for ratio in self.lattice.base])

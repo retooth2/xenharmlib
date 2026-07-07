@@ -25,6 +25,8 @@ from typing import TypeVar
 from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .freq_repr import FreqRepr
 from .freq_repr_seq import FreqReprSeq
 from .protocols import Index
@@ -269,3 +271,97 @@ class OriginContext(
         ]
 
         return self.interval_fan(intervals)
+
+    @abstractmethod
+    def closest_freq_repr(self, frequency: Frequency) -> FreqReprT:
+        """
+        Returns the frequency representation closest to a given
+        frequency. This function is only implemented for origin
+        contexts which mathematically allow to determine a
+        closest frequency representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> IntervalT:
+        """
+        Returns the interval closest to a given frequency ratio.
+        This function is only implemented for origin contexts
+        which mathematically allow to determine a closest
+        frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios. This function is only implemented
+        for origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable of
+        frequency ratios. This function is only implemented for
+        origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> FreqReprSeqT:
+        """
+        Returns the sequence closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a NotImplementedError
+
+        (Must be implemented by subclasses)
+        """

@@ -32,6 +32,8 @@ from warnings import warn
 from abc import abstractmethod
 
 from ..exc import UnknownNoteSymbol
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
@@ -282,6 +284,72 @@ class NotationABC(
         return self.enharm_strategy.guess_note_seq(
             self, pitch_seq
         )
+
+    def closest_freq_repr(self, frequency: Frequency) -> NoteT:
+        """
+        Returns the closest note in the notation to a given frequency.
+
+        :param frequency: The frequency in Hz
+        """
+        pitch = self.tuning.closest_freq_repr(frequency)
+        return self.guess_note(pitch)
+
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> NoteT:
+        """
+        Returns the interval closest to a given frequency ratio
+
+        :param frequency_ratio: The frequency ratio to approximate
+        """
+
+        pitch_interval = self.tuning.closest_interval(frequency_ratio)
+        return self.guess_note_interval(pitch_interval)
+
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_scale = self.tuning.closest_scale(frequencies)
+        return self.guess_note_scale(pitch_scale)
+
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_seq = self.tuning.closest_interval_seq(frequency_ratios)
+        return self.guess_note_interval_seq(pitch_interval_seq)
+
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_fan = self.tuning.closest_interval_fan(frequency_ratios)
+        return self.guess_note_interval_fan(pitch_interval_fan)
+
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> NoteSeqT:
+        """
+        Returns the note sequence closest to a given iterable of
+        frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_seq = self.tuning.closest_seq(frequencies)
+        return self.guess_note_seq(pitch_seq)
 
     def diff_interval_seq(
         self, pitch_diffs: Optional[Iterable[IndexT]] = None

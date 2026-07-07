@@ -186,6 +186,20 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         intervals.insert(insert_pos, interval)
         return self.origin_context.interval_seq(intervals)
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the interval sequence in a target origin context that
+        is closest to the frequency ratio series of this sequence.
+
+        :param origin_context: The target origin context
+
+        :raises NotImplementedError: If the target context does not
+            have a proper definition of a closest representation
+            to a given frequency ratio
+        """
+
+        return origin_context.closest_interval_seq(self.frequency_ratios)
+
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new sequence consisting of a selection of indices
