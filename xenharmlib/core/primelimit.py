@@ -433,6 +433,8 @@ class PrimeLimitTuning(
         scale, meaning that the following expression will result in
         the G-B-D triad:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
         >>> scale = tuning.ratio_pc_scale(
         ...    [
@@ -490,6 +492,8 @@ class PrimeLimitTuning(
         of the scale pitches to the zero element, e.g. in 5 limit
         tuning, creating a major chord on C1 can be done like this:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
         >>> scale = tuning.ratio_scale(
         ...    [FrequencyRatio(2, 1), FrequencyRatio(5, 2), FrequencyRatio(3)],
@@ -564,6 +568,8 @@ class PrimeLimitTuning(
         tuning, creating a major chord sequence on C1 can be done
         like this:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
         >>> scale = tuning.ratio_seq(
         ...    [FrequencyRatio(2, 1), FrequencyRatio(5, 2), FrequencyRatio(3)],
@@ -684,6 +690,8 @@ class PrimeLimitTuning(
         5 limit tuning, creating a major chord on C1 can be done
         like this:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
         >>> tuning.rs_scale(['2', '5/2', '3'])
         PrimeLimitPitchScale([2, 5/2, 3], 5-Limit)
@@ -719,8 +727,10 @@ class PrimeLimitTuning(
         the scale, meaning that the following expression will result in
         the G-B-D triad:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
-        >>> tuning.ratio_pc_scale(['3/2', '15/8', '10/9'])
+        >>> tuning.rs_pc_scale(['3/2', '15/8', '10/9'])
         PrimeLimitPitchScale([3/2, 15/8, 20/9], 5-Limit)
 
         :param ratio_strs: A list of ratio string expressions
@@ -844,9 +854,11 @@ class PrimeLimitTuning(
         in 5 limit tuning, creating a major chord sequence on C1
         can be done like this:
 
+        >>> from xenharmlib import PrimeLimitTuning
+        >>>
         >>> tuning = PrimeLimitTuning(5)
         >>> tuning.rs_seq(['2', '5/2', '3'])
-        PrimeLimitPitchScale([2, 5/2, 3], 5-Limit)
+        PrimeLimitPitchSeq([2, 5/2, 3], 5-Limit)
 
         :param ratio_strs: A list of ratio string expressions
 
