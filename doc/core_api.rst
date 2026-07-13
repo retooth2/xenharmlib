@@ -62,6 +62,18 @@ PitchScale
 .. automodule:: xenharmlib.core.pitch_scale
     :members:
 
+Multi-Generator Tunings
+--------------------------
+
+.. automodule:: xenharmlib.core.multigen
+    :members:
+
+Prime-Limit Tunings
+--------------------------
+
+.. automodule:: xenharmlib.core.primelimit
+    :members:
+
 Notation
 ---------------------------
 
