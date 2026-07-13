@@ -231,6 +231,63 @@ can be obtained from the relevant notation chapter of this documentation.
 
          UpDownNoteInterval(^M, 3, 31-EDO)
 
+Construction Based on Closest Frequency Ratio
+-----------------------------------------------------
+
+Origin contexts based on integer indices allow construction based on the
+approximation of frequency ratios. Given an arbitrary frequency ratio the
+:meth:`~xenharmlib.core.origin_context.OriginContext.closest_interval`
+method returns the interval of an origin context that is closest to it:
+
+.. tabs::
+
+   .. tab:: EDO
+
+      .. testcode:: EDOTuning
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import FrequencyRatio
+
+         edo31 = EDOTuning(31)
+         interval = edo31.closest_interval(FrequencyRatio(7, 4))
+         print(interval)
+
+      .. testoutput:: EDOTuning
+
+         EDOPitchInterval(25, 31-EDO)
+
+   .. tab:: Western
+
+      .. testcode:: WesternNotation
+
+         from xenharmlib import WesternNotation
+         from xenharmlib import FrequencyRatio
+
+         western = WesternNotation()
+         interval = western.closest_interval(FrequencyRatio(3, 2))
+         print(interval)
+
+      .. testoutput:: WesternNotation
+
+         WesternNoteInterval(P, 5)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+         from xenharmlib import FrequencyRatio
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+         interval = n_edo31.closest_interval(FrequencyRatio(5, 4))
+         print(interval)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(M, 3, 31-EDO)
+
 Simple and Compound
 -----------------------------------------------------------
 
