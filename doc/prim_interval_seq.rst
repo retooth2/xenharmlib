@@ -644,6 +644,86 @@ interval sequence you can use the :code:`in` operator:
          True
          False
 
+Identity
+-------------------------------------------------------
+
+Two interval sequences are considered identical if each interval in one
+interval sequence corresponds to another interval in the other sequence
+at the same position.
+This relation works across origin contexts, for example 12-EDO and
+24-EDO interval sequences, or western note interval sequences can
+be identical:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import UpDownNotation
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   n_edo24 = UpDownNotation(edo24)
+   western = WesternNotation()
+
+   Cm_1 = edo24.diff_interval_seq([8, 6])
+   Cm_2 = n_edo24.interval_seq(
+       [
+           n_edo24.shorthand_interval('M', 3),
+           n_edo24.shorthand_interval('m', 3),
+       ]
+   )
+   Cm_3 = western.interval_seq(
+       [
+           western.shorthand_interval('M', 3),
+           western.shorthand_interval('m', 3),
+       ]
+   )
+
+   print(Cm_1 == Cm_2 == Cm_3)
+
+.. testoutput::
+
+   True
+
+Keep in mind that even if two interval sequences might have the same symbolic
+string representation in a notation, they are not necessarily equal. A major
+third interval in 31-EDO has for example a different frequency ratio than a
+major third interval in 12-EDO:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import UpDownNotation
+
+   edo31 = EDOTuning(31)
+   n_edo31 = UpDownNotation(edo31)
+
+   edo12 = EDOTuning(12)
+   n_edo12 = UpDownNotation(edo12)
+
+   Cm_1 = n_edo31.interval_seq(
+       [
+           n_edo31.shorthand_interval('M', 3),
+           n_edo31.shorthand_interval('m', 3),
+       ]
+   )
+   Cm_2 = n_edo12.interval_seq(
+       [
+           n_edo12.shorthand_interval('M', 3),
+           n_edo12.shorthand_interval('m', 3),
+       ]
+   )
+
+   print(Cm_1)
+   print(Cm_2)
+
+   print(Cm_1 == Cm_2)
+
+.. testoutput::
+
+   UpDownNoteIntervalSeq([M3, m3], 31-EDO)
+   UpDownNoteIntervalSeq([M3, m3], 12-EDO)
+   False
+
 Item Retrieval and Slicing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
