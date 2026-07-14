@@ -45,8 +45,8 @@ class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
 
     In line with its Sequence superclass interval sequences implement
     iteration, the 'in' operator, the == operator, item retrieval with
-    [], concatenation with +, repeated self-concatenation with *, searching
-    with index, and len().
+    [], concatenation with +, repeated self-concatenation with \\*,
+    searching with index, and len().
 
     Like scale types interval sequences also allow partitioning with partial,
     partial_not and partition.

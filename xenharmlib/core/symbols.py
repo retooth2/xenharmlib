@@ -132,7 +132,7 @@ class SymbolArithmetic(SymbolCode):
     vector (-11, 7), 'b' as the vector (11, -7), and so forth. The
     addition of the monzo vectors is then equal to the product in
     |R+: (e.g. 'b#' = (11, -7) + (-11, 7) = (0, 0), which is the
-    same as (2^11)/(3^7) * (3^7)/(2^11) = (2^0) * (3^0) = 1.
+    same as (2^11)/(3^7) \\* (3^7)/(2^11) = (2^0) \\* (3^0) = 1.
 
     On initialization of an arithmetic, an offset can be set, which
     adds a fixed integer vector to all symbol value vectors. This

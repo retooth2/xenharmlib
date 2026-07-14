@@ -44,7 +44,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
     In line with its Sequence superclass frequency representation sequences
     implement iteration, the 'in' operator, the == operator, item retrieval
-    with [], concatenation with +, repeated self-concatenation with *,
+    with [], concatenation with +, repeated self-concatenation with \\*,
     searching with index, and len().
 
     Like scale types sequences also allow partitioning with partial,
