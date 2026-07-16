@@ -262,23 +262,22 @@ western octave that you are already familiar with in a different system:
     EDOPitch(28, 31-EDO)
 
 Tunings also allow pitch approximations directly from frequencies
-with the :meth:`~xenharmlib.core.tunings.TuningABC.get_approx_pitch`
+with the :meth:`~xenharmlib.core.tunings.OriginContext.closest_freq_repr`
 method.
 
 For example, if you want the pitch class that best approximates the
-perfect fifth in a tuning you can do something like this:
+justly intonated G (defined as the result of multiplying the C0-pitch
+by frequency ratio :math:`\frac{3}{2}`), you can do something like this:
 
 .. testcode::
 
     from xenharmlib import FrequencyRatio
 
-    def get_fifth_pc_index(tuning):
-        zero_freq = tuning.pitch(0).frequency
-        perfect_fifth_freq = zero_freq * FrequencyRatio(3, 2)
-        fifth = tuning.get_approx_pitch(
-            perfect_fifth_freq
-        )
-        return fifth.pc_index
+    def get_g_pc_index(tuning):
+        zero_freq = tuning.zero_element.frequency
+        ji_g = zero_freq * FrequencyRatio(3, 2)
+        best_g = tuning.closest_freq_repr(ji_g)
+        return best_g.pc_index
 
     print(get_fifth_pc_index(edo12))
     print(get_fifth_pc_index(edo31))
