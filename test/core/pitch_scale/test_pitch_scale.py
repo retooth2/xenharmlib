@@ -938,7 +938,8 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
             [tuning_a.pitch(pi) for pi in input_pi]
         )
 
-    scale_b = scale_a.retune(tuning_b)
+    with pytest.deprecated_call():
+        scale_b = scale_a.retune(tuning_b)
 
     with pytest.deprecated_call():
         expected_scale_b = tuning_b.pitch_scale(
@@ -950,11 +951,12 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
-    scale_b = scale_a.retune(tuning_b)
+    scale_b = scale_a.retune_closest(tuning_b)
     expected_scale_b = tuning_b.scale(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
     assert scale_b == expected_scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',

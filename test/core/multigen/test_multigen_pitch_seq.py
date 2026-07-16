@@ -991,22 +991,25 @@ def test_transpose_index(
         ),
     ]
 )
-def test_retune_edo(source_tuning, source_vecs, target_tuning, target_indices):
+def test_retune_closest_edo(
+    source_tuning, source_vecs, target_tuning, target_indices
+):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     seq = source_tuning.index_seq(
         [source_tuning.lattice.point(vec) for vec in source_vecs]
     )
 
-    retuned = seq.retune(target_tuning)
+    retuned = seq.retune_closest(target_tuning)
     assert retuned == target_tuning.index_seq(target_indices)
 
 
-def test_retune_incompatible_origin_contexts():
+def test_retune_closest_type_error():
     """
-    Test if retune method raises exception on 2+ dimensional target tuning
+    Test if retune_closest method raises exception on 2+
+    dimensional target tuning
     """
 
     pitch_vecs = [(-1, 1, 0), (-3, 1, 1), (-2, 2, 0)]
@@ -1014,8 +1017,8 @@ def test_retune_incompatible_origin_contexts():
         [multigen_235.lattice.point(vec) for vec in pitch_vecs]
     )
 
-    with pytest.raises(IncompatibleOriginContexts):
-        source_seq.retune(multigen_25)
+    with pytest.raises(TypeError):
+        source_seq.retune_closest(multigen_25)
 
 
 @pytest.mark.parametrize(

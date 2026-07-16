@@ -771,16 +771,16 @@ def test_transpose_interval(tuning, input_pi, interval_pi, result_pi):
         (edo24, [1, 8, 12, 14, 16, 22], edo12, [0, 4, 6, 7, 8, 11]),
     ]
 )
-def test_retune(tuning_a, input_pi, tuning_b, result_pi):
+def test_retune_closest(tuning_a, input_pi, tuning_b, result_pi):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     sequence_a = tuning_a.seq(
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
-    sequence_b = sequence_a.retune(tuning_b)
+    sequence_b = sequence_a.retune_closest(tuning_b)
     expected_sequence_b = tuning_b.seq(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
