@@ -555,13 +555,13 @@ same way you can transpose pitches:
 
     EDOPitchScale([2, 7, 11], 31-EDO)
 
-You can also use the retune method to approximate a scale in a different
+You can also use retuning to approximate a scale in a different
 tuning:
 
 .. testcode::
 
     scale = edo12.index_scale([0, 1, 2])
-    retuned = scale.retune(edo24)
+    retuned = scale.retune_closest(edo24)
     print(retuned)
 
 .. testoutput::
