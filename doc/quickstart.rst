@@ -385,26 +385,26 @@ cents value:
     interval_fifth_edo31.frequency_ratio
     interval_fifth_edo31.cents
 
-There is a bit of a caveat when handling negative / downward intervals:
+There is a bit of a caveat when handling negative / descending intervals:
 The :code:`<` operator does compare frequency ratios, *not* absolute
 sizes, so - maybe surprising to some - the following holds:
 
 .. testcode::
 
-    fifth_d = edo12.pitch(7).interval(
+    descending_fifth = edo12.pitch(7).interval(
         edo12.pitch(0)
     )
-    second_d = edo12.pitch(2).interval(
+    descending_second = edo12.pitch(2).interval(
         edo12.pitch(0)
     )
-    assert fifth_d < second_d
+    assert descending_fifth < descending_second
 
 If you want to compare absolute sizes you have to use the :code:`abs()`
 function.
 
 .. testcode::
 
-    assert abs(fifth_d) > abs(second_d)
+    assert abs(descending_fifth) > abs(descending_second)
 
 Futhermore since interval objects define the difference between two pitches
 they can also be used as an argument for transposition:
@@ -564,7 +564,7 @@ They also support item selection and slicing:
 
 The 'in' operator accepts both pitches and pitch intervals. If an
 interval is given xenharmlib checks if *any* two pairs of notes
-(both in upwards and downwards direction) form the interval.
+(both in descending and ascending direction) form the interval.
 
 .. testcode::
 
@@ -1357,8 +1357,8 @@ interval:
 
     ('m', 3)
 
-Note intervals also implement the :func:`abs` function, so downwards
-intervals can be transformed into their upwards counterpart:
+Note intervals also implement the :func:`abs` function, so descending
+intervals can be transformed into their ascending counterpart:
 
 .. testcode::
 
