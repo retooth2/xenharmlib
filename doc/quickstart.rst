@@ -224,12 +224,13 @@ of the base interval.
     1
 
 Pitches are bound to their tuning, but you can easily map pitches of
-one tuning to another by the :meth:`~xenharmlib.core.pitch.Pitch.retune`
+one tuning to another by the
+:meth:`~xenharmlib.core.freq_repr.FreqRepr.retune_closest`
 method. This takes the frequency of the pitch and finds the pitch with
 the closest frequency in another tuning. For example if you are
 accustomed to a standard western tuning and just started your journey
 into microtonality you might be interested in finding the 12 pitches of a
-western octave that you are already familiar with:
+western octave that you are already familiar with in a different system:
 
 .. testcode::
 
@@ -237,7 +238,7 @@ western octave that you are already familiar with:
         pitches = []
         for i in range(0, 12):
             pitches.append(
-                edo12.pitch(i).retune(tuning)
+                edo12.pitch(i).retune_closest(tuning)
             )
         return pitches
 
