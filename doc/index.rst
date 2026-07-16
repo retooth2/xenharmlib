@@ -193,21 +193,61 @@ features.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Intro
 
    quickstart
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Harmonic Primitives
+
+   prim_intro
+   prim_freq_repr
+   prim_interval
+   prim_scale
+   prim_interval_seq
+   prim_interval_fan
+   prim_seq
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tunings
+
+   primelimit_tunings
+   multigen_tunings
+   lattice_points
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Notations
+
    western_notation
-   adv_scale_methods
    adv_notation_features
-   interval_seq
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Utilities
+
    periodic_package
    posttonal
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+
    core_api
    export_api
    notation_api
    periodic_api
    setc_api
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Misc
+
    changelog
+
+
 
 Contributor Guide
 ---------------------
