@@ -716,7 +716,7 @@ purposes.
 the scale. As illustrated in the example, both A minor and C major
 possess the exact same base interval normal form.)
 
-After scales are converted into their basic interval normal form, they
+After scales are converted into their pitch class set normal form, they
 can be treated like sets of pitch classes. To address our original
 question about which notes to use when modulating from one key to
 another, we can now combine basic interval normalization with the
