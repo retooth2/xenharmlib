@@ -64,7 +64,7 @@ world of notes (like D, F#) while others want to look at tunings more
 mathematically, exploring pitches and pitch classes as integers
 without the burdens of enharmonic ambiguity.
 
-In the first part of this tutorial we want to look at this lower
+In the first part of this tutorial we want to look at the numerical
 conceptual level of individual sounds, the pitch:
 
 .. testcode::
