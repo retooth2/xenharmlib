@@ -876,7 +876,7 @@ It is even possible to mix flat/sharp and up/down accidentals:
     weird_note = n_edo24.note('vvvvv^^^^Cxx#xxbbx', 0)
 
 If a certain accidental is available depends on the underlying tuning.
-For 12-EDO e.g. the 'bv' accidental is not available, however for 31-EDO
+For 12-EDO e.g. the 'v' accidental is not available, however for 31-EDO
 it is. In general, there exists exactly one accidental symbol for each
 accidental value (hence 'v' does not exist in 12-EDO because it would be
 the same as 'b')
