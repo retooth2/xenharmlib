@@ -327,3 +327,97 @@ use the scale attribute
 .. testoutput::
 
    [0, 2, 3, 5, 7, 9]
+
+Interval Class Vectors
+-------------------------------------
+
+For tunings with integer pitch indices xenharmlib can calculate the
+interval class vector with the :meth:`~xenharmlib.setc.ic_vector`
+function from the set class package. An interval class vector counts
+the number of times different interval classes occur in a scale, thus
+giving a mathematical expression of the "color" of a scale or chord,
+making it possible to compare scales and chords by color
+similarity.
+
+Intervals are counted like this:
+
+1. Start from the first scale element and generate intervals to
+   all succeeding elements. Transform the intervals to interval
+   classes and count the number of occurences of each class
+2. Do the same starting from the next scale element: Generate
+   all intervals to succeeding elements (this omits already
+   counted intervals between the current element and the
+   proceeding element(s)), calculate the interval classes
+   and update the counter
+3. Repeat 2 until the last scale element is reached.
+
+The first vector dimension counts the number of intervals with interval
+class 1, the second dimension the number of intervals with interval class
+2, etc. This means that the dimensions of the vector depend on the number
+of possible interval classes in an origin context.
+12-EDO for example has 6 different interval classes, therefor the
+vector has 6 dimensions, 31-EDO has 15 different interval classes,
+so the length of an interval class vector in 31-EDO is 15, etc.
+
+Some examples for illustration:
+
+
+.. tabs::
+
+   .. tab:: EDO
+
+      .. testcode:: EDOTuning
+
+         from xenharmlib import EDOTuning
+         from xenharmlib.setc import ic_vector
+
+         edo31 = EDOTuning(31)
+
+         scale = edo31.index_scale([0, 5, 11, 15, 17, 21])
+         print(ic_vector(scale))
+
+      .. testoutput:: EDOTuning
+
+         (0, 1, 0, 2, 1, 3, 0, 0, 0, 3, 1, 1, 0, 1, 2)
+
+   .. tab:: Western
+
+      .. testcode:: WesternNotation
+
+         from xenharmlib import WesternNotation
+         from xenharmlib.setc import ic_vector
+
+         western = WesternNotation()
+
+         E4 = western.note('E', 4)
+         G4 = western.note('G', 4)
+         C5 = western.note('C', 5)
+
+         scale = western.scale([E4, G4, C5])
+         print(ic_vector(scale))
+
+      .. testoutput:: WesternNotation
+
+         (0, 0, 1, 1, 1, 0)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+         from xenharmlib.setc import ic_vector
+
+         edo24 = EDOTuning(24)
+         n_edo24 = UpDownNotation(edo24)
+
+         Gb4 = n_edo24.note('Gb', 4)
+         Aup4 = n_edo24.note('^A', 4)
+         Bb4 = n_edo24.note('Bb', 4)
+
+         scale = n_edo24.scale([Gb4, Aup4, Bb4])
+         print(ic_vector(scale))
+
+      .. testoutput:: UpDownNotation
+
+         (1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
