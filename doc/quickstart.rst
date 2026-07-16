@@ -1283,8 +1283,8 @@ This is necessary so the transpose method of the Note object is well defined:
     interval = a.interval(c)
     assert a.transpose(interval) == c
 
-If intervals have a downward direction their naming changes accordingly.
-The constructed interval above is a downward major 6:
+If intervals have a descending direction their naming changes accordingly.
+The constructed interval above is a descending major 6:
 
 .. testcode::
 
