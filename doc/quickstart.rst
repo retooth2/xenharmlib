@@ -1259,7 +1259,7 @@ is a short overview:
     assert m3.cents == m3.pitch_interval.cents
     assert m3.pitch_diff == m3.pitch_interval.pitch_diff
 
-Like pitch with intervals xenharmlib's note intervals have *directions*.
+Like pitch intervals xenharmlib's note intervals have *directions*.
 This is necessary so the transpose method of the Note object is well defined:
 
 .. testcode::
