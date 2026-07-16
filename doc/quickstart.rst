@@ -985,15 +985,7 @@ property and the
 The pitch class index of the note is 0 because the note refers to the
 pitch index 12, which has pitch class 0 (the pitch class of 'C').
 In the notation context however it is seen as a 'B' with an accidental
-and 'B' has pitch class 11. You can use this to lump notes together
-that are based on the same natural but have different accidentals
-
-.. testcode::
-
-    edo31_gsharp = n_edo31.note('G#', 2)
-    edo31_gflat = n_edo31.note('Gb', 3)
-
-    assert edo31_gsharp.nat_pc_index == edo31_gflat.nat_pc_index
+and 'B' has pitch class 11.
 
 You can see a similar effect when looking at the base interval index.
 On natural/accidental notes it too comes in two flavors: One for the
