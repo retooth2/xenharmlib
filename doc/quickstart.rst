@@ -411,10 +411,10 @@ they can also be used as an argument for transposition:
 
 .. testcode::
 
-    fifth = edo12.diff_interval(7)
-    D = edo12.pitch(2)
+   fifth = edo12.diff_interval(7)
+   D = edo12.pitch(2)
 
-    print(D.transpose(fifth))
+   print(D.transpose(fifth))
 
 .. testoutput::
 
