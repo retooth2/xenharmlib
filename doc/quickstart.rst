@@ -420,6 +420,22 @@ they can also be used as an argument for transposition:
 
    EDOPitch(9, 12-EDO)
 
+Intervals additionally implement a full arithmetic:
+
+.. testcode::
+
+   fifth = edo12.diff_interval(7)
+   fourth = edo12.diff_interval(5)
+
+   print(fifth - fourth) # major second
+   print(fifth + fourth) # octave
+   print(2 * fifth) # major ninth
+
+.. testoutput::
+
+   EDOPitchInterval(2, 12-EDO)
+   EDOPitchInterval(12, 12-EDO)
+   EDOPitchInterval(14, 12-EDO)
 
 Pitch Scales
 ------------------------
@@ -1308,6 +1324,23 @@ intervals can be transformed into their ascending counterpart:
 
     ('P', -4)
     ('P', 4)
+
+Intervals implement a full arithmetic that is also harmonic function aware:
+
+.. testcode::
+
+   m3 = n_edo31.shorthand_interval('m', 3)
+   M3 = n_edo31.shorthand_interval('M', 3)
+
+   print(M3 + m3)
+   print(M3 - m3)
+   print(2 * M3)
+
+.. testoutput::
+
+   UpDownNoteInterval(P, 5, 31-EDO)
+   UpDownNoteInterval(A, 1, 31-EDO)
+   UpDownNoteInterval(A, 5, 31-EDO)
 
 Note Scales
 -----------------------------------
