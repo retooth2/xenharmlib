@@ -158,23 +158,38 @@ point math)
 Pitches can be transformed into other pitches by transposition.
 For this purpose pitch objects provide a
 :meth:`~xenharmlib.core.pitch.Pitch.transpose` method that expects
-a positive or negative integer, or an interval object (more on that later).
-The following snippets defines a function that transposes the pitch
-n octaves up regardless of tuning:
+a positive or negative integer (determining the pitch difference in
+steps), or an interval object (more on that later).
+The following snippets e.g. generates the circle of fifths for the
+contemporary Western tuning.
 
 .. testcode::
 
-    def octaves_up(pitch, n):
-        return pitch.transpose(
-            n * pitch.tuning.eq_diff
-        )
+    def print_co5(start_pitch):
+        for i in range(0, 12):
+            # pitch difference for the fifth in the
+            # Western equal temperament system is 7
+            pitch = start_pitch.transpose(i * 7)
+            print(pitch)
 
-    a0 = edo12.pitch(9)
-    print(octaves_up(a0, 2))
+    # start with F0
+    f0 = edo12.pitch(5)
+    print_co5(f0)
 
 .. testoutput::
 
+    EDOPitch(5, 12-EDO)
+    EDOPitch(12, 12-EDO)
+    EDOPitch(19, 12-EDO)
+    EDOPitch(26, 12-EDO)
     EDOPitch(33, 12-EDO)
+    EDOPitch(40, 12-EDO)
+    EDOPitch(47, 12-EDO)
+    EDOPitch(54, 12-EDO)
+    EDOPitch(61, 12-EDO)
+    EDOPitch(68, 12-EDO)
+    EDOPitch(75, 12-EDO)
+    EDOPitch(82, 12-EDO)
 
 Pitches of periodic tunings (for example the various equal temperaments)
 form pitch classes (or in mathematical terms: equivalency classes in a
