@@ -129,9 +129,8 @@ class Pitch(IndexedFreqRepr[IndexT]):
 
         :param origin_context: The target origin context
 
-        :raises NotImplementedError: If the target tuning does not
-            have a proper definition of a closest representation
-            to a given frequency
+        :raises TypeError: If the target tuning does not have a proper
+            definition of a closest representation to a given frequency
         """
 
         warn(

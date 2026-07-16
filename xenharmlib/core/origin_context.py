@@ -282,7 +282,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency can be approximated infinitesimally close. In
-        this case the method should raise a NotImplementedError
+        this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """
@@ -297,7 +297,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency ratio can be approximated infinitesimally close.
-        In this case the method should raise a NotImplementedError
+        In this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """
@@ -312,7 +312,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency can be approximated infinitesimally close. In
-        this case the method should raise a NotImplementedError
+        this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """
@@ -329,7 +329,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency ratio can be approximated infinitesimally close.
-        In this case the method should raise a NotImplementedError
+        In this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """
@@ -346,7 +346,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency ratio can be approximated infinitesimally close.
-        In this case the method should raise a NotImplementedError
+        In this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """
@@ -361,7 +361,7 @@ class OriginContext(
 
         If the origin context e.g. is a prime limit tuning every
         frequency can be approximated infinitesimally close. In
-        this case the method should raise a NotImplementedError
+        this case the method should raise a TypeError
 
         (Must be implemented by subclasses)
         """

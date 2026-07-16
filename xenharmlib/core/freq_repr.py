@@ -102,9 +102,9 @@ class FreqRepr(ABC):
 
         :param origin_context: The target origin context
 
-        :raises NotImplementedError: If the target context does not
-            have a proper definition of a closest representation
-            to a given frequency
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency
         """
 
         return origin_context.closest_freq_repr(self.frequency)
