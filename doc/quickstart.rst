@@ -48,6 +48,16 @@ yourself:
 
    bohlen_pierce = EDTuning(13, FrequencyRatio(3))
 
+
+.. note::
+
+   Xenharmlib offers a broad range of tuning contexts
+   (among them :doc:`Prime Limit Tunings <primelimit_tunings>`
+   and even fully user-defined
+   :doc:`Regular Temperament Systems <multigen_tunings>`).
+   For the introductory purpose of this Quickstart however we will focus
+   purely on "equal division of the octave" tunings.
+
 Xenharmlib is designed in a way that you can use different levels of
 abstraction for individual tuning sounds. Some prefer the customary
 world of notes (like D, F#) while others want to look at tunings more
