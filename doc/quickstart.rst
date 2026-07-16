@@ -279,8 +279,8 @@ by frequency ratio :math:`\frac{3}{2}`), you can do something like this:
         best_g = tuning.closest_freq_repr(ji_g)
         return best_g.pc_index
 
-    print(get_fifth_pc_index(edo12))
-    print(get_fifth_pc_index(edo31))
+    print(get_g_pc_index(edo12))
+    print(get_g_pc_index(edo31))
 
 .. testoutput::
 
