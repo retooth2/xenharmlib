@@ -221,11 +221,6 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
             identical
         """
 
-        if seq.origin_context is not self.origin_context:
-            raise IncompatibleOriginContexts(
-                "Sequences have different origin contexts"
-            )
-
         len_seq = len(seq)
         len_self = len(self)
         len_diff = len_seq - len_self

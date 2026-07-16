@@ -1394,28 +1394,36 @@ def test_is_subseq_proper(notation, input_pairs_a, input_pairs_b, expected):
     assert seq_a.is_subseq(seq_b, proper=True) == expected
 
 
-def test_is_subseq_incompatible_origin_contexts():
+def test_is_subseq_cross_origin():
     """
-    Test if is_subseq operation fails if seqs originate from
-    different notations
+    Test if is_subseq works across origin contexts
     """
 
-    n_edo12_2 = make_nat_acc_test_notation(edo12)
-    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+    seq_a = n_edo12.seq(
+        [
+            n_edo12.note('A', 1),
+            n_edo12.note('B', 2),
+            n_edo12.note('C+', 1),
+            n_edo12.note('C++', 1),
+            n_edo12.note('B', 1),
+            n_edo12.note('A', 1),
+        ]
+    )
+    seq_b = n_edo24.seq(
+        [
+            n_edo24.note('F', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
+    seq_c = n_edo24.seq(
+        [
+            n_edo24.note('F++', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
 
-    for i, notation_a in enumerate(notations):
-
-        for notation_b in notations[i+1:]:
-
-            seq_a = NoteSeq(
-                notation_a
-            )
-            seq_b = NoteSeq(
-                notation_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_subseq(seq_b)
+    assert seq_b.is_subseq(seq_a)
+    assert not seq_c.is_subseq(seq_a)
 
 
 @pytest.mark.parametrize(
@@ -1537,28 +1545,36 @@ def test_is_superseq_proper(notation, input_pairs_a, input_pairs_b, expected):
     assert seq_a.is_superseq(seq_b, proper=True) == expected
 
 
-def test_is_superseq_incompatible_origin_contexts():
+def test_is_superseq_cross_origin():
     """
-    Test if is_superseq operation fails if seqs originate from
-    different notations
+    Test if is_superseq works across origin contexts
     """
 
-    n_edo12_2 = make_nat_acc_test_notation(edo12)
-    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+    seq_a = n_edo12.seq(
+        [
+            n_edo12.note('A', 1),
+            n_edo12.note('B', 2),
+            n_edo12.note('C+', 1),
+            n_edo12.note('C++', 1),
+            n_edo12.note('B', 1),
+            n_edo12.note('A', 1),
+        ]
+    )
+    seq_b = n_edo24.seq(
+        [
+            n_edo24.note('F', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
+    seq_c = n_edo24.seq(
+        [
+            n_edo24.note('F++', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
 
-    for i, notation_a in enumerate(notations):
-
-        for notation_b in notations[i+1:]:
-
-            seq_a = NoteSeq(
-                notation_a
-            )
-            seq_b = NoteSeq(
-                notation_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_superseq(seq_b)
+    assert seq_a.is_superseq(seq_b)
+    assert not seq_a.is_superseq(seq_c)
 
 
 @pytest.mark.parametrize(

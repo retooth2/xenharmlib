@@ -843,31 +843,20 @@ def test_is_subseq_proper(tuning, input_pi_a, input_pi_b, expected):
     assert sequence_a.is_subseq(sequence_b, proper=True) == expected
 
 
-def test_is_subseq_incompatible_origin_contexts():
+def test_is_subseq_cross_origin():
     """
-    Test if is_subseq test fails if sequences originate
-    from different tunings
+    Test if is_subseq works across origin contexts
     """
 
-    edo12_2 = EDTuning(12, FrequencyRatio(2))
-    tunings = edo12, edo24, edo31, ed13_3, edo12_2
+    edo12 = EDOTuning(12)
+    edo24 = EDOTuning(24)
 
-    for i, tuning_a in enumerate(tunings):
+    seq_a = edo12.index_seq([0, 4, 3, 5, 2, 1, 7])
+    seq_b = edo24.index_seq([8, 6, 10, 4])
+    seq_c = edo24.index_seq([8, 6, 10, 5])
 
-        for tuning_b in tunings[i+1:]:
-
-            sequence_a = PitchSeq(
-                tuning_a
-            )
-            sequence_b = PitchSeq(
-                tuning_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                sequence_a.is_subseq(sequence_b)
-
-            with pytest.raises(IncompatibleOriginContexts):
-                sequence_a.is_subseq(sequence_b, proper=True)
+    assert seq_b.is_subseq(seq_a)
+    assert not seq_c.is_subseq(seq_a)
 
 
 @pytest.mark.parametrize(
@@ -927,31 +916,20 @@ def test_is_superseq_proper(tuning, input_pi_a, input_pi_b, expected):
     assert sequence_a.is_superseq(sequence_b, proper=True) == expected
 
 
-def test_is_superseq_incompatible_origin_contexts():
+def test_is_superseq_cross_origin():
     """
-    Test if is_subseq test fails if sequences originate
-    from different tunings
+    Test if is_superseq works across origin contexts
     """
 
-    edo12_2 = EDTuning(12, FrequencyRatio(2))
-    tunings = edo12, edo24, edo31, ed13_3, edo12_2
+    edo12 = EDOTuning(12)
+    edo24 = EDOTuning(24)
 
-    for i, tuning_a in enumerate(tunings):
+    seq_a = edo12.index_seq([0, 4, 3, 5, 2, 1, 7])
+    seq_b = edo24.index_seq([8, 6, 10, 4])
+    seq_c = edo24.index_seq([8, 6, 10, 5])
 
-        for tuning_b in tunings[i+1:]:
-
-            sequence_a = PitchSeq(
-                tuning_a
-            )
-            sequence_b = PitchSeq(
-                tuning_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                sequence_a.is_superseq(sequence_b)
-
-            with pytest.raises(IncompatibleOriginContexts):
-                sequence_a.is_superseq(sequence_b, proper=True)
+    assert seq_a.is_superseq(seq_b)
+    assert not seq_a.is_superseq(seq_c)
 
 
 @pytest.mark.parametrize(
