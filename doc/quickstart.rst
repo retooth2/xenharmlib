@@ -802,20 +802,14 @@ You can combine two notes to form a note interval:
 
 .. testcode::
 
-    neutral_3 = n_edo24.interval(
-        c, e_neutral
-    )
-    diminished_5 = n_edo24.interval(
-        c, g_flat
-    )
+    neutral_3 = n_edo24.interval(c, e_neutral)
+    diminished_5 = n_edo24.interval(c, g_flat)
 
 A list of notes can be used to create a note scale:
 
 .. testcode::
 
-    triad = n_edo24.scale(
-        [c, e_neutral, g_flat]
-    )
+    triad = n_edo24.scale([c, e_neutral, g_flat])
 
 Please note that other notations might use different builder arguments
 to create these objects, however the above combination are the most
