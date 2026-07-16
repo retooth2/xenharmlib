@@ -1352,8 +1352,8 @@ that expects a list of pitch class symbols:
 
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
-scale object was a python builtin list. The in operator works likewise
-both with pitches, pitch intervals, notes, and note intervals.
+scale object was a python builtin list. The :code:`in` operator works
+likewise both with pitches, pitch intervals, notes, and note intervals.
 
 .. testcode::
 
