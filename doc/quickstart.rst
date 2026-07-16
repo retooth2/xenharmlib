@@ -1339,7 +1339,7 @@ from the same notation:
 .. testcode::
 
     Cm7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
+        [n_edo12.note(pcs, 0) for pcs in ['C', 'Eb', 'G', 'Bb']]
     )
 
 Or - in a more concise form - with the
