@@ -77,6 +77,23 @@ derived, is the frequency representation, which in tuning contexts is called
 
          440.0
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         Abb4 = n_edo31.note('Abb', 4)
+         print(Abb4.frequency.to_float())
+
+      .. testoutput:: UpDownNotation
+
+         400.1127908225046
+
 From these "smallest" units other harmonic primitives can be build, which we
 call *second-order* harmonic primitives:
 
@@ -181,6 +198,27 @@ sequence, regardless of sequence origin:
 
          ['step', 'step', 'skip', 'skip']
 
+   .. tab:: UpDown
+
+      .. testcode::
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Dbb4 = n_edo31.note('Dbb', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         seq = n_edo31.seq([C4, Dbb4, Eup4, C4, Eup4])
+         result = steps_and_skips(seq)
+         print(result)
+
+      .. testoutput::
+
+         ['step', 'step', 'skip', 'skip']
 
 Constants
 ------------------------------------------------
@@ -231,6 +269,22 @@ interval:
       .. testoutput:: WesternNotation
 
          WesternNoteInterval(P, 8)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         print(n_edo31.eq_interval)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(P, 8, 31-EDO)
 
 Especially in notations where there can be multiple enharmonic ways to
 define the equivalency interval, the constant returns the definitive
@@ -285,6 +339,22 @@ to find out if an interval is descending or ascending.
 
          WesternNoteInterval(P, 1)
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         print(n_edo31.unison_interval)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(P, 1, 31-EDO)
+
 
 The :attr:`~xenharmlib.core.origin_context.OriginContext.zero_element`
 constant defines the frequency representation that is considered
@@ -331,6 +401,22 @@ zero-normalized form:
       .. testoutput:: WesternNotation
 
          WesternNote(C, 0)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         print(n_edo31.zero_element)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNote(C, 0, 31-EDO)
 
 Since xenharmlib supports both integer and lattice point indexing,
 reference points for different indexing strategies are also
@@ -395,3 +481,22 @@ given as constants, namely
          0
          12
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         print(n_edo31.zero_index)
+         print(n_edo31.unison_diff)
+         print(n_edo31.eq_diff)
+
+      .. testoutput:: UpDownNotation
+
+         0
+         0
+         31
