@@ -1001,7 +1001,7 @@ following example:
          G5 = western.note('G', 5)
 
          scale_a = western.scale([G4, C5, E5])
-         scale_b = western.scale([E4, C5, G4])
+         scale_b = western.scale([E4, C5, G5])
          scale_c = western.scale([G4, C5, E5])
 
          print(scale_a.is_set_equivalent(scale_b))
