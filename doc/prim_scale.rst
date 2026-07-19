@@ -142,6 +142,29 @@ by integers, but can also be lattice points:
          [52, 55, 60]
          [4, 7, 0]
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E4 = n_edo31.note('E', 4)
+         Gup4 = n_edo31.note('^G', 4)
+         C5 = n_edo31.note('C', 5)
+
+         scale = n_edo31.scale([E4, Gup4, C5])
+         print(scale.pitch_indices)
+         print(scale.pc_indices)
+
+      .. testoutput:: UpDownNotation
+
+         [134, 143, 155]
+         [10, 19, 0]
+
 Deriving Scales
 -------------------------------------------------------
 
@@ -205,6 +228,27 @@ the same context and creates a scale primitive:
       .. testoutput:: WesternNotation
 
          WesternNoteScale([C4, E4, G4])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E4 = n_edo31.note('E', 4)
+         Gup4 = n_edo31.note('^G', 4)
+         C5 = n_edo31.note('C', 5)
+
+         scale = n_edo31.scale([E4, Gup4, C5])
+         print(scale)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteScale([E4, ^G4, C5], 31-EDO)
 
 Element-wise Construction
 -------------------------------------------------------
@@ -288,6 +332,33 @@ an additional element:
          WesternNoteScale([C4, D4])
          WesternNoteScale([C4, D4, E4])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E4 = n_edo31.note('E', 4)
+         Gup4 = n_edo31.note('^G', 4)
+         C5 = n_edo31.note('C', 5)
+
+         # start with empty scale
+         scale = n_edo31.scale()
+
+         for e in [E4, Gup4, C5]:
+             scale = scale.with_element(e)
+             print(scale)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteScale([E4], 31-EDO)
+         UpDownNoteScale([E4, ^G4], 31-EDO)
+         UpDownNoteScale([E4, ^G4, C5], 31-EDO)
+
 Index-based Construction
 -------------------------------------------------------
 
@@ -345,6 +416,23 @@ the notation's enharmonic strategy.
       .. testoutput:: WesternNotation
 
          WesternNoteScale([C0, F0, G0])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         scale = n_edo31.index_scale([1, 10, 17])
+         print(scale)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteScale([Dbb0, E0, Fx0], 31-EDO)
 
 Tunings with lattice point indices provide the convenience builder method
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_scale` that expects a
@@ -457,6 +545,23 @@ input values:
       .. testoutput:: WesternNotation
 
          WesternNoteScale([C0, D0, E0, F0, G#0, A0, B0])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         scale = n_edo31.pc_scale(['^E', 'G', 'Ab', 'D#'])
+         print(scale)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteScale([^E0, G0, Ab0, D#1], 31-EDO)
 
 
 Construction Based on Closest Frequency
@@ -637,6 +742,28 @@ Scales can be transformed into three other harmonic primitives:
          WesternNoteIntervalSeq([M3, m3])
          WesternNoteIntervalFan([P1, M3, P5])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         scale = n_edo31.pc_scale(['^E', 'G', 'Ab'])
+
+         print(scale.to_seq())
+         print(scale.to_interval_seq())
+         print(scale.to_interval_fan())
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([^E0, G0, Ab0], 31-EDO)
+         UpDownNoteIntervalSeq([vm3, m2], 31-EDO)
+         UpDownNoteIntervalFan([P1, vm3, vd4], 31-EDO)
+
 It is also possible to create a scale *from* any of the other primitives.
 While sequences can just be given to the scale constructor, interval
 sequences and interval fans need a pitch or note as a reference point:
@@ -716,6 +843,39 @@ sequences and interval fans need a pitch or note as a reference point:
          WesternNoteScale([D#3, E3, F3, G3, Ab3, Bb3, Cb4, Dbb4])
          WesternNoteScale([D#3, F#3, C#4])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         seq = n_edo31.seq([n_edo31.note(pcs, 4) for pcs in 'CEGDEFE'])
+         print(n_edo31.scale(seq))
+
+         up_m2 = n_edo31.shorthand_interval('^m', 2)
+         down_M2 = n_edo31.shorthand_interval('vM', 2)
+
+         iseq = n_edo31.interval_seq(
+             [up_m2, up_m2, down_M2, up_m2, down_M2, up_m2, down_M2]
+         )
+         print(n_edo31.note('D#', 3).scale(iseq))
+
+         P1 = n_edo31.unison_interval
+         m3 = n_edo31.shorthand_interval('m', 3)
+         P5 = n_edo31.shorthand_interval('P', 5)
+
+         ifan = n_edo31.interval_seq([P1, m3, P5])
+         print(n_edo31.note('D#', 3).scale(ifan))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteScale([C4, D4, E4, F4, G4], 31-EDO)
+         UpDownNoteScale([D#3, ^E3, ^^F3, ^G3, ^^Ab3, ^Bb3, ^^Cb4, ^Db4], 31-EDO)
+         UpDownNoteScale([D#3, F#3, C#4], 31-EDO)
 
 Identity and Equivalency
 -------------------------------------------------------
@@ -849,6 +1009,36 @@ following example:
          print(scale_a.is_seq_equivalent(scale_c))
 
       .. testoutput:: WesternNotation
+
+         True
+         False
+         True
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E4 = n_edo31.note('E', 4)
+         Gup4 = n_edo31.note('^G', 4)
+         C5 = n_edo31.note('C', 5)
+         E5 = n_edo31.note('E', 5)
+         Gup5 = n_edo31.note('^G', 5)
+
+         scale_a = n_edo31.scale([Gup4, C5, E5])
+         scale_b = n_edo31.scale([E4, C5, Gup5])
+         scale_c = n_edo31.scale([Gup4, C5, E5])
+
+         print(scale_a.is_set_equivalent(scale_b))
+         print(scale_a.is_seq_equivalent(scale_b))
+         print(scale_a.is_seq_equivalent(scale_c))
+
+      .. testoutput:: UpDownNotation
 
          True
          False
