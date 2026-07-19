@@ -137,6 +137,27 @@ with the default builder method
 
          WesternNoteIntervalFan([P1, M3, P5])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         P5 = n_edo31.shorthand_interval('P', 5)
+
+         ifan = n_edo31.interval_fan([P1, super_M3, P5])
+         print(ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([P1, ^M3, P5], 31-EDO)
+
 Element-wise Construction
 ----------------------------------------
 
@@ -219,6 +240,33 @@ an additional element:
          WesternNoteIntervalFan([P1, M3])
          WesternNoteIntervalFan([P1, M3, P5])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         P5 = n_edo31.shorthand_interval('P', 5)
+
+         # start with empty fan
+         ifan = n_edo31.interval_fan()
+
+         for i in [P1, super_M3, P5]:
+             ifan = ifan.with_interval(i)
+             print(ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([P1], 31-EDO)
+         UpDownNoteIntervalFan([P1, ^M3], 31-EDO)
+         UpDownNoteIntervalFan([P1, ^M3, P5], 31-EDO)
+
 Instead of appending intervals at the end of the fan users can also give
 an additional parameter to define where the new interval should appear:
 
@@ -296,6 +344,33 @@ an additional parameter to define where the new interval should appear:
          WesternNoteIntervalFan([M3, P1])
          WesternNoteIntervalFan([P5, M3, P1])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         P5 = n_edo31.shorthand_interval('P', 5)
+
+         # start with empty fan
+         ifan = n_edo31.interval_fan()
+
+         for i in [P1, super_M3, P5]:
+             ifan = ifan.with_interval(i, 0)
+             print(ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([P1], 31-EDO)
+         UpDownNoteIntervalFan([^M3, P1], 31-EDO)
+         UpDownNoteIntervalFan([P5, ^M3, P1], 31-EDO)
+
 
 Index-based Construction
 ----------------------------------------
@@ -354,6 +429,23 @@ layer by employing the notation's enharmonic strategy.
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalFan([P1, P4, P5])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         ifan = n_edo31.diff_interval_fan([0, 11, 18])
+         print(ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([P1, d4, P5], 31-EDO)
 
 Construction Based on Closest Frequency Ratio
 -----------------------------------------------------
@@ -1029,6 +1121,29 @@ examples for each tuning / notation:
 
          WesternNoteIntervalFan([M3, P1, m3, m3, M3, m3])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+
+         ifan_a = n_edo31.interval_fan([M3, P1, m3])
+         ifan_b = n_edo31.interval_fan([m3, M3, m3])
+
+         print(ifan_a + ifan_b)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([M3, P1, m3, m3, M3, m3], 31-EDO)
+
 Repetition
 ------------------
 
@@ -1084,6 +1199,26 @@ Repetition of an interval fan can be achieved by multiplying
 
          WesternNoteIntervalFan([M2, M3, m3, M-2, M-2, M2, M3, m3, M-2, M-2, M2, M3, m3, M-2, M-2])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+
+         ifan = n_edo31.interval_fan([M3, P1, m3])
+         print(3 * ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([M3, P1, m3, M3, P1, m3, M3, P1, m3], 31-EDO)
 
        
 Index Masks and Partial Interval Fans
@@ -1146,6 +1281,27 @@ expression start with 0):
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalFan([m3, A1, M3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         ifan = n_edo31.interval_fan([M3, m3, A1, A1, M3, m3])
+         print(ifan.partial((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([m3, A1, M3], 31-EDO)
 
 Mask expressions targeted at longer continuous spans inside the interval
 fan can be written as a "shortform" with the ellipsis symbol
@@ -1239,6 +1395,41 @@ fan can be written as a "shortform" with the ellipsis symbol
          WesternNoteIntervalFan([m3, A1, A1, M3])
          WesternNoteIntervalFan([M3, A1, M3, m3])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         ifan = n_edo31.interval_fan([M3, m3, A1, A1, M3, m3])
+
+         # an ellipsis as a prefix matches all elements from
+         # the start of the fan until and including (!)
+         # the first mask index
+         print(ifan.partial((..., 3, 4)))
+
+         # an ellipsis between two indices matches the two indices
+         # in the fan and all elements between them
+         print(ifan.partial((1, ..., 4)))
+
+         # an ellipsis at the end matches all remaining indices
+         # in the fan after the last mask index
+         print(ifan.partial((0, 3, ...)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([M3, m3, A1, A1, M3], 31-EDO)
+         UpDownNoteIntervalFan([m3, A1, A1, M3], 31-EDO)
+         UpDownNoteIntervalFan([M3, A1, M3, m3], 31-EDO)
+
 Selection can also be inverted with the
 :meth:`~xenharmlib.core.interval_fan.IntervalFan.partial_not` method that
 returns all elements *not* covered by the mask expression:
@@ -1290,6 +1481,27 @@ returns all elements *not* covered by the mask expression:
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalFan([M3, A1, m3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         ifan = n_edo31.interval_fan([M3, m3, A1, A1, M3, m3])
+         print(ifan.partial_not((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([M3, A1, m3], 31-EDO)
 
 To get both the substructure indicated by the mask *and* its complement as
 a tuple, you can use the
@@ -1351,3 +1563,27 @@ a tuple, you can use the
 
          WesternNoteIntervalFan([m3, A1, M3])
          WesternNoteIntervalFan([M3, A1, m3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         M3 = n_edo31.shorthand_interval('M', 3)
+         m3 = n_edo31.shorthand_interval('m', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         ifan = n_edo31.interval_fan([M3, m3, A1, A1, M3, m3])
+         a, b = ifan.partition((1, 3, 4))
+         print(a)
+         print(b)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([m3, A1, M3], 31-EDO)
+         UpDownNoteIntervalFan([M3, A1, m3], 31-EDO)
