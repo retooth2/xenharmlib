@@ -1039,6 +1039,30 @@ on top of a minor gives the abstract "minor-major ninth chord":
          WesternNoteIntervalSeq([M3, m3, m3, M3])
          WesternNoteIntervalSeq([m3, M3, M3, m3])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+
+         supermajor = n_edo31.interval_seq([super_M3, sub_m3])
+         subminor = n_edo31.interval_seq([sub_m3, super_M3])
+
+         print(supermajor + subminor)
+         print(subminor + supermajor)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([^M3, vm3, vm3, ^M3], 31-EDO)
+         UpDownNoteIntervalSeq([vm3, ^M3, ^M3, vm3], 31-EDO)
+
 Repetition
 ------------------
 
@@ -1098,6 +1122,26 @@ downword motions" that in its entirety slowly moves upwards:
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalSeq([M2, M3, m3, M-2, M-2, M2, M3, m3, M-2, M-2, M2, M3, m3, M-2, M-2])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+
+         supermajor = n_edo31.interval_seq([super_M3, sub_m3])
+         print(3 * supermajor)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([^M3, vm3, ^M3, vm3, ^M3, vm3], 31-EDO)
 
 
 Index Masks and Partial Interval Sequences
@@ -1160,6 +1204,26 @@ mask expression start with 0):
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalSeq([m3, A1, M3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         iseq = n_edo31.interval_seq(
+             [super_M3, sub_m3, A1, A1, super_M3, sub_m3]
+         )
+         print(iseq.partial((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([vm3, A1, ^M3], 31-EDO)
 
 Mask expressions targeted at longer continuous spans inside the interval
 sequence can be written as a "shortform" with the ellipsis symbol
@@ -1255,6 +1319,40 @@ sequence can be written as a "shortform" with the ellipsis symbol
          WesternNoteIntervalSeq([m3, A1, A1, M3])
          WesternNoteIntervalSeq([M3, A1, M3, m3])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         iseq = n_edo31.interval_seq(
+             [super_M3, sub_m3, A1, A1, super_M3, sub_m3]
+         )
+
+         # an ellipsis as a prefix matches all elements from
+         # the start of the sequence until and including (!)
+         # the first mask index
+         print(iseq.partial((..., 3, 4)))
+
+         # an ellipsis between two indices matches the two indices
+         # in the sequence and all elements between them
+         print(iseq.partial((1, ..., 4)))
+
+         # an ellipsis at the end matches all remaining indices
+         # in the sequence after the last mask index
+         print(iseq.partial((0, 3, ...)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([^M3, vm3, A1, A1, ^M3], 31-EDO)
+         UpDownNoteIntervalSeq([vm3, A1, A1, ^M3], 31-EDO)
+         UpDownNoteIntervalSeq([^M3, A1, ^M3, vm3], 31-EDO)
+
 Selection can also be inverted with the
 :meth:`~xenharmlib.core.interval_seq.IntervalSeq.partial_not` method that
 returns all elements *not* covered by the mask expression:
@@ -1306,6 +1404,26 @@ returns all elements *not* covered by the mask expression:
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalSeq([M3, A1, m3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         iseq = n_edo31.interval_seq(
+             [super_M3, sub_m3, A1, A1, super_M3, sub_m3]
+         )
+         print(iseq.partial_not((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([^M3, A1, vm3], 31-EDO)
 
 To get both the substructure indicated by the mask *and* its complement as
 a tuple, you can use the
@@ -1367,6 +1485,29 @@ a tuple, you can use the
 
          WesternNoteIntervalSeq([m3, A1, M3])
          WesternNoteIntervalSeq([M3, A1, m3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         super_M3 = n_edo31.shorthand_interval('^M', 3)
+         sub_m3 = n_edo31.shorthand_interval('vm', 3)
+         A1 = n_edo31.shorthand_interval('A', 1)
+
+         iseq = n_edo31.interval_seq(
+             [super_M3, sub_m3, A1, A1, super_M3, sub_m3]
+         )
+         a, b = iseq.partition((1, 3, 4))
+         print(a)
+         print(b)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([vm3, A1, ^M3], 31-EDO)
+         UpDownNoteIntervalSeq([^M3, A1, vm3], 31-EDO)
 
 Templating and Categorization
 ----------------------------------------------
