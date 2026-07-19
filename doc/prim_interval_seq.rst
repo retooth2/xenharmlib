@@ -69,7 +69,7 @@ notes and return the resulting interval sequence:
 
          WesternNoteIntervalSeq([M2, M2, m2, M2, M2, M2])
 
-   .. tab:: UpDownNotation
+   .. tab:: UpDown
 
       .. testcode:: UpDownNotation
 
@@ -160,7 +160,7 @@ by the method :meth:`~xenharmlib.core.scale.PeriodicScale.plusone_normalized`:
          WesternNoteScale([C0, D0, E0, F0, G0, A0, B0, C1])
          WesternNoteIntervalSeq([M2, M2, m2, M2, M2, M2, m2])
 
-   .. tab:: UpDownNotation
+   .. tab:: UpDown
 
       .. testcode:: UpDownNotation
 
@@ -250,7 +250,7 @@ by assembly from the primitives they contain, in this case intervals:
 
          WesternNoteIntervalSeq([M2, M2, m2, M2, M2, M2])
 
-   .. tab:: UpDownNotation
+   .. tab:: UpDown
 
       .. testcode:: UpDownNotation
 
@@ -332,7 +332,7 @@ to transform differences into full note interval objects.
 
          WesternNoteIntervalSeq([M2, M2, A1, M2, M2, M2])
 
-   .. tab:: UpDownNotation
+   .. tab:: UpDown
 
       .. testcode:: UpDownNotation
 
@@ -1432,7 +1432,7 @@ scale instances from it:
 
          WesternNoteScale([F4, G4, A4, Bb4, C5, D5, E5])
 
-   .. tab:: UpDownNotation
+   .. tab:: UpDown
 
       .. testcode:: UpDownNotation
 
