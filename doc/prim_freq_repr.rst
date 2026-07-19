@@ -1,4 +1,4 @@
-Frequency Representations
+Pitches & Notes
 ==============================
 
 As outlined in the introduction frequency representations are the smallest
