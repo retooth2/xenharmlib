@@ -112,6 +112,30 @@ on the pitch or note:
          WesternNoteInterval(M, 3)
          WesternNoteInterval(M, 3)
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         interval_1 = n_edo31.interval(C4, Eup4)
+         interval_2 = C4.interval(Eup4)
+
+         print(interval_1)
+         print(interval_2)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 3, 31-EDO)
+         UpDownNoteInterval(^M, 3, 31-EDO)
+
 Depending on tuning and notation there are other *direct* builder methods
 available to create intervals. While in every origin context intervals
 can be derived from two frequency representations direct methods are
@@ -169,6 +193,23 @@ be an integer or a :class:`~xenharmlib.core.lattice.LatticePoint` object:
       .. testoutput:: WesternNotation
 
          WesternNoteInterval(P, 5)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P5 = n_edo31.diff_interval(18)
+         print(P5)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(P, 5, 31-EDO)
 
 In notations where there is enharmonic ambiguity (e.g. the western notation)
 the result can vary depending on the configured enharmonic strategy of the
@@ -349,6 +390,25 @@ compound interval.
          False
          True
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         interval = n_edo31.shorthand_interval('^M', 9)
+         print(interval.is_simple)
+         print(interval.is_compound)
+
+      .. testoutput:: UpDownNotation
+
+         False
+         True
+
 Compound intervals can be reduced to their simple equivalent easily.
 For example in the western system M9 has the simple interval equivalent
 of M2:
@@ -402,6 +462,25 @@ of M2:
       .. testoutput:: WesternNotation
 
          WesternNoteInterval(M, 2)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         interval = n_edo31.shorthand_interval('^M', 9)
+         simple = interval.to_simple()
+
+         print(simple)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 2, 31-EDO)
 
 
 Direction, Inversion & Absolute
@@ -480,6 +559,30 @@ the second you will receive a descending interval:
          WesternNoteInterval(M, 3)
          WesternNoteInterval(M, -3)
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         ascending = C4.interval(Eup4)
+         descending = Eup4.interval(C4)
+
+         print(ascending)
+         print(descending)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 3, 31-EDO)
+         UpDownNoteInterval(^M, -3, 31-EDO)
+
 An ascending interval can be transformed into a descending interval 
 (and vice versa) by prefixing the interval object with a minus
 (:code:`-`) sign. For an interval :code:`X` we call the object
@@ -556,6 +659,32 @@ always resulting in the unison interval:
          WesternNoteInterval(M, 3)
          WesternNoteInterval(M, -3)
          WesternNoteInterval(P, 1)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         ascending = C4.interval(Eup4)
+         descending = -ascending
+
+         print(ascending)
+         print(descending)
+         print(ascending + descending)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 3, 31-EDO)
+         UpDownNoteInterval(^M, -3, 31-EDO)
+         UpDownNoteInterval(P, 1, 31-EDO)
 
 Interval objects provide the :attr:`~xenharmlib.core.intervals.Interval.sign`
 property to inspect the direction of an interval, returning 1 for an
@@ -637,6 +766,33 @@ interval.
          -1
          0
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         ascending = C4.interval(Eup4)
+         descending = -ascending
+         unison = C4.interval(C4)
+
+         print(ascending.sign)
+         print(descending.sign)
+         print(unison.sign)
+
+      .. testoutput:: UpDownNotation
+
+         1
+         -1
+         0
+
 Intervals support the :code:`abs()` function that returns the corresponding
 ascending interval for a descending interval (or the interval itself if
 it is already ascending or unison)
@@ -705,6 +861,30 @@ it is already ascending or unison)
 
          WesternNoteInterval(M, -3)
          WesternNoteInterval(M, 3)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         descending = Eup4.interval(C4)
+         ascending = abs(descending)
+
+         print(descending)
+         print(ascending)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, -3, 31-EDO)
+         UpDownNoteInterval(^M, 3, 31-EDO)
 
 In contrast inversion of an interval :code:`X` is defined as the interval
 :code:`Y`, so that :code:`X + Y` equals the *equivalency interval* [#f1]_.
@@ -779,6 +959,32 @@ In contrast inversion of an interval :code:`X` is defined as the interval
          WesternNoteInterval(M, 3)
          WesternNoteInterval(m, 6)
          WesternNoteInterval(P, 8)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         Eup4 = n_edo31.note('^E', 4)
+
+         interval = C4.interval(Eup4)
+         inv_interval = interval.inversion()
+
+         print(interval)
+         print(inv_interval)
+         print(interval + inv_interval)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 3, 31-EDO)
+         UpDownNoteInterval(vm, 6, 31-EDO)
+         UpDownNoteInterval(P, 8, 31-EDO)
 
 Identity and Comparison
 -----------------------------------------------------------
@@ -1048,6 +1254,27 @@ transposing by :math:`-Y`
          WesternNoteInterval(P, 5)
          WesternNoteInterval(A, 1)
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         up_M3 = n_edo31.shorthand_interval('^M', 3)
+         down_m3 = n_edo31.shorthand_interval('vm', 3)
+
+         print(up_M3 + down_m3)
+         print(up_M3 - down_m3)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(P, 5, 31-EDO)
+         UpDownNoteInterval(^^A, 1, 31-EDO)
+
 
 Continued Stacking / Multiplication
 -----------------------------------------------------------
@@ -1103,6 +1330,24 @@ the generation of scales:
       .. testoutput:: WesternNotation
 
          WesternNoteInterval(M, 13)
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         up_M3 = n_edo31.shorthand_interval('^M', 3)
+
+         print(3 * up_M3)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^^^A, 7, 31-EDO)
 
 
 Interval Class Calculation
@@ -1175,6 +1420,24 @@ calculated from an interval of the same class as follows:
 
          WesternNoteInterval(P, 4)
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         interval = n_edo31.shorthand_interval('^M', 9)
+         ic = interval.ic_normalized()
+         print(ic)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteInterval(^M, 2, 31-EDO)
+
 Instead of receiving an interval object you can also get the interval class
 index (which is the numeric representation used in most posttonal theory
 textbooks):
@@ -1222,6 +1485,23 @@ textbooks):
       .. testoutput:: WesternNotation
 
          5
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         interval = n_edo31.shorthand_interval('^M', 9)
+         print(interval.ic_index)
+
+      .. testoutput:: UpDownNotation
+
+         6
 
 .. rubric:: Footnotes
 
