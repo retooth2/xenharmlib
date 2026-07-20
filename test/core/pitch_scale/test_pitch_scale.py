@@ -928,9 +928,9 @@ def test_reflection_custom_axis(tuning, input_pi, result_pi, axis_pi):
         (edo24, [1, 8, 12, 14, 16, 22], edo12, [0, 4, 6, 7, 8, 11]),
     ]
 )
-def test_retune(tuning_a, input_pi, tuning_b, result_pi):
+def test_retune_closest(tuning_a, input_pi, tuning_b, result_pi):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     with pytest.deprecated_call():

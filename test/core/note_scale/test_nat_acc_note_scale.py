@@ -372,3 +372,24 @@ def test_acc_directions(notation, input_pairs, result):
     )
 
     assert scale.acc_directions == result
+
+
+@pytest.mark.parametrize(
+    'notation_a, input_pi, notation_b, result_pi',
+    [
+        (n_edo12, [0, 3, 7, 8, 10], n_edo31, [0, 8, 18, 21, 26]),
+        (n_edo12, [1, 4, 6, 7, 8, 11], n_edo24, [2, 8, 12, 14, 16, 22]),
+        (n_edo24, [2, 8, 12, 14, 16, 22], n_edo12, [1, 4, 6, 7, 8, 11]),
+        (n_edo24, [1, 8, 12, 14, 16, 22], n_edo12, [0, 4, 6, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(notation_a, input_pi, notation_b, result_pi):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    scale_a = notation_a.index_scale(input_pi)
+    expected_scale_b = notation_b.index_scale(result_pi)
+
+    scale_b = scale_a.retune_closest(notation_b)
+    assert scale_b == expected_scale_b
