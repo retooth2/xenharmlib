@@ -210,6 +210,39 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
         return origin_context.closest_seq(self.frequencies)
 
+    def subseq_index(self, subseq: Self) -> int:
+        """
+        Given a (possible) subsequence this method returns the
+        starting index of the subsequence in this sequence or
+        raises ValueError (if given parameter turned out not
+        to be a subsequence)
+
+        This method works across origin contexts
+
+        :param subseq: The subsequence to search for
+        :raises ValueError: If subsequence was not found
+            or an empty sequence was given as parameter
+        """
+
+        len_subseq = len(subseq)
+
+        if len_subseq == 0:
+            raise ValueError(
+                'subseq_index is undefined on empty sequence parameter'
+            )
+
+        len_self = len(self)
+        len_diff = len_self - len_subseq
+
+        if len_diff < 0:
+            raise ValueError('Given sequence is not a subsequence')
+
+        for i in range(0, len_diff + 1):
+            if subseq == self[i:i+len_subseq]:
+                return i
+
+        raise ValueError('Given sequence is not a subsequence')
+
     def is_subseq(self, seq: Self, proper=False):
         """
         Returns True if the given sequence is a subsequence

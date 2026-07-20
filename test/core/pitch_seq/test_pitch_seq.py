@@ -788,6 +788,73 @@ def test_retune_closest(tuning_a, input_pi, tuning_b, result_pi):
 
 
 @pytest.mark.parametrize(
+    'tuning, subseq_pi, superseq_pi, index',
+    [
+        (edo12, [5, 7, 8], [5, 7, 8], 0),
+        (edo12, [7, 8], [5, 7, 8], 1),
+        (edo24, [1, 11, 12], [1, 11, 12], 0),
+        (edo31, [5, 6, 7], [1, 9, 13, 5, 6, 7, 11, 12], 3),
+    ]
+)
+def test_subseq_index(tuning, subseq_pi, superseq_pi, index):
+    """
+    Test if subseq_index test works correctly
+    """
+
+    superseq = tuning.index_seq(superseq_pi)
+    subseq = tuning.index_seq(subseq_pi)
+
+    assert superseq.subseq_index(subseq) == index
+
+
+@pytest.mark.parametrize(
+    'tuning, subseq_pi, superseq_pi',
+    [
+        (edo12, [], [5, 7, 8]),
+        (ed13_3, [], [3, 11, 20]),
+    ]
+)
+def test_subseq_index_empty_param(tuning, subseq_pi, superseq_pi):
+    """
+    Test if subseq_index test works correctly
+    if parameter is an empty seq
+    """
+
+    superseq = tuning.index_seq(superseq_pi)
+    subseq = tuning.index_seq(subseq_pi)
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == (
+        'subseq_index is undefined on empty sequence parameter'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, subseq_pi, superseq_pi',
+    [
+        (edo12, [7, 7], [5, 7, 8]),
+        (edo24, [0, 1, 11, 12], [1, 11, 12]),
+        (edo31, [5, 6, 7], []),
+    ]
+)
+def test_subseq_index_not_a_subseq(tuning, subseq_pi, superseq_pi):
+    """
+    Test if subseq_index test works correctly
+    if parameter is not a subsequence
+    """
+
+    superseq = tuning.index_seq(superseq_pi)
+    subseq = tuning.index_seq(subseq_pi)
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == 'Given sequence is not a subsequence'
+
+
+@pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, expected',
     [
         (edo12, [7, 8], [5, 7, 8], True),

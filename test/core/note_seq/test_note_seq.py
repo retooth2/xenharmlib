@@ -1276,6 +1276,139 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
 
 
 @pytest.mark.parametrize(
+    'notation, input_pairs_subseq, input_pairs_superseq, index',
+    [
+        (
+            n_edo12,
+            [('B+', 0), ('D+', 0)],
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            1
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+            0
+        ),
+        (
+            n_edo12,
+            [('Ex', 2)],
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+            2
+        ),
+    ]
+)
+def test_subseq_index(
+    notation, input_pairs_subseq, input_pairs_superseq, index
+):
+    """
+    Test if subseq_index operation works correctly
+    """
+
+    subseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_subseq]
+    )
+
+    superseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_superseq]
+    )
+
+    assert superseq.subseq_index(subseq) == index
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs_subseq, input_pairs_superseq',
+    [
+        (
+            n_edo12,
+            [],
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo12,
+            [],
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+        ),
+        (
+            n_edo12,
+            [],
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+        ),
+    ]
+)
+def test_subseq_index_empty_param(
+    notation, input_pairs_subseq, input_pairs_superseq
+):
+    """
+    Test if subseq_index operation works correctly
+    if parameter is an empty seq
+    """
+
+    subseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_subseq]
+    )
+
+    superseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_superseq]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == (
+        'subseq_index is undefined on empty sequence parameter'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs_subseq, input_pairs_superseq',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0), ('C', 3)],
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+        ),
+        (
+            n_edo12,
+            [('C-', 1), ('Ex', 3)],
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('C-', 1), ('Ex', 2)],
+            [],
+        ),
+    ]
+)
+def test_subseq_index_not_a_subseq(
+    notation, input_pairs_subseq, input_pairs_superseq
+):
+    """
+    Test if subseq_index operation works correctly
+    if parameter is not a subsequence
+    """
+
+    subseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_subseq]
+    )
+
+    superseq = NoteSeq(
+        notation,
+        [notation.note(*pair) for pair in input_pairs_superseq]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == 'Given sequence is not a subsequence'
+
+
+@pytest.mark.parametrize(
     'notation, input_pairs_a, input_pairs_b, expected',
     [
         (
