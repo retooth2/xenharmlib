@@ -1376,6 +1376,8 @@ fan can be written as a "shortform" with the ellipsis symbol
          m3 = western.shorthand_interval('m', 3)
          A1 = western.shorthand_interval('A', 1)
 
+         ifan = western.interval_fan([M3, m3, A1, A1, M3, m3])
+
          # an ellipsis as a prefix matches all elements from
          # the start of the fan until and including (!)
          # the first mask index
