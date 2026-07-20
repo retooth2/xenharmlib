@@ -20,12 +20,13 @@ is the abstract base class for tunings and notations
 
 from typing import Optional
 from typing import Iterable
-from typing import Sequence
 from typing import Generic
 from typing import TypeVar
 from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .freq_repr import FreqRepr
 from .freq_repr_seq import FreqReprSeq
 from .protocols import Index
@@ -106,11 +107,11 @@ class OriginContext(
         """
 
     @property
-    def zero_diff(self) -> IndexT:
+    def unison_diff(self) -> IndexT:
         """
-        The zero diff is a reference point, in tunings with integer
-        indexing this is 0, in tunings with lattice indexing this is
-        typically the zero-vector.
+        The unison diff is the pitch difference of the unison interval.
+        In tunings with integer indexing this is 0, in tunings with
+        lattice indexing this is typically the zero-vector.
         """
         return self.interval(self.zero_element, self.zero_element).pitch_diff
 
@@ -160,9 +161,6 @@ class OriginContext(
         b = a.transpose(pitch_diff)
         return a.interval(b)
 
-    # FIXME: scale and interval_seq have Iterable and Sequence requirement
-    # respectively, should be uniform
-
     def scale(self, elements: Optional[Iterable[FreqReprT]] = None) -> ScaleT:
         """
         Returns a scale having the scale type this origin context
@@ -178,7 +176,7 @@ class OriginContext(
         return self._scale_cls(self, elements)
 
     def interval_seq(
-        self, intervals: Optional[Sequence[IntervalT]] = None
+        self, intervals: Optional[Iterable[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence having the interval sequence type
@@ -194,7 +192,7 @@ class OriginContext(
         return self._interval_seq_cls(self, intervals)
 
     def interval_fan(
-        self, intervals: Optional[Sequence[IntervalT]] = None
+        self, intervals: Optional[Iterable[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval fan having the interval fan type
@@ -210,8 +208,8 @@ class OriginContext(
         return self._interval_fan_cls(self, intervals)
 
     def seq(
-        self, elements: Optional[Sequence[FreqReprT]] = None
-    ) -> IntervalSeqT:
+        self, elements: Optional[Iterable[FreqReprT]] = None
+    ) -> FreqReprSeqT:
         """
         Returns a pitch/note sequence
 
@@ -225,7 +223,7 @@ class OriginContext(
         return self._freq_repr_seq_cls(self, elements)
 
     def diff_interval_seq(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence from an iterable of pitch index
@@ -250,8 +248,8 @@ class OriginContext(
         return self.interval_seq(intervals)
 
     def diff_interval_fan(
-        self, pitch_diffs: Optional[Sequence[IndexT]] = None
-    ) -> IntervalSeqT:
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalFanT:
         """
         Returns an interval fan from an iterable of pitch index
         differences, for example:
@@ -273,3 +271,97 @@ class OriginContext(
         ]
 
         return self.interval_fan(intervals)
+
+    @abstractmethod
+    def closest_freq_repr(self, frequency: Frequency) -> FreqReprT:
+        """
+        Returns the frequency representation closest to a given
+        frequency. This function is only implemented for origin
+        contexts which mathematically allow to determine a
+        closest frequency representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> IntervalT:
+        """
+        Returns the interval closest to a given frequency ratio.
+        This function is only implemented for origin contexts
+        which mathematically allow to determine a closest
+        frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios. This function is only implemented
+        for origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable of
+        frequency ratios. This function is only implemented for
+        origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> FreqReprSeqT:
+        """
+        Returns the sequence closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """

@@ -191,13 +191,7 @@ class LatticePoint:
         return hash((self.vector, self.base))
 
     def __repr__(self) -> str:
-        return (
-            'LatticePoint('
-            + str(self.vector)
-            + ' ^= '
-            + str(self.frequency_ratio)
-            + ')'
-        )
+        return 'LatticePoint' + str(self.vector)
 
     @property
     def short_repr(self) -> str:

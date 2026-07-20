@@ -928,9 +928,9 @@ def test_reflection_custom_axis(tuning, input_pi, result_pi, axis_pi):
         (edo24, [1, 8, 12, 14, 16, 22], edo12, [0, 4, 6, 7, 8, 11]),
     ]
 )
-def test_retune(tuning_a, input_pi, tuning_b, result_pi):
+def test_retune_closest(tuning_a, input_pi, tuning_b, result_pi):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     with pytest.deprecated_call():
@@ -938,7 +938,8 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
             [tuning_a.pitch(pi) for pi in input_pi]
         )
 
-    scale_b = scale_a.retune(tuning_b)
+    with pytest.deprecated_call():
+        scale_b = scale_a.retune(tuning_b)
 
     with pytest.deprecated_call():
         expected_scale_b = tuning_b.pitch_scale(
@@ -950,11 +951,12 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
-    scale_b = scale_a.retune(tuning_b)
+    scale_b = scale_a.retune_closest(tuning_b)
     expected_scale_b = tuning_b.scale(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
     assert scale_b == expected_scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -1291,6 +1293,7 @@ def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b) == expected
+    assert (scale_a <= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1320,6 +1323,7 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b, proper=True) == expected
+    assert (scale_a < scale_b) == expected
 
 
 def test_is_subset_incompatible_origin_contexts():
@@ -1375,6 +1379,7 @@ def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b) == expected
+    assert (scale_a >= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1404,6 +1409,7 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b, proper=True) == expected
+    assert (scale_a > scale_b) == expected
 
 
 def test_is_superset_incompatible_origin_contexts():

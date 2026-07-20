@@ -1,3 +1,4 @@
 -r requirements.txt
 sphinx
 sphinxext-opengraph
+sphinx-tabs

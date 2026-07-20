@@ -48,13 +48,23 @@ yourself:
 
    bohlen_pierce = EDTuning(13, FrequencyRatio(3))
 
+
+.. note::
+
+   Xenharmlib offers a broad range of tuning contexts
+   (among them :doc:`Prime Limit Tunings <primelimit_tunings>`
+   and even fully user-defined
+   :doc:`Regular Temperament Systems <multigen_tunings>`).
+   For the introductory purpose of this Quickstart however we will focus
+   purely on "equal division of the octave" tunings.
+
 Xenharmlib is designed in a way that you can use different levels of
 abstraction for individual tuning sounds. Some prefer the customary
 world of notes (like D, F#) while others want to look at tunings more
 mathematically, exploring pitches and pitch classes as integers
 without the burdens of enharmonic ambiguity.
 
-In the first part of this tutorial we want to look at this lower
+In the first part of this tutorial we want to look at the numerical
 conceptual level of individual sounds, the pitch:
 
 .. testcode::
@@ -148,23 +158,38 @@ point math)
 Pitches can be transformed into other pitches by transposition.
 For this purpose pitch objects provide a
 :meth:`~xenharmlib.core.pitch.Pitch.transpose` method that expects
-a positive or negative integer, or an interval object (more on that later).
-The following snippets defines a function that transposes the pitch
-n octaves up regardless of tuning:
+a positive or negative integer (determining the pitch difference in
+steps), or an interval object (more on that later).
+The following snippets e.g. generates the circle of fifths for the
+contemporary Western tuning.
 
 .. testcode::
 
-    def octaves_up(pitch, n):
-        return pitch.transpose(
-            n * pitch.tuning.period_length
-        )
+    def print_co5(start_pitch):
+        for i in range(0, 12):
+            # pitch difference for the fifth in the
+            # Western equal temperament system is 7
+            pitch = start_pitch.transpose(i * 7)
+            print(pitch)
 
-    a0 = edo12.pitch(9)
-    print(octaves_up(a0, 2))
+    # start with F0
+    f0 = edo12.pitch(5)
+    print_co5(f0)
 
 .. testoutput::
 
+    EDOPitch(5, 12-EDO)
+    EDOPitch(12, 12-EDO)
+    EDOPitch(19, 12-EDO)
+    EDOPitch(26, 12-EDO)
     EDOPitch(33, 12-EDO)
+    EDOPitch(40, 12-EDO)
+    EDOPitch(47, 12-EDO)
+    EDOPitch(54, 12-EDO)
+    EDOPitch(61, 12-EDO)
+    EDOPitch(68, 12-EDO)
+    EDOPitch(75, 12-EDO)
+    EDOPitch(82, 12-EDO)
 
 Pitches of periodic tunings (for example the various equal temperaments)
 form pitch classes (or in mathematical terms: equivalency classes in a
@@ -199,12 +224,13 @@ of the base interval.
     1
 
 Pitches are bound to their tuning, but you can easily map pitches of
-one tuning to another by the :meth:`~xenharmlib.core.pitch.Pitch.retune`
+one tuning to another by the
+:meth:`~xenharmlib.core.freq_repr.FreqRepr.retune_closest`
 method. This takes the frequency of the pitch and finds the pitch with
 the closest frequency in another tuning. For example if you are
 accustomed to a standard western tuning and just started your journey
 into microtonality you might be interested in finding the 12 pitches of a
-western octave that you are already familiar with:
+western octave that you are already familiar with in a different system:
 
 .. testcode::
 
@@ -212,7 +238,7 @@ western octave that you are already familiar with:
         pitches = []
         for i in range(0, 12):
             pitches.append(
-                edo12.pitch(i).retune(tuning)
+                edo12.pitch(i).retune_closest(tuning)
             )
         return pitches
 
@@ -236,26 +262,25 @@ western octave that you are already familiar with:
     EDOPitch(28, 31-EDO)
 
 Tunings also allow pitch approximations directly from frequencies
-with the :meth:`~xenharmlib.core.tunings.TuningABC.get_approx_pitch`
+with the :meth:`~xenharmlib.core.tunings.OriginContext.closest_freq_repr`
 method.
 
 For example, if you want the pitch class that best approximates the
-perfect fifth in a tuning you can do something like this:
+justly intonated G (defined as the result of multiplying the C0-pitch
+by frequency ratio :math:`\frac{3}{2}`), you can do something like this:
 
 .. testcode::
 
     from xenharmlib import FrequencyRatio
 
-    def get_fifth_pc_index(tuning):
-        zero_freq = tuning.pitch(0).frequency
-        perfect_fifth_freq = zero_freq * FrequencyRatio(3, 2)
-        fifth = tuning.get_approx_pitch(
-            perfect_fifth_freq
-        )
-        return fifth.pc_index
+    def get_g_pc_index(tuning):
+        zero_freq = tuning.zero_element.frequency
+        ji_g = zero_freq * FrequencyRatio(3, 2)
+        best_g = tuning.closest_freq_repr(ji_g)
+        return best_g.pc_index
 
-    print(get_fifth_pc_index(edo12))
-    print(get_fifth_pc_index(edo31))
+    print(get_g_pc_index(edo12))
+    print(get_g_pc_index(edo31))
 
 .. testoutput::
 
@@ -360,106 +385,57 @@ cents value:
     interval_fifth_edo31.frequency_ratio
     interval_fifth_edo31.cents
 
-There is a bit of a caveat when handling negative / downward intervals:
+There is a bit of a caveat when handling negative / descending intervals:
 The :code:`<` operator does compare frequency ratios, *not* absolute
 sizes, so - maybe surprising to some - the following holds:
 
 .. testcode::
 
-    fifth_d = edo12.pitch(7).interval(
+    descending_fifth = edo12.pitch(7).interval(
         edo12.pitch(0)
     )
-    second_d = edo12.pitch(2).interval(
+    descending_second = edo12.pitch(2).interval(
         edo12.pitch(0)
     )
-    assert fifth_d < second_d
+    assert descending_fifth < descending_second
 
 If you want to compare absolute sizes you have to use the :code:`abs()`
 function.
 
 .. testcode::
 
-    assert abs(fifth_d) > abs(second_d)
+    assert abs(descending_fifth) > abs(descending_second)
 
 Futhermore since interval objects define the difference between two pitches
 they can also be used as an argument for transposition:
 
 .. testcode::
 
-    fifth = edo12.diff_interval(7)
-    D = edo12.pitch(2)
+   fifth = edo12.diff_interval(7)
+   D = edo12.pitch(2)
 
-    print(D.transpose(fifth))
+   print(D.transpose(fifth))
 
 .. testoutput::
 
    EDOPitch(9, 12-EDO)
 
-For periodic tunings, you can calculate the generator distance, which is
-the minimum number of steps from one pitch to the other when iteratively
-adding a generator pitch. A typical example is the minimum distance on
-the circle of fifths. If you e.g. want to sort intervals according to
-the closeness of their pitches on the circle of fifths you can do
-something like this:
+Intervals additionally implement a full arithmetic:
 
 .. testcode::
 
-    def co5_closeness(interval):
-        return interval.get_generator_distance(
-            interval.tuning.best_fifth
-        )
+   fifth = edo12.diff_interval(7)
+   fourth = edo12.diff_interval(5)
 
-    tuning = edo31
-
-    intervals = []
-    for i in range(0, tuning.period_length):
-        zero = tuning.pitch(0)
-        target = tuning.pitch(i)
-        intervals.append(
-            zero.interval(target)
-        )
-
-    sorted_by_closeness = sorted(
-        intervals, key=co5_closeness
-    )
-
-    for interval in sorted_by_closeness:
-        print(interval)
+   print(fifth - fourth) # major second
+   print(fifth + fourth) # octave
+   print(2 * fifth) # major ninth
 
 .. testoutput::
-    :hide:
-    
-    EDOPitchInterval(0, 31-EDO)
-    EDOPitchInterval(13, 31-EDO)
-    EDOPitchInterval(18, 31-EDO)
-    EDOPitchInterval(5, 31-EDO)
-    EDOPitchInterval(26, 31-EDO)
-    EDOPitchInterval(8, 31-EDO)
-    EDOPitchInterval(23, 31-EDO)
-    EDOPitchInterval(10, 31-EDO)
-    EDOPitchInterval(21, 31-EDO)
-    EDOPitchInterval(3, 31-EDO)
-    EDOPitchInterval(28, 31-EDO)
-    EDOPitchInterval(15, 31-EDO)
-    EDOPitchInterval(16, 31-EDO)
-    EDOPitchInterval(2, 31-EDO)
-    EDOPitchInterval(29, 31-EDO)
-    EDOPitchInterval(11, 31-EDO)
-    EDOPitchInterval(20, 31-EDO)
-    EDOPitchInterval(7, 31-EDO)
-    EDOPitchInterval(24, 31-EDO)
-    EDOPitchInterval(6, 31-EDO)
-    EDOPitchInterval(25, 31-EDO)
-    EDOPitchInterval(12, 31-EDO)
-    EDOPitchInterval(19, 31-EDO)
-    EDOPitchInterval(1, 31-EDO)
-    EDOPitchInterval(30, 31-EDO)
-    EDOPitchInterval(14, 31-EDO)
-    EDOPitchInterval(17, 31-EDO)
-    EDOPitchInterval(4, 31-EDO)
-    EDOPitchInterval(27, 31-EDO)
-    EDOPitchInterval(9, 31-EDO)
-    EDOPitchInterval(22, 31-EDO)
+
+   EDOPitchInterval(2, 12-EDO)
+   EDOPitchInterval(12, 12-EDO)
+   EDOPitchInterval(14, 12-EDO)
 
 Pitch Scales
 ------------------------
@@ -539,7 +515,7 @@ They also support item selection and slicing:
 
 The 'in' operator accepts both pitches and pitch intervals. If an
 interval is given xenharmlib checks if *any* two pairs of notes
-(both in upwards and downwards direction) form the interval.
+(both in descending and ascending direction) form the interval.
 
 .. testcode::
 
@@ -579,13 +555,13 @@ same way you can transpose pitches:
 
     EDOPitchScale([2, 7, 11], 31-EDO)
 
-You can also use the retune method to approximate a scale in a different
+You can also use retuning to approximate a scale in a different
 tuning:
 
 .. testcode::
 
     scale = edo12.index_scale([0, 1, 2])
-    retuned = scale.retune(edo24)
+    retuned = scale.retune_closest(edo24)
     print(retuned)
 
 .. testoutput::
@@ -740,7 +716,7 @@ purposes.
 the scale. As illustrated in the example, both A minor and C major
 possess the exact same base interval normal form.)
 
-After scales are converted into their basic interval normal form, they
+After scales are converted into their pitch class set normal form, they
 can be treated like sets of pitch classes. To address our original
 question about which notes to use when modulating from one key to
 another, we can now combine basic interval normalization with the
@@ -826,20 +802,14 @@ You can combine two notes to form a note interval:
 
 .. testcode::
 
-    neutral_3 = n_edo24.interval(
-        c, e_neutral
-    )
-    diminished_5 = n_edo24.interval(
-        c, g_flat
-    )
+    neutral_3 = n_edo24.interval(c, e_neutral)
+    diminished_5 = n_edo24.interval(c, g_flat)
 
 A list of notes can be used to create a note scale:
 
 .. testcode::
 
-    triad = n_edo24.scale(
-        [c, e_neutral, g_flat]
-    )
+    triad = n_edo24.scale([c, e_neutral, g_flat])
 
 Please note that other notations might use different builder arguments
 to create these objects, however the above combination are the most
@@ -906,7 +876,7 @@ It is even possible to mix flat/sharp and up/down accidentals:
     weird_note = n_edo24.note('vvvvv^^^^Cxx#xxbbx', 0)
 
 If a certain accidental is available depends on the underlying tuning.
-For 12-EDO e.g. the 'bv' accidental is not available, however for 31-EDO
+For 12-EDO e.g. the 'v' accidental is not available, however for 31-EDO
 it is. In general, there exists exactly one accidental symbol for each
 accidental value (hence 'v' does not exist in 12-EDO because it would be
 the same as 'b')
@@ -1015,15 +985,7 @@ property and the
 The pitch class index of the note is 0 because the note refers to the
 pitch index 12, which has pitch class 0 (the pitch class of 'C').
 In the notation context however it is seen as a 'B' with an accidental
-and 'B' has pitch class 11. You can use this to lump notes together
-that are based on the same natural but have different accidentals
-
-.. testcode::
-
-    edo31_gsharp = n_edo31.note('G#', 2)
-    edo31_gflat = n_edo31.note('Gb', 3)
-
-    assert edo31_gsharp.nat_pc_index == edo31_gflat.nat_pc_index
+and 'B' has pitch class 11.
 
 You can see a similar effect when looking at the base interval index.
 On natural/accidental notes it too comes in two flavors: One for the
@@ -1297,7 +1259,7 @@ is a short overview:
     assert m3.cents == m3.pitch_interval.cents
     assert m3.pitch_diff == m3.pitch_interval.pitch_diff
 
-Like pitch with intervals xenharmlib's note intervals have *directions*.
+Like pitch intervals xenharmlib's note intervals have *directions*.
 This is necessary so the transpose method of the Note object is well defined:
 
 .. testcode::
@@ -1307,8 +1269,8 @@ This is necessary so the transpose method of the Note object is well defined:
     interval = a.interval(c)
     assert a.transpose(interval) == c
 
-If intervals have a downward direction their naming changes accordingly.
-The constructed interval above is a downward major 6:
+If intervals have a descending direction their naming changes accordingly.
+The constructed interval above is a descending major 6:
 
 .. testcode::
 
@@ -1332,8 +1294,8 @@ interval:
 
     ('m', 3)
 
-Note intervals also implement the :func:`abs` function, so downwards
-intervals can be transformed into their upwards counterpart:
+Note intervals also implement the :func:`abs` function, so descending
+intervals can be transformed into their ascending counterpart:
 
 .. testcode::
 
@@ -1349,6 +1311,23 @@ intervals can be transformed into their upwards counterpart:
     ('P', -4)
     ('P', 4)
 
+Intervals implement a full arithmetic that is also harmonic function aware:
+
+.. testcode::
+
+   m3 = n_edo31.shorthand_interval('m', 3)
+   M3 = n_edo31.shorthand_interval('M', 3)
+
+   print(M3 + m3)
+   print(M3 - m3)
+   print(2 * M3)
+
+.. testoutput::
+
+   UpDownNoteInterval(P, 5, 31-EDO)
+   UpDownNoteInterval(A, 1, 31-EDO)
+   UpDownNoteInterval(A, 5, 31-EDO)
+
 Note Scales
 -----------------------------------
 
@@ -1360,7 +1339,7 @@ from the same notation:
 .. testcode::
 
     Cm7 = n_edo12.scale(
-        [n_edo12.note(s, 0) for s in ['C', 'Eb', 'G', 'Bb']]
+        [n_edo12.note(pcs, 0) for pcs in ['C', 'Eb', 'G', 'Bb']]
     )
 
 Or - in a more concise form - with the
@@ -1373,8 +1352,8 @@ that expects a list of pitch class symbols:
 
 In terms of list operations note scales provide the same functionality
 as pitch scales. Single notes and slices can be retrieved as if the
-scale object was a python builtin list. The in operator works likewise
-both with pitches, pitch intervals, notes, and note intervals.
+scale object was a python builtin list. The :code:`in` operator works
+likewise both with pitches, pitch intervals, notes, and note intervals.
 
 .. testcode::
 

@@ -147,4 +147,4 @@ by integers is possible:
 
 .. testoutput::
 
-   WesternNote(D#4])
+   WesternNote(D#, 4)

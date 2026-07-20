@@ -27,10 +27,13 @@ from typing import Dict
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 from warnings import warn
 from abc import abstractmethod
 
 from ..exc import UnknownNoteSymbol
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
@@ -190,7 +193,7 @@ class NotationABC(
 
         return self.enharm_strategy.guess_note(self, pitch)
 
-    def guess_note_interval(self, pitch_interval) -> NoteT:
+    def guess_note_interval(self, pitch_interval) -> IntervalT:
         """
         Guesses a note interval from a pitch interval using the preferred
         enharmonic strategy of this notation
@@ -207,7 +210,7 @@ class NotationABC(
 
         return self.enharm_strategy.guess_note_interval(self, pitch_interval)
 
-    def guess_note_scale(self, pitch_scale) -> NoteT:
+    def guess_note_scale(self, pitch_scale) -> ScaleT:
         """
         Guesses a note scale from a pitch scale using the preferred
         enharmonic strategy of this notation
@@ -223,6 +226,186 @@ class NotationABC(
             )
 
         return self.enharm_strategy.guess_note_scale(self, pitch_scale)
+
+    def guess_note_interval_seq(self, pitch_interval_seq) -> IntervalSeqT:
+        """
+        Guesses a note interval sequence from a pitch interval
+        sequence using the preferred enharmonic strategy of this
+        notation
+
+        :pitch_interval_seq: A pitch interval sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_seq(
+            self, pitch_interval_seq
+        )
+
+    def guess_note_interval_fan(self, pitch_interval_fan) -> IntervalFanT:
+        """
+        Guesses a note interval fan from a pitch interval fan
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_interval_fan: A pitch interval fan object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_fan.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval fan must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_fan(
+            self, pitch_interval_fan
+        )
+
+    def guess_note_seq(self, pitch_seq) -> NoteSeqT:
+        """
+        Guesses a note sequence from a pitch sequence
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_seq: A pitch sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_seq(
+            self, pitch_seq
+        )
+
+    def closest_freq_repr(self, frequency: Frequency) -> NoteT:
+        """
+        Returns the closest note in the notation to a given frequency.
+
+        :param frequency: The frequency in Hz
+        """
+        pitch = self.tuning.closest_freq_repr(frequency)
+        return self.guess_note(pitch)
+
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> NoteT:
+        """
+        Returns the interval closest to a given frequency ratio
+
+        :param frequency_ratio: The frequency ratio to approximate
+        """
+
+        pitch_interval = self.tuning.closest_interval(frequency_ratio)
+        return self.guess_note_interval(pitch_interval)
+
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_scale = self.tuning.closest_scale(frequencies)
+        return self.guess_note_scale(pitch_scale)
+
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_seq = self.tuning.closest_interval_seq(frequency_ratios)
+        return self.guess_note_interval_seq(pitch_interval_seq)
+
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_fan = self.tuning.closest_interval_fan(frequency_ratios)
+        return self.guess_note_interval_fan(pitch_interval_fan)
+
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> NoteSeqT:
+        """
+        Returns the note sequence closest to a given iterable of
+        frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_seq = self.tuning.closest_seq(frequencies)
+        return self.guess_note_seq(pitch_seq)
+
+    def diff_interval_seq(
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval sequence from an iterable of pitch index
+        differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_seq(
+            self.tuning.diff_interval_seq(pitch_diffs)
+        )
+
+    def diff_interval_fan(
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalFanT:
+        """
+        Returns a note interval fan from an iterable of pitch
+        index differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_fan(
+            self.tuning.diff_interval_fan(pitch_diffs)
+        )
+
+    def index_scale(
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
+    ) -> ScaleT:
+        """
+        Constructs a note scale from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_scale(
+            self.tuning.index_scale(pitch_indices)
+        )
+
+    def index_seq(
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
+    ) -> NoteSeqT:
+        """
+        Constructs a note sequence from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_seq(
+            self.tuning.index_seq(pitch_indices)
+        )
 
 
 class IncompleteNotation(Exception):
@@ -538,9 +721,16 @@ class NatAccNotation(
         return note
 
     @property
+    def eq_diff(self) -> PeriodicIndexT:
+        """
+        The pitch difference of the equivalency interval of this notation
+        """
+        return self.tuning.eq_diff
+
+    @property
     def eq_interval(self) -> NatAccNoteInterval:
         """
-        The equivalency interval of this tuning
+        The equivalency interval of this notation
         """
         return self.interval(
             self.zero_element, self.zero_element.transpose_bi_index(1)
@@ -660,7 +850,7 @@ class NatAccNotation(
 
         nat_bi_index, natc_index = divmod(nat_index, self.nat_count)
         natc_pitch_index = self.natc_pitch_indices[natc_index]
-        return natc_pitch_index + self.tuning.period_length * nat_bi_index
+        return natc_pitch_index + self.eq_diff * nat_bi_index
 
     # we define the q(m) function from the definition
 
@@ -676,7 +866,7 @@ class NatAccNotation(
         abs_nat_bi_diff, abs_natc_diff = divmod(abs(nat_diff), self.nat_count)
         abs_natc_pitch_diff = self.natc_pitch_indices[abs_natc_diff]
         abs_pitch_diff = (
-            abs_natc_pitch_diff + self.tuning.period_length * abs_nat_bi_diff
+            abs_natc_pitch_diff + self.eq_diff * abs_nat_bi_diff
         )
 
         if nat_diff >= 0:
@@ -711,7 +901,7 @@ class NatAccNotation(
 
         tuning = self.tuning
         pitch_index = (
-            natc_pitch_index + tuning.period_length * nat_bi_index
+            natc_pitch_index + self.eq_diff * nat_bi_index
         ) + acc_value
         frequency = tuning.get_frequency_for_index(pitch_index)
 
@@ -902,6 +1092,9 @@ class NatAccNotation(
 
         return self.scale(notes)
 
+    # FIXME: should implementation here also allow iterable / generator
+    # type as a valid input?
+
     def pc_scale(
         self,
         pc_symbols: Optional[List[str]] = None,
@@ -953,7 +1146,7 @@ class NatAccNotation(
         """
 
         pitch_index = self.nat_index_to_pitch_index(nat_index)
-        return pitch_index % self.tuning.period_length
+        return pitch_index % self.eq_diff
 
     def is_natural(self, pitch_index: PeriodicIndexT) -> bool:
         """
@@ -963,7 +1156,7 @@ class NatAccNotation(
         :param pitch_index: The pitch index to consider
         """
 
-        pc_index = pitch_index % self.tuning.period_length
+        pc_index = pitch_index % self.eq_diff
         return pc_index in self.natc_pc_indices
 
     @property
@@ -991,7 +1184,7 @@ class NatAccNotation(
         """
 
         return [
-            natc_pitch_index % self.tuning.period_length
+            natc_pitch_index % self.eq_diff
             for natc_pitch_index in self.natc_pitch_indices
         ]
 

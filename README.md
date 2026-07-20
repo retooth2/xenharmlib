@@ -11,26 +11,31 @@ notations.
 
 A selection of things supported by xenharmlib:
 
-* Equal division tunings (e.g. Western, Modern Arabic, Turkish Makam,
-  Bohlen-Pierce, Wendy Carlos' Gamma Scale)
+* Scale, interval, sequence and abstract scale calculation in **any
+  regular temperament** (including, but not limited to: Western, Turkish
+  Makam, Slendro, Just Intonation / Prime Limit Tunings, Quarter-Comma
+  Meantone, Bohlen-Pierce, Wendy Carlos' Gamma Tuning)
 * Western notation (including interval naming)
 * Up/Down notation (a superset of Western notation)
-* Analysis of intervals, scales, and their relations to one another
-* Group theoretical analysis (integer pitches, pitch classes, etc)
-* Interval sequence pattern matching
+* Complete interval arithmetic with awareness of harmonic function
+* Posttonal analysis: Normal form & prime form calculation, pitch class
+  set arithmetic, interval vector calculation, etc
+* Extraction of playable chords from any scale
+* Structure discovery / Pattern matching in scales
 * Modulation suggestions for arbitrary key changes
-* Basic posttonal analysis (normal & prime form calculations, inversion, etc)
+* Approximation of arbitrary frequencies to pitches and notes
+  for spectralist compositions, including error calculation
 
 ## Roadmap
 
 A list of planned features (not necessarily in chronological order):
 
-* Templates for Western music
-* Plugin interface for score rendering backends
-* Advanced posttonal analysis (interval vectors, z-Relations, Forte numbers)
-* Rothenberg propriety and interval matrices
-* MOS scale generation utilities
-* Just Intonation and prime limit tunings
 * Extended Helmholtz-Ellis JI Pitch Notation
-* Odd Limit Tunings
 * Arel-Ezgi-Uzdilek notation
+* Rothenberg propriety and interval matrices
+* Scale generation tools (Euler-Fokker genus, combination product set,
+  Moment-of-Symmetry scales, odd limit scales)
+* Templates for traditional music (Western Scales, Makam tetrachords, etc)
+* Plugin interface for score rendering backends
+* Advanced posttonal analysis
+* Utilities for transformation theory

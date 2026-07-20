@@ -21,7 +21,7 @@ from .protocols import PeriodicIndex
 from .interval_seq import IntervalSeq
 from typing import Optional
 from typing import TypeVar
-from typing import List
+from typing import Iterable
 
 PitchIntervalT = TypeVar('PitchIntervalT', bound=PitchInterval)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -43,11 +43,11 @@ class PitchIntervalSeq(IntervalSeq[IndexT, PitchIntervalT]):
     partial, partial_not and partition.
 
     :param tuning: The tuning this pitch interval sequence originates from
-    :param intervals: A sequence of pitch intervals
+    :param intervals: An iterable of pitch intervals
     """
 
     def __init__(
-        self, tuning, intervals: Optional[List[PitchIntervalT]] = None
+        self, tuning, intervals: Optional[Iterable[PitchIntervalT]] = None
     ):
         super().__init__(tuning, intervals)
         self.tuning = tuning

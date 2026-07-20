@@ -997,8 +997,8 @@ def test_frequencies(notation):
 
     assert seq.frequencies == [
         tuning.pitch(0).frequency,
-        tuning.pitch(5+2*tuning.period_length).frequency,
-        tuning.pitch(5+3*tuning.period_length).frequency,
+        tuning.pitch(5+2*tuning.eq_diff).frequency,
+        tuning.pitch(5+3*tuning.eq_diff).frequency,
     ]
 
 
@@ -1394,28 +1394,36 @@ def test_is_subseq_proper(notation, input_pairs_a, input_pairs_b, expected):
     assert seq_a.is_subseq(seq_b, proper=True) == expected
 
 
-def test_is_subseq_incompatible_origin_contexts():
+def test_is_subseq_cross_origin():
     """
-    Test if is_subseq operation fails if seqs originate from
-    different notations
+    Test if is_subseq works across origin contexts
     """
 
-    n_edo12_2 = make_nat_acc_test_notation(edo12)
-    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+    seq_a = n_edo12.seq(
+        [
+            n_edo12.note('A', 1),
+            n_edo12.note('B', 2),
+            n_edo12.note('C+', 1),
+            n_edo12.note('C++', 1),
+            n_edo12.note('B', 1),
+            n_edo12.note('A', 1),
+        ]
+    )
+    seq_b = n_edo24.seq(
+        [
+            n_edo24.note('F', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
+    seq_c = n_edo24.seq(
+        [
+            n_edo24.note('F++', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
 
-    for i, notation_a in enumerate(notations):
-
-        for notation_b in notations[i+1:]:
-
-            seq_a = NoteSeq(
-                notation_a
-            )
-            seq_b = NoteSeq(
-                notation_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_subseq(seq_b)
+    assert seq_b.is_subseq(seq_a)
+    assert not seq_c.is_subseq(seq_a)
 
 
 @pytest.mark.parametrize(
@@ -1537,28 +1545,36 @@ def test_is_superseq_proper(notation, input_pairs_a, input_pairs_b, expected):
     assert seq_a.is_superseq(seq_b, proper=True) == expected
 
 
-def test_is_superseq_incompatible_origin_contexts():
+def test_is_superseq_cross_origin():
     """
-    Test if is_superseq operation fails if seqs originate from
-    different notations
+    Test if is_superseq works across origin contexts
     """
 
-    n_edo12_2 = make_nat_acc_test_notation(edo12)
-    notations = n_edo12, n_edo24, n_edo31, n_edo12_2
+    seq_a = n_edo12.seq(
+        [
+            n_edo12.note('A', 1),
+            n_edo12.note('B', 2),
+            n_edo12.note('C+', 1),
+            n_edo12.note('C++', 1),
+            n_edo12.note('B', 1),
+            n_edo12.note('A', 1),
+        ]
+    )
+    seq_b = n_edo24.seq(
+        [
+            n_edo24.note('F', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
+    seq_c = n_edo24.seq(
+        [
+            n_edo24.note('F++', 1),
+            n_edo24.note('F++', 1),
+        ]
+    )
 
-    for i, notation_a in enumerate(notations):
-
-        for notation_b in notations[i+1:]:
-
-            seq_a = NoteSeq(
-                notation_a
-            )
-            seq_b = NoteSeq(
-                notation_b
-            )
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_superseq(seq_b)
+    assert seq_a.is_superseq(seq_b)
+    assert not seq_a.is_superseq(seq_c)
 
 
 @pytest.mark.parametrize(
@@ -2112,3 +2128,24 @@ def test_inversion(notation_a,
     )
 
     assert seq.inversion() == result_seq
+
+
+@pytest.mark.parametrize(
+    'notation_a, input_pi, notation_b, result_pi',
+    [
+        (n_edo12, [0, 3, 7, 8, 10], n_edo31, [0, 8, 18, 21, 26]),
+        (n_edo12, [1, 4, 6, 7, 8, 11], n_edo24, [2, 8, 12, 14, 16, 22]),
+        (n_edo24, [2, 8, 12, 14, 16, 22], n_edo12, [1, 4, 6, 7, 8, 11]),
+        (n_edo24, [1, 8, 12, 14, 16, 22], n_edo12, [0, 4, 6, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(notation_a, input_pi, notation_b, result_pi):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    seq_a = notation_a.index_seq(input_pi)
+    expected_seq_b = notation_b.index_seq(result_pi)
+
+    seq_b = seq_a.retune_closest(notation_b)
+    assert seq_b == expected_seq_b

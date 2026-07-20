@@ -22,7 +22,7 @@ from typing import Generic
 from typing import Optional
 from typing import overload
 from typing import Self
-from typing import List
+from typing import Iterable
 from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
@@ -44,7 +44,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
     In line with its Sequence superclass frequency representation sequences
     implement iteration, the 'in' operator, the == operator, item retrieval
-    with [], concatenation with +, repeated self-concatenation with *,
+    with [], concatenation with +, repeated self-concatenation with \\*,
     searching with index, and len().
 
     Like scale types sequences also allow partitioning with partial,
@@ -55,7 +55,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
     """
 
     def __init__(
-        self, origin_context, elements: Optional[Sequence[FreqReprT]] = None
+        self, origin_context, elements: Optional[Iterable[FreqReprT]] = None
     ):
 
         self._origin_context = origin_context
@@ -65,14 +65,15 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         else:
             _elements = elements
 
+        self._elements = []
+
         for element in _elements:
             if element.origin_context is not self.origin_context:
                 raise IncompatibleOriginContexts(
                     f'The element {element} does not originate from context '
                     f'{origin_context}. Cannot construct sequence.'
                 )
-
-        self._elements = _elements
+            self._elements.append(element)
 
     @property
     def origin_context(self):
@@ -195,6 +196,20 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         elements.insert(insert_pos, element)
         return self.origin_context.seq(elements)
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the sequence in a target origin context that is closest
+        to the frequency series of this sequence.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency
+        """
+
+        return origin_context.closest_seq(self.frequencies)
+
     def is_subseq(self, seq: Self, proper=False):
         """
         Returns True if the given sequence is a subsequence
@@ -205,11 +220,6 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
             True function will return False if sequences are
             identical
         """
-
-        if seq.origin_context is not self.origin_context:
-            raise IncompatibleOriginContexts(
-                "Sequences have different origin contexts"
-            )
 
         len_seq = len(seq)
         len_self = len(self)

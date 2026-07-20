@@ -2360,19 +2360,19 @@ def test_log(ratio, base, result):
     'monzo, expected_ratio',
     [
         (
-            [1, -2, 3, 0, 0, 1],
+            (1, -2, 3, 0, 0, 1),
             FrequencyRatio(Fraction(2*(5**3)*13, 3**2))
         ),
         (
-            [-4, 2, 3],
+            (-4, 2, 3),
             FrequencyRatio(Fraction((3**2)*(5**3), 2**4))
         ),
         (
-            [2, 2, -3, 0, 0, 6, -6],
+            (2, 2, -3, 0, 0, 6, -6),
             FrequencyRatio(Fraction((2**2)*(3**2)*(13**6), (5**3)*(17**6)))
         ),
         (
-            [9, 2, -3, 0, 0, -6, -6],
+            (9, 2, -3, 0, 0, -6, -6),
             FrequencyRatio(Fraction((2**9)*(3**2), (5**3)*(13**6)*(17**6))),
         )
     ]

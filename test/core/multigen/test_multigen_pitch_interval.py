@@ -2,6 +2,7 @@ import pytest
 import sympy as sp
 from xenharmlib.core.frequencies import FrequencyRatio
 from xenharmlib.core.multigen import MultiGenTuning
+from xenharmlib import EDOTuning
 
 
 @pytest.mark.parametrize(
@@ -1118,3 +1119,41 @@ def test_short_repr(gen_ratios, period_vec, diff_vec, str_repr):
 
     interval = tuning.diff_interval(pitch_diff)
     assert interval.short_repr == str_repr
+
+
+@pytest.mark.parametrize(
+    'source_tuning, source_vec, target_tuning, target_diff',
+    [
+        (
+            MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0)),
+            (-1, 1),
+            EDOTuning(31),
+            18
+        ),
+        (
+            MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0)),
+            (2, -1),
+            EDOTuning(12),
+            5
+        ),
+    ]
+)
+def test_retune_closest_edo(
+    source_tuning, source_vec, target_tuning, target_diff
+):
+
+    source_diff = source_tuning.lattice.point(source_vec)
+    source_interval = source_tuning.diff_interval(source_diff)
+
+    target_interval = source_interval.retune_closest(target_tuning)
+    assert target_interval.pitch_diff == target_diff
+
+
+def test_retune_closest_type_error():
+
+    tuning_a = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0))
+    tuning_b = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(5)), (1, 0))
+    source_interval = tuning_a.diff_interval(tuning_a.lattice.point((2, 1)))
+
+    with pytest.raises(TypeError):
+        source_interval.retune_closest(tuning_b)

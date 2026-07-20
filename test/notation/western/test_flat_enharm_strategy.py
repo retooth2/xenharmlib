@@ -56,13 +56,18 @@ def test_guess_note_interval(pitch_index_a,
     strategy = FlatEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
+    pitch_diff = pitch_index_b - pitch_index_a
     pitch_a = tuning.pitch(pitch_index_a)
     pitch_b = tuning.pitch(pitch_index_b)
     pitch_interval = pitch_a.interval(pitch_b)
 
-    note_interval = notation.guess_note_interval(pitch_interval)
-    assert note_interval.shorthand_name == name
-    assert note_interval.pitch_diff == (pitch_index_b - pitch_index_a)
+    note_interval_a = notation.guess_note_interval(pitch_interval)
+    note_interval_b = notation.diff_interval(pitch_diff)
+
+    assert note_interval_a.shorthand_name == name
+    assert note_interval_a.pitch_diff == pitch_diff
+    assert note_interval_b.shorthand_name == name
+    assert note_interval_b.pitch_diff == pitch_diff
 
 
 @pytest.mark.parametrize(
@@ -81,16 +86,117 @@ def test_guess_note_scale(pitch_indices, note_pairs):
     strategy = FlatEnharmStrategy(notation)
     notation.enharm_strategy = strategy
 
-    note_scale = notation.guess_note_scale(
+    note_scale_a = notation.guess_note_scale(
         tuning.scale(
             [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
         )
     )
+    note_scale_b = notation.index_scale(pitch_indices)
+
     expected = notation.scale(
         [notation.note(*note_pair) for note_pair in note_pairs]
     )
-    assert note_scale.is_notated_same(expected)
-    assert [p.pitch_index for p in note_scale.pitch_scale] == pitch_indices
+    assert note_scale_a.is_notated_same(expected)
+    assert note_scale_b.is_notated_same(expected)
+    assert [p.pitch_index for p in note_scale_a.pitch_scale] == pitch_indices
+    assert [p.pitch_index for p in note_scale_b.pitch_scale] == pitch_indices
+
+
+@pytest.mark.parametrize(
+    'pitch_diffs, sh_names',
+    [
+        (
+            [4, 6, 4, 5, 10, 7],
+            [('M', 3), ('d', 5), ('M', 3), ('P', 4), ('m', 7), ('P', 5)],
+        ),
+    ]
+)
+def test_guess_note_interval_seq(pitch_diffs, sh_names):
+
+    notation = WesternNotation()
+    tuning = notation.tuning
+    strategy = FlatEnharmStrategy(notation)
+    notation.enharm_strategy = strategy
+
+    note_interval_seq_a = notation.guess_note_interval_seq(
+        tuning.interval_seq(
+            [tuning.diff_interval(pitch_diff) for pitch_diff in pitch_diffs]
+        )
+    )
+    note_interval_seq_b = notation.diff_interval_seq(pitch_diffs)
+
+    expected = notation.interval_seq(
+        [notation.shorthand_interval(*sh_name) for sh_name in sh_names]
+    )
+    assert note_interval_seq_a.is_notated_same(expected)
+    assert note_interval_seq_b.is_notated_same(expected)
+
+    assert [i.pitch_diff for i in note_interval_seq_a] == pitch_diffs
+    assert [i.pitch_diff for i in note_interval_seq_b] == pitch_diffs
+
+
+@pytest.mark.parametrize(
+    'pitch_diffs, sh_names',
+    [
+        (
+            [0, 6, 4, 5, 10, 7],
+            [('P', 1), ('d', 5), ('M', 3), ('P', 4), ('m', 7), ('P', 5)],
+        ),
+    ]
+)
+def test_guess_note_interval_fan(pitch_diffs, sh_names):
+
+    notation = WesternNotation()
+    tuning = notation.tuning
+    strategy = FlatEnharmStrategy(notation)
+    notation.enharm_strategy = strategy
+
+    note_interval_fan_a = notation.guess_note_interval_fan(
+        tuning.interval_fan(
+            [tuning.diff_interval(pitch_diff) for pitch_diff in pitch_diffs]
+        )
+    )
+    note_interval_fan_b = notation.diff_interval_fan(pitch_diffs)
+
+    expected = notation.interval_fan(
+        [notation.shorthand_interval(*sh_name) for sh_name in sh_names]
+    )
+    assert note_interval_fan_a.is_notated_same(expected)
+    assert note_interval_fan_b.is_notated_same(expected)
+    assert [i.pitch_diff for i in note_interval_fan_a] == pitch_diffs
+    assert [i.pitch_diff for i in note_interval_fan_b] == pitch_diffs
+
+
+@pytest.mark.parametrize(
+    'pitch_indices, note_pairs',
+    [
+        (
+            [4, 6, 10, 11, 15, 19],
+            [('E', 0), ('Gb', 0), ('Bb', 0), ('B', 0), ('Eb', 1), ('G', 1)],
+        ),
+    ]
+)
+def test_guess_note_seq(pitch_indices, note_pairs):
+
+    notation = WesternNotation()
+    tuning = notation.tuning
+    strategy = FlatEnharmStrategy(notation)
+    notation.enharm_strategy = strategy
+
+    note_seq_a = notation.guess_note_seq(
+        tuning.seq(
+            [tuning.pitch(pitch_index) for pitch_index in pitch_indices]
+        )
+    )
+    note_seq_b = notation.index_seq(pitch_indices)
+
+    expected = notation.seq(
+        [notation.note(*note_pair) for note_pair in note_pairs]
+    )
+    assert note_seq_a.is_notated_same(expected)
+    assert note_seq_b.is_notated_same(expected)
+    assert [p.pitch_index for p in note_seq_a] == pitch_indices
+    assert [p.pitch_index for p in note_seq_b] == pitch_indices
 
 
 @pytest.mark.parametrize(

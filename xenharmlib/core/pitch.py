@@ -119,24 +119,28 @@ class Pitch(IndexedFreqRepr[IndexT]):
 
         return self.tuning.pitch(transposed_index)
 
-    def retune(self, tuning: SDTuningLike) -> Pitch:
+    def retune(self, tuning: SDTuningLike) -> Self:
         """
-        Approximates this pitch in a different tuning
+        .. deprecated:: 0.4.0
+           Use :py:meth:`retune_closest` instead.
 
-        :param tuning: The target tuning
+        Gets the frequency representation in a given origin context
+        that is closest to the frequency of this object.
 
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target tuning does not have a proper
+            definition of a closest representation to a given frequency
         """
 
-        if not isinstance(tuning, SDTuningLike):
-            raise IncompatibleOriginContexts(
-                'Retuning is currently only possible if the target '
-                'tuning has a one-dimensional pitch index schema.'
-            )
+        warn(
+            f'{self.__class__.__name__}.retune is deprecated and will '
+            f'be removed 1.0.0. Please use the .retune_closest method. ',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-        return tuning.get_approx_pitch(self.frequency)
+        return self.retune_closest(tuning)
 
 
 PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
@@ -158,10 +162,9 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
     def __init__(self, tuning, frequency, pitch_index: PeriodicIndexT):
 
         super().__init__(tuning, frequency, pitch_index)
-        tuning_len = tuning.period_length
 
-        self._pc_index = pitch_index % tuning_len
-        self._bi_index = pitch_index // tuning_len
+        self._pc_index = pitch_index % tuning.eq_diff
+        self._bi_index = pitch_index // tuning.eq_diff
 
     @property
     def pc_index(self) -> PeriodicIndexT:
@@ -190,9 +193,8 @@ class PeriodicPitch(Pitch[PeriodicIndexT], PeriodicPitchLike):
             between this pitch and the resulting one
         """
 
-        tuning_len = self.tuning.period_length
         bi_index = self._bi_index + bi_diff
-        pitch_index = self._pc_index + bi_index * tuning_len
+        pitch_index = self._pc_index + bi_index * self.tuning.eq_diff
         return self.tuning.pitch(pitch_index)
 
     def pcs_normalized(self) -> Self:
@@ -268,7 +270,7 @@ class SDPeriodicPitchMixin:
                 break
 
             g_index += 1
-            pc_index = (pc_index + gen_pc) % self.tuning.period_length
+            pc_index = (pc_index + gen_pc) % self.tuning.eq_diff
 
         return g_index
 
@@ -327,10 +329,7 @@ class PitchInterval(IndexedInterval[IndexT, PitchT]):
         while a negative one means 'downward steps')
     :param ref_pitch: A reference pitch for the pitch
         difference. This is necessary for tunings that
-        are not equal step. In just intonation tunings
-        frequency ratios may vary depending on the
-        original pitches used to construct the interval,
-        even if their pitch index difference is the same
+        are not equal step.
     """
 
     def __init__(
@@ -579,7 +578,7 @@ class SDPeriodicPitchIntervalMixin:
         i_target = target.get_generator_index(generator_pitch)
         i_diff = i_target - i_zero
 
-        return min(i_diff, self.tuning.period_length - i_diff)
+        return min(i_diff, self.tuning.eq_diff - i_diff)
 
 
 class EDPitchInterval(

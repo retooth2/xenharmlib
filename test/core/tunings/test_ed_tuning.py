@@ -8,6 +8,7 @@ from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidPitchClassIndex
 
 FREQ_EPSILON = 0.1
+FREQ_RATIO_EPSILON = 0.1
 
 
 @pytest.mark.parametrize(
@@ -91,10 +92,256 @@ def test_get_frequency_incompatible_origin_contexts():
         ),
     ]
 )
-def test_get_approx_pitch(tuning, pitch_index, freq):
-    pitch = tuning.get_approx_pitch(freq)
+def test_closest_freq_repr(tuning, pitch_index, freq):
+
+    with pytest.deprecated_call():
+        pitch = tuning.get_approx_pitch(freq)
+
     assert pitch.pitch_index == pitch_index
     assert (pitch.frequency - freq) < Frequency(FREQ_EPSILON)
+
+    pitch = tuning.closest_freq_repr(freq)
+
+    assert pitch.pitch_index == pitch_index
+    assert abs(pitch.frequency - freq) < Frequency(FREQ_EPSILON)
+
+
+@pytest.mark.parametrize(
+    'tuning, ratio, pitch_diff',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            FrequencyRatio(3, 2),
+            7
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            FrequencyRatio(2, 3),
+            -7
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            FrequencyRatio(1, 1),
+            0,
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            FrequencyRatio(20_000, 20_001),
+            0,
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            FrequencyRatio(8, 9),
+            -2
+        ),
+        (
+            EDTuning(24, FrequencyRatio(2)),
+            FrequencyRatio(8, 9),
+            -4
+        ),
+        (
+            EDTuning(24, FrequencyRatio(2)),
+            FrequencyRatio(5, 4),
+            8
+        ),
+        (
+            EDTuning(13, FrequencyRatio(3)),
+            FrequencyRatio(300, 101),
+            13,
+        ),
+    ]
+)
+def test_closest_interval(tuning, ratio, pitch_diff):
+
+    exp_interval = tuning.diff_interval(pitch_diff)
+    interval = tuning.closest_interval(ratio)
+
+    assert interval == exp_interval
+    assert abs(
+        interval.frequency_ratio - exp_interval.frequency_ratio
+    ) < FrequencyRatio(FREQ_RATIO_EPSILON)
+
+
+@pytest.mark.parametrize(
+    'tuning, frequencies',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [Frequency(230), Frequency(300), Frequency(440), Frequency(500)]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [Frequency(170), Frequency(120), Frequency(230), Frequency(340)]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [Frequency(16), Frequency(32), Frequency(90), Frequency(150)]
+        ),
+        (
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(16.3)),
+            [Frequency(99), Frequency(999), Frequency(9999), Frequency(99999)]
+        ),
+    ]
+)
+def test_closest_scale(tuning, frequencies):
+
+    # do simple invariance test
+
+    exp_scale = tuning.scale()
+
+    for frequency in frequencies:
+        pitch = tuning.closest_freq_repr(frequency)
+        exp_scale = exp_scale.with_element(pitch)
+
+    assert tuning.closest_scale(frequencies) == exp_scale
+
+
+@pytest.mark.parametrize(
+    'tuning, ratios',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [
+                FrequencyRatio(5, 4),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(2, 1),
+            ]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [
+                FrequencyRatio(9, 10),
+                FrequencyRatio(10, 9),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+            ]
+        ),
+        (
+            EDTuning(13, FrequencyRatio(3)),
+            [
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(9, 10),
+                FrequencyRatio(10, 9),
+            ]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [
+                FrequencyRatio(9, 10),
+                FrequencyRatio(9, 5),
+                FrequencyRatio(10, 9),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(9, 5),
+            ]
+        ),
+    ]
+)
+def test_closest_interval_seq(tuning, ratios):
+
+    # do simple invariance test
+
+    exp_interval_seq = tuning.interval_seq()
+
+    for frequency in ratios:
+        interval = tuning.closest_interval(frequency)
+        exp_interval_seq = exp_interval_seq.with_interval(interval)
+
+    assert tuning.closest_interval_seq(ratios) == exp_interval_seq
+
+
+@pytest.mark.parametrize(
+    'tuning, ratios',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [
+                FrequencyRatio(5, 4),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(2, 1),
+            ]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [
+                FrequencyRatio(9, 10),
+                FrequencyRatio(10, 9),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+            ]
+        ),
+        (
+            EDTuning(13, FrequencyRatio(3)),
+            [
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(9, 10),
+                FrequencyRatio(10, 9),
+            ]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [
+                FrequencyRatio(9, 10),
+                FrequencyRatio(9, 5),
+                FrequencyRatio(10, 9),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(3, 2),
+                FrequencyRatio(4, 9),
+                FrequencyRatio(9, 5),
+            ]
+        ),
+    ]
+)
+def test_closest_interval_fan(tuning, ratios):
+
+    # do simple invariance test
+
+    exp_interval_fan = tuning.interval_fan()
+
+    for frequency in ratios:
+        interval = tuning.closest_interval(frequency)
+        exp_interval_fan = exp_interval_fan.with_interval(interval)
+
+    assert tuning.closest_interval_fan(ratios) == exp_interval_fan
+
+
+@pytest.mark.parametrize(
+    'tuning, frequencies',
+    [
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [Frequency(230), Frequency(300), Frequency(440), Frequency(500)]
+        ),
+        (
+            EDTuning(12, FrequencyRatio(2)),
+            [Frequency(170), Frequency(120), Frequency(230), Frequency(340)]
+        ),
+        (
+            EDTuning(31, FrequencyRatio(2)),
+            [Frequency(16), Frequency(32), Frequency(90), Frequency(150)]
+        ),
+        (
+            EDTuning(13, FrequencyRatio(3), ref_frequency=Frequency(16.3)),
+            [Frequency(99), Frequency(999), Frequency(9999), Frequency(99999)]
+        ),
+    ]
+)
+def test_closest_seq(tuning, frequencies):
+
+    # do simple invariance test
+
+    exp_seq = tuning.seq()
+
+    for frequency in frequencies:
+        pitch = tuning.closest_freq_repr(frequency)
+        exp_seq = exp_seq.with_element(pitch)
+
+    assert tuning.closest_seq(frequencies) == exp_seq
 
 
 @pytest.mark.parametrize(

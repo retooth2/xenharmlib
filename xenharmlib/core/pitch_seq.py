@@ -26,6 +26,7 @@ from typing import Generic
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 
 PitchT = TypeVar('PitchT', bound=Pitch)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -39,7 +40,7 @@ class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
     :param elements: A sequence of pitches
     """
 
-    def __init__(self, tuning, elements: Optional[List[PitchT]] = None):
+    def __init__(self, tuning, elements: Optional[Iterable[PitchT]] = None):
         super().__init__(tuning, elements)
         self.tuning = tuning
 
@@ -63,27 +64,6 @@ class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
             f'{self.pitch_indices}, '
             f'{self.tuning.name})'
         )
-
-    def retune(self, tuning) -> PitchSeq:
-        """
-        Returns a sequence retuned into a different tuning by
-        approximating every pitch in the sequence with a pitch
-        from the target tuning.
-
-        :param tuning: The target tuning
-
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
-        """
-
-        pitches = []
-
-        for pitch in self:
-            retuned_pitch = pitch.retune(tuning)
-            pitches.append(retuned_pitch)
-
-        return tuning.seq(pitches)
 
 
 PeriodicPitchT = TypeVar('PeriodicPitchT', bound=PeriodicPitch)

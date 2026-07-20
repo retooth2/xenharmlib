@@ -183,6 +183,20 @@ class Interval(ABC, Generic[FreqReprT]):
         :param target: The end point of the interval
         """
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the interval in a target origin context that
+        is closest to the frequency ratio of this object.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have
+            a proper definition of a closest representation to
+            a given frequency ratio
+        """
+
+        return origin_context.closest_interval(self.frequency_ratio)
+
 
 IndexedFreqReprT = TypeVar('IndexedFreqReprT', bound=IndexedFreqRepr)
 IndexT = TypeVar('IndexT', bound=Index)

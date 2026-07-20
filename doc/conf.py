@@ -26,6 +26,7 @@ author = 'Fabian Vallon'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
+    'sphinx_tabs.tabs',
     'sphinxext.opengraph'
 ]
 

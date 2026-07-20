@@ -498,7 +498,7 @@ def test_pc_index_bi_index(
     assert pitch.pc_index == pc_index
     assert pitch.bi_index == bi_index
     assert pitch.pc_index + (
-        pitch.bi_index * tuning.period_length
+        pitch.bi_index * tuning.eq_diff
     ) == pitch_index
 
 
@@ -919,23 +919,34 @@ def test_transpose_index(
         ),
     ]
 )
-def test_retune_edo(source_tuning, source_vec, target_tuning, target_index):
+def test_retune_closest_edo(
+    source_tuning, source_vec, target_tuning, target_index
+):
 
     source_index = source_tuning.lattice.point(source_vec)
     source_pitch = source_tuning.pitch(source_index)
 
-    target_pitch = source_pitch.retune(target_tuning)
+    with pytest.deprecated_call():
+        target_pitch = source_pitch.retune(target_tuning)
+
+    assert target_pitch.pitch_index == target_index
+
+    target_pitch = source_pitch.retune_closest(target_tuning)
     assert target_pitch.pitch_index == target_index
 
 
-def test_retune_incompatible_origin_context():
+def test_retune_closest_type_error():
 
     tuning_a = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0))
     tuning_b = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(5)), (1, 0))
     source_pitch = tuning_a.pitch(tuning_a.lattice.point((2, 1)))
 
-    with pytest.raises(IncompatibleOriginContexts):
-        source_pitch.retune(tuning_b)
+    with pytest.raises(TypeError):
+        with pytest.deprecated_call():
+            source_pitch.retune(tuning_b)
+
+    with pytest.raises(TypeError):
+        source_pitch.retune_closest(tuning_b)
 
 
 @pytest.mark.parametrize(

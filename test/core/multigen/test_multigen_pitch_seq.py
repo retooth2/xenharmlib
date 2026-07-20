@@ -991,22 +991,25 @@ def test_transpose_index(
         ),
     ]
 )
-def test_retune_edo(source_tuning, source_vecs, target_tuning, target_indices):
+def test_retune_closest_edo(
+    source_tuning, source_vecs, target_tuning, target_indices
+):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     seq = source_tuning.index_seq(
         [source_tuning.lattice.point(vec) for vec in source_vecs]
     )
 
-    retuned = seq.retune(target_tuning)
+    retuned = seq.retune_closest(target_tuning)
     assert retuned == target_tuning.index_seq(target_indices)
 
 
-def test_retune_incompatible_origin_contexts():
+def test_retune_closest_type_error():
     """
-    Test if retune method raises exception on 2+ dimensional target tuning
+    Test if retune_closest method raises exception on 2+
+    dimensional target tuning
     """
 
     pitch_vecs = [(-1, 1, 0), (-3, 1, 1), (-2, 2, 0)]
@@ -1014,8 +1017,8 @@ def test_retune_incompatible_origin_contexts():
         [multigen_235.lattice.point(vec) for vec in pitch_vecs]
     )
 
-    with pytest.raises(IncompatibleOriginContexts):
-        source_seq.retune(multigen_25)
+    with pytest.raises(TypeError):
+        source_seq.retune_closest(multigen_25)
 
 
 @pytest.mark.parametrize(
@@ -1123,27 +1126,36 @@ def test_is_subseq_proper(
     assert seq_a.is_subseq(seq_b, proper=True) is expected
 
 
-def test_is_subseq_incompatible_origin_contexts():
+def test_is_subseq_cross_origin():
     """
-    Test if is_subseq operation fails if seqs originate
-    from different tunings
+    Test if is_subseq works across origin contexts
     """
 
-    ed13_3 = EDTuning(13, FrequencyRatio(3))
-    tunings = multigen_23, multigen_25, multigen_weird, ed13_3
+    seq_a = multigen_235.index_seq(
+        [
+            multigen_235.lattice.point((0, 1, -1)),
+            multigen_235.lattice.point((2, 1, -1)),
+            multigen_235.lattice.point((-2, 3, 0)),
+            multigen_235.lattice.point((-4, 1, 0)),
+            multigen_235.lattice.point((0, 1, -1)),
+            multigen_235.lattice.point((1, 1, -1)),
+        ]
+    )
+    seq_b = multigen_23.index_seq(
+        [
+            multigen_23.lattice.point((-2, 3)),
+            multigen_23.lattice.point((-4, 1)),
+        ]
+    )
+    seq_c = multigen_23.index_seq(
+        [
+            multigen_23.lattice.point((-1, 3)),
+            multigen_23.lattice.point((-4, 1)),
+        ]
+    )
 
-    for i, tuning_a in enumerate(tunings):
-
-        for tuning_b in tunings[i+1:]:
-
-            seq_a = tuning_a.seq()
-            seq_b = tuning_b.seq()
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_subseq(seq_b)
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_subseq(seq_b, proper=True)
+    assert seq_b.is_subseq(seq_a)
+    assert not seq_c.is_subseq(seq_a)
 
 
 @pytest.mark.parametrize(
@@ -1250,27 +1262,36 @@ def test_is_superseq_proper(
     assert seq_a.is_superseq(seq_b, proper=True) is expected
 
 
-def test_is_superseq_incompatible_origin_contexts():
+def test_is_superseq_cross_origin():
     """
-    Test if is_superseq operation fails if seqs originate
-    from different tunings
+    Test if is_superseq operation works cross origin
     """
 
-    ed13_3 = EDTuning(13, FrequencyRatio(3))
-    tunings = multigen_23, multigen_25, multigen_weird, ed13_3
+    seq_a = multigen_235.index_seq(
+        [
+            multigen_235.lattice.point((0, 1, -1)),
+            multigen_235.lattice.point((2, 1, -1)),
+            multigen_235.lattice.point((-2, 3, 0)),
+            multigen_235.lattice.point((-4, 1, 0)),
+            multigen_235.lattice.point((0, 1, -1)),
+            multigen_235.lattice.point((1, 1, -1)),
+        ]
+    )
+    seq_b = multigen_23.index_seq(
+        [
+            multigen_23.lattice.point((-2, 3)),
+            multigen_23.lattice.point((-4, 1)),
+        ]
+    )
+    seq_c = multigen_23.index_seq(
+        [
+            multigen_23.lattice.point((-1, 3)),
+            multigen_23.lattice.point((-4, 1)),
+        ]
+    )
 
-    for i, tuning_a in enumerate(tunings):
-
-        for tuning_b in tunings[i+1:]:
-
-            seq_a = tuning_a.seq()
-            seq_b = tuning_b.seq()
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_superseq(seq_b)
-
-            with pytest.raises(IncompatibleOriginContexts):
-                seq_a.is_superseq(seq_b, proper=True)
+    assert seq_a.is_superseq(seq_b)
+    assert not seq_a.is_superseq(seq_c)
 
 
 @pytest.mark.parametrize(

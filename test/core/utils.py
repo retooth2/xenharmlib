@@ -9,6 +9,7 @@ from xenharmlib.core.notes import SDPeriodicNoteIntervalMixin
 from xenharmlib.core.notation import NatAccNotation
 from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import SymbolArithmeticSet
+from xenharmlib.core.enharm_strategies import PCBlueprintStrategy
 
 
 class MyNatAccNote(NatAccNote[int], SDPeriodicNoteMixin):
@@ -67,6 +68,22 @@ class MyNatAccNotation(NatAccNotation[int]):
         return 0
 
 
+class MyEnharmStrategy(PCBlueprintStrategy):
+
+    def __init__(self, notation):
+
+        ALPHABET = [chr(x) for x in range(65, 65+26)]
+        scale = notation.scale()
+
+        for i, nat_pc_index in enumerate(range(0, notation.eq_diff)):
+            natc_symbol = ALPHABET[i // 2]
+            if i % 2 == 1:
+                natc_symbol += '+'
+            scale = scale.with_element(notation.note(natc_symbol, 0))
+
+        super().__init__(scale)
+
+
 def make_nat_acc_test_notation(tuning):
     """
     Creates a very generic and meaningless natural/accidental
@@ -89,7 +106,7 @@ def make_nat_acc_test_notation(tuning):
 
     notation = MyNatAccNotation(tuning, acc_weights=(1,))
 
-    for nat_pc_index in range(0, tuning.period_length, 2):
+    for nat_pc_index in range(0, tuning.eq_diff, 2):
         natc_symbol = ALPHABET.pop(0)
         notation.append_natural(natc_symbol, nat_pc_index)
 
@@ -100,6 +117,7 @@ def make_nat_acc_test_notation(tuning):
     acc_arith.add_symbol('.', (-2,))
 
     notation.acc_symbol_code = acc_arith
+    notation.enharm_strategy = MyEnharmStrategy(notation)
 
     funky_upper = SymbolArithmetic()
     funky_upper.add_symbol(
@@ -129,7 +147,7 @@ def make_nat_acc_test_notation(tuning):
     cringe.add_arithmetic(cringe_upper)
     cringe.add_arithmetic(cringe_lower)
 
-    for nat_diffc in range(0, tuning.period_length // 2):
+    for nat_diffc in range(0, tuning.eq_diff // 2):
         if nat_diffc % 2 == 0:
             notation.set_interval_symbol_code(
                 nat_diffc, funky

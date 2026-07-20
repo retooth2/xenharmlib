@@ -836,3 +836,21 @@ def test_from_notes_incompatible_origin_contexts():
     with pytest.raises(IncompatibleOriginContexts):
         with pytest.deprecated_call():
             NatAccNoteInterval.from_notes(note_a, note_b)
+
+
+@pytest.mark.parametrize(
+    'interval_a, interval_b',
+    [
+        (n_edo12.diff_interval(0), n_edo31.diff_interval(0)),
+        (n_edo12.diff_interval(24), n_edo31.diff_interval(62)),
+        (n_edo12.diff_interval(7), n_edo31.diff_interval(18)),
+        (n_edo31.diff_interval(-18), n_edo12.diff_interval(-7)),
+    ]
+)
+def test_retune_closest(interval_a, interval_b):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    assert interval_a.retune_closest(interval_b.tuning) == interval_b
+    assert interval_b.retune_closest(interval_a.tuning) == interval_a

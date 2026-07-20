@@ -25,6 +25,7 @@ from typing import Optional
 from typing import Generic
 from typing import TypeVar
 from functools import total_ordering
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from .frequencies import Frequency
@@ -93,6 +94,20 @@ class FreqRepr(ABC):
         The frequency of this object
         """
         return self._frequency
+
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the frequency representation in a target origin context
+        that is closest to the frequency of this object.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency
+        """
+
+        return origin_context.closest_freq_repr(self.frequency)
 
     @property
     @abstractmethod

@@ -15,3 +15,12 @@
 .admonition-new-release p {
     margin-top: 0;
 }
+
+div.sphinxsidebar {
+    font-size:10pt !important;
+}
+
+.sphinx-tabs-tab {
+    padding: 10pt !important;
+    color: #000 !important;
+}

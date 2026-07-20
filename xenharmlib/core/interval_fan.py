@@ -20,6 +20,7 @@ from typing import Optional
 from typing import overload
 from typing import Self
 from typing import List
+from typing import Iterable
 from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
@@ -45,8 +46,8 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
 
     In line with its Sequence superclass interval fans implement
     iteration, the 'in' operator, the == operator, item retrieval with
-    [], concatenation with +, repeated self-concatenation with *, searching
-    with index, and len().
+    [], concatenation with +, repeated self-concatenation with \\*,
+    searching with index, and len().
 
     Like scale types interval fans also allow partitioning with partial,
     partial_not and partition.
@@ -56,7 +57,7 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
     """
 
     def __init__(
-        self, origin_context, intervals: Optional[Sequence[IntervalT]] = None
+        self, origin_context, intervals: Optional[Iterable[IntervalT]] = None
     ):
 
         self._origin_context = origin_context
@@ -66,14 +67,15 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         else:
             _intervals = intervals
 
+        self._intervals = []
+
         for element in _intervals:
             if element.origin_context is not self.origin_context:
                 raise IncompatibleOriginContexts(
                     f'The element {element} does not originate from context '
                     f'{origin_context}. Cannot construct interval fan.'
                 )
-
-        self._intervals = _intervals
+            self._intervals.append(element)
 
     @property
     def origin_context(self):
@@ -184,6 +186,20 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         intervals = list(self)
         intervals.insert(insert_pos, interval)
         return self.origin_context.interval_fan(intervals)
+
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the interval fan in a target origin context that
+        is closest to the frequency ratio series of this sequence.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency ratio
+        """
+
+        return origin_context.closest_interval_fan(self.frequency_ratios)
 
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """

@@ -35,6 +35,7 @@ from bisect import insort
 from typing import Generic
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 from typing import Self
 from typing import Optional
 from warnings import warn
@@ -115,7 +116,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
     * is_superset
     """
 
-    def __init__(self, tuning, pitches: Optional[List[PitchT]] = None):
+    def __init__(self, tuning, pitches: Optional[Iterable[PitchT]] = None):
         super().__init__(tuning, pitches)
         self.tuning = tuning
 
@@ -269,6 +270,9 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
 
     def retune(self, tuning) -> PitchScale:
         """
+        .. deprecated:: 0.4.0
+           Use :py:meth:`retune_closest` instead.
+
         Returns a scale retuned into a different tuning by
         approximating every pitch in the scale with a pitch
         from the target tuning.
@@ -279,19 +283,16 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
         to the same pitch in the target tuning.
 
         :param tuning: The target tuning
-
-        :raises IncompatibleOriginContext: If the target tuning is
-            not one-dimensional (a current limitation of the
-            implementation)
         """
 
-        pitches = []
+        warn(
+            f'{self.__class__.__name__}.retune is deprecated and will '
+            f'be removed 1.0.0. Please use the .retune_closest method. ',
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-        for pitch in self:
-            retuned_pitch = pitch.retune(tuning)
-            pitches.append(retuned_pitch)
-
-        return tuning.scale(pitches)
+        return self.retune_closest(tuning)
 
 
 class SDPeriodicPitchScaleMixin:
@@ -310,7 +311,7 @@ class SDPeriodicPitchScaleMixin:
         complement = []
 
         full_scale = self.tuning.scale(
-            self.tuning.pitch_range(self.tuning.period_length)
+            self.tuning.pitch_range(self.tuning.eq_diff)
         )
 
         for pitch in full_scale:

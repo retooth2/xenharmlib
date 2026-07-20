@@ -1071,8 +1071,8 @@ def test_frequencies(notation):
 
     assert scale.frequencies == [
         tuning.pitch(0).frequency,
-        tuning.pitch(5+2*tuning.period_length).frequency,
-        tuning.pitch(5+3*tuning.period_length).frequency,
+        tuning.pitch(5+2*tuning.eq_diff).frequency,
+        tuning.pitch(5+3*tuning.eq_diff).frequency,
     ]
 
 
@@ -2171,6 +2171,7 @@ def test_is_subset(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_subset(scale_b) == expected
+    assert (scale_a <= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2231,6 +2232,7 @@ def test_is_subset_proper(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_subset(scale_b, proper=True) == expected
+    assert (scale_a < scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2477,6 +2479,7 @@ def test_is_superset(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_superset(scale_b) == expected
+    assert (scale_a >= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2537,6 +2540,7 @@ def test_is_superset_proper(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_superset(scale_b, proper=True) == expected
+    assert (scale_a > scale_b) == expected
 
 
 @pytest.mark.parametrize(

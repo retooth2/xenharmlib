@@ -155,6 +155,25 @@ class Scale(Sequence[FreqReprT], ABC):
         elements.append(element)
         return self.origin_context.scale(elements)
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the scale in a target origin context that is closest
+        to the frequency series of this scale.
+
+        **A caveat**: Since scales are a structure of sorted unique
+        frequency representation this method may produce a scale with
+        a smaller size than the original because two representations
+        in this context can be approximated to the same representation
+        in the target context.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a proper
+            definition of a closest representation to a given frequency
+        """
+
+        return origin_context.closest_scale(self.frequencies)
+
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
         Returns a new scale consisting of a selection of indices
@@ -342,6 +361,14 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
+    def to_seq(self):
+        """
+        Returns this scale represented as sequence of frequency
+        representations
+        """
+
+        return self.origin_context.seq(self)
+
     def to_interval_seq(self):
         """
         Returns this scale represented as an interval sequence
@@ -520,6 +547,30 @@ class Scale(Sequence[FreqReprT], ABC):
         operator shortcut for symmetric difference method
         """
         return self.symmetric_difference(other)
+
+    def __le__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset
+        """
+        return self.is_subset(other)
+
+    def __lt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset / proper=True
+        """
+        return self.is_subset(other, proper=True)
+
+    def __ge__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset
+        """
+        return self.is_superset(other)
+
+    def __gt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset / proper=True
+        """
+        return self.is_superset(other, proper=True)
 
     def is_disjoint(self, other: Self) -> bool:
         """

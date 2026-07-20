@@ -1436,3 +1436,50 @@ def test_to_seq(tuning, diff_vecs, pitch_vec, pitch_vecs):
 
     assert interval_seq.to_seq(pitch) == seq
     assert pitch.seq(interval_seq) == seq
+
+
+@pytest.mark.parametrize(
+    'source_tuning, source_vecs, target_tuning, target_diffs',
+    [
+        (
+            multigen_235,
+            [(-1, 1, 0), (-3, 1, 1), (-2, 2, 0)],
+            EDOTuning(31),
+            [18, 28, 36]
+        ),
+        (
+            multigen_23,
+            [(0, 0), (-6, 4), (-1, 1)],
+            EDOTuning(12),
+            [0, 4, 7]
+        ),
+    ]
+)
+def test_retune_closest_edo(
+    source_tuning, source_vecs, target_tuning, target_diffs
+):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    interval_seq = source_tuning.diff_interval_seq(
+        [source_tuning.lattice.point(vec) for vec in source_vecs]
+    )
+
+    retuned = interval_seq.retune_closest(target_tuning)
+    assert retuned == target_tuning.diff_interval_seq(target_diffs)
+
+
+def test_retune_closest_type_error():
+    """
+    Test if retune_closest method raises exception on 2+
+    dimensional target tuning
+    """
+
+    diff_vecs = [(-1, 1, 0), (-3, 1, 1), (-2, 2, 0)]
+    source_iseq = multigen_235.diff_interval_seq(
+        [multigen_235.lattice.point(vec) for vec in diff_vecs]
+    )
+
+    with pytest.raises(TypeError):
+        source_iseq.retune_closest(multigen_25)
