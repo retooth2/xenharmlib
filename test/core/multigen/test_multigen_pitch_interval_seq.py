@@ -1477,7 +1477,7 @@ def test_retune_closest_type_error():
     """
 
     diff_vecs = [(-1, 1, 0), (-3, 1, 1), (-2, 2, 0)]
-    source_iseq = multigen_235.index_seq(
+    source_iseq = multigen_235.diff_interval_seq(
         [multigen_235.lattice.point(vec) for vec in diff_vecs]
     )
 
