@@ -1485,3 +1485,25 @@ def test_pitch_interval_fan(notation, input_shn, result_diff):
     )
     expected = notation.tuning.diff_interval_fan(result_diff)
     assert interval_fan.pitch_interval_fan == expected
+
+
+@pytest.mark.parametrize(
+    'notation_a, input_pd, notation_b, result_pd',
+    [
+        (n_edo12, [0, 3, 7, 8, 10], n_edo31, [0, 8, 18, 21, 26]),
+        (n_edo12, [1, 4, 6, 7, 8, 11], n_edo24, [2, 8, 12, 14, 16, 22]),
+        (n_edo24, [8, 16, 2, 12, 14, 22], n_edo12, [4, 8, 1, 6, 7, 11]),
+        (n_edo24, [12, 1, 8, 14, 16, 22], n_edo12, [6, 0, 4, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(notation_a, input_pd, notation_b, result_pd):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    interval_fan_a = notation_a.diff_interval_fan(input_pd)
+
+    interval_fan_b = interval_fan_a.retune_closest(notation_b)
+
+    expected_interval_fan_b = notation_b.diff_interval_fan(result_pd)
+    assert interval_fan_b == expected_interval_fan_b
