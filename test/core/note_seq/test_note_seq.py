@@ -2128,3 +2128,24 @@ def test_inversion(notation_a,
     )
 
     assert seq.inversion() == result_seq
+
+
+@pytest.mark.parametrize(
+    'notation_a, input_pi, notation_b, result_pi',
+    [
+        (n_edo12, [0, 3, 7, 8, 10], n_edo31, [0, 8, 18, 21, 26]),
+        (n_edo12, [1, 4, 6, 7, 8, 11], n_edo24, [2, 8, 12, 14, 16, 22]),
+        (n_edo24, [2, 8, 12, 14, 16, 22], n_edo12, [1, 4, 6, 7, 8, 11]),
+        (n_edo24, [1, 8, 12, 14, 16, 22], n_edo12, [0, 4, 6, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(notation_a, input_pi, notation_b, result_pi):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    seq_a = notation_a.index_seq(input_pi)
+    expected_seq_b = notation_b.index_seq(result_pi)
+
+    seq_b = seq_a.retune_closest(notation_b)
+    assert seq_b == expected_seq_b
