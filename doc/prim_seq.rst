@@ -119,6 +119,27 @@ because it works the same on all origin contexts:
 
          WesternNoteSeq([C4, D4, E4, C4, E4])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         seq = n_edo31.seq([C4, D4, E4, C4, E4])
+         print(seq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([C4, D4, E4, C4, E4], 31-EDO)
+
 Element-wise Construction
 -------------------------------------------------------
 
@@ -207,6 +228,35 @@ an additional element:
          WesternNoteSeq([C4, D4, E4, C4])
          WesternNoteSeq([C4, D4, E4, C4, E4])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         # start with empty sequence
+         seq = n_edo31.seq()
+
+         for e in [C4, D4, E4, C4, E4]:
+             seq = seq.with_element(e)
+             print(seq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([C4], 31-EDO)
+         UpDownNoteSeq([C4, D4], 31-EDO)
+         UpDownNoteSeq([C4, D4, E4], 31-EDO)
+         UpDownNoteSeq([C4, D4, E4, C4], 31-EDO)
+         UpDownNoteSeq([C4, D4, E4, C4, E4], 31-EDO)
+
 Given an additional positional parameter, new elements can appear at a
 place of the user's free choosing in the new sequence. The parameter works
 exactly like the equivalent parameter in the insert method of python's
@@ -293,6 +343,35 @@ the new element will be found in the new sequence:
          WesternNoteSeq([C4, E4, D4, C4])
          WesternNoteSeq([E4, C4, E4, D4, C4])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         # start with empty sequence
+         seq = n_edo31.seq()
+
+         for e in [C4, D4, E4, C4, E4]:
+             seq = seq.with_element(e, 0)
+             print(seq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([C4], 31-EDO)
+         UpDownNoteSeq([D4, C4], 31-EDO)
+         UpDownNoteSeq([E4, D4, C4], 31-EDO)
+         UpDownNoteSeq([C4, E4, D4, C4], 31-EDO)
+         UpDownNoteSeq([E4, C4, E4, D4, C4], 31-EDO)
+
 Index-based Construction
 -------------------------------------------------------
 
@@ -350,6 +429,23 @@ the notation's enharmonic strategy.
       .. testoutput:: WesternNotation
 
          WesternNoteSeq([C0, D0, E0, C0, D0])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         seq = n_edo31.index_seq([0, 5, 10, 0, 5])
+         print(seq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([C0, D0, E0, C0, D0], 31-EDO)
 
 Index-based construction can be especially useful for dealing with
 segments in 12-tone music. The following snippet e.g. creates a
@@ -518,6 +614,28 @@ Sequences can be transformed into interval sequences by the
 
          WesternNoteIntervalSeq([M2, M2, M-3, M3])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         seq = n_edo31.seq([C4, D4, E4, C4, E4])
+         iseq = seq.to_interval_seq()
+         print(iseq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalSeq([M2, M2, M-3, M3], 31-EDO)
+
 
 Vice versa interval sequences can be transformed into a pitch/note
 sequences by providing a root note:
@@ -577,6 +695,30 @@ sequences by providing a root note:
       .. testoutput:: WesternNotation
 
          WesternNoteSeq([D4, Eb4, F4, Gb4])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         iseq = n_edo31.interval_seq(
+             [
+                 n_edo31.shorthand_interval('m', 2),
+                 n_edo31.shorthand_interval('M', 2),
+                 n_edo31.shorthand_interval('m', 2),
+             ]
+         )
+
+         seq = n_edo31.note('D', 4).seq(iseq)
+         print(seq)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([D4, Eb4, F4, Gb4], 31-EDO)
 
 
 Relation to Interval Fans
@@ -660,6 +802,32 @@ key as a parameter:
       .. testoutput:: WesternNotation
 
          WesternNoteIntervalFan([M3, M2, P1, M2, M3, M3, M3])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         # melodic series of marry had a little lamb
+         seq = n_edo31.seq([E4, D4, C4, D4, E4, E4, E4])
+
+         # calculate interval fan by using the information that
+         # it is written in reference to the tonal center of C
+         ifan = seq.to_interval_fan(C4)
+         print(ifan)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteIntervalFan([M3, M2, P1, M2, M3, M3, M3], 31-EDO)
 
 The reverse is also possible: Start with an interval fan defining an abstract
 sequence in relation to an unspecified tonic, add a tonic and receive the
@@ -749,6 +917,40 @@ melodic flow:
 
          WesternNoteSeq([B4, A4, G4, A4, B4, B4, B4])
          WesternNoteSeq([A4, G4, F4, G4, A4, A4, A4])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         P1 = n_edo31.shorthand_interval('P', 1)
+         M2 = n_edo31.shorthand_interval('M', 2)
+         M3 = n_edo31.shorthand_interval('M', 3)
+
+         # abstract form of "marry had a little lamb"
+         # relating to an unspecified tonic note/pitch
+         ifan = n_edo31.interval_fan(
+             [M3, M2, P1, M2, M3, M3, M3]
+         )
+
+         # make an instance with the tonic G4
+         in_g = n_edo31.note('G', 4).seq(ifan)
+
+         # make an instance with the tonic F4
+         in_f = n_edo31.note('F', 4).seq(ifan)
+
+         print(in_g)
+         print(in_f)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([B4, A4, G4, A4, B4, B4, B4], 31-EDO)
+         UpDownNoteSeq([A4, G4, F4, G4, A4, A4, A4], 31-EDO)
 
 
 Identity and Equivalency
@@ -1403,6 +1605,27 @@ mask expression start with 0):
 
          WesternNoteSeq([Eb0, C#0, E0])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E0 = n_edo31.note('E', 0)
+         Eb0 = n_edo31.note('Eb', 0)
+         Csharp0 = n_edo31.note('C#', 0)
+
+         seq = n_edo31.seq([E0, Eb0, Csharp0, Csharp0, E0, Eb0])
+         print(seq.partial((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([Eb0, C#0, E0], 31-EDO)
+
 Mask expressions targeted at longer continuous spans inside the
 sequence can be written as a "shortform" with the ellipsis symbol
 (:code:`...`):
@@ -1497,6 +1720,41 @@ sequence can be written as a "shortform" with the ellipsis symbol
          WesternNoteSeq([Eb0, C#0, C#0, E0])
          WesternNoteSeq([E0, C#0, E0, Eb0])
 
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E0 = n_edo31.note('E', 0)
+         Eb0 = n_edo31.note('Eb', 0)
+         Csharp0 = n_edo31.note('C#', 0)
+
+         seq = n_edo31.seq([E0, Eb0, Csharp0, Csharp0, E0, Eb0])
+
+         # an ellipsis as a prefix matches all elements from
+         # the start of the sequence until and including (!)
+         # the first mask index
+         print(seq.partial((..., 3, 4)))
+
+         # an ellipsis between two indices matches the two indices
+         # in the sequence and all elements between them
+         print(seq.partial((1, ..., 4)))
+
+         # an ellipsis at the end matches all remaining indices
+         # in the sequence after the last mask index
+         print(seq.partial((0, 3, ...)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([E0, Eb0, C#0, C#0, E0], 31-EDO)
+         UpDownNoteSeq([Eb0, C#0, C#0, E0], 31-EDO)
+         UpDownNoteSeq([E0, C#0, E0, Eb0], 31-EDO)
+
 Selection can also be inverted with the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.partial_not` method that
 returns all elements *not* covered by the mask expression:
@@ -1548,6 +1806,27 @@ returns all elements *not* covered by the mask expression:
       .. testoutput:: WesternNotation
 
          WesternNoteSeq([E0, C#0, Eb0])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E0 = n_edo31.note('E', 0)
+         Eb0 = n_edo31.note('Eb', 0)
+         Csharp0 = n_edo31.note('C#', 0)
+
+         seq = n_edo31.seq([E0, Eb0, Csharp0, Csharp0, E0, Eb0])
+         print(seq.partial_not((1, 3, 4)))
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([E0, C#0, Eb0], 31-EDO)
 
 To get both the substructure indicated by the mask *and* its complement as
 a tuple, you can use the
@@ -1609,6 +1888,30 @@ a tuple, you can use the
 
          WesternNoteSeq([Eb0, C#0, E0])
          WesternNoteSeq([E0, C#0, Eb0])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E0 = n_edo31.note('E', 0)
+         Eb0 = n_edo31.note('Eb', 0)
+         Csharp0 = n_edo31.note('C#', 0)
+
+         seq = n_edo31.seq([E0, Eb0, Csharp0, Csharp0, E0, Eb0])
+         a, b = seq.partition((1, 3, 4))
+         print(a)
+         print(b)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([Eb0, C#0, E0], 31-EDO)
+         UpDownNoteSeq([E0, C#0, Eb0], 31-EDO)
 
 
 Concatenation and Repetition
@@ -1674,6 +1977,30 @@ the meaning "repeat x times":
 
          WesternNoteSeq([C4, D4, E4, C4, E4, C4, D4, C4])
          WesternNoteSeq([C4, D4, E4, C4, C4, D4, E4, C4, C4, D4, E4, C4])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         C4 = n_edo31.note('C', 4)
+         D4 = n_edo31.note('D', 4)
+         E4 = n_edo31.note('E', 4)
+
+         seq_a = n_edo31.seq([C4, D4, E4, C4])
+         seq_b = n_edo31.seq([E4, C4, D4, C4])
+         print(seq_a + seq_b)
+         print(3 * seq_a)
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([C4, D4, E4, C4, E4, C4, D4, C4], 31-EDO)
+         UpDownNoteSeq([C4, D4, E4, C4, C4, D4, E4, C4, C4, D4, E4, C4], 31-EDO)
 
 Transposition
 --------------------------------------
@@ -1890,6 +2217,31 @@ while Inversion flips the direction of every interval in the sequence:
 
          WesternNoteSeq([E4, E5, C5, G4])
          WesternNoteSeq([G4, D4, Bb3, Bb4])
+
+   .. tab:: UpDown
+
+      .. testcode:: UpDownNotation
+
+         from xenharmlib import EDOTuning
+         from xenharmlib import UpDownNotation
+
+         edo31 = EDOTuning(31)
+         n_edo31 = UpDownNotation(edo31)
+
+         E4 = n_edo31.note('E', 4)
+         G4 = n_edo31.note('G', 4)
+         C5 = n_edo31.note('C', 5)
+         E5 = n_edo31.note('E', 5)
+
+         seq = n_edo31.seq([G4, C5, E5, E4])
+
+         print(seq.retrograde())
+         print(seq.inversion())
+
+      .. testoutput:: UpDownNotation
+
+         UpDownNoteSeq([E4, E5, C5, G4], 31-EDO)
+         UpDownNoteSeq([G4, D4, Bb3, Bb4], 31-EDO)
 
 
 Subsequence Containment
