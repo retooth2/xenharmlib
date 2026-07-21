@@ -298,3 +298,45 @@ def test_vec_interval_seq_empty(tuning):
     interval_seq = tuning.vec_interval_seq()
     assert len(interval_seq) == 0
     assert interval_seq == tuning.interval_seq()
+
+
+@pytest.mark.parametrize(
+    'tuning, vecs',
+    [
+        (
+            multigen_23,
+            [(0, -3), (5, -6), (-6, 1), (-1, -2), (-7, 2)],
+        ),
+        (
+            multigen_235,
+            [(-1, 0, -1), (0, -2, 0), (1, -1, -1), (-1, -1, 0)],
+        )
+    ]
+)
+def test_vec_interval_fan(tuning, vecs):
+    """
+    Test if vec_interval_fan works correctly
+    """
+
+    interval_fan = tuning.vec_interval_fan(vecs)
+    expected_interval_fan = tuning.diff_interval_fan(
+        [tuning.lattice.point(vec) for vec in vecs]
+    )
+    assert interval_fan == expected_interval_fan
+    assert interval_fan.pitch_diffs == [
+        tuning.lattice.point(vec) for vec in vecs
+    ]
+
+
+@pytest.mark.parametrize(
+    'tuning',
+    [multigen_23, multigen_25, multigen_235, multigen_257]
+)
+def test_vec_interval_fan_empty(tuning):
+    """
+    Test if vec_interval_fan works correctly with parameter omitted
+    """
+
+    interval_fan = tuning.vec_interval_fan()
+    assert len(interval_fan) == 0
+    assert interval_fan == tuning.interval_fan()
