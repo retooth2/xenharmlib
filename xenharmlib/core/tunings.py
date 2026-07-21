@@ -835,6 +835,9 @@ class EDTuning(
 
     def get_frequency(self, pitch: EDPitch) -> Frequency:
         """
+        .. deprecated:: 0.3.0
+           Use the frequency property of the pitch object instead
+
         Returns the frequency of a given note
 
         :param note: A note from this tuning

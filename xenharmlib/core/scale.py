@@ -415,6 +415,9 @@ class Scale(Sequence[FreqReprT], ABC):
 
     def to_intervals(self) -> List[Interval[FreqReprT]]:
         """
+        .. deprecated:: 0.3.0
+           Use :py:meth:`to_interval_seq` instead.
+
         Returns this scale represented as a list of intervals
         """
         warn(
