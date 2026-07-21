@@ -364,7 +364,7 @@ class NatAccNote(PeriodicNoteABC[PeriodicIndexT]):
     def acc_vector(self) -> Tuple[PeriodicIndexT, ...]:
         """
         .. deprecated:: 0.4.0
-           Use :py:meth:`add_diff_vector` instead.
+           Use :py:meth:`acc_diff_vector` instead.
 
         The accidental diff vector of this note
         """
