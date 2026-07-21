@@ -173,6 +173,23 @@ class EnharmonicStrategy:
             f'note scale with an integer argument is therefore not possible'
         )
 
+    def note_seq_transpose(self, note_seq, pitch_diff: int):
+        """
+        NoteSeq.transpose relays to here if the interval argument was
+        not given as a suitable NoteInterval object but as an integer.
+
+        :param note_seq: The note seq on which the transpose method
+            was called
+        :param pitch_diff: The pitch difference as an integer
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the note_seq_transpose method. Transposing a '
+            f'note sequence with an integer argument is therefore not '
+            f'possible'
+        )
+
     def note_scale_pcs_complement(self, note_scale):
         """
         NoteScale.pcs_complement relays to here
@@ -345,6 +362,23 @@ class PCBlueprintStrategy(EnharmonicStrategy):
             transposed = self.note_transpose(note, pitch_diff)
             notes.append(transposed)
         return notation.scale(notes)
+
+    def note_seq_transpose(self, note_seq, pitch_diff: int):
+        """
+        NoteScale.transpose relays to here if the interval argument was
+        not given as a suitable NoteInterval object but as an integer.
+
+        :param note_seq: The note seq on which the transpose method
+            was called
+        :param pitch_diff: The pitch difference as an integer
+        """
+
+        notation = note_seq.notation
+        notes = []
+        for note in note_seq:
+            transposed = self.note_transpose(note, pitch_diff)
+            notes.append(transposed)
+        return notation.seq(notes)
 
     def note_scale_pcs_complement(self, note_scale):
         """
