@@ -38,7 +38,7 @@ PitchT = TypeVar('PitchT', bound=NoteABC)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
+class NoteSeq(FreqReprSeq[IndexT, PitchT], Generic[IndexT, PitchT]):
     """
     Base class for all sequences of pitches
 
