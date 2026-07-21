@@ -613,12 +613,12 @@ class PrimeLimitTuning(
         slash_count = ratio_str.count('/')
 
         if slash_count == 1:
-            n, _, d = ratio_str.partition('/')
-            if not (n.isdigit() and d.isdigit()):
+            n_str, _, d_str = ratio_str.partition('/')
+            if not (n_str.isdigit() and d_str.isdigit()):
                 raise ValueError(
                     f'\'{ratio_str}\' is not a valid ratio string expression'
                 )
-            n, d = int(n), int(d)
+            n, d = int(n_str), int(d_str)
 
         elif slash_count == 0:
             if not (ratio_str.isdigit()):
@@ -657,12 +657,12 @@ class PrimeLimitTuning(
         slash_count = ratio_str.count('/')
 
         if slash_count == 1:
-            n, _, d = ratio_str.partition('/')
-            if not (n.isdigit() and d.isdigit()):
+            n_str, _, d_str = ratio_str.partition('/')
+            if not (n_str.isdigit() and d_str.isdigit()):
                 raise ValueError(
                     f'\'{ratio_str}\' is not a valid ratio string expression'
                 )
-            n, d = int(n), int(d)
+            n, d = int(n_str), int(d_str)
 
         elif slash_count == 0:
             if not (ratio_str.isdigit()):
@@ -760,13 +760,13 @@ class PrimeLimitTuning(
             slash_count = ratio_str.count('/')
 
             if slash_count == 1:
-                n, _, d = ratio_str.partition('/')
-                if not (n.isdigit() and d.isdigit()):
+                n_str, _, d_str = ratio_str.partition('/')
+                if not (n_str.isdigit() and d_str.isdigit()):
                     raise ValueError(
                         f'\'{ratio_str}\' is not a valid '
                         f'ratio string expression'
                     )
-                n, d = int(n), int(d)
+                n, d = int(n_str), int(d_str)
 
             elif slash_count == 0:
                 if not (ratio_str.isdigit()):
