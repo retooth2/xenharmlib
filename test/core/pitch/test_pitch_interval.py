@@ -233,6 +233,48 @@ def test_add(tuning,
 
 
 @pytest.mark.parametrize(
+    'tuning_a, pitch_diff_a, tuning_b, pitch_diff_b',
+    [
+        (edo31,  18,  edo12, 7),
+        (edo12,  16,  edo31, 0),
+        (edo24,  -2,  edo31, 12),
+    ]
+)
+def test_add_incompatible_origin_contexts(
+    tuning_a, pitch_diff_a, tuning_b, pitch_diff_b
+):
+    """
+    Test if addition on intervals is implemented correctly
+    when trying to add intervals from different contexts
+    """
+
+    interval_a = tuning_a.diff_interval(pitch_diff_a)
+    interval_b = tuning_b.diff_interval(pitch_diff_b)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        interval_a + interval_b
+        interval_b + interval_a
+
+
+@pytest.mark.parametrize(
+    'bogus', [1, True, (1, 3), 'foobar']
+)
+def test_add_bogus(bogus):
+    """
+    Test if addition on intervals is implemented correctly
+    when trying to add incompatible object
+    """
+
+    interval = edo12.diff_interval(10)
+
+    with pytest.raises(TypeError):
+        interval + bogus
+
+    with pytest.raises(TypeError):
+        bogus + interval
+
+
+@pytest.mark.parametrize(
     'tuning, pitch_diff_a, pitch_diff_b, result_pitch_diff',
     [
         (edo31,  18,  7, 11),
@@ -278,6 +320,24 @@ def test_mul(tuning,
     result_interval = tuning.diff_interval(result_pitch_diff)
     assert interval * scalar == result_interval
     assert scalar * interval == result_interval
+
+
+@pytest.mark.parametrize(
+    'bogus', [1.0, (1, 3), 'foobar']
+)
+def test_mul_bogus(bogus):
+    """
+    Test if multiplication on intervals is implemented correctly
+    when trying to multiply with incompatible object
+    """
+
+    interval = edo12.diff_interval(10)
+
+    with pytest.raises(TypeError):
+        interval * bogus
+
+    with pytest.raises(TypeError):
+        bogus * interval
 
 
 @pytest.mark.parametrize(
