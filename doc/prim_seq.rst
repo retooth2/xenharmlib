@@ -1174,6 +1174,29 @@ as you can see from the following examples:
          True
          False
 
+Equality/Identity also translates to python's builtin set type. If two
+sequences are considered equal, combining them in a python set will result
+in an one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   seq_a = edo24.index_seq([4, 10, 4, 18])
+   seq_b = western.index_seq([2, 5, 2, 9])
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({seq_a, seq_b})
+
+.. testoutput::
+
+   {EDOPitchSeq([4, 10, 4, 18], 24-EDO)}
+
 Iteration
 --------------------------------------------
 

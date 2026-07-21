@@ -1187,6 +1187,29 @@ be bigger in *absolute* size:
 
          True
 
+Equality/Identity also translates to python's builtin set type. If two
+intervals are considered equal, combining them in a python set will
+result in an one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   interval_a = edo24.diff_interval(14)
+   interval_b = western.shorthand_interval('P', 5)
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({interval_a, interval_b})
+
+.. testoutput::
+
+   {EDOPitchInterval(14, 24-EDO)}
+
 Subtraction and Addition
 -----------------------------------------------------------
 

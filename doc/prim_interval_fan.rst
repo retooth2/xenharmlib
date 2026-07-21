@@ -825,6 +825,33 @@ major third interval in 12-EDO:
    UpDownNoteIntervalFan([M3, m3], 12-EDO)
    False
 
+Equality/Identity also translates to python's builtin set type. If two
+interval fans are considered equal, combining them in a python set will
+result in an one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   ifan_a = edo24.diff_interval_fan(
+       [0, 4, 10, 14, 18]
+   )
+   ifan_b = western.diff_interval_fan(
+       [0, 2, 5, 7, 9]
+   )
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({ifan_a, ifan_b})
+
+.. testoutput::
+
+   {EDOPitchIntervalFan([0, 4, 10, 14, 18], 24-EDO)}
+
 Item Retrieval and Slicing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

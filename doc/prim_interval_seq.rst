@@ -724,6 +724,29 @@ major third interval in 12-EDO:
    UpDownNoteIntervalSeq([M3, m3], 12-EDO)
    False
 
+Equality/Identity also translates to python's builtin set type. If two
+interval sequences are considered equal, combining them in a python set
+will result in an one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   iseq_a = edo24.diff_interval_seq([4, 10, 4, 18])
+   iseq_b = western.diff_interval_seq([2, 5, 2, 9])
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({iseq_a, iseq_b})
+
+.. testoutput::
+
+   {EDOPitchIntervalSeq([4, 10, 4, 18], 24-EDO)}
+
 Item Retrieval and Slicing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
