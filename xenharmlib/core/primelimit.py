@@ -559,7 +559,7 @@ class PrimeLimitTuning(
         )
 
     def ratio_seq(
-        self, frequency_ratios: Optional[Iterable[Frequency]] = None
+        self, frequency_ratios: Optional[Iterable[FrequencyRatio]] = None
     ) -> PrimeLimitSeqT:
         """
         Convenience function to create a sequence from an iterable

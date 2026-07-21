@@ -63,7 +63,7 @@ class IntervalFan(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
         self._origin_context = origin_context
 
         if intervals is None:
-            _intervals: Sequence[IntervalT] = []
+            _intervals: Iterable[IntervalT] = []
         else:
             _intervals = intervals
 

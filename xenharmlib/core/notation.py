@@ -294,7 +294,7 @@ class NotationABC(
         pitch = self.tuning.closest_freq_repr(frequency)
         return self.guess_note(pitch)
 
-    def closest_interval(self, frequency_ratio: FrequencyRatio) -> NoteT:
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> IntervalT:
         """
         Returns the interval closest to a given frequency ratio
 
