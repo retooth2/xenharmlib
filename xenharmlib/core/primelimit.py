@@ -330,7 +330,9 @@ class PrimeLimitTuning(
 
         self._prime_limit = prime_limit
 
-        generators = [FrequencyRatio(p) for p in get_primes_until(prime_limit)]
+        generators = tuple(
+            FrequencyRatio(p) for p in get_primes_until(prime_limit)
+        )
 
         if period_vec is None:
             period_vec = pad_tuple((1,), 0, len(generators))
