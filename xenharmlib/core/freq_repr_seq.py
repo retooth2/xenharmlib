@@ -245,10 +245,10 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
     def is_subseq(self, seq: Self, proper=False):
         """
-        Returns True if the given sequence is a subsequence
-        of this one, False otherwise.
+        Returns True if this sequence is a subsequence of another
+        one, False otherwise.
 
-        :param seq: The (possible) subsequence
+        :param seq: The (possible) supersequence
         :param proper: (optional, default is False). If set to
             True function will return False if sequences are
             identical
@@ -272,8 +272,8 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
     def is_superseq(self, seq: Self, proper=False):
         """
-        Returns True if the given sequence is a supersequence
-        of this one, False otherwise.
+        Returns True if this sequence is a supersequence of another
+        one, False otherwise.
 
         :param seq: The (possible) subsequence
         :param proper: (optional, default is False). If set to
