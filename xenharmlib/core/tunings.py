@@ -947,7 +947,9 @@ class EDOTuning(EDTuning):
         Returns the pitch that best approximates the pure fifth
         (frequency ratio 3/2) in this tuning.
         """
-        return self.get_approx_pitch(self.ref_frequency * FrequencyRatio(3, 2))
+        return self.closest_freq_repr(
+            self.ref_frequency * FrequencyRatio(3, 2)
+        )
 
     @property
     def fifth(self):
