@@ -1522,6 +1522,19 @@ def test_to_float(freq, result):
 
 
 @pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), 3),
+        (Frequency(124), 124),
+        (Frequency(Fraction(3, 2)), 1),
+        (Frequency(sp.Integer(3)**Fraction(10, 3)), 38),
+    ]
+)
+def test_to_int(freq, result):
+    assert freq.to_int() == result
+
+
+@pytest.mark.parametrize(
     'freq, ndigits, result',
     [
         (Frequency(Fraction(1, 3)), 4, 0.3333),
