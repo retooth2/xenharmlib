@@ -1129,9 +1129,9 @@ def test_pitch_indices(notation, input_pairs, result_pi):
         ),
     ]
 )
-def test_to_note_intervals(notation, input_pairs, intervals):
+def test_to_interval_seq(notation, input_pairs, intervals):
     """
-    Test if to_note_intervals method works correctly
+    Test if to_interval_seq method works correctly
     """
 
     scale = NoteScale(
@@ -1149,7 +1149,14 @@ def test_to_note_intervals(notation, input_pairs, intervals):
     with pytest.deprecated_call():
         assert scale.to_note_intervals() == note_intervals
 
-    assert scale.to_intervals() == note_intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == note_intervals
+
+    iseq = scale.to_interval_seq()
+    assert len(iseq) == len(note_intervals)
+
+    for interval_a, interval_b in zip(iseq, note_intervals):
+        assert interval_a.is_notated_same(interval_b)
 
 
 @pytest.mark.parametrize(

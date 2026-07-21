@@ -710,9 +710,9 @@ def test_pitch_indices(tuning, input_pi, result_pi):
         (ed13_3, [0, 8, 15, 9, 66], [(0, 8), (8, 9), (9, 15), (15, 66)]),
     ]
 )
-def test_to_pitch_intervals(tuning, input_pi, interval_pi):
+def test_to_interval_seq(tuning, input_pi, interval_pi):
     """
-    Test if to_intervals method works correctly
+    Test if to_interval_seq method works correctly
     """
 
     scale = PitchScale(
@@ -731,7 +731,10 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     with pytest.deprecated_call():
         assert scale.to_pitch_intervals() == intervals
 
-    assert scale.to_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == intervals
+
+    assert list(scale.to_interval_seq()) == intervals
 
     intervals = []
     for pi_a, pi_b in interval_pi:
@@ -743,7 +746,10 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     with pytest.deprecated_call():
         assert scale.to_pitch_intervals() == intervals
 
-    assert scale.to_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == intervals
+
+    assert list(scale.to_interval_seq()) == intervals
 
 
 @pytest.mark.parametrize(
