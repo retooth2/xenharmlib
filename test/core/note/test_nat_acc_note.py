@@ -1,6 +1,8 @@
 import pytest
 
+from xenharmlib import EDTuning
 from xenharmlib import EDOTuning
+from xenharmlib import FrequencyRatio
 from xenharmlib.exc import UnknownNoteSymbol
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
@@ -9,6 +11,7 @@ from ..utils import make_nat_acc_test_notation
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)
 edo31 = EDOTuning(31)
+ed13_3 = EDTuning(13, FrequencyRatio(3))
 
 n_edo12 = make_nat_acc_test_notation(edo12)
 n_edo24 = make_nat_acc_test_notation(edo24)
@@ -600,6 +603,48 @@ def test_note_is_equivalent_pitch_neg(
     pitch = tuning.pitch(pitch_index)
     assert not note.is_equivalent(pitch)
     assert not pitch.is_equivalent(note)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, '
+    'tuning, pitch_index',
+    [
+        (n_edo12, 'B',    0, ed13_3, 1),
+        (n_edo12, 'Bx',   1, ed13_3, 2),
+        (n_edo12, 'C',    1, ed13_3, 55),
+        (n_edo31, 'D--',  1, ed13_3, 31),
+        (n_edo31, 'D--', -1, ed13_3, 62),
+    ]
+)
+def test_note_is_equivalent_incompatible(
+    notation,
+    pc_symbol,
+    nat_bi_index,
+    tuning,
+    pitch_index
+):
+    """
+    Test if correct exception is raised on incompatible contexts
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    pitch = tuning.pitch(pitch_index)
+
+    with pytest.raises(IncompatibleOriginContexts) as exc_info:
+        note.is_equivalent(pitch)
+
+    assert exc_info.value.args[0] == (
+        'Equivalency can only be tested for notes from tunings '
+        'with the same equivalency interval'
+    )
+
+    with pytest.raises(IncompatibleOriginContexts) as exc_info:
+        pitch.is_equivalent(note)
+
+    assert exc_info.value.args[0] == (
+        'Equivalency can only be tested for pitches from tunings '
+        'with the same equivalency interval'
+    )
 
 
 @pytest.mark.parametrize(
