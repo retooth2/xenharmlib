@@ -94,7 +94,7 @@ when applied to other tuning contexts:
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          pitch_a = limit5.pitch(limit5.lattice.point((-1, 1, 1)))
@@ -179,7 +179,7 @@ which then the tuning creates the lattice point object "under the hood":
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          pitch = sg237.vec_pitch((0, 1, 0))

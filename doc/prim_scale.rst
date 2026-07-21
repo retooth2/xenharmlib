@@ -466,7 +466,7 @@ verbose:
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          scale = sg237.vec_scale(

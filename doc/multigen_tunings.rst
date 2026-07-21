@@ -26,7 +26,7 @@ period, so another way to create a 3-Limit Tuning is this:
 
    limit3 = MultiGenTuning(
        generators=(FrequencyRatio(2), FrequencyRatio(3)),
-       period_vec=(1, 0) # equivalency interval ratio 2
+       eq_diff_vec=(1, 0) # equivalency interval ratio 2
    )
 
 Irrational frequency ratios (like the one in the introductory example)
@@ -43,7 +43,7 @@ tuning:
    g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
    tuning = MultiGenTuning(
        (FrequencyRatio(2), g3),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
 
 Even EDO tunings can be constructed by custom multi-generator tunings,
@@ -53,7 +53,7 @@ e.g. a unnecessarily complicated way to construct 31-EDO is this:
    
    edo31 = MultiGenTuning(
        (FrequencyRatio(2) ** Fraction(1, 31),),
-       period_vec=(31,)
+       eq_diff_vec=(31,)
    )
 
 Like in Prime-Limit-Tunings pitch indices and pitch differences in
@@ -72,7 +72,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          G0 = qcm.pitch(qcm.lattice.point((-1, 1)))
 
@@ -93,7 +93,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          P5 = qcm.diff_interval(qcm.lattice.point((-1, 1)))
 
@@ -114,7 +114,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.index_scale(
              [
@@ -142,7 +142,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          major_triad = qcm.diff_interval_seq(
              [
@@ -168,7 +168,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.diff_interval_fan(
              [
@@ -195,7 +195,7 @@ Multi-Generator Tunings are lattice points:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.index_seq(
              [
@@ -226,7 +226,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          G0 = qcm.vec_pitch((-1, 1))
 
@@ -246,7 +246,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          P5 = qcm.vec_interval((-1, 1))
 
@@ -265,7 +265,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.vec_scale(
              [(0, 0), (1, 0), (0, 1)]
@@ -287,7 +287,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          major_triad = qcm.vec_interval_seq(
              [(-6, 4), (3, -3)]
@@ -308,7 +308,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.vec_interval_fan(
              [(0, 0), (1, 0), (0, 1)]
@@ -329,7 +329,7 @@ only demand the vector tuple instead of the full lattice point object:
          g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
          qcm = MultiGenTuning(
              (FrequencyRatio(2), g3),
-             period_vec=(1, 0)
+             eq_diff_vec=(1, 0)
          )
          harmonic_series = qcm.vec_seq(
              [(0, 0), (1, 0), (0, 1)]
@@ -380,7 +380,7 @@ of prime limit pre-images:
    g3 = FrequencyRatio(3) * FrequencyRatio(80, 81) ** Fraction(1, 4)
    qcm = MultiGenTuning(
        (FrequencyRatio(2), g3),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
 
    l3_minor_triad = limit3.rs_scale(['1/1', '81/64', '3/2'])

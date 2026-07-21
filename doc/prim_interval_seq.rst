@@ -382,7 +382,7 @@ a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          iseq = sg237.vec_interval_seq(

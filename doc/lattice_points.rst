@@ -123,11 +123,11 @@ lattice points of different origins can not be mixed:
 
    tuning_a = MultiGenTuning(
        (FrequencyRatio(2), FrequencyRatio(3)),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
    tuning_b = MultiGenTuning(
        (FrequencyRatio(2), FrequencyRatio(7)),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
 
    try:

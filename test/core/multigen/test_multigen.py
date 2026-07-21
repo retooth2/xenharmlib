@@ -25,9 +25,9 @@ multigen_257 = MultiGenTuning(
 )
 
 
-def test_incompatible_period_vec():
+def test_incompatible_eq_diff_vec():
     """
-    Test if dimensionality of period vec is checked
+    Test if dimensionality of eq diff vec is checked
     """
 
     with pytest.raises(ValueError) as excinfo:
