@@ -464,6 +464,51 @@ random 12-tone segment and prints the result as a note sequence:
 
    print(segment)
 
+Origin contexts built on lattice point indexing also allow construction
+from an iterable of tuples with
+:meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_seq`
+as an alternative to the more verbose above method which expects
+a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
+
+.. tabs::
+
+   .. tab:: Prime Limit
+
+      .. testcode:: PrimeLimitTuning
+
+         from xenharmlib import PrimeLimitTuning
+         limit3 = PrimeLimitTuning(3)
+
+         major_seq = limit3.vec_seq(
+             [(-3, 2), (-3, 2), (8, -5), (-3, 2), (-3, 2), (-3, 2)]
+         )
+         print(major_seq)
+
+      .. testoutput:: PrimeLimitTuning
+
+         PrimeLimitPitchSeq([9/8, 9/8, 256/243, 9/8, 9/8, 9/8], 3-Limit)
+
+   .. tab:: 2.3.7 Subgroup
+
+      .. testcode:: MultiGenTuning
+
+         from xenharmlib import MultiGenTuning
+         from xenharmlib import FrequencyRatio
+
+         sg237 = MultiGenTuning(
+             [FrequencyRatio(p) for p in [2, 3, 7]],
+             eq_diff_vec=(1, 0, 0)
+         )
+
+         seq = sg237.vec_seq(
+             [(-1, -1, 1), (-2, 1, 1), (-1, -1, 1)]
+         )
+         print(seq)
+
+      .. testoutput:: MultiGenTuning
+
+         MultiGenPitchSeq([(-1, -1, 1), (-2, 1, 1), (-1, -1, 1)], G=(2, 3, 7))
+
 Construction Based on Closest Frequency
 -----------------------------------------------------
 

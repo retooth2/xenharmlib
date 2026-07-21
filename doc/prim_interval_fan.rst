@@ -447,6 +447,51 @@ layer by employing the notation's enharmonic strategy.
 
          UpDownNoteIntervalFan([P1, d4, P5], 31-EDO)
 
+Origin contexts built on lattice point indexing also allow construction
+from an iterable of tuples with
+:meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_interval_fan`
+as an alternative to the more verbose above method which expects
+a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
+
+.. tabs::
+
+   .. tab:: Prime Limit
+
+      .. testcode:: PrimeLimitTuning
+
+         from xenharmlib import PrimeLimitTuning
+         limit3 = PrimeLimitTuning(3)
+
+         major_triad = limit3.vec_interval_fan(
+             [(0, 0), (-6, 4), (-1, 1)]
+         )
+         print(major_triad)
+
+      .. testoutput:: PrimeLimitTuning
+
+         PrimeLimitPitchIntervalFan([1, 81/64, 3/2], 3-Limit)
+
+   .. tab:: 2.3.7 Subgroup
+
+      .. testcode:: MultiGenTuning
+
+         from xenharmlib import MultiGenTuning
+         from xenharmlib import FrequencyRatio
+
+         sg237 = MultiGenTuning(
+             [FrequencyRatio(p) for p in [2, 3, 7]],
+             eq_diff_vec=(1, 0, 0)
+         )
+
+         ifan = sg237.vec_interval_fan(
+             [(0, 0, 0), (-2, 1, 1), (-1, -1, 1)]
+         )
+         print(ifan)
+
+      .. testoutput:: MultiGenTuning
+
+         MultiGenPitchIntervalFan([(0, 0, 0), (-2, 1, 1), (-1, -1, 1)], G=(2, 3, 7))
+
 Construction Based on Closest Frequency Ratio
 -----------------------------------------------------
 
