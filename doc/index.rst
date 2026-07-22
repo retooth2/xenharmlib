@@ -222,6 +222,7 @@ features.
    :caption: Notations
 
    western_notation
+   updown_notation
    adv_notation_features
 
 .. toctree::
