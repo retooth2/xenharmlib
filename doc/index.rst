@@ -213,6 +213,7 @@ features.
    :maxdepth: 2
    :caption: Tunings
 
+   ed_tunings
    primelimit_tunings
    multigen_tunings
    lattice_points
