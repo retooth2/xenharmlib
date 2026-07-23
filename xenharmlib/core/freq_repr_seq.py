@@ -61,7 +61,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         self._origin_context = origin_context
 
         if elements is None:
-            _elements: Sequence[FreqReprT] = []
+            _elements: Iterable[FreqReprT] = []
         else:
             _elements = elements
 
