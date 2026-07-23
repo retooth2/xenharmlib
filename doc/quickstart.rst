@@ -1597,7 +1597,14 @@ however there are ways of hearing the things that you are building.
 
 You can export xenharmlib objects into various formats and even play
 a sine wave audio from the console to get a feeling for the sound of
-scales, chords and single notes. Sine wave sounds can be played on Mac,
+scales, chords and single notes. To play audio from the console you
+need to install the "console-audio" extra first:
+
+.. code-block:: console
+
+   (.venv) $ pip install xenharmlib[console-audio]
+
+Once the extra is installed, sine wave sounds can be played on Mac,
 Linux and Windows using the :func:`~xenharmlib.play.play` function:
 
 .. testcode::
