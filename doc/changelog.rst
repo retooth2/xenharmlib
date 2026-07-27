@@ -1,6 +1,66 @@
 Changelog
 =======================================
 
+.. _changelog_0_4_0:
+
+0.4.0
+--------------------------------------
+
+* refactor: made sounddevice an extra.
+  sounddevice needs additional system libraries on various
+  platforms (e.g. portaudio on mac), so making sounddevice
+  mandatory could land people who just want to play around
+  with the library in a configuration hell for a feature
+  that is not very central or necessary.
+  now sounddevice will only be installed if explicitely
+  demanded as the 'console-audio' extra.
+* introduced retune_closest methods, deprecated retune method
+* introduced closest_x method family, deprecated get_approx_pitch
+* added python infix operators for subset / superset tests
+* added ic_vector function to setc package
+* added to_int() to Frequency and FrequencyRatio
+* fix: monzo vectors were lists, should be tuples
+* refactor: allow collections to be built from all iterables.
+  there was a mismatch the way constructors and builder methods
+  for collections were typed: some of them took sequences as
+  arguments, some iterables.  this would lead inevitabely to
+  confusion, e.g. "why can i use a generator here, but not there?"
+* fixed missing enharmonic strategy relay for interval seq
+* refactor: Made all constructor parameters refering to primitive classes
+  keyword-only. This solves the headache that for every new
+  primitive we introduce we need to shuffle things around
+  (e.g. the ref_frequency parameter changes its position)
+  Also made ref_frequency parameter keyword-only because
+  of a somewhat shortsighted design choice in the beginning
+  to put it an the end of the constructor args
+* introduced interval fan primitive
+* introduced sequence primitive
+* introduced is_notated_same on interval sequences
+* introduced inversion operation on interval sequences
+* fixed a bug in scale equivalency functions. while removing the branching
+  for identical and compatible origin contexts we unearthed a bug where
+  identical and compatible origin contexts were treated differently in
+  the sequential equivalency test. while in identical contexts C0-E0-G0
+  and C0-E1-G1 were considered sequentially equivalent, in compatible origins
+  they were not.
+* introduced full interval arithmetic
+* introduced multi-generator tunings
+* deprecated tuning.get_frequency
+* implemented __hash__ on all harmonic primitives
+* introduced lattice point indexing
+* introduced accidental weights into natural/accidental notation class,
+  resulting in a difference between accidental diff vectors (vectors
+  where each dimension points to an accidental class, e.g., sharp/flat
+  class and up/down class, and values denoting the pitch difference
+  introduced by the accidental class) and accidental sum vectors
+  (a vector, in which values are just the sum of the occurences
+  of each accidental class). **This introduces breaking changes for
+  semi-internal functions**, which were never part of the documentation
+  prose, but also not prefixed with an underscore. Functions
+  note_by_numdef, get_acc_symbol, get_interval_symbol,
+  gen_pc_symbol now take an accidental sum vector instead of
+  an accidental diff vector
+
 .. _changelog_0_3_0:
 
 0.3.0
