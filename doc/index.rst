@@ -1,7 +1,7 @@
 .. admonition:: New Release
 
-   Xenharmlib 0.3.0 has just been released.
-   :doc:`Find out what's new<whats_new_0_3_0>`
+   Xenharmlib 0.4.0 has just been released.
+   :doc:`Find out what's new<whats_new_0_4_0>`
 
 Welcome to xenharmlib’s documentation!
 =================================================
@@ -238,9 +238,10 @@ features.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Misc
+   :caption: Release Doc
 
    changelog
+   whats_new_0_4_0
 
 
 
