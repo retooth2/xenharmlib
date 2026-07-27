@@ -165,7 +165,7 @@ class MultiGenTuning(
 
     :param generators: A tuple of frequency ratios that constitutes
         the generator vector of this tuning
-    :param period_vec: A vector of integers that defines the pitch
+    :param eq_diff_vec: A vector of integers that defines the pitch
         difference of the interval that should be considered the
         equivalence interval, so for example in a pythagorean
         tuning with generators 2 and 3, this should be (1, 0)
@@ -178,7 +178,7 @@ class MultiGenTuning(
     def __init__(
         self,
         generators: Tuple[FrequencyRatio, ...],
-        period_vec: Tuple[int, ...],
+        eq_diff_vec: Tuple[int, ...],
         ref_frequency: Frequency = Hz440C0,
         pitch_cls: type[MultiGenPitchT] = MultiGenPitch,
         pitch_interval_cls: type[MultiGenIntervalT] = MultiGenPitchInterval,
@@ -194,13 +194,13 @@ class MultiGenTuning(
 
         self._lattice = Lattice(generators)
 
-        if len(generators) != len(period_vec):
+        if len(generators) != len(eq_diff_vec):
             raise ValueError(
                 'Period vector must have the same dimensions '
                 'as the generator vector'
             )
 
-        eq_diff = self._lattice.point(period_vec)
+        eq_diff = self._lattice.point(eq_diff_vec)
 
         super().__init__(
             eq_diff,
@@ -413,6 +413,8 @@ class MultiGenTuning(
 
         _vectors = [] if vectors is None else vectors
         return self.index_scale([self.lattice.point(v) for v in _vectors])
+
+    # TODO: vec_pc_scale
 
     def vec_seq(
         self, vectors: Optional[Iterable[Tuple[int, ...]]] = None

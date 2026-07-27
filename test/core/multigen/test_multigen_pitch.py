@@ -38,7 +38,7 @@ def test_hash_set():
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec_a, pitch_vec_b, pitch_diff_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, pitch_diff_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -75,12 +75,12 @@ def test_hash_set():
     ]
 )
 def test_interval(
-    gen_ratios, period_vec, pitch_vec_a, pitch_vec_b, pitch_diff_vec
+    gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, pitch_diff_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index_a = tuning.lattice.point(pitch_vec_a)
@@ -98,8 +98,8 @@ def test_interval(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios_a, period_vec_a, pitch_vec_a,'
-    'gen_ratios_b, period_vec_b, pitch_vec_b',
+    'gen_ratios_a, eq_diff_vec_a, pitch_vec_a,'
+    'gen_ratios_b, eq_diff_vec_b, pitch_vec_b',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -137,20 +137,20 @@ def test_interval(
 )
 def test_lt_gt(
     gen_ratios_a,
-    period_vec_a,
+    eq_diff_vec_a,
     pitch_vec_a,
     gen_ratios_b,
-    period_vec_b,
+    eq_diff_vec_b,
     pitch_vec_b
 ):
 
     tuning_a = MultiGenTuning(
         gen_ratios_a,
-        period_vec_a
+        eq_diff_vec_a
     )
     tuning_b = MultiGenTuning(
         gen_ratios_b,
-        period_vec_b
+        eq_diff_vec_b
     )
 
     pitch_a = tuning_a.pitch(tuning_a.lattice.point(pitch_vec_a))
@@ -165,8 +165,8 @@ def test_lt_gt(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios_a, period_vec_a, pitch_vec_a,'
-    'gen_ratios_b, period_vec_b, pitch_vec_b',
+    'gen_ratios_a, eq_diff_vec_a, pitch_vec_a,'
+    'gen_ratios_b, eq_diff_vec_b, pitch_vec_b',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -204,20 +204,20 @@ def test_lt_gt(
 )
 def test_eq(
     gen_ratios_a,
-    period_vec_a,
+    eq_diff_vec_a,
     pitch_vec_a,
     gen_ratios_b,
-    period_vec_b,
+    eq_diff_vec_b,
     pitch_vec_b
 ):
 
     tuning_a = MultiGenTuning(
         gen_ratios_a,
-        period_vec_a
+        eq_diff_vec_a
     )
     tuning_b = MultiGenTuning(
         gen_ratios_b,
-        period_vec_b
+        eq_diff_vec_b
     )
 
     pitch_a = tuning_a.pitch(tuning_a.lattice.point(pitch_vec_a))
@@ -228,7 +228,7 @@ def test_eq(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec_a, pitch_vec_b',
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -256,7 +256,7 @@ def test_eq(
         ),
     ]
 )
-def test_add_sub(gen_ratios, period_vec, pitch_vec_a, pitch_vec_b):
+def test_add_sub(gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b):
 
     sum_result = componentwise(
         operator.add,
@@ -271,7 +271,7 @@ def test_add_sub(gen_ratios, period_vec, pitch_vec_a, pitch_vec_b):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
@@ -316,7 +316,7 @@ def test_add_sub_incompatible_origin_contexts():
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, scalar',
+    'gen_ratios, eq_diff_vec, pitch_vec, scalar',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -344,7 +344,7 @@ def test_add_sub_incompatible_origin_contexts():
         ),
     ]
 )
-def test_mul(gen_ratios, period_vec, pitch_vec, scalar):
+def test_mul(gen_ratios, eq_diff_vec, pitch_vec, scalar):
 
     mul_result = scalar_op(
         operator.mul,
@@ -354,7 +354,7 @@ def test_mul(gen_ratios, period_vec, pitch_vec, scalar):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch = tuning.pitch(tuning.lattice.point(pitch_vec))
@@ -372,7 +372,7 @@ def test_mul(gen_ratios, period_vec, pitch_vec, scalar):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, frequency',
+    'gen_ratios, eq_diff_vec, pitch_vec, frequency',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -398,11 +398,11 @@ def test_mul(gen_ratios, period_vec, pitch_vec, scalar):
         ),
     ]
 )
-def test_frequency(gen_ratios, period_vec, pitch_vec, frequency):
+def test_frequency(gen_ratios, eq_diff_vec, pitch_vec, frequency):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch = tuning.pitch(tuning.lattice.point(pitch_vec))
@@ -410,7 +410,7 @@ def test_frequency(gen_ratios, period_vec, pitch_vec, frequency):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -433,11 +433,11 @@ def test_frequency(gen_ratios, period_vec, pitch_vec, frequency):
         ),
     ]
 )
-def test_pitch_index(gen_ratios, period_vec, pitch_vec):
+def test_pitch_index(gen_ratios, eq_diff_vec, pitch_vec):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     input_pi = tuning.lattice.point(pitch_vec)
@@ -446,7 +446,7 @@ def test_pitch_index(gen_ratios, period_vec, pitch_vec):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, pc_index_vec, bi_index',
+    'gen_ratios, eq_diff_vec, pitch_vec, pc_index_vec, bi_index',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -483,12 +483,12 @@ def test_pitch_index(gen_ratios, period_vec, pitch_vec):
     ]
 )
 def test_pc_index_bi_index(
-    gen_ratios, period_vec, pitch_vec, pc_index_vec, bi_index
+    gen_ratios, eq_diff_vec, pitch_vec, pc_index_vec, bi_index
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -503,7 +503,7 @@ def test_pc_index_bi_index(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, str_repr',
+    'gen_ratios, eq_diff_vec, pitch_vec, str_repr',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -529,11 +529,11 @@ def test_pc_index_bi_index(
         ),
     ]
 )
-def test_pitch_repr(gen_ratios, period_vec, pitch_vec, str_repr):
+def test_pitch_repr(gen_ratios, eq_diff_vec, pitch_vec, str_repr):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -543,7 +543,7 @@ def test_pitch_repr(gen_ratios, period_vec, pitch_vec, str_repr):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, str_repr',
+    'gen_ratios, eq_diff_vec, pitch_vec, str_repr',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -569,11 +569,11 @@ def test_pitch_repr(gen_ratios, period_vec, pitch_vec, str_repr):
         ),
     ]
 )
-def test_pitch_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
+def test_pitch_short_repr(gen_ratios, eq_diff_vec, pitch_vec, str_repr):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -583,7 +583,7 @@ def test_pitch_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, axis_vec, result_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, axis_vec, result_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -620,12 +620,12 @@ def test_pitch_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
     ]
 )
 def test_reflection(
-    gen_ratios, period_vec, pitch_vec, axis_vec, result_vec
+    gen_ratios, eq_diff_vec, pitch_vec, axis_vec, result_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -641,7 +641,7 @@ def test_reflection(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, result_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, result_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -674,12 +674,12 @@ def test_reflection(
     ]
 )
 def test_reflection_default_axis(
-    gen_ratios, period_vec, pitch_vec, result_vec
+    gen_ratios, eq_diff_vec, pitch_vec, result_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -693,7 +693,7 @@ def test_reflection_default_axis(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, interval_vecs, result_vecs',
+    'gen_ratios, eq_diff_vec, pitch_vec, interval_vecs, result_vecs',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -730,12 +730,12 @@ def test_reflection_default_axis(
     ]
 )
 def test_scale(
-    gen_ratios, period_vec, pitch_vec, interval_vecs, result_vecs
+    gen_ratios, eq_diff_vec, pitch_vec, interval_vecs, result_vecs
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -752,7 +752,7 @@ def test_scale(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, str_repr',
+    'gen_ratios, eq_diff_vec, pitch_vec, str_repr',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -778,11 +778,11 @@ def test_scale(
         ),
     ]
 )
-def test_pitch_pc_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
+def test_pitch_pc_short_repr(gen_ratios, eq_diff_vec, pitch_vec, str_repr):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -792,7 +792,7 @@ def test_pitch_pc_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, pitch_diff_vec, result_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, pitch_diff_vec, result_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -829,12 +829,12 @@ def test_pitch_pc_short_repr(gen_ratios, period_vec, pitch_vec, str_repr):
     ]
 )
 def test_transpose_interval(
-    gen_ratios, period_vec, pitch_vec, pitch_diff_vec, result_vec
+    gen_ratios, eq_diff_vec, pitch_vec, pitch_diff_vec, result_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -848,7 +848,7 @@ def test_transpose_interval(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, pitch_diff_vec, result_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, pitch_diff_vec, result_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -885,12 +885,12 @@ def test_transpose_interval(
     ]
 )
 def test_transpose_index(
-    gen_ratios, period_vec, pitch_vec, pitch_diff_vec, result_vec
+    gen_ratios, eq_diff_vec, pitch_vec, pitch_diff_vec, result_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -950,7 +950,7 @@ def test_retune_closest_type_error():
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, bi_index, result_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, bi_index, result_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -987,12 +987,12 @@ def test_retune_closest_type_error():
     ]
 )
 def test_transpose_bi_index(
-    gen_ratios, period_vec, pitch_vec, bi_index, result_vec
+    gen_ratios, eq_diff_vec, pitch_vec, bi_index, result_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -1003,7 +1003,7 @@ def test_transpose_bi_index(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, norm_vec',
+    'gen_ratios, eq_diff_vec, pitch_vec, norm_vec',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -1036,12 +1036,12 @@ def test_transpose_bi_index(
     ]
 )
 def test_pcs_normalized(
-    gen_ratios, period_vec, pitch_vec, norm_vec
+    gen_ratios, eq_diff_vec, pitch_vec, norm_vec
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)
@@ -1052,7 +1052,7 @@ def test_pcs_normalized(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_a_vec, pitch_b_vec, is_eq',
+    'gen_ratios, eq_diff_vec, pitch_a_vec, pitch_b_vec, is_eq',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -1107,12 +1107,12 @@ def test_pcs_normalized(
     ]
 )
 def test_is_equivalent(
-    gen_ratios, period_vec, pitch_a_vec, pitch_b_vec, is_eq
+    gen_ratios, eq_diff_vec, pitch_a_vec, pitch_b_vec, is_eq
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_a_index = tuning.lattice.point(pitch_a_vec)
@@ -1124,7 +1124,7 @@ def test_is_equivalent(
 
 
 @pytest.mark.parametrize(
-    'gen_ratios, period_vec, pitch_vec, edo_pitch',
+    'gen_ratios, eq_diff_vec, pitch_vec, edo_pitch',
     [
         (
             (FrequencyRatio(2), FrequencyRatio(3)),
@@ -1141,12 +1141,12 @@ def test_is_equivalent(
     ]
 )
 def test_is_equivalent_cross_tuning(
-    gen_ratios, period_vec, pitch_vec, edo_pitch
+    gen_ratios, eq_diff_vec, pitch_vec, edo_pitch
 ):
 
     tuning = MultiGenTuning(
         gen_ratios,
-        period_vec
+        eq_diff_vec
     )
 
     pitch_index = tuning.lattice.point(pitch_vec)

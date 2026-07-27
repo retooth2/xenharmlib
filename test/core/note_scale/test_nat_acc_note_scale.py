@@ -130,9 +130,9 @@ def test_nat_bi_indices(notation, input_pairs, result):
         ),
     ]
 )
-def test_acc_vectors(notation, input_pairs, result):
+def test_acc_diff_vectors(notation, input_pairs, result):
     """
-    Test if acc_vectors property is correct
+    Test if acc_diff_vectors property is correct
     """
 
     scale = NatAccNoteScale(
@@ -140,7 +140,10 @@ def test_acc_vectors(notation, input_pairs, result):
         [notation.note(*pair) for pair in input_pairs]
     )
 
-    assert scale.acc_vectors == result
+    with pytest.deprecated_call():
+        assert scale.acc_vectors == result
+
+    assert scale.acc_diff_vectors == result
 
 
 @pytest.mark.parametrize(

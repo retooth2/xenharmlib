@@ -297,7 +297,7 @@ class PrimeLimitTuning(
         frequency of the zero index (optional, defaults to the
         frequency of C0 for A4=440 in 12-EDO)
 
-    :param period_vec: (optional) A vector of integers that defines
+    :param eq_diff_vec: (optional) A vector of integers that defines
         the pitch difference of the interval that should be considered
         the equivalence interval, so for example in a 5 limit tuning
         with generators (2, 3, 5), this should be (1, 0, 0) for
@@ -309,7 +309,7 @@ class PrimeLimitTuning(
     def __init__(
         self,
         prime_limit: int,
-        period_vec: Optional[Tuple[int, ...]] = None,
+        eq_diff_vec: Optional[Tuple[int, ...]] = None,
         *,
         ref_frequency: Frequency = Hz440C0,
         pitch_cls: type[PrimeLimitPitchT] = PrimeLimitPitch,
@@ -330,15 +330,17 @@ class PrimeLimitTuning(
 
         self._prime_limit = prime_limit
 
-        generators = [FrequencyRatio(p) for p in get_primes_until(prime_limit)]
+        generators = tuple(
+            FrequencyRatio(p) for p in get_primes_until(prime_limit)
+        )
 
-        if period_vec is None:
-            period_vec = pad_tuple((1,), 0, len(generators))
+        if eq_diff_vec is None:
+            eq_diff_vec = pad_tuple((1,), 0, len(generators))
 
         super().__init__(
             generators,
             ref_frequency=ref_frequency,
-            period_vec=period_vec,
+            eq_diff_vec=eq_diff_vec,
             pitch_cls=pitch_cls,
             pitch_interval_cls=pitch_interval_cls,
             pitch_scale_cls=pitch_scale_cls,
@@ -559,7 +561,7 @@ class PrimeLimitTuning(
         )
 
     def ratio_seq(
-        self, frequency_ratios: Optional[Iterable[Frequency]] = None
+        self, frequency_ratios: Optional[Iterable[FrequencyRatio]] = None
     ) -> PrimeLimitSeqT:
         """
         Convenience function to create a sequence from an iterable
@@ -613,12 +615,12 @@ class PrimeLimitTuning(
         slash_count = ratio_str.count('/')
 
         if slash_count == 1:
-            n, _, d = ratio_str.partition('/')
-            if not (n.isdigit() and d.isdigit()):
+            n_str, _, d_str = ratio_str.partition('/')
+            if not (n_str.isdigit() and d_str.isdigit()):
                 raise ValueError(
                     f'\'{ratio_str}\' is not a valid ratio string expression'
                 )
-            n, d = int(n), int(d)
+            n, d = int(n_str), int(d_str)
 
         elif slash_count == 0:
             if not (ratio_str.isdigit()):
@@ -657,12 +659,12 @@ class PrimeLimitTuning(
         slash_count = ratio_str.count('/')
 
         if slash_count == 1:
-            n, _, d = ratio_str.partition('/')
-            if not (n.isdigit() and d.isdigit()):
+            n_str, _, d_str = ratio_str.partition('/')
+            if not (n_str.isdigit() and d_str.isdigit()):
                 raise ValueError(
                     f'\'{ratio_str}\' is not a valid ratio string expression'
                 )
-            n, d = int(n), int(d)
+            n, d = int(n_str), int(d_str)
 
         elif slash_count == 0:
             if not (ratio_str.isdigit()):
@@ -760,13 +762,13 @@ class PrimeLimitTuning(
             slash_count = ratio_str.count('/')
 
             if slash_count == 1:
-                n, _, d = ratio_str.partition('/')
-                if not (n.isdigit() and d.isdigit()):
+                n_str, _, d_str = ratio_str.partition('/')
+                if not (n_str.isdigit() and d_str.isdigit()):
                     raise ValueError(
                         f'\'{ratio_str}\' is not a valid '
                         f'ratio string expression'
                     )
-                n, d = int(n), int(d)
+                n, d = int(n_str), int(d_str)
 
             elif slash_count == 0:
                 if not (ratio_str.isdigit()):

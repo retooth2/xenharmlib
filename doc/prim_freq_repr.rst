@@ -1,16 +1,16 @@
 Pitches & Notes
 ==============================
 
-As outlined in the introduction frequency representations are the smallest
+As outlined in the introduction, frequency representations are the smallest
 building unit in the realm of harmonic primitives in xenharmlib. Other than
 second-order or third-order primitives, their method of construction is
-highly dependend on the context they originate from. We try to give a
-general overview on them here, but be sure to also check the specifics
+highly dependent on the context they originate from. We try to give a
+general overview of them here, but be sure to also check the specifics
 in the respective sections on tunings and notations.
 
 We can roughly divide frequency representations into two classes:
 **Pitches** and **notes**. Pitches (which originate from *tunings*)
-are *numeric* representations of frequencies while notes
+are *numeric* representations of frequencies, while notes
 (originating from *notations*) are *symbolic string*
 representations of frequencies. 
 
@@ -55,9 +55,9 @@ a frequency representation from a pitch index in a tuning is called
 
 One purpose of the different tuning objects is to define the *mapping*
 of pitch indices to frequencies, so the same numerical value can represent
-a completely different frequency, when tuning contexts are switched.
+a completely different frequency when tuning contexts are switched.
 Observe how the above integer index :code:`10` and the integer
-vector :code:`(-1, 1, 1)` are mapped to different frequencies,
+vector :code:`(-1, 1, 1)` are mapped to different frequencies
 when applied to other tuning contexts:
 
 .. tabs::
@@ -94,7 +94,7 @@ when applied to other tuning contexts:
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          pitch_a = limit5.pitch(limit5.lattice.point((-1, 1, 1)))
@@ -109,9 +109,9 @@ when applied to other tuning contexts:
          171.69177722851785
 
 Pitches provide the pitch index from which they were created as a property
-for later inspection. In addition pitches also provide a *pitch class index*
+for later inspection. In addition, pitches also provide a *pitch class index*
 that denotes the (integer or lattice point) equivalency class of the pitch
-index in regards to the equivalency interval (e.g. the octave) of the
+index with regard to the equivalency interval (e.g., the octave) of the
 tuning:
 
 .. tabs::
@@ -179,7 +179,7 @@ which then the tuning creates the lattice point object "under the hood":
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          pitch = sg237.vec_pitch((0, 1, 0))
@@ -271,11 +271,11 @@ pitch object:
 
          EDOPitch(148, 31-EDO)
 
-Pitches can also be transformed into a corresponding note object, however
-because of enharmonic equivalence this transformation is not necessarily
-unique. In the Western system for example there can be infinite corresponding
+Pitches can also be transformed into a corresponding note object; however,
+because of enharmonic equivalence, this transformation is not necessarily
+unique. In the Western system, for example, there can be infinite corresponding
 note objects to a single pitch object (think of G#4, Ab4, Bbbb4, Cbbbb5 all
-refering to the same key on a piano), so xenharmlib makes a guess:
+referring to the same key on a piano), so xenharmlib makes a guess:
 
 .. tabs::
 
@@ -317,8 +317,8 @@ refering to the same key on a piano), so xenharmlib makes a guess:
          UpDownNote(Abb, 0, 31-EDO)
 
 Most of the time it is not necessary to convert pitches and notes into one
-another, because they expose the same interface in regards to methods and
-properties, e.g. each note can be inspected in regards to its pitch index
+another, because they expose the same interface with regard to methods and
+properties; e.g., each note can be inspected with regard to its pitch index
 and pitch class index:
 
 .. tabs::
@@ -363,9 +363,9 @@ Construction Based on Closest Frequency
 -----------------------------------------------------
 
 Origin contexts based on integer indices allow construction based on the
-approximation of frequencies. Given an arbitrary frequency the
+approximation of frequencies. Given an arbitrary frequency, the
 :meth:`~xenharmlib.core.origin_context.OriginContext.closest_freq_repr`
-method returns the pitch or note of an origin context, that is closest
+method returns the pitch or note of an origin context that is closest
 to it:
 
 .. tabs::
@@ -423,9 +423,9 @@ to it:
          UpDownNote(Cb, 5, 31-EDO)
          500.367260159388
 
-We mentioned, that only tunings and notations based on integer pitch indices
+We mentioned that only tunings and notations based on integer pitch indices
 support "closest approximation". This is because in multi-generator tunings
-like prime limit tunings there are infinite representations between each
+like prime limit tunings there are infinite representations between every
 two representations, meaning that a single "closest" pitch can not be found:
 
 .. testcode::
@@ -451,7 +451,7 @@ Identity, Comparison and Equivalency
 
 All frequency representations can be compared to one another and tested
 for equality, regardless of the tuning or notation they originate from.
-This is because at the core they are, well, representations of frequencies
+This is because at the core they are, well, representations of frequencies,
 and frequencies can be compared to one another (which frequency is bigger?)
 or tested for equality (are these two frequencies the same?)
 
@@ -481,9 +481,9 @@ or tested for equality (are these two frequencies the same?)
    False
    False
 
-Equality/Identity also translates to python's builtin set type. If two
+Equality/Identity also translates to Python's built-in set type. If two
 frequency representations are considered equal, combining them in a
-python set will result in an one-element set:
+Python set will result in a one-element set:
 
 .. testcode::
 
@@ -505,7 +505,7 @@ python set will result in an one-element set:
    {EDOPitch(14, 24-EDO)}
 
 If the origin contexts have the same equivalency interval constant,
-frequency representations can also be tested across contexts in regards
+frequency representations can also be tested across contexts with regard
 to their equivalency:
 
 .. testcode::
@@ -527,7 +527,7 @@ to their equivalency:
    True
    False
 
-If however origin contexts have a different equivalency interval constant
+If, however, origin contexts have a different equivalency interval constant,
 testing for equivalency will fail, because the operation is undefined:
 
 .. testcode::
@@ -559,12 +559,12 @@ Indices, Pitch Classes and Base Intervals
 
 As we have outlined in the earlier part of this page, every frequency
 representation has a "pitch index" that denotes the distance from the
-"zero element" of an origin context. Depending on origin context this
+"zero element" of an origin context. Depending on the origin context this
 distance can take the form of an integer or a lattice point.
 
-To get an intuition for the concept of the pitch index we can imagine
+To get an intuition for the concept of the pitch index, we can imagine
 the 12-EDO / Western Notation case: Here the zero element is simply
-the C0 key and the pitch index is the number of successive key presses
+the C0 key, and the pitch index is the number of successive key presses
 necessary to reach the pitch in question:
 
 .. image:: _static/images/piano-pitch-indices.png
@@ -633,8 +633,8 @@ necessary to reach the pitch in question:
 
          148
 
-Pitch indices can be "sorted into bins" by equivalency. In the above graphic
-you can see that pitch indices 0, 12, 24 are all Cs. The unified
+Pitch indices can be "sorted into bins" by equivalency. In the above graphic,
+you can see that pitch indices 0, 12 and 24 are all Cs. The unified
 representative for that bin is called "pitch class index" and is
 defined as the lowest positive representative (in case of C: 0). If we
 divide the piano by the equivalency interval (in the Western system
@@ -804,7 +804,7 @@ of the frequency representation:
 The :meth:`~xenharmlib.core.freq_repr.FreqRepr.transpose` method also 
 accepts a **pitch difference**. A pitch difference is an integer or
 lattice point that defines the numeric distance between two frequency
-representations. In the case of notations with enharmonic ambiguity
+representations. In the case of notations with enharmonic ambiguity,
 xenharmlib makes a guess which note should be picked.
 
 .. tabs::
@@ -874,7 +874,7 @@ Retuning by Closest Correspondence
 
 In the beginning we talked briefly about a family of "bridge functions"
 that make a symbolic representation into a numeric one (and vice versa).
-We have also shown how to find a closest representative in a tuning or
+We have also shown how to find the closest representative in a tuning or
 notation for a given frequency.
 
 If a target context allows approximation to a closest frequency, we can

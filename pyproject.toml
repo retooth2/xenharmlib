@@ -37,8 +37,12 @@ classifiers = [
 dependencies = [
   "numpy>=1.26.4,<2",
   "scipy>=1.12.0,<2",
-  "sounddevice>=0.4.6,<1",
   "sympy==1.12",
+]
+
+[project.optional-dependencies]
+console-audio = [
+  "sounddevice>=0.4.6,<1",
 ]
 
 [project.urls]

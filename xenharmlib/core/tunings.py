@@ -74,7 +74,7 @@ from ..exc import InvalidPitchClassIndex
 PitchT = TypeVar('PitchT', bound=Pitch)
 IntervalT = TypeVar('IntervalT', bound=PitchInterval)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=PitchIntervalSeq)
-IntervalFanT = TypeVar('IntervalSeqT', bound=PitchIntervalFan)
+IntervalFanT = TypeVar('IntervalFanT', bound=PitchIntervalFan)
 SeqT = TypeVar('SeqT', bound=PitchSeq)
 ScaleT = TypeVar('ScaleT', bound=PitchScale)
 IndexT = TypeVar('IndexT', bound=Index)
@@ -206,7 +206,7 @@ class TuningABC(
 
     def index_seq(
         self, pitch_indices: Optional[Iterable[IndexT]] = None
-    ) -> ScaleT:
+    ) -> SeqT:
         """
         Constructs a pitch sequence from an iterable of pitch indices.
 
@@ -835,6 +835,9 @@ class EDTuning(
 
     def get_frequency(self, pitch: EDPitch) -> Frequency:
         """
+        .. deprecated:: 0.3.0
+           Use the frequency property of the pitch object instead
+
         Returns the frequency of a given note
 
         :param note: A note from this tuning
@@ -916,9 +919,9 @@ class EDOTuning(EDTuning):
             EDOPitchIntervalSeq
         ] = EDOPitchIntervalSeq,
         pitch_interval_fan_cls: type[
-            EDOPitchIntervalSeq
+            EDOPitchIntervalFan
         ] = EDOPitchIntervalFan,
-        pitch_seq_cls: type[EDOPitchIntervalSeq] = EDOPitchSeq,
+        pitch_seq_cls: type[EDOPitchSeq] = EDOPitchSeq,
         ref_frequency: Frequency = Hz440C0,
     ):
 
@@ -944,7 +947,9 @@ class EDOTuning(EDTuning):
         Returns the pitch that best approximates the pure fifth
         (frequency ratio 3/2) in this tuning.
         """
-        return self.get_approx_pitch(self.ref_frequency * FrequencyRatio(3, 2))
+        return self.closest_freq_repr(
+            self.ref_frequency * FrequencyRatio(3, 2)
+        )
 
     @property
     def fifth(self):

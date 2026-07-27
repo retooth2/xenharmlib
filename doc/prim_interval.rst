@@ -8,8 +8,8 @@ harmonic function of a transposition.
 
 Xenharmlib distinguishes between intervals that are enharmonically
 equal to preserve their harmonic function, so an augmented second
-and a minor third in Western notation produce different results in
-regards to transposition, even though they describe the same
+and a minor third in Western notation produce different results with
+regard to transposition, even though they describe the same
 difference in pitch:
 
 .. testcode:: WesternNotation
@@ -136,9 +136,9 @@ on the pitch or note:
          UpDownNoteInterval(^M, 3, 31-EDO)
          UpDownNoteInterval(^M, 3, 31-EDO)
 
-Depending on tuning and notation there are other *direct* builder methods
+Depending on tuning and notation, there are other *direct* builder methods
 available to create intervals. While in every origin context intervals
-can be derived from two frequency representations direct methods are
+can be derived from two frequency representations, direct methods are
 highly dependend on context.
 
 
@@ -211,14 +211,14 @@ be an integer or a :class:`~xenharmlib.core.lattice.LatticePoint` object:
 
          UpDownNoteInterval(P, 5, 31-EDO)
 
-In notations where there is enharmonic ambiguity (e.g. the western notation)
+In notations where there is enharmonic ambiguity (e.g., the Western notation),
 the result can vary depending on the configured enharmonic strategy of the
-notation, i.e. a pitch difference of 4 can be interpreted as a m3 interval
+notation, i.e., a pitch difference of 4 can be interpreted as a m3 interval
 or an A2 interval. Since there is no way of knowing the harmonic function
 of an interval given in absolute pitch difference, xenharmlib makes a guess.
 
 For tunings and notations whose pitch differences are represented by lattice
-points xenharmlib provides also the more concise
+points, xenharmlib also provides the more concise
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_interval` method:
 
 .. testcode:: PrimeLimitTuning
@@ -233,8 +233,8 @@ points xenharmlib provides also the more concise
 Name-based Construction
 -------------------------------------------------------
 
-On the notation layer intervals can also be created by their shorthand
-name. In fact every notation in xenharmlib comes with an interval naming
+On the notation layer intervals, can also be created by their shorthand
+name. In fact, every notation in xenharmlib comes with an interval naming
 scheme, so - like notes - every interval has a distinct name from which
 it can be uniquely identified. Details about the interval naming scheme
 can be obtained from the relevant notation chapter of this documentation.
@@ -276,7 +276,7 @@ Construction Based on Closest Frequency Ratio
 -----------------------------------------------------
 
 Origin contexts based on integer indices allow construction based on the
-approximation of frequency ratios. Given an arbitrary frequency ratio the
+approximation of frequency ratios. Given an arbitrary frequency ratio, the
 :meth:`~xenharmlib.core.origin_context.OriginContext.closest_interval`
 method returns the interval of an origin context that is closest to it:
 
@@ -332,10 +332,10 @@ method returns the interval of an origin context that is closest to it:
 Simple and Compound
 -----------------------------------------------------------
 
-In relation to an equivalency interval intervals can be categorized into
+In relation to an equivalency interval, intervals can be categorized into
 "simple intervals" (smaller or equal to the equivalency interval) or
 "compound intervals" (bigger than the equivalency interval). In the
-western system for example M2 is a simple interval while M9 is a
+Western system, for example, M2 is a simple interval while M9 is a
 compound interval.
 
 .. tabs::
@@ -410,7 +410,7 @@ compound interval.
          True
 
 Compound intervals can be reduced to their simple equivalent easily.
-For example in the western system M9 has the simple interval equivalent
+For example, in the Western system M9 has the simple interval equivalent
 of M2:
 
 .. tabs::
@@ -486,13 +486,13 @@ of M2:
 Direction, Inversion & Absolute
 -----------------------------------------------------------
 
-Intervals in xenharmlib are *directional* meaning there is a difference
+Intervals in xenharmlib are *directional*, meaning there is a difference
 between ascending and descending intervals. Each ascending interval has
 its descending counterpart and vice versa. Whether you receive an ascending
 or descending interval depends on the order of the notes from which
 an interval is constructed. If the first note is lower than the second,
 you will receive an ascending interval. If the first note is higher than
-the second you will receive a descending interval:
+the second, you will receive a descending interval:
 
 .. tabs::
 
@@ -585,7 +585,7 @@ the second you will receive a descending interval:
 
 An ascending interval can be transformed into a descending interval 
 (and vice versa) by prefixing the interval object with a minus
-(:code:`-`) sign. For an interval :code:`X` we call the object
+(:code:`-`) sign. For an interval :code:`X`, we call the object
 :code:`-X` the *negation* of :code:`X`, with :code:`X + (-X)`
 always resulting in the unison interval:
 
@@ -688,7 +688,7 @@ always resulting in the unison interval:
 
 Interval objects provide the :attr:`~xenharmlib.core.intervals.Interval.sign`
 property to inspect the direction of an interval, returning 1 for an
-ascending interval, -1 for a descending interval and 0 for the unison
+ascending interval, -1 for a descending interval, and 0 for the unison
 interval.
 
 .. tabs::
@@ -886,7 +886,7 @@ it is already ascending or unison)
          UpDownNoteInterval(^M, -3, 31-EDO)
          UpDownNoteInterval(^M, 3, 31-EDO)
 
-In contrast inversion of an interval :code:`X` is defined as the interval
+In contrast, inversion of an interval :code:`X` is defined as the interval
 :code:`Y`, so that :code:`X + Y` equals the *equivalency interval* [#f1]_.
 
 .. tabs::
@@ -1065,7 +1065,7 @@ contexts:
          FrequencyRatio(2**(3/8))
          True
 
-Likewise comparison operators work by comparing frequency ratios:
+Likewise, comparison operators work by comparing frequency ratios:
 
 .. tabs::
 
@@ -1128,7 +1128,7 @@ Likewise comparison operators work by comparing frequency ratios:
          False
 
 Since descending intervals are inverting the frequency ratio of their
-ascending counterpart (e.g. negating a ascending pure fifth with ratio
+ascending counterpart (e.g., negating an ascending pure fifth with ratio
 :math:`\frac{3}{2}` we will receive a descending pure fifth with
 ratio :math:`\frac{2}{3}`) descending frequencies are always
 considered smaller than the unison interval, even if they might
@@ -1186,6 +1186,29 @@ be bigger in *absolute* size:
       .. testoutput:: UpDownNotation
 
          True
+
+Equality/Identity also translates to Python's built-in set type. If two
+intervals are considered equal, combining them in a Python set will
+result in a one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   interval_a = edo24.diff_interval(14)
+   interval_b = western.shorthand_interval('P', 5)
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({interval_a, interval_b})
+
+.. testoutput::
+
+   {EDOPitchInterval(14, 24-EDO)}
 
 Subtraction and Addition
 -----------------------------------------------------------
@@ -1281,7 +1304,7 @@ Continued Stacking / Multiplication
 
 Intervals can be multiplied by an integer, which is the same as stacking
 an interval upon itself a number of times. Continued stacking of the same
-interval has many applications for example in the circle of fifths or
+interval has many applications, for example, in the circle of fifths or
 the generation of scales:
 
 .. tabs::
@@ -1361,9 +1384,9 @@ defined as follows:
 * Two intervals that only differ in direction belong inside the
   same class (C1 to G1 has the same color as G1 to C1)
 * If one interval is the simplified version of another compound
-  interval they belong inside the same class (C1 to G1 has the
+  interval, they belong inside the same class (C1 to G1 has the
   same color as C1 to G2 or C1 to G5)
-* If one interval is the inversion of another they belong into
+* If one interval is the inversion of another, they belong to
   the same class (C1 to G1 has the same color as G1 to C2)
 
 Each interval class has a normalized representative that is
@@ -1438,7 +1461,7 @@ calculated from an interval of the same class as follows:
 
          UpDownNoteInterval(^M, 2, 31-EDO)
 
-Instead of receiving an interval object you can also get the interval class
+Instead of receiving an interval object, you can also get the interval class
 index (which is the numeric representation used in most posttonal theory
 textbooks):
 
@@ -1507,11 +1530,11 @@ textbooks):
 
 .. [#f1] The term *inversion* of an interval in music theory is often 
    confusing for mathematicians who know the term from group theory.
-   There the inversion of an element is actually the element that
-   combined with the original element results in the neutral element
+   There, the inversion of an element is actually the element that,
+   combined with the original element, results in the neutral element
    (in our case: the unison interval), meaning inversion in group theory
    is actually what we earlier called *negation*. Though it might be
-   regrettable, that different things are named the same and same
+   regrettable that different things are named the same and the same
    things are named differently, we have to accept these types of
    idiosyncracies and choose the meaning the word has in the domain
    of music theory.

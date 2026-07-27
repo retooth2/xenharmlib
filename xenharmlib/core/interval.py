@@ -18,6 +18,7 @@ This module implements base classes for intervals
 """
 
 from typing import Self
+from typing import SupportsAbs
 from typing import Generic
 from typing import TypeVar
 from functools import total_ordering
@@ -32,7 +33,7 @@ FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 
 
 @total_ordering
-class Interval(ABC, Generic[FreqReprT]):
+class Interval(ABC, SupportsAbs, Generic[FreqReprT]):
     """
     Interval is the abstract bass class for all interval types, consisting
     only of an origin context and a frequency ratio. Based on frequency ratio

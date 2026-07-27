@@ -21,7 +21,6 @@ as sine waves and export them as wavfile
 import math
 from typing import *
 import numpy as np
-import sounddevice as sd
 from ..core.protocols import HasFrequency
 from ..core.frequencies import Frequency
 from scipy.io.wavfile import write as write_wav

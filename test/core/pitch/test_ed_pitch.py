@@ -343,3 +343,18 @@ def test_arithmetic_incompatible_origin_contexts(index_a, index_b):
 
     with pytest.raises(IncompatibleOriginContexts):
         pitch_a + pitch_b
+
+
+@pytest.mark.parametrize(
+    'index',
+    [9, 0, -4, 2, 15, 19, -18]
+)
+def test_short_repr(index):
+    """
+    Test short representations
+    """
+
+    pitch = edo12.pitch(index)
+    assert pitch.short_repr == str(pitch.pitch_index)
+    assert pitch.pc_short_repr == str(pitch.pc_index)
+

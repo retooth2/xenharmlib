@@ -27,6 +27,7 @@ from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
 from .protocols import Index
+from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
 from .masks import mask_select
 from ..exc import IncompatibleOriginContexts
@@ -61,7 +62,7 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
         self._origin_context = origin_context
 
         if elements is None:
-            _elements: Sequence[FreqReprT] = []
+            _elements: Iterable[FreqReprT] = []
         else:
             _elements = elements
 
@@ -210,12 +211,45 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
         return origin_context.closest_seq(self.frequencies)
 
+    def subseq_index(self, subseq: Self) -> int:
+        """
+        Given a (possible) subsequence this method returns the
+        starting index of the subsequence in this sequence or
+        raises ValueError (if given parameter turned out not
+        to be a subsequence)
+
+        This method works across origin contexts
+
+        :param subseq: The subsequence to search for
+        :raises ValueError: If subsequence was not found
+            or an empty sequence was given as parameter
+        """
+
+        len_subseq = len(subseq)
+
+        if len_subseq == 0:
+            raise ValueError(
+                'subseq_index is undefined on empty sequence parameter'
+            )
+
+        len_self = len(self)
+        len_diff = len_self - len_subseq
+
+        if len_diff < 0:
+            raise ValueError('Given sequence is not a subsequence')
+
+        for i in range(0, len_diff + 1):
+            if subseq == self[i:i+len_subseq]:
+                return i
+
+        raise ValueError('Given sequence is not a subsequence')
+
     def is_subseq(self, seq: Self, proper=False):
         """
-        Returns True if the given sequence is a subsequence
-        of this one, False otherwise.
+        Returns True if this sequence is a subsequence of another
+        one, False otherwise.
 
-        :param seq: The (possible) subsequence
+        :param seq: The (possible) supersequence
         :param proper: (optional, default is False). If set to
             True function will return False if sequences are
             identical
@@ -239,8 +273,8 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
     def is_superseq(self, seq: Self, proper=False):
         """
-        Returns True if the given sequence is a supersequence
-        of this one, False otherwise.
+        Returns True if this sequence is a supersequence of another
+        one, False otherwise.
 
         :param seq: The (possible) subsequence
         :param proper: (optional, default is False). If set to
@@ -475,9 +509,10 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
 
 PeriodicFreqReprT = TypeVar('PeriodicFreqReprT', bound=PeriodicPitchLike)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
-class PeriodicFreqReprSeq(FreqReprSeq[PeriodicFreqReprT]):
+class PeriodicFreqReprSeq(FreqReprSeq[PeriodicIndexT, PeriodicFreqReprT]):
     """
     PeriodicFreqReprSeq is the abstract base class for frequency
     representation sequences that contain frequency representations of

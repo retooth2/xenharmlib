@@ -193,6 +193,9 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
     @classmethod
     def from_pitch_indices(cls, pitch_indices: List[IndexT], tuning) -> Self:
         """
+        .. deprecated:: 0.3.0
+           Use :py:meth:`index_scale` instead.
+
         Creates a scale from a list of pitch
         indices
 
@@ -230,6 +233,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
 
     @property
     def pitch_indices(self) -> List[IndexT]:
+        # FIXME: this should be moved to the scale base class
         """
         A list of the ordered pitch indices
         present in this scale

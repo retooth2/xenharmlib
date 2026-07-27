@@ -21,6 +21,7 @@ The note core module implements primitives to handle sequences of notes
 from ..exc import IncompatibleOriginContexts
 from .notes import NoteABC
 from .notes import PeriodicNoteABC
+from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .protocols import Index
 from .protocols import PeriodicIndex
@@ -38,7 +39,7 @@ PitchT = TypeVar('PitchT', bound=NoteABC)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
+class NoteSeq(FreqReprSeq[IndexT, PitchT], Generic[IndexT, PitchT]):
     """
     Base class for all sequences of pitches
 
@@ -79,6 +80,23 @@ class NoteSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
         The tuning associated with this note sequence
         """
         return self.notation.tuning
+
+    def transpose(self, diff: IndexT | NoteIntervalABC) -> Self:
+        """
+        Transposes the sequence by the given interval
+
+        :param diff: A note interval or pitch difference
+        """
+
+        if not isinstance(diff, NoteIntervalABC):
+            return self.enharm_strategy.note_seq_transpose(self, diff)
+
+        interval = diff
+        transposed = []
+        for notes in self:
+            transposed.append(notes.transpose(interval))
+
+        return self.notation.seq(transposed)
 
     @property
     def enharm_strategy(self):

@@ -112,3 +112,17 @@ def test_retune_closest(interval_a, interval_b):
 
     assert interval_a.retune_closest(interval_b.tuning) == interval_b
     assert interval_b.retune_closest(interval_a.tuning) == interval_a
+
+
+@pytest.mark.parametrize(
+    'pitch_diff',
+    [9, 0, -4, 2, 15, 19, -18]
+)
+def test_short_repr(pitch_diff):
+    """
+    Test short representations
+    """
+
+    interval = edo12.diff_interval(pitch_diff)
+    assert interval.short_repr == str(interval.pitch_diff)
+

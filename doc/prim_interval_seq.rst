@@ -5,7 +5,7 @@ Interval Sequences
 
 Interval sequences provide an abstract way to represent musical structures
 by storing the relative distances between notes, rather than their absolute
-pitches. This allows for the definition of abstract scale, sequence and chord
+pitches. This allows for the definition of abstract scale, sequence, and chord
 types -  for example, representing the major scale *as such*, rather than as
 specific instances like C major or E major.
 
@@ -87,10 +87,10 @@ notes and return the resulting interval sequence:
 
          UpDownNoteIntervalSeq([M2, M2, m2, M2, M2, M2], 12-EDO)
 
-As you can see you obtained a sequence of major and minor seconds in the
+As you can see, you obtained a sequence of major and minor seconds in the
 order that they occur in the scale. The resulting interval sequence is only
-one possible representation of the major scale. Another representation that
-is more common in textbooks is derived from a form of the scale where the
+one possible representation of the major scale. Another representation,
+more common in textbooks, is derived from a form of the scale in which the
 series is bookended by two equivalent notes. This scale form can be obtained
 by the method :meth:`~xenharmlib.core.scale.PeriodicScale.plusone_normalized`:
 
@@ -182,18 +182,18 @@ by the method :meth:`~xenharmlib.core.scale.PeriodicScale.plusone_normalized`:
          UpDownNoteScale([C0, D0, E0, F0, G0, A0, B0, C1], 12-EDO)
          UpDownNoteIntervalSeq([M2, M2, m2, M2, M2, M2, m2], 12-EDO)
 
-Both methods to define the major scale have their valid usecases. It is
-upon you to decide which form fits your task.
+Both methods for defining the major scale have valid use cases. It is
+up to you to decide which form fits your task.
 
-Interval sequences implement the complete set of methods from python's
-builtin lists and tuples that do not mutatate the object. This means
+Interval sequences implement the complete set of methods from Python's
+built-in lists and tuples that do not mutate the object. This means
 that interval sequences can be treated *as if* they were lists or
 tuples of intervals and used as a drop-in replacement.
 
 Deriving Interval Sequences from Intervals
 ---------------------------------------------
 
-Like other harmonic "collection primitives" interval sequences can be built
+Like other harmonic "collection primitives", interval sequences can be built
 by assembly from the primitives they contain, in this case intervals:
 
 .. tabs::
@@ -275,7 +275,7 @@ Index-based Construction
 
 Interval sequences can also be constructed by providing pitch differences
 which (depending on origin context) can be integers or lattice points.
-In case of notations xenharmlib uses the notation's enharmonic strategy
+In case of notations, xenharmlib uses the notation's enharmonic strategy
 to transform differences into full note interval objects.
 
 .. tabs::
@@ -352,7 +352,7 @@ to transform differences into full note interval objects.
 Origin contexts built on lattice point indexing also allow construction
 from an iterable of tuples with
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_interval_seq`
-as an alternative to the more verbose above method which expects
+as an alternative to the more verbose above method, which expects
 a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
 
 .. tabs::
@@ -382,7 +382,7 @@ a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          iseq = sg237.vec_interval_seq(
@@ -400,7 +400,7 @@ Construction Based on Closest Frequency Ratio
 
 Origin contexts based on integer indices allow construction based on the
 approximation of frequency ratios. Given an arbitrary iterable of frequency
-ratios the 
+ratios, the 
 :meth:`~xenharmlib.core.origin_context.OriginContext.closest_interval_seq`
 method returns the interval sequence of an origin context that is closest
 to it:
@@ -472,7 +472,7 @@ to it:
 Iteration
 --------------------------------------------
 
-Like other sequence types interval sequences support iteration:
+Like other sequence types, interval sequences support iteration:
 
 .. tabs::
 
@@ -561,7 +561,7 @@ Containment
 --------------------------------------------
 
 If you want to know if a specific interval is contained inside of an
-interval sequence you can use the :code:`in` operator:
+interval sequence, you can use the :code:`in` operator:
 
 .. tabs::
 
@@ -650,7 +650,7 @@ Identity
 Two interval sequences are considered identical if each interval in one
 interval sequence corresponds to another interval in the other sequence
 at the same position.
-This relation works across origin contexts, for example 12-EDO and
+This relation works across origin contexts; for example, 12-EDO and
 24-EDO interval sequences, or western note interval sequences can
 be identical:
 
@@ -686,7 +686,7 @@ be identical:
 
 Keep in mind that even if two interval sequences might have the same symbolic
 string representation in a notation, they are not necessarily equal. A major
-third interval in 31-EDO has for example a different frequency ratio than a
+third interval in 31-EDO has, for example, a different frequency ratio than a
 major third interval in 12-EDO:
 
 .. testcode::
@@ -723,6 +723,29 @@ major third interval in 12-EDO:
    UpDownNoteIntervalSeq([M3, m3], 31-EDO)
    UpDownNoteIntervalSeq([M3, m3], 12-EDO)
    False
+
+Equality/Identity also translates to Python's built-in set type. If two
+interval sequences are considered equal, combining them in a Python set
+will result in a one-element set:
+
+.. testcode::
+
+   from xenharmlib import EDOTuning
+   from xenharmlib import WesternNotation
+
+   edo24 = EDOTuning(24)
+   western = WesternNotation()
+
+   iseq_a = edo24.diff_interval_seq([4, 10, 4, 18])
+   iseq_b = western.diff_interval_seq([2, 5, 2, 9])
+
+   # since the second element is equal to the first 
+   # only the first element will be added to the set
+   print({iseq_a, iseq_b})
+
+.. testoutput::
+
+   {EDOPitchIntervalSeq([4, 10, 4, 18], 24-EDO)}
 
 Item Retrieval and Slicing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -891,7 +914,7 @@ the first index position where an interval was found (or raises
 Counting
 ------------------
 
-For statistical analysis xenharmlib can calculate the number of times a
+For statistical analysis, xenharmlib can calculate the number of times a
 specific interval occurs in an interval sequence:
 
 .. tabs::
@@ -967,7 +990,7 @@ Concatenation
 ------------------
 
 Interval sequences can be "glued together" with the :code:`+` operator.
-(In programming known under the term "concatentation")
+(In programming known under the term "concatenation")
 This can be especially useful when programmatically creating polychords.
 
 Think of defining the major triad and the minor triad as an abstract
@@ -1072,7 +1095,7 @@ Repetition of an interval sequence can be achieved by multiplying
 This technique can be useful if you have an interval sequence that first
 ascends and then descends without returning to the point of origin. 
 Repeating such an interval sequence results in a wave of "upward and 
-downword motions" that in its entirety slowly moves upwards:
+downward motions" that in its entirety slowly moves upwards:
 
 .. tabs::
 
@@ -1147,14 +1170,14 @@ downword motions" that in its entirety slowly moves upwards:
 Index Masks and Partial Interval Sequences
 ----------------------------------------------
 
-Like with scales the interval sequence primitive allows extraction of 
+Like with scales, the interval sequence primitive allows extraction of 
 "substructures" with the
-:meth:`~xenharmlib.core.interval_seq.IntervalSeq.partial` method, that
-expects an index mask expression, i.e. a tuple with indices pointing
+:meth:`~xenharmlib.core.interval_seq.IntervalSeq.partial` method, which
+expects an index mask expression, i.e., a tuple with indices pointing
 to sequence elements that should be extracted.
 
-The mask :code:`(1, 3, 4)` for example extracts the second, fourth and
-fifth element of the sequence (like with item retrieval indices in an a
+The mask :code:`(1, 3, 4)`, for example, extracts the second, fourth, and
+fifth element of the sequence (like with item retrieval indices in a
 mask expression start with 0):
 
 .. tabs::
@@ -1512,8 +1535,8 @@ a tuple, you can use the
 Templating and Categorization
 ----------------------------------------------
 
-One of the main use cases for interval sequences is templating. You can
-for example define abstract scales (like "major scale") and then make
+One of the main use cases for interval sequences is templating. You can,
+for example, define abstract scales (like "major scale") and then make
 scale instances from it:
 
 .. tabs::
@@ -1595,7 +1618,7 @@ scale instances from it:
          UpDownNoteScale([E4, F#4, G#4, A4, B4, C#5, D#5], 12-EDO)
 
 Vice versa, interval sequences can also be used to categorize scale
-objects. In the next snippet we devise three functions that generate
+objects. In the next snippet, we devise three functions that generate
 abstract definitions of the three types of minor scales for a given
 context and an additional identifier function that takes a scale and
 returns the type of minor scale.
@@ -1626,7 +1649,7 @@ returns the type of minor scale.
        raise ValueError('Scale is not minor')
 
 The generic approach allows us to reuse the functions for all notations
-supporting western-style naturals and sharps and flats.
+supporting Western-style naturals and sharps and flats.
 
 .. tabs::
 

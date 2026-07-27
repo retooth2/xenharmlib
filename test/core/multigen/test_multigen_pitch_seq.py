@@ -1022,6 +1022,120 @@ def test_retune_closest_type_error():
 
 
 @pytest.mark.parametrize(
+    'tuning, pitch_vecs_subseq, pitch_vecs_superseq, index',
+    [
+        (
+            multigen_235,
+            [(-11, 7, 0), (-3, 2, 0)],
+            [(0, 0, 0), (-11, 7, 0), (-3, 2, 0), (-5, 4, 0)],
+            1
+        ),
+        (
+            multigen_23,
+            [(-11, 7), (-3, 2), (-6, 4), (-1, 1)],
+            [(-11, 7), (-3, 2), (-6, 4), (-1, 1)],
+            0
+        ),
+        (
+            multigen_weird,
+            [(10, 0, 2)],
+            [(-2, 0, 2), (-1, 0, 3), (10, 0, 2)],
+            2
+        ),
+    ]
+)
+def test_subseq_index(
+    tuning, pitch_vecs_subseq, pitch_vecs_superseq, index
+):
+    """
+    Test if subseq_index operation works correctly
+    """
+
+    superseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_superseq]
+    )
+    subseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_subseq]
+    )
+
+    assert superseq.subseq_index(subseq) == index
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_vecs_subseq, pitch_vecs_superseq',
+    [
+        (
+            multigen_235,
+            [],
+            [(0, 0, 0), (-11, 7, 0), (-3, 2, 0), (-5, 4, 0)],
+        ),
+        (
+            multigen_23,
+            [],
+            [(-11, 7), (-3, 2), (-6, 4), (-1, 1)],
+        ),
+    ]
+)
+def test_subseq_index_empty_param(
+    tuning, pitch_vecs_subseq, pitch_vecs_superseq
+):
+    """
+    Test if subseq_index operation works correctly
+    if parameter is an empty seq
+    """
+
+    superseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_superseq]
+    )
+    subseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_subseq]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == (
+        'subseq_index is undefined on empty sequence parameter'
+    )
+
+
+@pytest.mark.parametrize(
+    'tuning, pitch_vecs_subseq, pitch_vecs_superseq',
+    [
+        (
+            multigen_235,
+            [(-5, 4, 1)],
+            [(0, 0, 0), (-11, 7, 0), (-3, 2, 0), (-5, 4, 0)],
+        ),
+        (
+            multigen_23,
+            [(-11, 7), (-3, 3)],
+            [(-11, 7), (-3, 2), (-6, 4), (-1, 1)],
+        ),
+    ]
+)
+def test_subseq_index_not_a_subseq(
+    tuning, pitch_vecs_subseq, pitch_vecs_superseq
+):
+    """
+    Test if subseq_index operation works correctly
+    if parameter is an empty seq
+    """
+
+    superseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_superseq]
+    )
+    subseq = tuning.index_seq(
+        [tuning.lattice.point(vec) for vec in pitch_vecs_subseq]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        superseq.subseq_index(subseq)
+
+    assert exc_info.value.args[0] == 'Given sequence is not a subsequence'
+
+
+@pytest.mark.parametrize(
     'tuning, pitch_vecs_a, pitch_vecs_b, expected',
     [
         (

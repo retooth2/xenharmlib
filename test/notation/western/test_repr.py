@@ -47,3 +47,30 @@ def test_interval_seq_repr():
         ]
     )
     assert repr(iseq) == 'WesternNoteIntervalSeq([A2, P4])'
+
+
+def test_interval_fan_repr():
+
+    notation = WesternNotation()
+
+    ifan = notation.interval_fan(
+        [
+            notation.shorthand_interval('A', 2),
+            notation.shorthand_interval('P', 4)
+        ]
+    )
+    assert repr(ifan) == 'WesternNoteIntervalFan([A2, P4])'
+
+
+def test_seq_repr():
+
+    notation = WesternNotation()
+
+    scale = notation.seq(
+        [
+            notation.note('F#', 2),
+            notation.note('C', 3),
+            notation.note('A', 2),
+        ]
+    )
+    assert repr(scale) == 'WesternNoteSeq([F#2, C3, A2])'

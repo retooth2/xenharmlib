@@ -2,12 +2,12 @@ Lattice Points
 ===================
 
 While single-generator tunings like the "equal division tuning" family use
-integers for pitch indices, pitch class indices and pitch differences,
-multi-generator tunings use *vectors* of integers, that are called
+integers for pitch indices, pitch class indices, and pitch differences,
+multi-generator tunings use *vectors* of integers that are called
 *Lattice Points*.
 
-The semantics of a lattice point, i.e. what frequency or frequency ratio
-a specific vector represents depends on the tuning, more specifically
+The semantics of a lattice point, i.e., what frequency or frequency ratio
+a specific vector represents, depends on the tuning, more specifically
 on the generator intervals of that tuning. That's why lattice points
 are typically created from the tuning context:
 
@@ -32,22 +32,22 @@ The generator interval ratios can be inspected like this:
 
 .. testoutput::
 
-   [FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)]
+   (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5))
 
-In this example the lattice point represents the following frequency ratio:
+In this example, the lattice point represents the following frequency ratio:
 
 :math:`2^{-2} \cdot 3^{0} \cdot 5^{1} = \frac{5}{4}`
 
 When given as a pitch index, this lattice point represents the pitch
 that results from transposing the zero pitch by a ratio of
 :math:`\frac{5}{4}`, i.e. a "just E0". When given as a pitch
-difference it represents the "just major third interval".
+difference, it represents the "just major third interval".
 
 :class:`~xenharmlib.core.lattice.LatticePoint` objects in many aspects
 behave like regular integers. They support the following arithmetic
 operations:
 
-    * **addition** and **subtraction** fullfill the same purposes as
+    * **addition** and **subtraction** fulfill the same purposes as
       in the integer case, for example transposing a pitch upwards or
       downwards by combining its pitch index with a pitch diff:
 
@@ -113,7 +113,7 @@ based on the frequency ratios they represent:
    assert G0.pitch_index < F1.pitch_index
 
 :class:`~xenharmlib.core.lattice.LatticePoint` objects are bound to the
-generator vector to which they relate to. This acts as a safeguard so
+generator vector to which they relate. This acts as a safeguard so
 lattice points of different origins can not be mixed:
 
 .. testcode::
@@ -123,11 +123,11 @@ lattice points of different origins can not be mixed:
 
    tuning_a = MultiGenTuning(
        (FrequencyRatio(2), FrequencyRatio(3)),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
    tuning_b = MultiGenTuning(
        (FrequencyRatio(2), FrequencyRatio(7)),
-       period_vec=(1, 0)
+       eq_diff_vec=(1, 0)
    )
 
    try:

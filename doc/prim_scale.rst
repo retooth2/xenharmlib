@@ -17,7 +17,7 @@ the frequency representations and remove duplicate items:
    G4 = western.note('G', 4)
    C5 = western.note('C', 5)
 
-   # E4 will only appear once in scale, however
+   # E4 will only appear once in the scale, however
    # C4 and C5 are allowed to coexist
    scale = western.scale([E4, G4, E4, C4, C5])
    print(scale)
@@ -46,8 +46,8 @@ to analyze polychords and related structures:
    WesternNoteScale([C4, E4, G4, B4, D5])
 
 Scales can be built from any iterable object that includes pitches or notes
-of the same origin context. This includes e.g. python's lists, tuples, sets,
-generators and xenharmlib's sequence primitive.
+of the same origin context. This includes, e.g., Python's lists, tuples, sets,
+generators, and xenharmlib's sequence primitive.
 
 .. testcode:: WesternNotation
 
@@ -71,9 +71,9 @@ generators and xenharmlib's sequence primitive.
 
    True
 
-For post-tonal theory the scale primitive can be used as a pitch set
-or pitch class set. Since xenharmlib implements a more general framework
-of music theory double-digit pitch class indices are not abbreviated
+For post-tonal theory, the scale primitive can be used as a pitch set
+or pitch class set. Since Xenharmlib implements a more general framework
+of music theory, double-digit pitch class indices are not abbreviated
 with 'T' for ten or 'E' for eleven, but returned in their numerical form.
 
 Xenharmlib's support for multi-generator tunings and notations also
@@ -170,8 +170,8 @@ Deriving Scales
 
 The builder method most agnostic to the origin context is the
 :meth:`~xenharmlib.core.origin_context.OriginContext.scale` method,
-that takes a list of frequency representations originating from the
-the same context and creates a scale primitive:
+which takes a list of frequency representations originating from the
+same context and creates a scale primitive:
 
 .. tabs::
 
@@ -255,7 +255,7 @@ Element-wise Construction
 
 Scales can be constructed element-wise. In line with xenharmlib's
 immutable object design, this is not done with an append method like
-in standard python, but with a method that returns a scale with
+in standard Python, but with a method that returns a scale with
 an additional element:
 
 .. tabs::
@@ -436,7 +436,7 @@ the notation's enharmonic strategy.
 
 Tunings with lattice point indices provide the convenience builder method
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_scale` that expects a
-tuple instead of a lattice point object, making the the construction less
+tuple instead of a lattice point object, making the construction less
 verbose:
 
 .. tabs::
@@ -466,7 +466,7 @@ verbose:
 
          sg237 = MultiGenTuning(
              [FrequencyRatio(p) for p in [2, 3, 7]],
-             period_vec=(1, 0, 0)
+             eq_diff_vec=(1, 0, 0)
          )
 
          scale = sg237.vec_scale(
@@ -485,13 +485,13 @@ PC Shortform Construction
 A common shortform to define scales is to simply define a succession of
 pitch classes or pitch class symbols with the silent assumption that each
 pitch class or symbol points to the next highest pitch of that class in
-relation to its precedessor pitch.
+relation to its predecessor pitch.
 
-If for example we spell the C major scale as :math:`C, D, E, F, G, A, B`
+If, for example, we spell the C major scale as :math:`C, D, E, F, G, A, B`
 we assume an equivalency interval section for the first element (e.g.
 we assume :math:`C` to stand for :math:`C0`) and then move upwards to
 find the next D, resulting in :math:`D0`, from there moving upwards
-to find the next `E`, finding :math:`E0` and so forth)
+to find the next `E`, finding :math:`E0`, and so forth)
 
 The same structure applies if we have a pitch class set from a textbook
 given in the form :code:`[8, 11, 0, 3, 4]`: We assume a base interval
@@ -567,7 +567,7 @@ input values:
 Construction Based on Closest Frequency
 -----------------------------------------------------
 
-In origin contexts based on integer indices you can build a scale from
+In origin contexts based on integer indices, you can build a scale from
 a list of frequencies with the
 :meth:`~xenharmlib.core.origin_context.OriginContext.closest_scale`
 method that finds the closest representation for each frequency
@@ -590,7 +590,7 @@ emulate them with chords of another instrument.
          edo31 = EDOTuning(31)
 
          # overtone frequencies measured e.g. by
-         # a spectrogramm plugin or librosa
+         # a spectrogram plugin or librosa
          frequencies = [
              Frequency(f) for f in [230, 410, 460, 500, 690]
          ]
@@ -882,7 +882,7 @@ Identity and Equivalency
 
 Two scales are considered identical if each element in one scale has a
 matching element in the other scale with exactly the same frequency.
-This relation works across origin contexts, for example 12-EDO and
+This relation works across origin contexts, for example, 12-EDO and
 24-EDO scales, or Western Note Scales can be identical:
 
 .. testcode::
@@ -907,7 +907,7 @@ This relation works across origin contexts, for example 12-EDO and
 
 Keep in mind that even if two scales might have the same symbolic string
 representation in a notation, they are not necessarily equal. A G4 in 31-EDO
-has for example a different Frequency than a G4 in 12-EDO:
+has, for example, a different frequency than a G4 in 12-EDO:
 
 .. testcode::
 
@@ -936,11 +936,11 @@ has for example a different Frequency than a G4 in 12-EDO:
 
 As long as two origin contexts have the same equivalency interval scales
 can also be compared on the criterion of equivalency instead of equality.
-Scales provide two definitions of equivalency: **Set equivalency** which
+Scales provide two definitions of equivalency: **Set equivalency**, which
 implies that each scale element has an equivalent element in the other
-scale (and vice versa) and the (stronger) **sequential equivalency**
+scale (and vice versa), and the (stronger) **sequential equivalency**,
 which also demands that equivalent elements are *at the same position*
-in the scale. To get an intuition for the difference consider the
+in the scale. To get an intuition for the difference, consider the
 following example:
 
 .. tabs::
@@ -1124,7 +1124,7 @@ method. This is typically done by providing an
 The :meth:`~xenharmlib.core.scale.Scale.transpose` method also 
 accepts a **pitch difference**. A pitch difference is an integer or
 lattice point that defines the numeric distance between two frequency
-representations. In the case of notations with enharmonic ambiguity
+representations. In the case of notations with enharmonic ambiguity,
 xenharmlib makes a guess which note should be picked.
 
 .. tabs::
@@ -1197,15 +1197,15 @@ xenharmlib makes a guess which note should be picked.
 Rotation
 -------------------------------------------------------
 
-Scale objects can be rotated upwards and downwards. On upwards rotation
+Scale objects can be rotated upwards and downwards. On upward rotation,
 the first element is transposed upwards by the equivalency interval until
-it is bigger than the last element. On downwards rotation the last element
+it is bigger than the last element. On downward rotation the last element
 is transposed downwards by the equivalency interval until is smaller than
 the first element.
 
 Rotation is also sometimes called the *mode* of a scale (for example the
 "Dorian Mode" is the first upwards rotation of the C major scale). In
-the context of chords rotation is called *inversion*.
+the context of chords, rotation is called *inversion*.
 
 Rotation is done using the rotation method of scales, which takes an
 integer parameter: A positive integer :math:`k` will rotate the scale
@@ -1281,8 +1281,8 @@ scale *downwards* :math:`k` times.
 Sequential Properties
 -------------------------------------------------------
 
-Scales implement the typical properties of python's lists und tuples.
-Containment can be tested with the :code:`in` operator, item and
+Scales implement the typical properties of Python's lists und tuples.
+Containment can be tested with the :code:`in` operator and item and
 slice retrieval can be achieved with the :code:`[]` operator.
 Also, of course, iteration is supported:
 
@@ -1404,8 +1404,8 @@ Also, of course, iteration is supported:
 Index Masks and Partial Scales
 --------------------------------------
 
-When examining a scale you are often interested in focusing only on fragments
-of it. In many cases the :code:`[]`-operator is sufficient to extract the
+When examining a scale, you are often interested in focusing only on fragments
+of it. In many cases, the :code:`[]`-operator is sufficient to extract the
 desired partial scale from the original, e.g. if you want the major septimal
 chord scale from a major scale:
 
@@ -1486,11 +1486,11 @@ chord scale from a major scale:
 
          UpDownNoteScale([C0, E0, G0, B0], 12-EDO)
 
-In other cases the :code:`[]`-operator will not take you far. What if instead
+In other cases, the :code:`[]`-operator will not take you far. What if instead
 of the major septimal chord scale you want to generate the sus4 chord scale?
 The appropriate indices :code:`(0, 3, 4)` don't have a uniform distance, so
 they can not be represented by a single slice expression. For reason of this
-limitation xenharmlib implements a generalization of a slice called index
+limitation, xenharmlib implements a generalization of a slice called an index
 mask and the scale method :meth:`~xenharmlib.core.scale.Scale.partial` that
 expects an index mask as its parameter:
 
@@ -1573,7 +1573,7 @@ expects an index mask as its parameter:
 
 An index mask can be defined in multiple ways. In the above snippet, it is
 simply expressed as a tuple of consecutive integers. For big connected
-*blocks* of integers this can be tedious, so xenharmlib offers a short
+*blocks* of integers, this can be tedious, so xenharmlib offers a short
 variant with Python's ellipsis symbol (:code:`...`). An ellipsis indicates
 that all indices between two values should be part of the mask as well:
 
@@ -1654,10 +1654,10 @@ that all indices between two values should be part of the mask as well:
 
          UpDownNoteScale([D0, E0, F0, G0, B0], 12-EDO)
 
-Similar to Python's slices the first value and the last value of mask
+Similar to Python's slices, the first value and the last value of mask
 definitions can be omitted entailing the familiar behavior: If a mask
-begins with an ellipsis the first value is implicitly 0. If a mask
-ends with an ellipsis the last value is the last index of the scale
+begins with an ellipsis, the first value is implicitly 0. If a mask
+ends with an ellipsis, the last value is the last index of the scale
 the mask is applied to:
 
 .. tabs::
@@ -1932,7 +1932,7 @@ without being wrapped by the tuple constructor:
 
          UpDownNoteScale([D0], 12-EDO)
 
-If you want to receive the *complement* of a mask you can resort to the
+If you want to receive the *complement* of a mask, you can resort to the
 :meth:`~xenharmlib.core.scale.Scale.partial_not` method:
 
 .. tabs::
@@ -2012,7 +2012,7 @@ If you want to receive the *complement* of a mask you can resort to the
 
          UpDownNoteScale([F0, G0, A0], 12-EDO)
 
-If you want to receive *both* use the
+If you want to receive *both*, use the
 :meth:`~xenharmlib.core.scale.Scale.partition` method:
 
 .. tabs::
@@ -2109,15 +2109,15 @@ If you want to receive *both* use the
 Normalizations
 --------------------------------------
 
-Scales can be normalized in various ways. From the quickstart you already
-know the :meth:`~xenharmlib.core.scale.PeriodicScale.pcs_normalized` method
+Scales can be normalized in various ways. From the Quickstart you already
+know the :meth:`~xenharmlib.core.scale.PeriodicScale.pcs_normalized` method,
 which transposes all elements of the scale to the first base interval.
 However, there are other methods of normalization that can be useful depending
 on what you want to do.
 
 One downside of pitch class set normalization is that the scale does not
 necessarily retain its original root note. Often you want to reduce a scale
-to one base interval, but keep the root note. For this xenharmlib offers the
+to one base interval, but keep the root note. For this, xenharmlib offers the
 :meth:`~xenharmlib.core.scale.PeriodicScale.period_normalized`
 method:
 
@@ -2204,9 +2204,9 @@ method:
          UpDownNoteScale([F0, F#0, G0, G#0, C1], 12-EDO)
 
 Sometimes you want to compare the structure of different scales without
-considering the root note, for example, you want to know if a scale is
+considering the root note; for example, you want to know if a scale is
 a major scale by comparing it with the definition of the C major scale.
-Here the method
+Here, the method
 :meth:`~xenharmlib.core.scale.Scale.zero_normalized`
 can help that will transpose the scale so the root note is the zero element
 (C0 in UpDownNotation, the pitch with index 0 on the pitch layer):
@@ -2233,7 +2233,7 @@ can help that will transpose the scale so the root note is the zero element
    UpDownNoteScale([C0, D0, E0, F0, G0, A0, B0], 12-EDO)
    True
 
-Note, that zero normalization does *not* guarantee that the elements of the
+Note that zero normalization does *not* guarantee that the elements of the
 resulting scale are contained in one base interval:
 
 .. testcode::
@@ -2249,7 +2249,7 @@ resulting scale are contained in one base interval:
 
    UpDownNoteScale([C0, E0, G0, Bb0, Db1, F#1], 12-EDO)
 
-Often in textbooks scales are described in a form where the root note is
+Often in textbooks, scales are described in a form where the root note is
 C0 and the scale elements all reside in the first base interval. This form
 is equivalent to the combined application of zero normalization and
 period normalization:
@@ -2276,8 +2276,8 @@ the method :meth:`~xenharmlib.core.scale.PeriodicScale.zp_normalized`
 
    UpDownNoteScale([C0, Db0, E0, F#0, G0, Bb0], 12-EDO)
 
-Another common normal form is depicting the scale as a series inbetween two
-equivalent notes (for example depicting the notes of F major inbetween F4
+Another common normal form is depicting the scale as a series between two
+equivalent notes (for example depicting the notes of F major between F4
 and F5). This form can be calculated using the method
 :meth:`~xenharmlib.core.scale.PeriodicScale.plusone_normalized`:
 
@@ -2307,7 +2307,7 @@ pitch class sets. A reflection is defined as calculating the interval from
 each scale element to a designated axis note/pitch and applying the 
 resulting interval on the axis to get the target note/pitch.
 
-Without an argument the :meth:`~xenharmlib.core.scale.Scale.reflection`
+Without an argument, the :meth:`~xenharmlib.core.scale.Scale.reflection`
 method assumes the axis to be the zero element of the origin context.
 
 .. testcode::
@@ -2354,7 +2354,7 @@ A scale can also be reflected using a different axis:
 Retuning by Closest Correspondence
 --------------------------------------
 
-In the beginning we talked about the possibility to constructs scales from
+In the beginning we talked about the possibility to construct scales from
 a list of frequencies.
 The :meth:`~xenharmlib.core.scale.Scale.retune_closest` provides an extra
 level of convenience: With it you can take a scale from one origin context
@@ -2381,8 +2381,8 @@ and transform it into a scale from a different origin context:
    UpDownNoteScale([C4, D#4, E4, G4], 31-EDO)
    WesternNoteScale([C4, D#4, E4, G4])
 
-Please note, that retuning by closest frequency is not necessarily a one
-to one correspondence. If we try to reverse the retuning result, we will
+Please note that retuning by closest frequency is not necessarily a
+one-to-one correspondence. If we try to reverse the retuning result, we will
 *not* receive the scale we started with:
 
 .. testcode::
@@ -2396,8 +2396,8 @@ to one correspondence. If we try to reverse the retuning result, we will
    UpDownNoteScale([C4, Eb4, E4, G4], 31-EDO)
    False
 
-This is because in the Western equal tempered system "D#" and "Eb"
-represent the same frequency, however in a 31-EDO system they
+This is because in the Western equal-tempered system "D#" and "Eb"
+represent the same frequency; however, in a 31-EDO system they
 are distinct:
 
 .. testcode::
@@ -2411,7 +2411,7 @@ are distinct:
    False
 
 Retuning from 31-EDO to a Western system is like lowering the resolution
-in an image. Once you have done it the more "fine-grained" data is lost.
+in an image. Once you have done it, the more "fine-grained" data is lost.
 Since distinct notes or pitches in one system can "collapse" into one
 in a system with less granularity, retuning scales can also have the
 effect that the resulting scale is shorter than the original one:
@@ -2434,7 +2434,7 @@ Set operations
 -----------------------------------------
 
 Scales support most of the typical set operations that you are familiar
-with from the builtin python sets (with slightly different names):
+with from the built-in Python sets (with slightly different names):
 
 * :meth:`~xenharmlib.core.scale.PeriodicScale.intersection`
 * :meth:`~xenharmlib.core.scale.Scale.union`
@@ -2447,7 +2447,7 @@ with from the builtin python sets (with slightly different names):
 Please note that set operations without additional parameters
 test for *equality* and not *equivalency*, so if one scale 
 includes C0 and the second scale includes C1, they are not
-considered as the same element in regards to intersection,
+considered the same element with regard to intersection,
 difference or symmetric difference.
 
 Union (:math:`A \cup B`)
@@ -2545,7 +2545,7 @@ Intersection (:math:`A \cap B`)
 
 The :meth:`~xenharmlib.core.scale.Scale.intersection` operation (also
 possible to use with the infix operator :code:`&`) returns a new scale
-with contatining only elements that exist in both scales.
+containing only elements that exist in both scales.
 
 .. tabs::
 
@@ -2630,8 +2630,8 @@ with contatining only elements that exist in both scales.
          UpDownNoteScale([Gb4, ^A4, Bb4], 31-EDO)
          UpDownNoteScale([Gb4, ^A4, Bb4], 31-EDO)
 
-It is possible to modify the intersection operation, so that equivalent
-pitches (e.g. C4 and C5) are considered equal. This approach is especially
+It is possible to modify the intersection operation so that equivalent
+pitches (e.g., C4 and C5) are considered equal. This approach is especially
 useful if you want to find common pitch classes that bridge one scale
 to the other.
 
@@ -2811,7 +2811,7 @@ the second one.
          UpDownNoteScale([E4], 31-EDO)
          UpDownNoteScale([E4], 31-EDO)
 
-It is possible to modify the difference operation, so that equivalent
+It is possible to modify the difference operation so that equivalent
 pitches (e.g. C4 and C5) are considered equal.
 
 .. tabs::
@@ -2905,7 +2905,7 @@ Symmetric Difference (:math:`A \triangle B`)
 
 The :meth:`~xenharmlib.core.scale.Scale.symmetric_difference` operation
 (also possible to use with the infix operator :code:`^`) returns a new
-scale contatining only elements that exist in the first scale, but not
+scale containing only elements that exist in the first scale, but not
 in the second one combined with elements that exist in the second scale
 but not in the first one.
 
@@ -2992,7 +2992,7 @@ but not in the first one.
          UpDownNoteScale([C4, E4], 31-EDO)
          UpDownNoteScale([C4, E4], 31-EDO)
 
-It is possible to modify the symmetric difference operation, so that
+It is possible to modify the symmetric difference operation so that
 equivalent pitches (e.g. C4 and C5) are considered equal.
 
 .. tabs::
@@ -3190,8 +3190,8 @@ one scale exist in the other.
          True
          False
 
-It is possible to modify the subset operation, so that equivalent pitches
-(e.g. C4 and C5) are considered equal.
+It is possible to modify the subset operation so that equivalent pitches
+(e.g., C4 and C5) are considered equal.
 
 .. tabs::
 
@@ -3287,7 +3287,7 @@ It is possible to modify the subset operation, so that equivalent pitches
 Disjoint Sets (:math:`A \cap B = \emptyset`)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Two scales can be tested if they don not contain any common elements 
+Two scales can be tested if they do not contain any common elements 
 (are disjoint) by the :meth:`~xenharmlib.core.scale.Scale.is_disjoint`
 operation.
 
@@ -3379,7 +3379,7 @@ operation.
          False
          True
 
-It is possible to modify the disjoint test, so that equivalent pitches
+It is possible to modify the disjoint test so that equivalent pitches
 (e.g. C4 and C5) are considered equal.
 
 .. tabs::
@@ -3468,18 +3468,18 @@ It is possible to modify the disjoint test, so that equivalent pitches
 Enharmonic ambiguity and set operations
 -----------------------------------------
 
-When we speak of enharmonic equivalence we mean that two notes refer
-to the same pitch, but are notated differently, that is: we
+When we speak of enharmonic equivalence, we mean that two notes refer
+to the same pitch, but are notated differently; that is: we
 differentiate between the sound of a note and its function.
 The question if Eb and D# in 12-EDO are *the same* can only be
-answered if we further specify: Same in regards to what?
+answered if we further specify: Same in regard to what?
 
-In regards to notation Eb and D# are distinct, however in regards
-to sound they are the same. Spoken in mathematical terms:
+In regard to notation Eb and D# are distinct; however, in regard
+to sound, they are the same. Spoken in mathematical terms:
 Notation systems in which there is enharmonic equivalence
 define two equivalency relations on the space of notes. We already came
-across to both of them in the chapter about notes: The :code:`==`
-operator considers notes as equal if their frequency is the same
+across both of them in the chapter about notes: The :code:`==`
+operator considers notes as equal if their frequency is the same,
 while the method :code:`is_notated_same` checks for notation
 equality.
 
@@ -3488,7 +3488,7 @@ of notes poses a problem for us when we want to define scales and
 operations on them:
 Note scales are defined as 'an ordered set of *unique* notes',
 meaning that no two notes in a scale are the same. Now should
-this refer to notation or sound? After all in cases where we
+this refer to notation or sound? After all, in cases where we
 are interested in the functional relationship of scales, we
 would want to treat D# and Eb as distinct, while in other cases
 we want them to be considered equal.
@@ -3516,8 +3516,8 @@ scale object:
         scale_b.pitch_scale
     )
 
-    # among others, these would break if we would
-    # treat Eb and D# distinct in note scales
+    # among others, these would break if we treat
+    # Eb and D# as distinct in note scales
     assert note_union.frequencies == pitch_union.frequencies
     assert len(note_union) == len(pitch_union)
     pitch_intervals = [
@@ -3529,7 +3529,7 @@ This choice also allows implementing the scale's :code:`==` operator
 as a consistent logical extension of the note's :code:`==` operator,
 creating a closed set algebra for scales under :code:`==` with all
 basic set operations. Think of it this way: Notes are variable names
-holding the pitch as their value with some variables being equal:
+holding the pitch as their value, with some variables being equal:
 
 .. math::
 
@@ -3542,7 +3542,7 @@ holding the pitch as their value with some variables being equal:
 
 How does xenharmlib then choose the note representation of a pitch when
 more than one enharmonically equivalent note is present? During
-construction of a note scale it chooses on the principle of first
+construction of a note scale, it chooses on the principle of first
 encounter:
 
 .. testcode::
@@ -3556,7 +3556,7 @@ encounter:
     assert len(scale) == 1
     assert scale[0].pc_symbol == 'D#'
 
-When using set operations xenharmlib always prefers the representation
+When using set operations Xenharmlib always prefers the representation
 of the scale that executed the operation:
 
 .. testcode::
@@ -3593,8 +3593,8 @@ of the scale that executed the operation:
         n_edo12.scale([d_sharp])
     )
 
-Using the :code:`==` operator we see that even though the results
-are different in terms of representation, commutativity in regards
+Using the :code:`==` operator, we see that even though the results
+are different in terms of representation, commutativity with regard
 to union and intersection is still preserved:
 
 .. testcode::
@@ -3602,7 +3602,7 @@ to union and intersection is still preserved:
     assert union_a_b == union_b_a
     assert intersection_a_b == intersection_b_a
 
-In contrast using the :code:`is_notated_same` equivalency relation
+In contrast, using the :code:`is_notated_same` equivalency relation
 on the two result pairs does *not* preserve commutativity:
 
 .. testcode::
@@ -3618,7 +3618,7 @@ defined.
 However, on *certain* set operations, we can define the option to use
 the :code:`is_notated_same` relation. For :code:`intersection`, we
 can define that same-sounding, but differently notated notes should
-not be part of the intersection. For :code:`difference` we can define
+not be part of the intersection. For :code:`difference`, we can define
 that such notes will not be removed from the first scale. In the
 same way, we can define the relationships :code:`is_disjoint`,
 :code:`is_subset`, and :code:`is_superset`.
@@ -3647,8 +3647,8 @@ These stricter variants of the set operations are called:
     diff_a_b = scale_a.note_difference(scale_b)
     assert len(diff_a_b) == 2
 
-In combination with the :code:`ignore_bi_index` flag, we can for
-example build a function that returns the pitch class symbols of
+In combination with the :code:`ignore_bi_index` flag, we can, for
+example, build a function that returns the pitch class symbols of
 the common notes of two scales while being aware of the key:
 
 .. testcode::
@@ -3661,7 +3661,7 @@ the common notes of two scales while being aware of the key:
         return scale_i
 
     # F# major and Gb major have exactly the same
-    # pitches, however they are notated differently
+    # pitches, however, they are notated differently
     f_sharp_maj = n_edo12.natural_scale().transpose(
         n_edo12.shorthand_interval('A', 4)
     )

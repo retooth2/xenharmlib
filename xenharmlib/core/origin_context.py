@@ -116,7 +116,7 @@ class OriginContext(
         return self.interval(self.zero_element, self.zero_element).pitch_diff
 
     @property
-    def unison_interval(self) -> IntervalSeqT:
+    def unison_interval(self) -> IntervalT:
         """
         The unison interval is a reference point, in one-dimensional tunings
         it is the element with pitch diff 0, in western notation typically
@@ -193,7 +193,7 @@ class OriginContext(
 
     def interval_fan(
         self, intervals: Optional[Iterable[IntervalT]] = None
-    ) -> IntervalSeqT:
+    ) -> IntervalFanT:
         """
         Returns an interval fan having the interval fan type
         this origin context was configured with

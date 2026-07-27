@@ -169,17 +169,17 @@ class LatticePoint:
         self.vector = vector
         self.base = base
 
-        ratio = 1
-        for x, base in zip(vector, base):
+        ratio = FrequencyRatio(1)
+        for x, b in zip(vector, base):
             if x >= 0:
-                ratio *= base**x
+                ratio *= b**x
             else:
-                ratio *= FrequencyRatio(1, base ** (-x))
+                ratio *= FrequencyRatio(1, b ** (-x))
 
         self._frequency_ratio = ratio
 
     @classmethod
-    def zero(cls, base: Tuple[FrequencyRatio]):
+    def zero(cls, base: Tuple[FrequencyRatio, ...]):
         """
         Returns the 0 vector for a given base
         """
@@ -235,7 +235,7 @@ class LatticePoint:
 
     __rsub__ = __sub__
 
-    def __divmod__(self, other: Self) -> Self:
+    def __divmod__(self, other: Self) -> Tuple[int, Self]:
 
         self._ensure_sametype_operand(other, '__divmod__')
         zero_point = LatticePoint.zero(self.base)
