@@ -200,8 +200,8 @@ class EnharmonicStrategy:
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
-            f'implement the note_scale_transpose method. Transposing a '
-            f'note scale with an integer argument is therefore not possible'
+            f'implement the note_scale_pcs_complement method. Calculating the '
+            f'complement of the scale is therefore not possible'
         )
 
 
