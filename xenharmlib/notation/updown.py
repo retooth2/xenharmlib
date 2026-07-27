@@ -138,7 +138,7 @@ class UpDownNotation(NatAccNotation[int]):
 
     Additional, optional keyword-only arguments:
     (only relevant if you want to develop your own notation
-     class based on this one)
+    class based on this one)
 
     :param note_cls: The python class that is used for the note
         object returned from the note method.
