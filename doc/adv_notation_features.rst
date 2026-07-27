@@ -275,24 +275,74 @@ The interface definition for enharmonic strategies is as follows:
                [notation.note('C', 0), notation.note('C', 3)]
            )
 
-       def note_transpose(self, note, pitch_diff: int):
+       def guess_note_interval_seq(self, notation, pitch_interval_seq):
+           """
+           The method notation.guess_note_interval_seq delegates to this
+           function. It should return a suitable note interval sequence
+           for the provided pitch interval sequence
+           """
+           return notation.interval_seq(
+               [
+                   notation.shorthand_interval('M', 2),
+                   notation.shorthand_interval('m', 2),
+               ]
+           )
+
+       def guess_note_interval_fan(self, notation, pitch_interval_fan):
+           """
+           The method notation.guess_note_interval_fan delegates to this
+           function. It should return a suitable note interval fan for
+           the provided pitch interval fan
+           """
+           return notation.interval_fan(
+               [
+                   notation.shorthand_interval('P', 1),
+                   notation.shorthand_interval('m', 2),
+               ]
+           )
+
+       def guess_note_seq(self, notation, pitch_seq):
+           """
+           The method notation.guess_note_seq delegates to this
+           function. It should return a suitable note sequence for the
+           provided pitch sequence
+           """
+           return notation.seq(
+               [notation.note('C', 0), notation.note('C', 3)]
+           )
+
+       def note_transpose(self, note, pitch_diff):
            """
            The method note.transpose delegates to this function if
-           the desired transposition distance was given as an integer.
+           the desired transposition distance was given as a pitch diff.
            It should return a suitable note with the correct pitch
            difference.
            """
            return note.notation.note('C', 0)
 
-       def note_scale_transpose(self, note_scale, pitch_diff: int):
+       def note_scale_transpose(self, note_scale, pitch_diff):
            """
            The method note_scale.transpose delegates to this
            function if the desired transposition distance was
-           given as an integer. It should return a suitable
+           given as a pitch diff. It should return a suitable
            note scale with all notes transposed by the correct
            pitch difference.
            """
-           return note_scale.notation.scale('C', 0)
+           return note_scale.notation.scale(
+               [notation.note('C', 0), notation.note('C', 3)]
+           )
+
+       def note_seq_transpose(self, note_seq, pitch_diff):
+           """
+           The method note_seq.transpose delegates to this
+           function if the desired transposition distance was
+           given as a pitch diff. It should return a suitable
+           note sequence with all notes transposed by the correct
+           pitch difference.
+           """
+           return note_seq.notation.seq(
+               [notation.note('C', 0), notation.note('C', 3)]
+           )
 
        def note_scale_pcs_complement(self, note_scale):
            """
@@ -303,4 +353,3 @@ The interface definition for enharmonic strategies is as follows:
            return notation.scale(
                [notation.note('C', 0), notation.note('D#', 0)]
            )
-
