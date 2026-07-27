@@ -1362,6 +1362,62 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
 
 
 @pytest.mark.parametrize(
+    'notation, input_pairs, interval, result_pairs',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            (('A', 0), ('B', 0)),
+            [('B+', 0), ('C+', 0), ('E+', 0)],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('A', 0), ('B', 1)),
+            [('B+', 1), ('C+', 2), ('A', 4)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('B', 0), ('A', 0)),
+            [('L+', -1), ('A+', 1), ('E', 2)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('B', 1), ('A', 0)),
+            [('L+', -2), ('A+', 0), ('E', 1)],
+        ),
+    ]
+)
+def test_transpose_pitch_diff(notation, input_pairs, interval, result_pairs):
+    """
+    Test if transpose method works correctly when given a pitch diff
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_a, note_b = interval
+    note_interval = notation.note(*note_a).interval(
+        notation.note(*note_b)
+    )
+
+    transposed = scale.transpose(note_interval.pitch_diff)
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+
+@pytest.mark.parametrize(
     'notation, input_pairs, result_pairs',
     [
         (
