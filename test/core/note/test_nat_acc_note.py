@@ -852,6 +852,31 @@ def test_note_repr(
 
 
 @pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, expected',
+    [
+        (n_edo12, 'B',    0, 'B'),
+        (n_edo12, 'Bx',   1, 'Bx'),
+        (n_edo12, 'B++',  3, 'B++'),
+        (n_edo31, 'C-',   2, 'C-'),
+        (n_edo31, 'C--',  1, 'C--'),
+        (n_edo12, 'A--', -1, 'A--'),
+    ]
+)
+def test_note_short_repr(
+    notation,
+    pc_symbol,
+    nat_bi_index,
+    expected
+):
+    """
+    Test if pc_short_repr property works correctly on notes
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    assert note.pc_short_repr == expected
+
+
+@pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index, '
     'gen_pc_symbol, gen_nat_bi_index, '
     'gen_index',
