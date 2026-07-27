@@ -32,7 +32,7 @@ PitchT = TypeVar('PitchT', bound=Pitch)
 IndexT = TypeVar('IndexT', bound=Index)
 
 
-class PitchSeq(FreqReprSeq[PitchT], Generic[IndexT, PitchT]):
+class PitchSeq(FreqReprSeq[IndexT, PitchT], Generic[IndexT, PitchT]):
     """
     Base class for all sequences of pitches
 
@@ -71,7 +71,8 @@ PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
 class PeriodicPitchSeq(
-    PitchSeq[PeriodicIndexT], PeriodicFreqReprSeq[PeriodicPitchT]
+    PitchSeq[PeriodicIndexT, PeriodicPitchT],
+    PeriodicFreqReprSeq[PeriodicPitchT]
 ):
     """
     Pitch sequence class for periodic tunings

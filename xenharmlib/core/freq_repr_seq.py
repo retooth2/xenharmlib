@@ -27,6 +27,7 @@ from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
 from .protocols import Index
+from .protocols import PeriodicIndex
 from .protocols import PeriodicPitchLike
 from .masks import mask_select
 from ..exc import IncompatibleOriginContexts
@@ -508,9 +509,10 @@ class FreqReprSeq(Sequence[FreqReprT], ABC, Generic[IndexT, FreqReprT]):
 
 
 PeriodicFreqReprT = TypeVar('PeriodicFreqReprT', bound=PeriodicPitchLike)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
-class PeriodicFreqReprSeq(FreqReprSeq[PeriodicFreqReprT]):
+class PeriodicFreqReprSeq(FreqReprSeq[PeriodicIndexT, PeriodicFreqReprT]):
     """
     PeriodicFreqReprSeq is the abstract base class for frequency
     representation sequences that contain frequency representations of
