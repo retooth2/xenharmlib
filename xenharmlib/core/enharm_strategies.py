@@ -142,51 +142,51 @@ class EnharmonicStrategy:
             f'not possible'
         )
 
-    def note_transpose(self, note, pitch_diff: int):
+    def note_transpose(self, note, pitch_diff):
         """
         Note.transpose relays to here if the interval argument was
-        not given as a suitable NoteInterval object but as an integer.
+        not given as a suitable NoteInterval object but as a pitch diff.
 
         :param note: The note on which the transpose method was called
-        :param pitch_diff: The pitch difference as an integer
+        :param pitch_diff: The pitch difference
         """
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
             f'implement the note_transpose method. Transposing a note '
-            f'with an integer argument is therefore not possible'
+            f'with a pitch diff argument is therefore not possible'
         )
 
-    def note_scale_transpose(self, note_scale, pitch_diff: int):
+    def note_scale_transpose(self, note_scale, pitch_diff):
         """
         NoteScale.transpose relays to here if the interval argument was
-        not given as a suitable NoteInterval object but as an integer.
+        not given as a suitable NoteInterval object but as a pitch diff.
 
         :param note_scale: The note scale on which the transpose method
             was called
-        :param pitch_diff: The pitch difference as an integer
+        :param pitch_diff: The pitch difference
         """
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
             f'implement the note_scale_transpose method. Transposing a '
-            f'note scale with an integer argument is therefore not possible'
+            f'note scale with a pitch diff argument is therefore not possible'
         )
 
-    def note_seq_transpose(self, note_seq, pitch_diff: int):
+    def note_seq_transpose(self, note_seq, pitch_diff):
         """
         NoteSeq.transpose relays to here if the interval argument was
-        not given as a suitable NoteInterval object but as an integer.
+        not given as a suitable NoteInterval object but as a pitch diff.
 
         :param note_seq: The note seq on which the transpose method
             was called
-        :param pitch_diff: The pitch difference as an integer
+        :param pitch_diff: The pitch difference
         """
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
             f'implement the note_seq_transpose method. Transposing a '
-            f'note sequence with an integer argument is therefore not '
+            f'note sequence with a pitch diff argument is therefore not '
             f'possible'
         )
 
