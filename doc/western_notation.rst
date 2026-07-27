@@ -2,14 +2,14 @@ Western Notation
 ======================================
 
 The WesternNotation class is an implementation of the American standard
-pitch notation (ASPN), which designates octaves by numbers with C4 being
+pitch notation (ASPN), which designates octaves by numbers, with C4 being
 the "middle C" and a frequency centering of :math:`A4 = 440Hz`.
 
 .. note::
 
    This chapter only gives a brief overview of features specific
-   to this notation. For a general overview on what you can do
-   with the various musical objects in xenharmlib head to the
+   to this notation. For a general overview of what you can do
+   with the various musical objects in xenharmlib, head to the
    Quickstart.
 
 A WesternNotation context is created like this:
@@ -122,7 +122,7 @@ can be examined to obtain their shorthand name:
 
 
 Other than with the
-:meth:`~xenharmlib.core.origin_context.OriginContext.scale` method
+:meth:`~xenharmlib.core.origin_context.OriginContext.scale` method,
 scales in WesternNotation can be defined by only providing a list
 of pitch class symbols and an (optional) root base interval with the
 :meth:`~xenharmlib.core.notation.NatAccNotation.pc_scale` method:

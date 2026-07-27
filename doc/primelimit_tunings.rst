@@ -13,7 +13,7 @@ with the restriction that in their prime factorizations
 :math:`d = p_1^{x_1} \cdot p_2^{x_2} \cdot ... \cdot p_k^{x_k}`
 
 There is no prime :math:`p_{k+1}` bigger than a fixed prime :math:`p_{k}`
-(the "prime limit"). In a 5-Limit tuning for example every pitch
+(the "prime limit"). In a 5-Limit tuning, for example, every pitch
 and interval can be characterized like this:
 
 :math:`\frac{n}{d} = 2^{x_1} \cdot 3^{x_2} \cdot 5^{x_3}`
@@ -160,7 +160,7 @@ builder methods for all other harmonic primitives:
          PrimeLimitPitchSeq([1, 5/4, 3/2], 7-Limit)
 
 
-As a more structured approach Prime Limit Tunings also offer builder
+As a more structured approach, Prime Limit Tunings also offer builder
 methods to create harmonic primitives from
 :class:`~xenharmlib.core.frequencies.FrequencyRatio` objects:
 
@@ -278,7 +278,7 @@ methods to create harmonic primitives from
          PrimeLimitPitchSeq([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 11-Limit)
 
 
-In most theoretical writings on Just Intonation scales are given in the form
+In most theoretical writings on Just Intonation, scales are given in the form
 of xenharmlib's interval fan primitive, e.g. a just major triad is given
 as 1/1, 5/4, 3/2 with the unison 1/1 sometimes being omitted and made
 implicit (e.g. in the SCL file format). A convenient way to define a
@@ -306,7 +306,7 @@ from a root pitch and the fan:
    PrimeLimitPitchScale([24, 30, 36], 11-Limit)
    PrimeLimitPitchSeq([24, 30, 36], 11-Limit)
 
-Vice versa scales and sequences can easily be transformed into the
+Vice versa, scales and sequences can easily be transformed into the
 interval fan form to compare them with theoretical writings:
 
 .. testcode::
@@ -333,7 +333,7 @@ interval fan form to compare them with theoretical writings:
    PrimeLimitPitchIntervalFan([1, 2, 3, 4], 11-Limit)
 
 Prime-Limits also support the creation of interval fans from "enumerated
-chord expressions", and vice versa the transformation of an interval fan
+chord expressions", and vice versa, the transformation of an interval fan
 into the expression:
 
 .. testcode::
@@ -359,18 +359,18 @@ into the expression:
 Pitch Indices
 -------------------------------------------------------------
 
-In the introduction we have defined intervals and pitches in prime limit
+In the introduction, we have defined intervals and pitches in prime limit
 tunings for a limit :math:`p_k` as characterized by the expression:
 
 :math:`\frac{n}{d} = p_1^{x_1} \cdot p_2^{x_2} \cdot ... \cdot p_k^{x_k}`
 
-In turn this means every pitch and every interval can be characterized
+In turn, this means every pitch and every interval can be characterized
 by an integer vector of prime number exponents:
 
 :math:`\vec{X} = (x_1, x_2, ...., x_k)`
 
 This prime exponent vector is called a *Lattice Point* . In the special
-case of Prime Limit Tunings it is also colloquially known as a *Monzo*
+case of Prime Limit Tunings, it is also colloquially known as a *Monzo*,
 named after composer and theorist Joe Monzo.
 
 Other than in equal temperaments where pitch indices are integers, because
@@ -391,12 +391,12 @@ lattice points:
 
    LatticePoint(-2, 0, 1)
 
-So far we have talked about builder methods special to prime limit tunings,
-however prime limit tunings also provide the standard index-based builder
-methods of every tuning with the difference that in prime limit tunings
+So far we have talked about builder methods special to prime limit tunings;
+however, prime limit tunings also provide the standard index-based builder
+methods of every tuning, with the difference that in prime limit tunings
 all indices and pitch difference values are lattice points.
 
-Lattice points objects can be created from the tuning object like this:
+Lattice point objects can be created from the tuning object like this:
 
 .. testcode::
 
@@ -577,7 +577,7 @@ To get a full overview of lattice point arithmetic, take a look at the
 dedicated chapter on Lattice Points.
 
 Like every multi-generator tuning, Prime Limit Tunings also implements
-shortform builder methods, that take tuples instead of lattice point
+shortform builder methods that take tuples instead of lattice point
 objects as parameter. The equivalent of the above, more verbose but
 more structured approach is this:
 
@@ -703,10 +703,10 @@ Special Considerations regarding Tools
 
 Prime Limit Tunings are a model of a subset of the rational numbers. This
 means that the number of pitches between every two pitches is infinite.
-Consequently this means that tools that make the assumption that there
+Consequently, this means that tools that make the assumption that there
 is a *finite* number of pitches inside, say, an octave are not applicable
-on prime limit tunings. The interval class vector from post tonal theory
-e.g. assumes that the tuning has a finite number of interval classes,
+to Prime Limit Tunings. The interval class vector from post-tonal theory,
+e.g., assumes that the tuning has a finite number of interval classes,
 which is not the case in Prime Limit Tunings:
 
 .. testcode::
@@ -727,8 +727,8 @@ which is not the case in Prime Limit Tunings:
    ic_vector only supports one-dimensional tunings
 
 Xenharmlib implements tools as general as possible, so if the definition
-of an analytical object does not collide with the assumption of infinity
-it will work. For example it is possible to calculate the normal form
+of an analytical object does not collide with the assumption of infinity,
+it will work. For example, it is possible to calculate the normal form
 or prime form of a prime limit tuning scale with the particularity that
 the pitch class indices are not integers, but lattice points:
 

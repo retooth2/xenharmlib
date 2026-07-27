@@ -11,7 +11,7 @@ instances of prime generators like
 :math:`\frac{n}{d} = p_1^{x_1} \cdot p_2^{x_2} \cdot ... \cdot p_k^{x_k}`
 
 Multi-generator tunings relax the requirement for generators, so they can
-be any frequency ratio, even irrational ones e.g.
+be any frequency ratio, even irrational ones, e.g.
 
 :math:`2^{x_1} \cdot (3 \cdot (\frac{80}{81})^{\frac{1}{4}})^{x_2}`
 
@@ -30,7 +30,7 @@ period, so another way to create a 3-Limit Tuning is this:
    )
 
 Irrational frequency ratios (like the one in the introductory example)
-can be created using frequency ratio arithmetics, for example the
+can be created using frequency ratio arithmetic. For example, the
 following code example creates a multi-generator quarter-comma-meantone
 tuning:
 
@@ -47,7 +47,7 @@ tuning:
    )
 
 Even EDO tunings can be constructed by custom multi-generator tunings,
-e.g. a unnecessarily complicated way to construct 31-EDO is this:
+e.g., an unnecessarily complicated way to construct 31-EDO is this:
 
 .. testcode::
    
@@ -56,7 +56,7 @@ e.g. a unnecessarily complicated way to construct 31-EDO is this:
        eq_diff_vec=(31,)
    )
 
-Like in Prime-Limit-Tunings pitch indices and pitch differences in
+Like in Prime-Limit-Tunings, pitch indices and pitch differences in
 Multi-Generator Tunings are lattice points:
 
 .. tabs::
@@ -212,7 +212,7 @@ Multi-Generator Tunings are lattice points:
 
          MultiGenPitchSeq([(0, 0), (1, 0), (0, 1), (0, 0)], G=(2, 2*5**(1/4)))
 
-As a shortform multi-generator tunings also support builder methods that
+As a shortform, multi-generator tunings also support builder methods that
 only demand the vector tuple instead of the full lattice point object:
 
 .. tabs::
@@ -346,7 +346,7 @@ Prime-Limit Isomorphism
 --------------------------
 
 You might have noticed that for our quarter-comma meantone example we
-used slightly similar generators then we would use if we would create
+used slightly similar generators than we would use if we would create
 a 3-Limit tuning. The difference in the second generator is only
 marginal:
 

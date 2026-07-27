@@ -3,7 +3,7 @@ Introduction
 
 Harmonic primitives in xenharmlib are objects representing basic harmonic
 structures. They are created from and always relate to an **origin context**,
-i.e. a musical system that defines the *meaning* of their symbolic expression
+i.e., a musical system that defines the *meaning* of their symbolic expression
 (e.g. a G#-4 has a different frequency in the context of 31-EDO than in
 the context of 12-EDO)
 
@@ -12,21 +12,21 @@ Origin Contexts
 
 An origin context can take on the form of a **tuning** (a representation
 system built on integers or lattice points) or a **notation** representing
-musical objects with strings (like Eb-4). Generally speaking notations
-are a symbolic *wrappers* around tunings, meaning each primitive
+musical objects with strings (like Eb-4). Generally speaking, notations
+are symbolic *wrappers* around tunings, meaning each primitive
 created from a notation can be reduced to an equivalent tuning
-primitive. The reverse is also true, however with some restrictions:
+primitive. The reverse is also true, however, with some restrictions:
 Because most of the time there are multiple symbolic representations
-for the same numeric pitch (for example in Western tuning Eb and D#
+for the same numeric pitch (for example, in Western tuning Eb and D#
 represent the pitch index), xenharmlib must make a guess on what symbolic
 representation to choose when translating a harmonic primitive from a
 tuning to a notation.
 
-Harmonic primitives are build from *builder methods* of the origin context.
+Harmonic primitives are built from *builder methods* of the origin context.
 These builder methods share (for the most part) an interface across contexts,
 making it possible to make analytical tools that are *agnostic* to the
-origin context, i.e. allowing to create one function that works on
-objects built from an EDO Tuning *as well as* for objects originating
+origin context, i.e., allowing to create one function that works on
+objects built from an EDO Tuning *as well as* on objects originating
 from an UpDownNotation context.
 
 The smallest unit of representation, from which all harmonic primitives can be
@@ -94,12 +94,12 @@ derived, is the frequency representation, which in tuning contexts is called
 
          400.1127908225046
 
-From these "smallest" units other harmonic primitives can be build, which we
+From these "smallest" units other harmonic primitives can be built, which we
 call *second-order* harmonic primitives:
 
 * A structure of 2 frequency representations is called an **interval**
-* An sorted list of unique frequency representations is called a **scale**
-* A succession of multiple frequency representions is called a **sequence**
+* A sorted list of unique frequency representations is called a **scale**
+* A succession of multiple frequency representations is called a **sequence**
 
 On top of these we have what we call *third-order* harmonic primitives:
 
@@ -114,8 +114,8 @@ Third-order harmonic primitives allow generalizations like "major scale"
 dealing with structures in the context of transformation theory.
 
 Every primitive refers to its origin context by the :attr:`origin_context`
-property. Together with the unified interface of builder methods this can
-be leveraged to create generalized utilities. Observe for example how the
+property. Together with the unified interface of builder methods, this can
+be leveraged to create generalized utilities. Observe, for example, how the
 following function can be applied to sequences of all origins:
 
 .. testcode::
@@ -142,7 +142,7 @@ following function can be applied to sequences of all origins:
 
        return result
 
-The function transforms notes in a sequence into a period normalized scale
+The function transforms notes in a sequence into a period-normalized scale
 and then uses that scale to calculate scale degrees of movement in the
 sequence, allowing us to differentiate between steps and skips in the
 sequence, regardless of sequence origin:
@@ -292,7 +292,7 @@ object necessary to do calculations, so e.g. the method transforming
 a compound interval into a simple one does not only return an interval
 with the correct frequency ratio, but also with the correct spelling.
 
-In the same way the
+In the same way, the
 :attr:`~xenharmlib.core.origin_context.OriginContext.unison_interval`
 constant provides the "neutral element" of the interval space. The
 unison interval is for example the reference point for xenharmlib
@@ -422,9 +422,9 @@ Since xenharmlib supports both integer and lattice point indexing,
 reference points for different indexing strategies are also
 given as constants, namely
 :attr:`~xenharmlib.core.origin_context.OriginContext.zero_index`
-(the pitch index of the zero element) and
+(the pitch index of the zero element), and
 :attr:`~xenharmlib.core.origin_context.OriginContext.unison_diff`
-(the pitch difference of the unison interval) and
+(the pitch difference of the unison interval), and
 :attr:`~xenharmlib.core.origin_context.OriginContext.eq_diff`
 (the pitch difference of the equivalency interval)
 

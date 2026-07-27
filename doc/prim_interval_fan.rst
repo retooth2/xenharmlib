@@ -8,13 +8,13 @@ Interval Fans
 An **interval fan** is a harmonic primitive describing the relative
 interval distances of the elements of a scale or a sequence from the
 vantage point of a tonal center. This is in contrast to the
-:doc:`interval sequence <prim_interval_seq>` primitive which describes
+:doc:`interval sequence <prim_interval_seq>` primitive, which describes
 the relative distances of notes/pitches in a scale or sequence
 *to each other*.
 
 Interval fans describe movement in relation to a tonal center *without*
 specifying that center. This situates them closely to both transformation
-theory and tonal music. However they are also simply a common form to
+theory and tonal music. However, they are also simply a common form to
 denote an abstract scale, e.g. in Scale Workshop or Scala.
 
 We start with an example from tonal analysis:
@@ -56,7 +56,7 @@ notes, "de-abstract" it by giving it a new tonic, for example D#:
 
 We can also start directly from an interval fan and then use it as
 a template to "stamp out" different scales and sequences. Especially
-in writings about Just Intonation scales are often given as interval
+in writings about Just Intonation, scales are often given as interval
 fans:
 
 .. testcode::
@@ -163,7 +163,7 @@ Element-wise Construction
 
 Interval fans can be constructed element-wise. In line with xenharmlib's
 immutable object design, this is not done with an append method like
-in standard python, but with a method that returns a scale with
+in standard Python, but with a method that returns a scale with
 an additional element:
 
 .. tabs::
@@ -179,7 +179,7 @@ an additional element:
          M3 = edo31.diff_interval(10)
          P5 = edo31.diff_interval(18)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = edo31.interval_fan()
 
          for i in [P1, M3, P5]:
@@ -203,7 +203,7 @@ an additional element:
          M3_pure = limit5.rs_interval('5/4')
          P5 = limit5.rs_interval('3/2')
 
-         # start with empty fan
+         # start with an empty fan
          ifan = limit5.interval_fan()
 
          for i in [P1, M3_pure, P5]:
@@ -227,7 +227,7 @@ an additional element:
          M3 = western.shorthand_interval('M', 3)
          P5 = western.shorthand_interval('P', 5)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = western.interval_fan()
 
          for i in [P1, M3, P5]:
@@ -254,7 +254,7 @@ an additional element:
          super_M3 = n_edo31.shorthand_interval('^M', 3)
          P5 = n_edo31.shorthand_interval('P', 5)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = n_edo31.interval_fan()
 
          for i in [P1, super_M3, P5]:
@@ -267,7 +267,7 @@ an additional element:
          UpDownNoteIntervalFan([P1, ^M3], 31-EDO)
          UpDownNoteIntervalFan([P1, ^M3, P5], 31-EDO)
 
-Instead of appending intervals at the end of the fan users can also give
+Instead of appending intervals at the end of the fan, users can also give
 an additional parameter to define where the new interval should appear:
 
 .. tabs::
@@ -283,7 +283,7 @@ an additional parameter to define where the new interval should appear:
          M3 = edo31.diff_interval(10)
          P5 = edo31.diff_interval(18)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = edo31.interval_fan()
 
          for i in [P1, M3, P5]:
@@ -307,7 +307,7 @@ an additional parameter to define where the new interval should appear:
          M3_pure = limit5.rs_interval('5/4')
          P5 = limit5.rs_interval('3/2')
 
-         # start with empty fan
+         # start with an empty fan
          ifan = limit5.interval_fan()
 
          for i in [P1, M3_pure, P5]:
@@ -331,7 +331,7 @@ an additional parameter to define where the new interval should appear:
          M3 = western.shorthand_interval('M', 3)
          P5 = western.shorthand_interval('P', 5)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = western.interval_fan()
 
          for i in [P1, M3, P5]:
@@ -358,7 +358,7 @@ an additional parameter to define where the new interval should appear:
          super_M3 = n_edo31.shorthand_interval('^M', 3)
          P5 = n_edo31.shorthand_interval('P', 5)
 
-         # start with empty fan
+         # start with an empty fan
          ifan = n_edo31.interval_fan()
 
          for i in [P1, super_M3, P5]:
@@ -450,7 +450,7 @@ layer by employing the notation's enharmonic strategy.
 Origin contexts built on lattice point indexing also allow construction
 from an iterable of tuples with
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_interval_fan`
-as an alternative to the more verbose above method which expects
+as an alternative to the more verbose above method, which expects
 a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
 
 .. tabs::
@@ -497,7 +497,7 @@ Construction Based on Closest Frequency Ratio
 
 Origin contexts based on integer indices allow construction based on the
 approximation of frequency ratios. Given an arbitrary iterable of frequency
-ratios the 
+ratios, the 
 :meth:`~xenharmlib.core.origin_context.OriginContext.closest_interval_fan`
 method returns the interval fan of an origin context that is closest to it:
 
@@ -663,7 +663,7 @@ Containment
 --------------------------------------------
 
 If you want to know if a specific interval is contained inside of an
-interval fan you can use the :code:`in` operator:
+interval fan, you can use the :code:`in` operator:
 
 .. tabs::
 
@@ -787,7 +787,7 @@ This relation works across origin contexts, for example 12-EDO and
 
 Keep in mind that even if two interval fans might have the same symbolic
 string representation in a notation, they are not necessarily equal. A major
-third interval in 31-EDO has for example a different frequency ratio than a
+third interval in 31-EDO has, for example, a different frequency ratio than a
 major third interval in 12-EDO:
 
 .. testcode::
@@ -825,9 +825,9 @@ major third interval in 12-EDO:
    UpDownNoteIntervalFan([M3, m3], 12-EDO)
    False
 
-Equality/Identity also translates to python's builtin set type. If two
-interval fans are considered equal, combining them in a python set will
-result in an one-element set:
+Equality/Identity also translates to Python's built-in set type. If two
+interval fans are considered equal, combining them in a Python set will
+result in a one-element set:
 
 .. testcode::
 
@@ -1019,7 +1019,7 @@ the first index position where an interval was found (or raises
 Counting
 ------------------
 
-For statistical analysis xenharmlib can calculate the number of times a
+For statistical analysis, xenharmlib can calculate the number of times a
 specific interval occurs in an interval fan:
 
 .. tabs::
@@ -1095,12 +1095,12 @@ Concatenation
 ------------------
 
 Given two interval fans, the :code:`+` glues them together into one.
-(In programming this is known under the term "concatentation").
+(In programming this is known under the term "concatenation").
 
-Concentation of interval fans is especially useful in tonal music
+Concatenation of interval fans is especially useful in tonal music
 if you want to make a collage of two melodic sequences from different
 scores that are written for a different tonic, centering them both
-around a new tonic. To achieve this you first transform the two
+around a new tonic. To achieve this, you first transform the two
 sequences into two interval fans by providing the respective tonic,
 then concatenate the two interval fans and make an instance for a
 different tonic from the result.
@@ -1110,7 +1110,7 @@ different tonic from the result.
    from xenharmlib import WesternNotation
    western = WesternNotation()
 
-   # first four vocal measures from Schuber's "Frühlingssehnsucht"
+   # first four vocal measures from Schubert's "Frühlingssehnsucht"
    # ("Säuselnde Lüfte, ...")  written for the tonic of Bb
    seq_a = western.seq(
        [western.note(pcs, 5) for pcs in 'DCC'] +
@@ -1136,7 +1136,7 @@ different tonic from the result.
 
    WesternNoteSeq([E4, D4, D4, C4, B3, C4, D4, D4, B3, E4, F3, F3, G3, E4, E4, A3, G3, G3, F3])
 
-For illustrative purposes here is also a more abstract set of
+For illustrative purposes, here is also a more abstract set of
 examples for each tuning / notation:
 
 .. tabs::
@@ -1296,14 +1296,14 @@ Repetition of an interval fan can be achieved by multiplying
 Index Masks and Partial Interval Fans
 ----------------------------------------------
 
-Like other sequence-like primitives interval fans allow the extraction
+Like other sequence-like primitives, interval fans allow the extraction
 of "substructures" with the
-:meth:`~xenharmlib.core.interval_fan.IntervalFan.partial` method, that
-expects an index mask expression, i.e. a tuple with indices pointing
+:meth:`~xenharmlib.core.interval_fan.IntervalFan.partial` method, which
+expects an index mask expression, i.e., a tuple with indices pointing
 to fan elements that should be extracted into its own new interval fan.
 
-The mask :code:`(1, 3, 4)` for example extracts the second, fourth and
-fifth element of the fan (like with item retrieval indices in an a mask
+The mask :code:`(1, 3, 4)`, for example, extracts the second, fourth, and
+fifth element of the fan (like with item retrieval indices in a mask
 expression start with 0):
 
 .. tabs::

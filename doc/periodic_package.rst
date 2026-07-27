@@ -13,7 +13,7 @@ represents the infinitely repeating series
 
    :math:`...\ \  G_3\ \  A_3\ \  B_3\ \  C_4\ \  \mathbfit{D_4\ \  E_4\ \  F_4\ \  G_4\ \  A_4\ \  B_4\ \  C_5}\ \  D_5\ \  E_5\ \  F_5\ \  ...`
 
-Scale objects must be period normalized to be elligible for the package,
+Scale objects must be period normalized to be eligible for the package,
 meaning the included elements must inhabit a single base interval.
 If a scale is not period normalized (for example if it was generated to
 represent a chord with compound intervals), it can be transformed easily:
@@ -42,15 +42,15 @@ represent a chord with compound intervals), it can be transformed easily:
 .. note::
 
    Examples in this documentation are given for the notation
-   layer however the functions in periodic also work for the
+   layer however, the functions in periodic also work for the
    tuning/pitch layer
 
 
 Periodic Indexing
 ----------------------------------------------------------------------
 
-From the scale object itself you are already familiar with the :code:`[]`
-operator which returns a scale element at the desired position:
+From the scale object itself, you are already familiar with the :code:`[]`
+operator, which returns a scale element at the desired position:
 
 .. testcode::
 
@@ -73,7 +73,7 @@ operator which returns a scale element at the desired position:
    UpDownNote(C, 0, 12-EDO)
    UpDownNote(E, 0, 12-EDO)
 
-However the :code:`[]` operator only retrieves direct elements of the scale
+However, the :code:`[]` operator only retrieves direct elements of the scale
 object, so "overshooting" the index will result in an error:
 
 .. testcode::
@@ -100,7 +100,7 @@ object, so "overshooting" the index will result in an error:
 Since in :code:`periodic` the scale only represents a section of an infinite
 series, indices and index-based parameters have a different semantic. Because
 we are talking about an infinite series, each element in the series must
-be attributed to a single integer index. Consequently indices in the
+be attributed to a single integer index. Consequently, indices in the
 package do not have lower or upper bounds.
 
 The equivalent function of the :code:`[]` operator is the package function
@@ -131,7 +131,7 @@ the associated element:
    UpDownNote(D, 1, 12-EDO)
 
 The periodic index is centered, so the 0 indices of both scale index and
-periodic index align, meaning that for indices :code:`0, ..., len(scale) - 1`
+periodic index align, meaning that for indices :code:`0, ..., len(scale) - 1`,
 the :code:`[]` operator and :func:`~xenharmlib.periodic.scale_element` will
 result in the same elements:
 
@@ -146,7 +146,7 @@ result in the same elements:
 
 Please note the subtle difference in the result for negative indices.
 While the :code:`[]` operator acts on a negative index in the standard
-python way (counting from the right of the finite sequence), the
+Python way (counting from the right of the finite sequence), the
 :func:`~xenharmlib.periodic.scale_element` function retrieves an element
 from the section of the infinite series that is *left* to the scale:
 
@@ -166,7 +166,7 @@ from the section of the infinite series that is *left* to the scale:
    UpDownNote(B, -1, 12-EDO)
 
 The counterpart of :func:`~xenharmlib.periodic.scale_element` (expecting
-an index, returning a note) is :func:`~xenharmlib.periodic.index` expecting
+an index, returning a note) is :func:`~xenharmlib.periodic.index`, expecting
 a note and returning the index the note was found at in the infinite series:
 
 .. testcode::
@@ -182,7 +182,7 @@ a note and returning the index the note was found at in the infinite series:
    14
 
 If the element does not exist in the infinite series, a ValueError is thrown
-(a behavior familiar from the index method of python's List type):
+(a behavior familiar from the index method of Python's List type):
 
 .. testcode::
 
@@ -200,12 +200,12 @@ If the element does not exist in the infinite series, a ValueError is thrown
 Periodic Index Masks
 ----------------------------------------------------------------------
 
-With :func:`~xenharmlib.periodic.partial` the package allows partial
+With :func:`~xenharmlib.periodic.partial`, the package allows partial
 scale extraction, similar to the
 :ref:`native scale method<index_masks_and_partial_scales>`.
 Because indices do not relate to a finite scale, but to the infinite
 periodic extension, index masks given to :func:`~xenharmlib.periodic.partial`
-have a couple of differences to their finite counterpart. One key difference
+have a couple of differences from their finite counterpart. One key difference
 is that indices in the mask don't have upper or lower bounds. They only need
 to be consecutive:
 
@@ -220,8 +220,8 @@ to be consecutive:
 
    UpDownNoteScale([A0, B0, C1, D1], 12-EDO)
 
-In contrast to index masks used in the native scale methods periodic index
-masks can therefor also include negative numbers:
+In contrast to index masks used in the native scale methods, periodic index
+masks can therefore also include negative numbers:
 
 .. testcode::
 
@@ -236,7 +236,7 @@ masks can therefor also include negative numbers:
 
 Because the mask is operating on an infinite series with the purpose
 of extracting a finite scale, ellipsis symbols (:code:`...`) are not
-allowed on the first or last position of an infinite series index mask:
+allowed in the first or last position of an infinite series index mask:
 
 .. testcode::
 
@@ -249,10 +249,10 @@ allowed on the first or last position of an infinite series index mask:
 
    Ellipsis is not allowed on edges of infinite series mask
 
-For the same reason the package does **not** implement variants of
+For the same reason, the package does **not** implement variants of
 :func:`~xenharmlib.core.scale.PeriodicScale.partial_not` or
 :func:`~xenharmlib.core.scale.PeriodicScale.partition`. It does
-however implement :func:`~xenharmlib.periodic.index_mask` which
+however, implement :func:`~xenharmlib.periodic.index_mask`, which
 takes a partial scale and returns the periodic index mask:
 
 .. testcode::
@@ -343,8 +343,8 @@ index mask:
    UpDownNoteScale([A0, C1, E1, G1], 12-EDO)
    UpDownNoteScale([B0, D1, F1, A1], 12-EDO)
 
-You can also choose chords with a structure bigger than the scale itself
-for example chords with a ninth:
+You can also choose chords with a structure bigger than the scale itself,
+for example, chords with a ninth:
 
 .. testcode::
    
@@ -388,8 +388,8 @@ Modulation Connectors
 -----------------------------------------------------------------
 
 If you are composing a chord progression in a specific key and want to
-modulate to another key you typically want to find chords that are shared
-between the two different keys so they be used as pivot from one key to
+modulate to another key, you typically want to find chords that are shared
+between the two different keys so they can be used as a pivot from one key to
 another. The :func:`~xenharmlib.periodic.mod_connectors` function makes
 this task a piece of cake. It expects two scales as parameters and a
 cutouts structure and finds equivalent partial scales between the two
@@ -423,7 +423,7 @@ Scalar Transposition
 
 The function :func:`~xenharmlib.periodic.scalar_transpose` transposes
 a note or a scale *along* the infinite periodic series, meaning if a
-note is transposed by 3 it is moved 3 steps upwards *on the scale*:
+note is transposed by 3, it is moved 3 steps upwards *on the scale*:
 
 .. testcode::
 
@@ -441,7 +441,7 @@ note is transposed by 3 it is moved 3 steps upwards *on the scale*:
 
    UpDownNote(E, 3, 12-EDO)
 
-Likewise if a scale is provided and the step difference is 5 each note
+Likewise, if a scale is provided and the step difference is 5 each note
 of the scale will be transposed 5 scale steps in the resulting scale:
 
 .. testcode::
@@ -462,8 +462,8 @@ Pair Iteration
 
 The :func:`~xenharmlib.periodic.pairs` function iterates over all pairs
 of scale elements until a pair equivalent to the first pair is reached.
-By default the function will iterate over successive elements, however
-a custom distance can be given as second parameter.
+By default, the function will iterate over successive elements; however,
+a custom distance can be given as a second parameter.
 
 .. testcode::
 
@@ -486,17 +486,17 @@ a custom distance can be given as second parameter.
 Deriving Specific From Generic Intervals
 -----------------------------------------------------------------
 
-A *generic interval* in regards to a scale is defined by two scale
-indices, for example 0 and 3. In regards to the western C4 major
+A *generic interval* with regard to a scale is defined by two scale
+indices, for example 0 and 3. In regard to the Western C4 major
 scale the generic interval (0, 3) is the interval between C4
 (scale index 0) and F4 (scale index 3). The related *specific
-interval* is defined by the absolute pitch indices, in our
-example 48 for C4 and 53 for F4.
+interval* is defined by the absolute pitch indices; in our
+example, 48 for C4 and 53 for F4.
 
 The :func:`~xenharmlib.periodic.spec_interval` function expects
 two scale index parameters (source and target index) and returns
 the related specific interval. The scale indices refer to the
-periodic extension of the scale and behave like outlined in
+periodic extension of the scale and behave as outlined in
 the :ref:`Periodic Indexing` section.
 
 .. testcode::
@@ -516,11 +516,11 @@ Interval Sequence Pattern Matching
 
 The function :func:`~xenharmlib.periodic.find_iseq` provides
 a way to find interval sequences in the periodic extension of the
-scale. Given an interval sequence it returns all occurences of the
+scale. Given an interval sequence, it returns all occurrences of the
 sequence as a list of infinite series index masks.
 
 Let's suppose you want to find all minor chords in a scale. With
-interval sequence pattern matching you can define a suitable
+interval sequence pattern matching, you can define a suitable
 function like this:
 
 .. testcode::

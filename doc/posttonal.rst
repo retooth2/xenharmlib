@@ -5,9 +5,9 @@ Pitch Class Sets and Scales
 ------------------------------------
 
 In textbooks on post-tonal theory, the definition of pitch class sets is often
-ambiguous. In *some* applications a pitch class set is considered unordered.
+ambiguous. In *some* applications, a pitch class set is considered unordered.
 In others (for example in normal form calculation) the order is vital.
-To account for both cases pitch class sets in xenharmlib are always
+To account for both cases, pitch class sets in xenharmlib are always
 *lists* of unique pitch classes.
 
 Xenharmlib implements pitch class set arithmetic as a byproduct of scale
@@ -42,7 +42,7 @@ to span multiple octaves. See the following diagram for illustration:
   :width: 100%
   :alt: A diagram showing a chain of pitches
 
-One way to ensure that the elements are unique is calling the 
+One way to ensure that the elements are unique is to call the 
 :attr:`~xenharmlib.core.scale.PeriodicScale.pcs_normalized`
 method of the scale:
 
@@ -68,7 +68,7 @@ However, this kind of transformation is not always desirable, as it
 eliminates the mode information of a scale (for instance, the C major
 and A minor scales result in the same scale when pcs normalized). A
 better way to make the list of pitch classes unique is period
-normalization which transposes every pitch into the base interval
+normalization, which transposes every pitch into the base interval
 spanned by the root pitch of the original scale (highlighted in red below):
 
 .. image:: _static/images/scale-open-necklace-relative-bi-1.png
@@ -93,10 +93,10 @@ This transformation can be executed on the scale like this:
 
 Period normalization guarantees uniqueness, but not that pitch classes are
 in ascending order (as you can see from the jump from 11 to 1). They
-guarantee however that at most one such violation of the order occurs.
+guarantee, however, that at most one such violation of the order occurs.
 
-If visualized as a closed necklace the resulting pitch class set of both
-normalizations share the same geometric form, however the starting point
+If visualized as a closed necklace, the resulting pitch class sets of both
+normalizations share the same geometric form; however, the starting point
 (highlighted in green) is different:
 
 .. image:: _static/images/scale-closed-necklace-pcs-vs-period-1.png
@@ -107,10 +107,10 @@ normalizations share the same geometric form, however the starting point
 Transposition
 ------------------------------------
 
-Period normalized scales have a nice quality to it: They form a closed
-subset of scales in regard to transposition, meaning that every time
-you transpose a period-normalized scale your result will be another
-period normalized scale:
+Period-normalized scales have a nice quality to them: They form a closed
+subset of scales with regard to transposition, meaning that every time
+you transpose a period-normalized scale, your result will be another
+period-normalized scale:
 
 .. testcode::
 
@@ -122,7 +122,7 @@ period normalized scale:
    [5, 7, 9, 10, 0, 2, 4]
 
 From the viewpoint of the
-:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices` property a
+:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices` property, a
 transposition is an addition mod period size (mod 12 in our example).
 In the closed necklace visualization, it amounts to a rotation of the
 necklace:
@@ -131,7 +131,7 @@ necklace:
   :width: 100%
   :alt: A necklace diagram showing a transposition
 
-To learn more about scale normalization methods read the
+To learn more about scale normalization methods, read the
 :ref:`section on normalization <scale_normalizations>`
 in the Advanced Scale Guide.
 
@@ -144,7 +144,7 @@ Inversion
 
 Xenharmlib implements a generalization of the :math:`I` operation, called
 :meth:`~xenharmlib.core.scale.Scale.reflection`, that reflects the scale
-around an arbitrary axis pitch. Without any parameters it reflects around
+around an arbitrary axis pitch. Without any parameters, it reflects around
 the zero element of the origin context (pitch 0 in tunings, C0 in
 UpDownNotation).
 
@@ -171,7 +171,7 @@ negative of that interval back to the reflection point:
   :alt: A diagram showing a reflection along the 0-6 axis
 
 From the perspective of the
-:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices` property
+:attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices` property,
 invoking :meth:`~xenharmlib.core.scale.Scale.reflection` without
 a parameter applies the :math:`I` operation on the pitch class set.
 
@@ -195,7 +195,7 @@ through 0.
   :width: 100%
   :alt: A diagram showing a reflection of a necklace along the 0-6 axis
 
-If another pitch should serve as the reflection axis it can be provided
+If another pitch should serve as the reflection axis, it can be provided
 as an argument:
 
 .. testcode::
@@ -222,7 +222,7 @@ Normal Form
 ------------------------------------
 
 The normal form transforms all scales that are related by rotation 
-into a single representative, more formally for two scales :math:`S_1`
+into a single representative; more formally, for two scales :math:`S_1`
 :math:`S_2`, rotation function :math:`R` and normal form :math:`N` it
 holds that:
 
@@ -230,9 +230,9 @@ holds that:
 
    \exists i (S_1 = R^i(S_2)) \leftrightarrow N(S_1) = N(S_2)
 
-In more concrete terms this means that all modes of a scale and all
-inversions of a chord have the same normal form, e.g. "C Major" and 
-"D Dorian" have the same normal form or the "C4-E4-G4" chord has the
+In more concrete terms, this means that all modes of a scale and all
+inversions of a chord have the same normal form, e.g., "C Major" and 
+"D Dorian" have the same normal form, or the "C4-E4-G4" chord has the
 same normal form as its inversion "E4-G4-C5".
 
 There are several ways to define the normal form, with the most
@@ -244,7 +244,7 @@ representatives in a few cases.
 
 Xenharmlib provides both variants as part of the set class package:
 :func:`~xenharmlib.setc.nf_forte` for Forte's definition and
-:func:`~xenharmlib.setc.nf_rahn` for Rahns's definition respectively.
+:func:`~xenharmlib.setc.nf_rahn` for Rahns's definition, respectively.
 
 While in textbooks the normal form is often given in a notation like
 "[013468T]" (with T representing 10), xenharmlib's normal form
@@ -266,7 +266,7 @@ type as the input:
 
    EDOPitchScale([4, 6, 7, 9, 11, 13], 12-EDO)
 
-To retrieve the normal form in its pitch class representation
+To retrieve the normal form in its pitch class representation,
 the scale attribute
 :attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices`
 must be used:
@@ -283,7 +283,7 @@ Prime Form
 ------------------------------------
 
 The prime form transforms all scales that are related by rotation,
-transposition and inversion into a single representative. 
+transposition, and inversion into a single representative. 
 
 Xenharmlib provides both the Forte and the Rahn variant of the prime
 form transformation: :func:`~xenharmlib.setc.primeform_forte` and
@@ -316,7 +316,7 @@ An example for 12-EDO:
 
    EDOPitchScale([0, 2, 3, 5, 7, 9], 12-EDO)
 
-To retrieve the prime form in its pure pitch class representation
+To retrieve the prime form in its pure pitch class representation,
 use the scale attribute
 :attr:`~xenharmlib.core.pitch_scale.PeriodicPitchScale.pc_indices`:
 
@@ -331,7 +331,7 @@ use the scale attribute
 Interval Class Vectors
 -------------------------------------
 
-For tunings with integer pitch indices xenharmlib can calculate the
+For tunings with integer pitch indices, xenharmlib can calculate the
 interval class vector with the :meth:`~xenharmlib.setc.ic_vector`
 function from the set class package. An interval class vector counts
 the number of times different interval classes occur in a scale, thus
@@ -343,11 +343,11 @@ Intervals are counted like this:
 
 1. Start from the first scale element and generate intervals to
    all succeeding elements. Transform the intervals to interval
-   classes and count the number of occurences of each class
+   classes and count the number of occurrences of each class
 2. Do the same starting from the next scale element: Generate
    all intervals to succeeding elements (this omits already
    counted intervals between the current element and the
-   proceeding element(s)), calculate the interval classes
+   preceeding element(s)), calculate the interval classes
    and update the counter
 3. Repeat 2 until the last scale element is reached.
 
@@ -355,8 +355,8 @@ The first vector dimension counts the number of intervals with interval
 class 1, the second dimension the number of intervals with interval class
 2, etc. This means that the dimensions of the vector depend on the number
 of possible interval classes in an origin context.
-12-EDO for example has 6 different interval classes, therefor the
-vector has 6 dimensions, 31-EDO has 15 different interval classes,
+12-EDO, for example, has 6 different interval classes, therefor the
+vector has 6 dimensions. 31-EDO has 15 different interval classes,
 so the length of an interval class vector in 31-EDO is 15, etc.
 
 Some examples for illustration:

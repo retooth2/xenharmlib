@@ -12,14 +12,14 @@ as a data structure representing purely the "harmonic flow" of a melody.
    western = WesternNotation()
 
    # harmonic flow of the first two measures from the vocals of
-   # Schubert's Wiegenlied ("Schlafe Schlafe, holder, süßer Knabe"),
+   # Schubert's Wiegenlied ("Schlafe, Schlafe, holder, süßer Knabe"),
    # rearranged into the key of F major
    schlafe_schlafe = western.seq(
        western.note(pcs, 4) for pcs in
        ['A', 'C', 'G', 'A', 'Bb', 'A', 'A', 'G', 'F', 'E', 'F', 'G', 'C']
    )
 
-In the context of serial music the sequence type is used to analyze segments.
+In the context of serial music, the sequence type is used to analyze segments.
 Sequences allow inspection of pitch indices and pitch class indices of their
 content:
 
@@ -33,12 +33,12 @@ content:
    [57, 48, 55, 57, 58, 57, 57, 55, 53, 52, 53, 55, 48]
    [9, 0, 7, 9, 10, 9, 9, 7, 5, 4, 5, 7, 0]
 
-Sequences act similar to standard python list or tuple types in terms
+Sequences act similarly to standard Python list or tuple types in terms
 of their interface, but implement a couple of additional methods specific
 to music theory.
-In contrast to scales there is no restriction in regards to uniqueness
+In contrast to scales, there is no restriction with regard to uniqueness
 or order, so sequences can also be used to analyze scale-like data for
-which the scale primitive is too restricted, e.g. for "descending scales",
+which the scale primitive is too restricted, e.g., for "descending scales",
 in which pitches and notes are not in ascending, but descending order:
 
 .. testcode::
@@ -145,7 +145,7 @@ Element-wise Construction
 
 Sequences can be constructed element-wise. In line with xenharmlib's
 immutable object design, this is not done with an append method like
-in standard python, but with a method that returns a sequence with
+in standard Python, but with a method that returns a sequence with
 an additional element:
 
 .. tabs::
@@ -161,7 +161,7 @@ an additional element:
          D0 = edo31.pitch(5)
          E0 = edo31.pitch(10)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = edo31.seq()
 
          for e in [C0, D0, E0, C0, E0]:
@@ -187,7 +187,7 @@ an additional element:
          D0 = limit5.vec_pitch((-3, 2, 0))
          E0 = limit5.vec_pitch((-2, 0, 1))
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = limit5.seq()
 
          for e in [C0, D0, E0, C0, E0]:
@@ -213,7 +213,7 @@ an additional element:
          D4 = western.note('D', 4)
          E4 = western.note('E', 4)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = western.seq()
 
          for e in [C4, D4, E4, C4, E4]:
@@ -242,7 +242,7 @@ an additional element:
          D4 = n_edo31.note('D', 4)
          E4 = n_edo31.note('E', 4)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = n_edo31.seq()
 
          for e in [C4, D4, E4, C4, E4]:
@@ -276,7 +276,7 @@ the new element will be found in the new sequence:
          D0 = edo31.pitch(5)
          E0 = edo31.pitch(10)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = edo31.seq()
 
          for e in [C0, D0, E0, C0, E0]:
@@ -302,7 +302,7 @@ the new element will be found in the new sequence:
          D0 = limit5.vec_pitch((-3, 2, 0))
          E0 = limit5.vec_pitch((-2, 0, 1))
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = limit5.seq()
 
          for e in [C0, D0, E0, C0, E0]:
@@ -328,7 +328,7 @@ the new element will be found in the new sequence:
          D4 = western.note('D', 4)
          E4 = western.note('E', 4)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = western.seq()
 
          for e in [C4, D4, E4, C4, E4]:
@@ -357,7 +357,7 @@ the new element will be found in the new sequence:
          D4 = n_edo31.note('D', 4)
          E4 = n_edo31.note('E', 4)
 
-         # start with empty sequence
+         # start with an empty sequence
          seq = n_edo31.seq()
 
          for e in [C4, D4, E4, C4, E4]:
@@ -375,7 +375,7 @@ the new element will be found in the new sequence:
 Index-based Construction
 -------------------------------------------------------
 
-Sequences can also conveniently constructed by providing a list of indices,
+Sequences can also be conveniently constructed by providing a list of indices,
 which - depending on origin context - can be integers or lattice points.
 This type of construction also works on the notation layer by employing
 the notation's enharmonic strategy.
@@ -448,7 +448,7 @@ the notation's enharmonic strategy.
          UpDownNoteSeq([C0, D0, E0, C0, D0], 31-EDO)
 
 Index-based construction can be especially useful for dealing with
-segments in 12-tone music. The following snippet e.g. creates a
+segments in 12-tone music. The following snippet, e.g., creates a
 random 12-tone segment and prints the result as a note sequence:
 
 .. code-block:: python
@@ -467,7 +467,7 @@ random 12-tone segment and prints the result as a note sequence:
 Origin contexts built on lattice point indexing also allow construction
 from an iterable of tuples with
 :meth:`~xenharmlib.core.multigen.MultiGenTuning.vec_seq`
-as an alternative to the more verbose above method which expects
+as an alternative to the more verbose above method, which expects
 a full :class:`~xenharmlib.core.lattice.LatticePoint` object.
 
 .. tabs::
@@ -517,10 +517,10 @@ iterable of frequencies. This can be useful if you have extracted data
 on fundamental frequencies of a melody from an audio sample and want to
 know the notes played in the recording. The
 `Essentia <https://essentia.upf.edu/tutorial_pitch_melody.html>`_
-library e.g. allows raw frequency extraction from melodies, however
+library, e.g., allows raw frequency extraction from melodies; however,
 its note conversion feature only supports 12 equal temperament.
-Augmented with xenharmlib you can extend your analysis to non-Western
-harmonic system (e.g. 53-EDO Turkish Makam)
+Augmented with xenharmlib, you can extend your analysis to non-Western
+harmonic systems (e.g., 53-EDO Turkish Makam)
 
 .. tabs::
 
@@ -594,8 +594,8 @@ Relation to Interval Sequences
 -------------------------------------------------------
 
 Sequences and Interval Sequences are closely related. While a sequence
-stores the information "what succession of sounds should be played" an
-interval sequence stores the information "given a arbitrary start point,
+stores the information "what succession of sounds should be played", an
+interval sequence stores the information "given an arbitrary start point,
 what relative movements should be made". 
 Sequences can be transformed into interval sequences by the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.to_interval_seq` method:
@@ -682,8 +682,8 @@ Sequences can be transformed into interval sequences by the
          UpDownNoteIntervalSeq([M2, M2, M-3, M3], 31-EDO)
 
 
-Vice versa interval sequences can be transformed into a pitch/note
-sequences by providing a root note:
+Vice versa, interval sequences can be transformed into a pitch/note
+sequence by providing a root note:
 
 .. tabs::
 
@@ -770,8 +770,8 @@ Relation to Interval Fans
 -------------------------------------------------------
 
 While sequences define a melody flow in concrete terms (for example:
-The melody flow of "Marry Had a Little Lamb" in C major), interval fans
-abstract away the tonic center (the melodic flow of "Marry Had a Little
+The melody flow of "Mary Had a Little Lamb" in C major), interval fans
+abstract away the tonic center (the melodic flow of "Mary Had a Little
 Lamb" in *some* key). This abstraction can be calculated using the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.to_interval_fan`
 method, which expects the pitch or note defining the tonic of the
@@ -790,7 +790,7 @@ key as a parameter:
          D0 = edo31.pitch(5)
          E0 = edo31.pitch(10)
 
-         # melodic flow of marry had a little lamb
+         # melodic flow of "Mary Had a Little Lamb"
          seq = edo31.seq([E0, D0, C0, D0, E0, E0, E0])
 
          # calculate interval fan by using the information that
@@ -813,7 +813,7 @@ key as a parameter:
          D0 = limit5.vec_pitch((-3, 2, 0))
          E0 = limit5.vec_pitch((-2, 0, 1))
 
-         # melodic flow of marry had a little lamb
+         # melodic flow of "Mary Had a Little Lamb"
          seq = limit5.seq([E0, D0, C0, D0, E0, E0, E0])
 
          # calculate interval fan by using the information that
@@ -836,7 +836,7 @@ key as a parameter:
          D4 = western.note('D', 4)
          E4 = western.note('E', 4)
 
-         # melodic series of marry had a little lamb
+         # melodic flow of "Mary Had a Little Lamb"
          seq = western.seq([E4, D4, C4, D4, E4, E4, E4])
 
          # calculate interval fan by using the information that
@@ -862,7 +862,7 @@ key as a parameter:
          D4 = n_edo31.note('D', 4)
          E4 = n_edo31.note('E', 4)
 
-         # melodic series of marry had a little lamb
+         # melodic flow of "Mary Had a Little Lamb"
          seq = n_edo31.seq([E4, D4, C4, D4, E4, E4, E4])
 
          # calculate interval fan by using the information that
@@ -887,7 +887,7 @@ melodic flow:
          from xenharmlib import EDOTuning
          edo31 = EDOTuning(31)
 
-         # abstract form of "marry had a little lamb"
+         # abstract form of "mary had a little lamb"
          # relating to an unspecified tonic note/pitch
          ifan = edo31.diff_interval_fan([10, 5, 0, 5, 10, 10, 10])
 
@@ -912,7 +912,7 @@ melodic flow:
          from xenharmlib import PrimeLimitTuning
          limit5 = PrimeLimitTuning(5)
 
-         # abstract form of "marry had a little lamb"
+         # abstract form of "mary had a little lamb"
          # relating to an unspecified tonic note/pitch
          ifan = limit5.rs_interval_fan(
              ['5/4', '9/8', '1', '9/8', '5/4', '5/4', '5/4']
@@ -943,7 +943,7 @@ melodic flow:
          M2 = western.shorthand_interval('M', 2)
          M3 = western.shorthand_interval('M', 3)
         
-         # abstract form of "marry had a little lamb"
+         # abstract form of "mary had a little lamb"
          # relating to an unspecified tonic note/pitch
          ifan = western.interval_fan(
              [M3, M2, P1, M2, M3, M3, M3]
@@ -977,7 +977,7 @@ melodic flow:
          M2 = n_edo31.shorthand_interval('M', 2)
          M3 = n_edo31.shorthand_interval('M', 3)
 
-         # abstract form of "marry had a little lamb"
+         # abstract form of "mary had a little lamb"
          # relating to an unspecified tonic note/pitch
          ifan = n_edo31.interval_fan(
              [M3, M2, P1, M2, M3, M3, M3]
@@ -1028,7 +1028,7 @@ contexts:
 
 Keep in mind that even if two sequences might have the same symbolic string
 representation in a notation, they are not necessarily equal. A G4 in 31-EDO
-has for example a different frequency than a G4 in 12-EDO:
+has, for example, a different frequency than a G4 in 12-EDO:
 
 .. testcode::
 
@@ -1055,7 +1055,7 @@ has for example a different frequency than a G4 in 12-EDO:
    False
 
 Identity transfers to object hashes, so two sequences that are equal are also
-considered the same object when put into a python set:
+considered the same object when put into a Python set:
 
 .. testcode::
 
@@ -1076,7 +1076,7 @@ considered the same object when put into a python set:
 
 Sequences can also be tested for equivalency. This means that not frequencies
 are compared, but frequencies normalized to the first base interval, making
-e.g. "C4 and C5" the same. Like equality this can also be tested across
+e.g. "C4 and C5" the same. Like equality, this can also be tested across
 origin contexts as long as they have the same equivalency interval
 ratio:
 
@@ -1104,7 +1104,7 @@ ratio:
    UpDownNoteSeq([C3, E3, G3, E3, E3, C3, G3], 24-EDO)
    True
 
-The base interval difference does not need to be uniform across
+The base interval difference does not need to be uniform
 between the two sequences for them to be considered equivalent,
 as you can see from the following examples:
 
@@ -1174,9 +1174,9 @@ as you can see from the following examples:
          True
          False
 
-Equality/Identity also translates to python's builtin set type. If two
-sequences are considered equal, combining them in a python set will result
-in an one-element set:
+Equality/Identity also translates to Python's built-in set type. If two
+sequences are considered equal, combining them in a Python set will result
+in a one-element set:
 
 .. testcode::
 
@@ -1200,7 +1200,7 @@ in an one-element set:
 Iteration
 --------------------------------------------
 
-Like other sequence types pitch/note sequences support iteration:
+Like other sequence types, pitch/note sequences support iteration:
 
 .. tabs::
 
@@ -1289,7 +1289,7 @@ Element Containment
 --------------------------------------------
 
 If you want to know if a specific note or pitch is contained inside of a
-sequence you can use the :code:`in` operator:
+sequence, you can use the :code:`in` operator:
 
 .. tabs::
 
@@ -1540,7 +1540,7 @@ the first index position where a pitch or note was found (or raises
 Counting
 ------------------
 
-For statistical analysis xenharmlib can calculate the number of times a
+For statistical analysis, xenharmlib can calculate the number of times a
 specific pitch or note occurs in a sequence:
 
 .. tabs::
@@ -1615,14 +1615,14 @@ specific pitch or note occurs in a sequence:
 Index Masks and Partial Sequences
 ----------------------------------------------
 
-You can extract (continuous or non-continous) parts from a sequence
+You can extract (continuous or non-continuous) parts from a sequence
 with the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.partial` method that
-expects an index mask expression, i.e. a tuple with indices pointing
+expects an index mask expression, i.e., a tuple with indices pointing
 to sequence elements that should be extracted.
 
-The mask :code:`(1, 3, 4)` for example extracts the second, fourth and
-fifth element of the sequence (like with item retrieval indices in an a
+The mask :code:`(1, 3, 4)`, for example, extracts the second, fourth, and
+fifth element of the sequence (like with item retrieval indices in a
 mask expression start with 0):
 
 .. tabs::
@@ -1985,7 +1985,7 @@ a tuple, you can use the
 Concatenation and Repetition
 --------------------------------------
 
-Like python's builtin list and tuple types xenharmlib's sequence primitive
+Like Python's built-in list and tuple types, xenharmlib's sequence primitive
 allows concatenation of two objects and multiplication with scalars with
 the meaning "repeat x times":
 
@@ -2150,7 +2150,7 @@ method. This is typically done by providing an
 The :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.transpose` method
 also accepts a **pitch difference**. A pitch difference is an integer or
 lattice point that defines the numeric distance between two frequency
-representations. In the case of notations with enharmonic ambiguity
+representations. In the case of notations with enharmonic ambiguity,
 xenharmlib makes a guess which note should be picked.
 
 .. tabs::
@@ -2225,9 +2225,9 @@ Retrograde and Inversion
 
 Sequences provide the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.retrograde` and
-:meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.inversion` method,
+:meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.inversion` methods,
 which return a horizontally mirrored and vertically mirrored
-sequence respectively: Retrograde reads the sequence from end-to-start
+sequence, respectively: Retrograde reads the sequence from end-to-start
 while Inversion flips the direction of every interval in the sequence:
 
 .. tabs::
@@ -2315,7 +2315,7 @@ while Inversion flips the direction of every interval in the sequence:
 Subsequence Containment
 --------------------------------------
 
-If you have two sequences you can test whether one sequence is a subsequence
+If you have two sequences, you can test whether one sequence is a subsequence
 of the other with the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.is_subseq` method:
 
@@ -2404,7 +2404,7 @@ of the other with the
 Subsequence Search
 --------------------------------------
 
-To find the position where a subsequence begins you can call the
+To find the position where a subsequence begins, you can call the
 :meth:`~xenharmlib.core.freq_repr_seq.FreqReprSeq.subseq_index` method
 on the (possible) supersequence:
 

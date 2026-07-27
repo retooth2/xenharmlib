@@ -9,21 +9,21 @@ been covered in the quickstart.
 Enharmonic Strategies
 -------------------------------
 
-As you already know each notation layer object has a unique counterpart in
+As you already know, each notation layer object has a unique counterpart in
 the pitch layer: Every note maps to exactly one pitch, and every note interval
 to exactly one pitch interval, etc.
 
-However the reverse is not true: In 12-EDO the pitch with index 10 could be
+However, the reverse is not true: In 12-EDO, the pitch with index 10 could be
 notated in an infinite number of ways: Bb, A#, Cbb, Dbbbb, etc. Whether
 index 10 should be understood as Bb or A# depends on various contexts
 (at least in tonal music). A mapping from pitches to notes must therefore
 be opinionated: It has to choose one note over all the others.
 
-Because no mapping fits every use case and not every use-case can be foreseen,
+Because no mapping fits every use case and not every use case can be foreseen,
 mappings from pitch layer objects to notation layer objects are not
 implemented directly in the respective classes but outsourced to objects
 that act as a drop-in piece for notations with enharmonic ambiguity.
-These are called *enharmonic strategies*. In object-oriented programming
+These are called *enharmonic strategies*. In object-oriented programming,
 strategies are a common design pattern to give the user a choice on *how*
 a certain functionality is implemented. The term implies that there are
 different strategies to tackle a problem.
@@ -49,7 +49,7 @@ strategy, for example UpDownNotation:
 The default strategy for UpDownNotation is a heuristic that first sets all the
 naturals and then fills in the gaps between the naturals with sharps/flats
 from the left and right bordering notes in an alternating fashion. It then
-fills the leftover gaps with ups/downs in the same way. (If there is a tie
+fills the leftover gaps with ups/downs in the same way. (If there is a tie,
 then sharps/ups win against flats/downs)
 
 .. testcode::
@@ -130,7 +130,7 @@ is that interval names can change drastically:
     UpDownNoteInterval(A, 2, 12-EDO)
     UpDownNoteInterval(m, 3, 12-EDO)
 
-Apart from the direct conversion methods enharmonic strategies enrich the
+Apart from the direct conversion methods, enharmonic strategies enrich the
 feature set of other functions of notation layer objects. For example,
 they make it possible to use integers in the transpose methods:
 
@@ -149,7 +149,7 @@ they make it possible to use integers in the transpose methods:
 Enharmonic strategies are especially useful for post-tonal music where
 transformations of musical objects dismiss functional differences of
 notes and intervals but a degree of notational familiarity is still
-desired. For example the :math:`T_3` operation can easily be applied
+desired. For example, the :math:`T_3` operation can easily be applied
 on a scale:
 
 .. testcode::
@@ -165,7 +165,7 @@ on a scale:
     UpDownNoteScale([D#0, F0, G0, G#0, A#0, C1, D1], 12-EDO)
 
 Please be aware that *in tonal music* this is **not** a valid D# major scale,
-even though the pitches are exactly the same. When writing tonal music
+even though the pitches are exactly the same. When writing tonal music,
 you should not use integers for transpositions but rather note intervals.
 Observe the difference:
 
@@ -181,7 +181,7 @@ Observe the difference:
 
     UpDownNoteScale([D#0, E#0, Fx0, G#0, A#0, B#0, Cx1], 12-EDO)
 
-If you want to choose the note names for each pitch class yourself you can
+If you want to choose the note names for each pitch class yourself, you can
 use the :meth:`~xenharmlib.core.enharm_strategies.PCBlueprintStrategy` class
 to set each note name manually. This more general class works with all
 periodic notations:
@@ -217,7 +217,7 @@ Designing your own enharmonic strategy from scratch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PCBlueprintStrategies are quite primitive. They do not take into account any
-context (for example the original accidental directions of a note scale,
+context (for example, the original accidental directions of a note scale,
 which could indicate the key and a suitable transposition). If you want to
 create a heuristic more to your needs or devise an intelligent strategy
 to contribute to the library itself, read on.

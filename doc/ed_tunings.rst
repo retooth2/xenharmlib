@@ -2,12 +2,12 @@ Equal Division Tunings
 ==================================
 
 Equal division tunings divide an equivalency interval into a finite number
-of steps with each pitch having the same interval ratio to its successor.
+of steps, with each pitch having the same interval ratio to its successor.
 The most well-known equal division tuning is 12-EDO, the standard
 contemporary Western system that divides an octave into 12 equal
 steps.
 
-In general equal division tunings can be created by defining the
+In general, equal division tunings can be created by defining the
 number of divisions and the equivalency interval in the constructor
 of the :class:`~xenharmlib.core.tunings.EDTuning` class:
 
@@ -32,9 +32,9 @@ are also called "Equal Division of the Octave Tunings" (or EDO for short):
    # create the modern Western tuning
    ed12_2 = EDTuning(12, FrequencyRatio(2))
 
-As a shortform EDOs can also be created by the
-:class:`~xenharmlib.core.tunings.EDOTuning` class which sets the frequency
-ratio of the equivalency interval implicitely:
+As a short form, EDOs can also be created by the
+:class:`~xenharmlib.core.tunings.EDOTuning` class, which sets the frequency
+ratio of the equivalency interval implicitly:
 
 .. testcode::
 
@@ -43,9 +43,9 @@ ratio of the equivalency interval implicitely:
    # this tuning is equivalent to the above ed12_2
    edo12 = EDOTuning(12)
 
-By default xenharmlib sets the frequency of the 0-pitch of equal division
+By default, xenharmlib sets the frequency of the 0-pitch of equal division
 tunings to about 16.35 Hz, which is the default frequency for C0 in an
-equally temperated Western system. You can change the frequency of the
+equally tempered Western system. You can change the frequency of the
 0-pitch with the :code:`ref_frequency` parameter:
 
 .. testcode::
