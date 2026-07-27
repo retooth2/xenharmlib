@@ -140,11 +140,11 @@ Audience & Design Philosophy
 -----------------------------
 
 Xenharmlib is targeted at composers and researchers who already have
-basic knowledge in python programming.
+basic knowledge in Python programming.
 
 Xenharmlib does **not** aim to be a score composition tool, sequencer,
-or synthesizer (however it is possible to build such things on top of
-it). Rather it wants to provide a toolset for exploring different
+or synthesizer (however, it is possible to build such things on top of
+it). Rather, it wants to provide a toolset for exploring different
 concepts of harmonic relations with a scientific focus.
 
 Xenharmlib is object-oriented but mostly designed around functional
@@ -248,15 +248,15 @@ features.
 Contributor Guide
 ---------------------
 
-You are always welcome to open a pull request, however, there are some
+You are always welcome to open a pull request; however, there are some
 prerequisites for a pull request to be accepted that you should know:
 
-* For formatting your commit messages please use
+* For formatting your commit messages, please use
   `conventional commits <https://www.conventionalcommits.org/>`_
-* To format your code please use the
+* To format your code, please use the
   `black code formatter <https://black.readthedocs.io/en/stable/>`_
   with string normalization turned off and maximum line length 79.
-  In regards to strings, xemharmlib follows the principle single quotes
+  In regard to strings, xenharmlib follows the principle of single quotes
   (') for data, double quotes (") for information meant to be read only
   by humans (like exception descriptions) and triple-double quotes (""")
   for docstrings.
@@ -265,9 +265,9 @@ prerequisites for a pull request to be accepted that you should know:
   `pytest <https://docs.pytest.org/>`_
 * Your code should come with type annotations. There are a few
   exceptions: Sometimes python's typing system is not mature enough to
-  do proper static-like typing (for example it doesn't support
+  do proper static-like typing (for example, it doesn't support
   higher-kinded types). Sometimes there are design reasons to use
-  python's dynamism. Just snoop around the existing code to get a
+  Python's dynamism. Just snoop around the existing code to get a
   feeling for this balance.
 * Xenharmlib is designed around functional programming principles.
   Objects should not alter their state when calling methods (except
@@ -276,7 +276,7 @@ prerequisites for a pull request to be accepted that you should know:
 Changelog
 ---------
 
-For a list of changes see :doc:`changelog`
+For a list of changes, see :doc:`changelog`
 
 
 Indices and tables
