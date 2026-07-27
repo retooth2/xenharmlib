@@ -44,9 +44,9 @@ ratio of the equivalency interval implicitly:
    edo12 = EDOTuning(12)
 
 By default, xenharmlib sets the frequency of the 0-pitch of equal division
-tunings to about 16.35 Hz, which is the default frequency for C0 in an
-equally tempered Western system. You can change the frequency of the
-0-pitch with the :code:`ref_frequency` parameter:
+tunings to the default frequency for C0 in an equally tempered Western system
+(about 16.35 Hz). You can change the frequency of the 0-pitch with the
+:code:`ref_frequency` parameter:
 
 .. testcode::
 
