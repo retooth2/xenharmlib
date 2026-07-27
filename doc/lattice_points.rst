@@ -32,7 +32,7 @@ The generator interval ratios can be inspected like this:
 
 .. testoutput::
 
-   [FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)]
+   (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5))
 
 In this example, the lattice point represents the following frequency ratio:
 
