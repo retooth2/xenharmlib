@@ -296,6 +296,135 @@ def test_note_acc_direction(
     note = notation.note(pc_symbol, nat_bi_index)
     assert note.acc_direction == acc_direction
 
+# FIXME: dummy notation should have at least one accidental with
+# a different sum and diff value
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, acc_diff_vector',
+    [
+        (n_edo12, 'Bx+', 0, (3,)),
+        (n_edo12, 'Bx+', 1, (3,)),
+        (n_edo31, 'D--', 0, (-2,)),
+        (n_edo31, 'D--', 2, (-2,)),
+        (n_edo12, 'F', -2, (0,)),
+    ]
+)
+def test_note_acc_diff_vector(
+    notation, pc_symbol, nat_bi_index, acc_diff_vector
+):
+    """
+    Test if acc_diff_vector is returned correctly
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+
+    with pytest.deprecated_call():
+        assert note.acc_vector == acc_diff_vector
+
+    assert note.acc_diff_vector == acc_diff_vector
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, acc_sum_vector',
+    [
+        (n_edo12, 'Bx+', 0, (3,)),
+        (n_edo12, 'Bx+', 1, (3,)),
+        (n_edo31, 'D--', 0, (-2,)),
+        (n_edo31, 'D--', 2, (-2,)),
+        (n_edo12, 'F', -2, (0,)),
+    ]
+)
+def test_note_acc_sum_vector(
+    notation, pc_symbol, nat_bi_index, acc_sum_vector
+):
+    """
+    Test if acc_sum_vector is returned correctly
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    assert note.acc_sum_vector == acc_sum_vector
+
+
+@pytest.mark.parametrize(
+    'notation, pcs_a, nat_bi_a, acc_diff_vector, pcs_b, nat_bi_b',
+    [
+        (n_edo12, 'Bx+', 0, (-3,), 'B', 0),
+        (n_edo12, 'Bx+', 1, (1,), 'Bxx', 1),
+        (n_edo31, 'D--', 0, (0,), 'D--', 0),
+        (n_edo31, 'D--', 2, (2,), 'D', 2),
+        (n_edo12, 'F', -2, (1,), 'F+', -2),
+    ]
+)
+def test_note_add_acc_diff_vector(
+    notation, pcs_a, nat_bi_a, acc_diff_vector, pcs_b, nat_bi_b
+):
+    """
+    Test if add_acc_diff_vector works correctly
+    """
+
+    note = notation.note(pcs_a, nat_bi_a)
+    result = note.add_acc_diff_vector(acc_diff_vector)
+
+    assert result == notation.note(pcs_b, nat_bi_b)
+
+
+def test_note_add_acc_diff_vector_incorrect_dim():
+    """
+    Test if add_acc_diff_vector works correctly
+    """
+
+    note = n_edo12.note('Bx', 4)
+
+    with pytest.raises(ValueError) as exc_info:
+        note.add_acc_diff_vector((1, 2, 3, 4, 5))
+
+    assert exc_info.value.args[0] == (
+        'The added accidental diff vector must have the same '
+        'number of dimensions as the accidental diff vector of '
+        'the note it is applied to'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, pcs_a, nat_bi_a, acc_sum_vector, pcs_b, nat_bi_b',
+    [
+        (n_edo12, 'Bx+', 0, (-3,), 'B', 0),
+        (n_edo12, 'Bx+', 1, (1,), 'Bxx', 1),
+        (n_edo31, 'D--', 0, (0,), 'D--', 0),
+        (n_edo31, 'D--', 2, (2,), 'D', 2),
+        (n_edo12, 'F', -2, (1,), 'F+', -2),
+    ]
+)
+def test_note_add_acc_sum_vector(
+    notation, pcs_a, nat_bi_a, acc_sum_vector, pcs_b, nat_bi_b
+):
+    """
+    Test if add_acc_sum_vector works correctly
+    """
+
+    note = notation.note(pcs_a, nat_bi_a)
+    result = note.add_acc_sum_vector(acc_sum_vector)
+
+    assert result == notation.note(pcs_b, nat_bi_b)
+
+
+def test_note_add_acc_sum_vector_incorrect_dim():
+    """
+    Test if add_acc_sum_vector works correctly
+    """
+
+    note = n_edo12.note('Bx', 4)
+
+    with pytest.raises(ValueError) as exc_info:
+        note.add_acc_sum_vector((1, 2, 3, 4, 5))
+
+    assert exc_info.value.args[0] == (
+        'The added accidental sum vector must have the same '
+        'number of dimensions as the accidental sum vector of '
+        'the note it is applied to'
+    )
+
 
 @pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index',
