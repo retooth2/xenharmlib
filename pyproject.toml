@@ -7,7 +7,7 @@ include = ["xenharmlib"]
 
 [project]
 name = "xenharmlib"
-version = "0.3.0"
+version = "0.4.0"
 authors = [
   { name="Fabian Vallon", email="fabian.vallon@gmail.com" },
 ]
