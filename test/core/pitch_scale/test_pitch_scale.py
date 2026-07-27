@@ -210,6 +210,13 @@ def test_eq():
     assert scale_a == scale_e
     assert scale_a != scale_c
     assert scale_a != scale_d
+
+    assert hash(scale_a) == hash(scale_a)
+    assert hash(scale_a) == hash(scale_b)
+    assert hash(scale_a) == hash(scale_e)
+    assert hash(scale_a) != hash(scale_c)
+    assert hash(scale_a) != hash(scale_d)
+
     assert 'XYZ' != scale_a
     assert 3 != scale_a
     assert scale_a != 'XYZ'
@@ -703,9 +710,9 @@ def test_pitch_indices(tuning, input_pi, result_pi):
         (ed13_3, [0, 8, 15, 9, 66], [(0, 8), (8, 9), (9, 15), (15, 66)]),
     ]
 )
-def test_to_pitch_intervals(tuning, input_pi, interval_pi):
+def test_to_interval_seq(tuning, input_pi, interval_pi):
     """
-    Test if to_intervals method works correctly
+    Test if to_interval_seq method works correctly
     """
 
     scale = PitchScale(
@@ -724,7 +731,10 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     with pytest.deprecated_call():
         assert scale.to_pitch_intervals() == intervals
 
-    assert scale.to_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == intervals
+
+    assert list(scale.to_interval_seq()) == intervals
 
     intervals = []
     for pi_a, pi_b in interval_pi:
@@ -736,7 +746,79 @@ def test_to_pitch_intervals(tuning, input_pi, interval_pi):
     with pytest.deprecated_call():
         assert scale.to_pitch_intervals() == intervals
 
-    assert scale.to_intervals() == intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == intervals
+
+    assert list(scale.to_interval_seq()) == intervals
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, interval_diffs',
+    [
+        (edo12, [3, 7, 8], [0, 4, 5]),
+        (edo31, [4, 8, 10, 22, 23], [0, 4, 6, 18, 19]),
+        (ed13_3, [-2, 8, 15, 66], [0, 10, 17, 68]),
+        (ed13_3, [], []),
+    ]
+)
+def test_to_interval_fan_no_param(tuning, input_pi, interval_diffs):
+    """
+    Test if to_interval_fan method works correctly
+    without giving additional parameters
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    result = tuning.diff_interval_fan(interval_diffs)
+
+    assert scale.to_interval_fan() == result
+
+
+@pytest.mark.parametrize(
+    'tuning, input_pi, ref_pi, interval_diffs',
+    [
+        (edo12, [3, 7, 8], 3, [0, 4, 5]),
+        (edo31, [4, 8, 10, 22, 23], 2, [2, 6, 8, 20, 21]),
+        (ed13_3, [-2, 8, 15, 66], -1, [-1, 9, 16, 67]),
+        (ed13_3, [], 3, []),
+    ]
+)
+def test_to_interval_fan_reference_param(
+    tuning, input_pi, ref_pi, interval_diffs
+):
+    """
+    Test if to_interval_fan method works correctly
+    with giving reference parameter
+    """
+
+    scale = PitchScale(
+        tuning,
+        [tuning.pitch(pi) for pi in input_pi]
+    )
+    result = tuning.diff_interval_fan(interval_diffs)
+
+    ref = tuning.pitch(ref_pi)
+    assert scale.to_interval_fan(ref) == result
+
+
+def test_to_interval_fan_incompatible_origin_context():
+    """
+    Test if to_interval_fan method raises correct error
+    when giving incompatible reference parameter
+    """
+
+    scale = edo24.index_scale([1, 2, 3, 5])
+    ref = edo12.pitch(3)
+
+    with pytest.raises(IncompatibleOriginContexts) as excinfo:
+        scale.to_interval_fan(ref)
+    assert (
+        excinfo.value.args[0] ==
+        f'The ref parameter {ref} does not originate from context '
+        f'{scale.origin_context}. Cannot construct interval fan.'
+    )
 
 
 @pytest.mark.parametrize(
@@ -852,9 +934,9 @@ def test_reflection_custom_axis(tuning, input_pi, result_pi, axis_pi):
         (edo24, [1, 8, 12, 14, 16, 22], edo12, [0, 4, 6, 7, 8, 11]),
     ]
 )
-def test_retune(tuning_a, input_pi, tuning_b, result_pi):
+def test_retune_closest(tuning_a, input_pi, tuning_b, result_pi):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
     with pytest.deprecated_call():
@@ -862,7 +944,8 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
             [tuning_a.pitch(pi) for pi in input_pi]
         )
 
-    scale_b = scale_a.retune(tuning_b)
+    with pytest.deprecated_call():
+        scale_b = scale_a.retune(tuning_b)
 
     with pytest.deprecated_call():
         expected_scale_b = tuning_b.pitch_scale(
@@ -874,11 +957,12 @@ def test_retune(tuning_a, input_pi, tuning_b, result_pi):
         [tuning_a.pitch(pi) for pi in input_pi]
     )
 
-    scale_b = scale_a.retune(tuning_b)
+    scale_b = scale_a.retune_closest(tuning_b)
     expected_scale_b = tuning_b.scale(
         [tuning_b.pitch(pi) for pi in result_pi]
     )
     assert scale_b == expected_scale_b
+
 
 @pytest.mark.parametrize(
     'tuning, input_pi_a, input_pi_b, result_pi',
@@ -910,6 +994,16 @@ def test_union(tuning, input_pi_a, input_pi_b, result_pi):
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
 
     scale_c = scale_a | scale_b
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+    scale_c = scale_b.union(scale_a)
+    assert len(scale_c) == len(result_pi)
+    pitches = list(scale_c)
+    assert pitches == [tuning.pitch(pi) for pi in result_pi]
+
+    scale_c = scale_b | scale_a
     assert len(scale_c) == len(result_pi)
     pitches = list(scale_c)
     assert pitches == [tuning.pitch(pi) for pi in result_pi]
@@ -1205,6 +1299,7 @@ def test_is_subset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b) == expected
+    assert (scale_a <= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1234,6 +1329,7 @@ def test_is_subset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_subset(scale_b, proper=True) == expected
+    assert (scale_a < scale_b) == expected
 
 
 def test_is_subset_incompatible_origin_contexts():
@@ -1258,6 +1354,9 @@ def test_is_subset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_subset(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a.is_subset(scale_b, proper=True)
 
 
 @pytest.mark.parametrize(
@@ -1286,6 +1385,7 @@ def test_is_superset(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b) == expected
+    assert (scale_a >= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -1315,6 +1415,7 @@ def test_is_superset_proper(tuning, input_pi_a, input_pi_b, expected):
     )
 
     assert scale_a.is_superset(scale_b, proper=True) == expected
+    assert (scale_a > scale_b) == expected
 
 
 def test_is_superset_incompatible_origin_contexts():
@@ -1339,6 +1440,9 @@ def test_is_superset_incompatible_origin_contexts():
 
             with pytest.raises(IncompatibleOriginContexts):
                 scale_a.is_superset(scale_b)
+
+            with pytest.raises(IncompatibleOriginContexts):
+                scale_a.is_superset(scale_b, proper=True)
 
 
 @pytest.mark.parametrize(

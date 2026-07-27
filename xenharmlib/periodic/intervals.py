@@ -19,9 +19,7 @@ from ..core.interval import Interval
 
 
 def spec_interval(
-    scale: PeriodicScale,
-    source_index: int,
-    target_index: int
+    scale: PeriodicScale, source_index: int, target_index: int
 ) -> Interval:
     """
     Returns the specific interval for a generic interval
@@ -51,4 +49,3 @@ def spec_interval(
     source = scale_element(scale, source_index)
     target = scale_element(scale, target_index)
     return source.interval(target)
-

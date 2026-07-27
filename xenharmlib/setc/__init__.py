@@ -22,3 +22,4 @@ from .nf import compact_forte
 from .nf import compact_rahn
 from .primeform import primeform_forte
 from .primeform import primeform_rahn
+from .interval_content import ic_vector

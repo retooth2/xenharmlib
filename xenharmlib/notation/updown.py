@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
+import operator
 from typing import Tuple
 from ..core.tunings import EDOTuning
 from ..core.notation import NatAccNotation
@@ -21,29 +21,44 @@ from ..core.symbols import SymbolArithmetic
 from ..core.symbols import SymbolArithmeticSet
 from ..core.notes import NatAccNote
 from ..core.notes import NatAccNoteInterval
+from ..core.notes import SDPeriodicNoteMixin
+from ..core.notes import SDPeriodicNoteIntervalMixin
 from ..core.note_scale import NatAccNoteScale
 from ..core.note_interval_seq import NatAccNoteIntervalSeq
+from ..core.note_interval_fan import NatAccNoteIntervalFan
+from ..core.note_seq import NatAccNoteSeq
 from ..core.enharm_strategies import PCBlueprintStrategy
 from ..exc import UnknownNoteSymbol
 from ..exc import UnfittingNotation
+from ..core.utils import componentwise
 
 
 # These are placeholders for future implementations
 
 
-class UpDownNote(NatAccNote):
+class UpDownNote(NatAccNote[int], SDPeriodicNoteMixin):
     pass
 
 
-class UpDownNoteInterval(NatAccNoteInterval):
+class UpDownNoteInterval(
+    NatAccNoteInterval[int, UpDownNote], SDPeriodicNoteIntervalMixin
+):
     pass
 
 
-class UpDownNoteScale(NatAccNoteScale):
+class UpDownNoteScale(NatAccNoteScale[int, UpDownNote]):
     pass
 
 
-class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq):
+class UpDownNoteIntervalSeq(NatAccNoteIntervalSeq[int, UpDownNoteInterval]):
+    pass
+
+
+class UpDownNoteIntervalFan(NatAccNoteIntervalFan[int, UpDownNoteInterval]):
+    pass
+
+
+class UpDownNoteSeq(NatAccNoteSeq[int, UpDownNote]):
     pass
 
 
@@ -92,7 +107,7 @@ SMUFL_MAP = dict(
 )
 
 
-class UpDownNotation(NatAccNotation):
+class UpDownNotation(NatAccNotation[int]):
     """
     UpDownNotation is an implementation of Kite Giedraitis' classic
     ups/down notation for EDOs 5-72. It differs from the paper in
@@ -118,26 +133,62 @@ class UpDownNotation(NatAccNotation):
       ambigouity when transposing notes (There is e.g. no strict
       definition whether in 31-EDO C0 transposed by ~3 results in
       the note vE or ^Em)
+
+    :param tuning: The EDO tuning this notation wraps
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation
+    class based on this one)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
+        *,
         note_cls=UpDownNote,
         note_interval_cls=UpDownNoteInterval,
         note_scale_cls=UpDownNoteScale,
         note_interval_seq_cls=UpDownNoteIntervalSeq,
+        note_interval_fan_cls=UpDownNoteIntervalFan,
+        note_seq_cls=UpDownNoteSeq,
     ):
 
         if not isinstance(tuning, EDOTuning):
             raise UnfittingNotation('UpDownNotation only supports EDO tunings')
 
+        if tuning.sharpness == 0:
+            acc_weights = (1,)
+        elif abs(tuning.sharpness) == 1:
+            acc_weights = (tuning.sharpness,)
+        else:
+            acc_weights = (tuning.sharpness, 1)
+
         super().__init__(
             tuning,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls
+            acc_weights,
+            note_cls=note_cls,
+            note_interval_cls=note_interval_cls,
+            note_scale_cls=note_scale_cls,
+            note_interval_seq_cls=note_interval_seq_cls,
+            note_interval_fan_cls=note_interval_fan_cls,
+            note_seq_cls=note_seq_cls,
         )
 
         self._init_naturals()
@@ -151,6 +202,10 @@ class UpDownNotation(NatAccNotation):
 
         # initialize default enharmonic strategy
         self.enharm_strategy = MixedLeftEnharmStrategy(self)
+
+    @property
+    def zero_index(self) -> int:
+        return 0
 
     @property
     def edo_category(self) -> str:
@@ -171,10 +226,10 @@ class UpDownNotation(NatAccNotation):
         """
 
         tuning = self.tuning
-        major2_size = (tuning.fifth.pitch_index * 2) % len(tuning)
+        major2_size = (tuning.fifth.pitch_index * 2) % tuning.eq_diff
         minor2_size = major2_size - tuning.sharpness
 
-        if len(tuning) in {2, 3, 4, 6}:
+        if tuning.eq_diff in {2, 3, 4, 6}:
             return 'trivial'
 
         if minor2_size == 0:
@@ -201,7 +256,7 @@ class UpDownNotation(NatAccNotation):
         """
 
         tuning = self.tuning
-        tuning_len = len(tuning)
+        tuning_len = tuning.eq_diff
 
         # in order to get the pitch indices of the naturals we
         # define that C should refer to the pitch index 0 and
@@ -283,13 +338,17 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
-        acc_arith = SymbolArithmetic(dimensions=2, allow_empty=True)
 
-        acc_arith.add_symbol('#', (sharpness, 0))
-        acc_arith.add_symbol('b', ((-1) * sharpness, 0))
-        acc_arith.add_symbol('x', (2 * sharpness, 0))
-
-        if abs(sharpness) != 1:
+        if abs(sharpness) == 1:
+            acc_arith = SymbolArithmetic(dimensions=1, allow_empty=True)
+            acc_arith.add_symbol('#', (1,))
+            acc_arith.add_symbol('b', (-1,))
+            acc_arith.add_symbol('x', (2,))
+        else:
+            acc_arith = SymbolArithmetic(dimensions=2, allow_empty=True)
+            acc_arith.add_symbol('#', (1, 0))
+            acc_arith.add_symbol('b', (-1, 0))
+            acc_arith.add_symbol('x', (2, 0))
             acc_arith.add_symbol("^", (0, 1))
             acc_arith.add_symbol("v", (0, -1))
 
@@ -327,6 +386,18 @@ class UpDownNotation(NatAccNotation):
         """
 
         sharpness = self.tuning.sharpness
+        dimensions = 1 if abs(sharpness) == 1 else 2
+
+        # we define a helper function here that auto-adds another
+        # dimension if we set a first dimension symbol and the
+        # number of dimensions are 2
+
+        def add_first_dim_symbol(arithmetic, symbol, value, **kwargs):
+            if dimensions == 1:
+                vector = (value,)
+            elif dimensions == 2:
+                vector = (value, 0)
+            arithmetic.add_symbol(symbol, vector, **kwargs)
 
         # ------------------------------------------------
         # 1) Arithmetics for interval quality 'perfect'
@@ -349,15 +420,15 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #                             P
 
-        p_arith = SymbolArithmeticSet(dimensions=2)
+        p_arith = SymbolArithmeticSet(dimensions=dimensions)
 
-        p_sub_arith_zero = SymbolArithmetic(dimensions=2)
-        p_sub_arith_zero.add_symbol(
-            'P', (0, 0), min_occurence=1, max_occurence=1
+        p_sub_arith_zero = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_zero, 'P', 0, min_occurence=1, max_occurence=1
         )
         p_arith.add_arithmetic(p_sub_arith_zero)
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
 
             # on sharpness 1 perfect intervals do not have ups and downs,
             # because it would be the same as using A and d.
@@ -368,7 +439,7 @@ class UpDownNotation(NatAccNotation):
             #  --------------------------------------------------------
             #       vv          v                    ^          ^^
 
-            p_sub_arith_ud = SymbolArithmetic(dimensions=2)
+            p_sub_arith_ud = SymbolArithmetic(dimensions=dimensions)
             p_sub_arith_ud.add_symbol("v", (0, -1))
             p_sub_arith_ud.add_symbol("^", (0, 1))
             p_arith.add_arithmetic(p_sub_arith_ud)
@@ -388,9 +459,9 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         A^         A^^
 
-        p_sub_arith_aug = SymbolArithmetic(dimensions=2)
-        p_sub_arith_aug.add_symbol(
-            "A", (sharpness, 0), min_occurence=1, position=1
+        p_sub_arith_aug = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_aug, "A", 1, min_occurence=1, position=1
         )
         p_arith.add_arithmetic(p_sub_arith_aug)
 
@@ -405,13 +476,13 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvd        vd          d          ^d         ^^d
 
-        p_sub_arith_dim = SymbolArithmetic(dimensions=2)
-        p_sub_arith_dim.add_symbol(
-            "d", ((-1) * sharpness, 0), min_occurence=1, position=1
+        p_sub_arith_dim = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            p_sub_arith_dim, "d", -1, min_occurence=1, position=1
         )
         p_arith.add_arithmetic(p_sub_arith_dim)
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
 
             p_sub_arith_aug.add_symbol('^', (0, 1), position=0)
             p_sub_arith_aug.add_symbol('v', (0, -1), position=0)
@@ -436,7 +507,7 @@ class UpDownNotation(NatAccNotation):
         #   * an augmented arithmetic with symbols A, ^, v
         #   * a diminished arithmetic with symbols d, ^, v
 
-        imp_arith = SymbolArithmeticSet(dimensions=2)
+        imp_arith = SymbolArithmeticSet(dimensions=dimensions)
 
         # Major arithmetic
 
@@ -446,12 +517,12 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvM        vM          M         ^M         ^^M
 
-        imp_maj_arith = SymbolArithmetic(dimensions=2)
-        imp_maj_arith.add_symbol(
-            'M', (0, 0), min_occurence=1, max_occurence=1, position=1
+        imp_maj_arith = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            imp_maj_arith, "M", 0, min_occurence=1, max_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_maj_arith.add_symbol('^', (0, 1), position=0)
             imp_maj_arith.add_symbol('v', (0, -1), position=0)
 
@@ -466,13 +537,13 @@ class UpDownNotation(NatAccNotation):
         #      vvm        vm          m         ^m          ^m
 
         imp_min_arith = SymbolArithmetic(
-            dimensions=2, offset=((-1) * sharpness, 0)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
-        imp_min_arith.add_symbol(
-            'm', (0, 0), min_occurence=1, max_occurence=1, position=1
+        add_first_dim_symbol(
+            imp_min_arith, "m", 0, min_occurence=1, max_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_min_arith.add_symbol('^', (0, 1), position=0)
             imp_min_arith.add_symbol('v', (0, -1), position=0)
 
@@ -491,12 +562,12 @@ class UpDownNotation(NatAccNotation):
         #  --------------------------------------------------------
         #      vvA        vA          A         ^A         ^^A
 
-        imp_aug_arith = SymbolArithmetic(dimensions=2)
-        imp_aug_arith.add_symbol(
-            'A', (sharpness, 0), min_occurence=1, position=1
+        imp_aug_arith = SymbolArithmetic(dimensions=dimensions)
+        add_first_dim_symbol(
+            imp_aug_arith, "A", 1, min_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_aug_arith.add_symbol('^', (0, 1), position=0)
             imp_aug_arith.add_symbol('v', (0, -1), position=0)
 
@@ -516,13 +587,13 @@ class UpDownNotation(NatAccNotation):
         #      vvd        vd          d         ^d         ^^d
 
         imp_dim_arith = SymbolArithmetic(
-            dimensions=2, offset=((-1) * sharpness, 0)
+            dimensions=dimensions, offset=(-1, 0) if dimensions == 2 else (-1,)
         )
-        imp_dim_arith.add_symbol(
-            'd', ((-1) * sharpness, 0), min_occurence=1, position=1
+        add_first_dim_symbol(
+            imp_dim_arith, "d", -1, min_occurence=1, position=1
         )
 
-        if sharpness != 1:
+        if abs(sharpness) != 1:
             imp_dim_arith.add_symbol('^', (0, 1), position=0)
             imp_dim_arith.add_symbol('v', (0, -1), position=0)
 
@@ -574,7 +645,7 @@ class UpDownNotation(NatAccNotation):
             )
 
         acc_symbol = acc_head + acc_tail
-        acc_value = tuple(np.add(acc_head_value, acc_tail_value))
+        acc_value = componentwise(operator.add, acc_head_value, acc_tail_value)
 
         return natc_symbol, acc_symbol, natc_index, acc_value
 
@@ -653,12 +724,15 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = start_note if sharpness > 0 else end_note
 
         for i in range(1, fillers_count + 1):
-            sharpened = ref_note.acc_altered((i * sharpness, 0))
+            if abs(sharpness) == 1:
+                sharpened = ref_note.add_acc_sum_vector((i,))
+            else:
+                sharpened = ref_note.add_acc_sum_vector((i, 0))
             yield sharpened
 
     @staticmethod
@@ -682,13 +756,16 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
             return
 
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
         fillers_count = gap_size // abs(sharpness)
         ref_note = end_note if sharpness > 0 else start_note
 
         for i in range(1, fillers_count + 1):
-            sharpened = ref_note.acc_altered((-i * sharpness, 0))
-            yield sharpened
+            if abs(sharpness) == 1:
+                flattened = ref_note.add_acc_sum_vector((-i,))
+            else:
+                flattened = ref_note.add_acc_sum_vector((-i, 0))
+            yield flattened
 
     @staticmethod
     def up_fillers(start_note, end_note):
@@ -707,11 +784,11 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (i,) if sharpness == 0 else (0, i)
-            upped = start_note.acc_altered(alteration)
+            upped = start_note.add_acc_sum_vector(alteration)
             yield upped
 
     @staticmethod
@@ -731,11 +808,11 @@ class UpDownEnharmStrategy(PCBlueprintStrategy):
 
         sharpness = start_note.tuning.sharpness
         interval = start_note.interval(end_note)
-        gap_size = (interval.pitch_diff - 1)
+        gap_size = interval.pitch_diff - 1
 
         for i in range(1, gap_size + 1):
             alteration = (-i,) if sharpness == 0 else (0, -i)
-            downed = end_note.acc_altered(alteration)
+            downed = end_note.add_acc_sum_vector(alteration)
             yield downed
 
     @staticmethod

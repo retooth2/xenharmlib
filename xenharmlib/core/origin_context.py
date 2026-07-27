@@ -25,18 +25,37 @@ from typing import TypeVar
 from abc import ABC
 from abc import abstractmethod
 from ..exc import IncompatibleOriginContexts
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .freq_repr import FreqRepr
+from .freq_repr_seq import FreqReprSeq
+from .protocols import Index
 from .interval import Interval
 from .scale import Scale
 from .interval_seq import IntervalSeq
+from .interval_fan import IntervalFan
 
+IndexT = TypeVar('IndexT', bound=Index)
 FreqReprT = TypeVar('FreqReprT', bound=FreqRepr)
 IntervalT = TypeVar('IntervalT', bound=Interval)
 ScaleT = TypeVar('ScaleT', bound=Scale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=IntervalSeq)
+FreqReprSeqT = TypeVar('FreqReprSeqT', bound=FreqReprSeq)
+IntervalFanT = TypeVar('IntervalFanT', bound=IntervalFan)
 
 
-class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
+class OriginContext(
+    ABC,
+    Generic[
+        IndexT,
+        FreqReprT,
+        IntervalT,
+        ScaleT,
+        IntervalSeqT,
+        IntervalFanT,
+        FreqReprSeqT,
+    ],
+):
     """
     OriginContext is the abstract base class for both tunings and notations.
     It defines a unified interface for collection and interval builder
@@ -53,16 +72,30 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
     def __init__(
         self,
+        *,
         freq_repr_cls: type[FreqReprT],
         interval_cls: type[IntervalT],
         scale_cls: type[ScaleT],
         interval_seq_cls: type[IntervalSeqT],
+        interval_fan_cls: type[IntervalFanT],
+        freq_repr_seq_cls: type[FreqReprSeqT],
     ):
 
         self._freq_repr_cls = freq_repr_cls
         self._interval_cls = interval_cls
         self._scale_cls = scale_cls
         self._interval_seq_cls = interval_seq_cls
+        self._interval_fan_cls = interval_fan_cls
+        self._freq_repr_seq_cls = freq_repr_seq_cls
+
+    @property
+    @abstractmethod
+    def zero_index(self) -> IndexT:
+        """
+        The zero index is a reference point, in tunings with integer
+        indexing this is 0, in tunings with lattice indexing this is
+        typically the zero-vector.
+        """
 
     @property
     @abstractmethod
@@ -72,6 +105,24 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
         it is the element with index 0, in western notation typically C-0,
         etc
         """
+
+    @property
+    def unison_diff(self) -> IndexT:
+        """
+        The unison diff is the pitch difference of the unison interval.
+        In tunings with integer indexing this is 0, in tunings with
+        lattice indexing this is typically the zero-vector.
+        """
+        return self.interval(self.zero_element, self.zero_element).pitch_diff
+
+    @property
+    def unison_interval(self) -> IntervalT:
+        """
+        The unison interval is a reference point, in one-dimensional tunings
+        it is the element with pitch diff 0, in western notation typically
+        P1, etc.
+        """
+        return self.interval(self.zero_element, self.zero_element)
 
     def interval(self, source: FreqReprT, target: FreqReprT) -> IntervalT:
         """
@@ -99,10 +150,7 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
         return self._interval_cls.from_source_and_target(source, target)
 
-    def diff_interval(
-        self,
-        pitch_diff: int
-    ) -> IntervalSeqT:
+    def diff_interval(self, pitch_diff: IndexT) -> IntervalT:
         """
         Returns an interval the size of a given pitch index difference.
 
@@ -128,8 +176,7 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
         return self._scale_cls(self, elements)
 
     def interval_seq(
-        self,
-        intervals: Optional[Iterable[IntervalT]] = None
+        self, intervals: Optional[Iterable[IntervalT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence having the interval sequence type
@@ -144,9 +191,39 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
 
         return self._interval_seq_cls(self, intervals)
 
+    def interval_fan(
+        self, intervals: Optional[Iterable[IntervalT]] = None
+    ) -> IntervalFanT:
+        """
+        Returns an interval fan having the interval fan type
+        this origin context was configured with
+
+        :raises IncompatibleOriginContexts: If at least one given
+            element has a different origin context than this one
+
+        :param intervals: A list of intervals originating from this
+            context
+        """
+
+        return self._interval_fan_cls(self, intervals)
+
+    def seq(
+        self, elements: Optional[Iterable[FreqReprT]] = None
+    ) -> FreqReprSeqT:
+        """
+        Returns a pitch/note sequence
+
+        :raises IncompatibleOriginContexts: If at least one given
+            element has a different origin context than this one
+
+        :param elements: A list of elements originating from this
+            context
+        """
+
+        return self._freq_repr_seq_cls(self, elements)
+
     def diff_interval_seq(
-        self,
-        pitch_diffs: Optional[Iterable[int]] = None
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
     ) -> IntervalSeqT:
         """
         Returns an interval sequence from an iterable of pitch index
@@ -161,8 +238,130 @@ class OriginContext(Generic[FreqReprT, IntervalT, ScaleT, IntervalSeqT], ABC):
             differences
         """
 
+        if not pitch_diffs:
+            return self.interval_seq()
+
         intervals = [
             self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs
         ]
 
         return self.interval_seq(intervals)
+
+    def diff_interval_fan(
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalFanT:
+        """
+        Returns an interval fan from an iterable of pitch index
+        differences, for example:
+
+        >>> from xenharmlib import EDOTuning
+        >>> edo12 = EDOTuning(12)
+        >>> major_chord = edo12.diff_interval_fan([4, 7])
+        >>> minor_chord = edo12.diff_interval_fan([3, 7])
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        if not pitch_diffs:
+            return self.interval_fan()
+
+        intervals = [
+            self.diff_interval(pitch_diff) for pitch_diff in pitch_diffs
+        ]
+
+        return self.interval_fan(intervals)
+
+    @abstractmethod
+    def closest_freq_repr(self, frequency: Frequency) -> FreqReprT:
+        """
+        Returns the frequency representation closest to a given
+        frequency. This function is only implemented for origin
+        contexts which mathematically allow to determine a
+        closest frequency representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> IntervalT:
+        """
+        Returns the interval closest to a given frequency ratio.
+        This function is only implemented for origin contexts
+        which mathematically allow to determine a closest
+        frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios. This function is only implemented
+        for origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable of
+        frequency ratios. This function is only implemented for
+        origin contexts which mathematically allow to determine
+        a closest frequency ratio approximation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency ratio can be approximated infinitesimally close.
+        In this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """
+
+    @abstractmethod
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> FreqReprSeqT:
+        """
+        Returns the sequence closest to a given iterable of frequencies
+        This function is only implemented for origin contexts which
+        mathematically allow to determine a closest frequency
+        representation.
+
+        If the origin context e.g. is a prime limit tuning every
+        frequency can be approximated infinitesimally close. In
+        this case the method should raise a TypeError
+
+        (Must be implemented by subclasses)
+        """

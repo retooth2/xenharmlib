@@ -1,7 +1,7 @@
 .. admonition:: New Release
 
-   Xenharmlib 0.3.0 has just been released.
-   :doc:`Find out what's new<whats_new_0_3_0>`
+   Xenharmlib 0.4.0 has just been released.
+   :doc:`Find out what's new<whats_new_0_4_0>`
 
 Welcome to xenharmlib’s documentation!
 =================================================
@@ -45,135 +45,112 @@ It is easy to use, extendable, and tries to be intuitive. Have a peek:
 
 .. testcode::
 
-   from xenharmlib import EDOTuning
-   from xenharmlib import play
-   from xenharmlib import UpDownNotation
+   from xenharmlib import PrimeLimitTuning
+   from xenharmlib import FrequencyRatio
+   from xenharmlib.periodic import partial
 
-   # create a supermajor 7 chord on vD for an
-   # equal temperament with 31 notes per octave
+   limit11 = PrimeLimitTuning(11)
 
-   edo31 = EDOTuning(31)
-   n_edo31 = UpDownNotation(edo31)
+   # generate a scale built from the pure
+   # harmonic series up to the 11th prime
 
-   d_down = n_edo31.note('vD', 4)
-   SM3 = n_edo31.shorthand_interval('^M', 3)
-   P5 = n_edo31.shorthand_interval('P', 5)
-   m7 = n_edo31.shorthand_interval('m', 7)
+   scale = limit11.ratio_scale(
+       FrequencyRatio(k) for k in range(1, 12)
+   ).period_normalized()
+   print(scale)
 
-   chord = n_edo31.scale(
-      [
-         d_down,
-         d_down.transpose(SM3),
-         d_down.transpose(P5),
-         d_down.transpose(m7),
-      ]
-   )
-   print(chord)
+   # show the harmonic structure of the second triad
+   # in the scale as an enumerated chord expression
+
+   triad = partial(scale, (1, 3, 5))
+   ifan = triad.to_interval_fan()
+   print(ifan.to_ec_expr())
 
 .. testoutput::
 
-   UpDownNoteScale([vD4, F#4, vA4, vC5], 31-EDO)
-
-.. code-block:: python
-
-   play(chord)
-
-.. raw:: html
-
-   <audio controls="controls">
-         <source src="_static/sounds/edo31_vD_supermajor7_scale.wav" type="audio/wav">
-         Your browser does not support the <code>audio</code> element. 
-   </audio>
-
-.. code-block:: python
-
-   play(chord, duration=1, play_as_chord=True)
-
-.. raw:: html
-
-   <audio controls="controls">
-         <source src="_static/sounds/edo31_vD_supermajor7_chord.wav" type="audio/wav">
-         Your browser does not support the <code>audio</code> element. 
-   </audio>
+   PrimeLimitPitchScale([1, 9/8, 5/4, 11/8, 3/2, 7/4], 11-Limit)
+   9:11:14
 
 -----------
 
 .. testcode::
 
-   from xenharmlib import EDTuning
-   from xenharmlib import FrequencyRatio
+   from xenharmlib import EDOTuning
+   from xenharmlib import UpDownNotation
 
-   # analyze group theoretical properties of
-   # Bohlen-Pierce tunings
+   # create a supermajor 7 chord in up/down notation for
+   # a tuning defined by 31 divisions of the octave and
+   # show the named interval distances between the notes
 
-   bp = EDTuning(13, FrequencyRatio(3))
+   edo31 = EDOTuning(31)
+   n_edo31 = UpDownNotation(edo31)
 
-   p1 = bp.pitch(4)
-   p2 = bp.pitch(18)
-   i1 = bp.interval(p1, p2)
+   CsupM7 = n_edo31.pc_scale(['C', '^E', 'G', 'Bb'])
+   iseq = CsupM7.to_interval_seq()
+   print(iseq)
 
-   print(p1.pc_index)
-   print(p2.pc_index)
-   print(i1.frequency_ratio)
+   # use the interval sequence object as a blueprint to
+   # create supermajor 7 chords with different root notes
 
-   dist = i1.get_generator_distance(
-      bp.pitch(7)
-   )
-   print(dist)
+   print(n_edo31.note('vD', 4).scale(iseq))
+   print(n_edo31.note('E#', 4).scale(iseq))
 
 .. testoutput::
-   :hide:
 
-   4
-   5
-   FrequencyRatio(3*3**(1/13))
-   2
-
-Audience & Design Philosophy
------------------------------
-
-Xenharmlib is targeted at composers and researchers who already have
-basic knowledge in python programming.
-
-Xenharmlib does **not** aim to be a score composition tool, sequencer,
-or synthesizer (however it is possible to build such things on top of
-it). Rather it wants to provide a toolset for exploring different
-concepts of harmonic relations with a scientific focus.
-
-Xenharmlib is object-oriented but mostly designed around functional
-programming principles: Objects are considered immutable and methods
-do not alter internal states but return modified versions of the
-original object.
+   UpDownNoteIntervalSeq([^M3, vm3, m3], 31-EDO)
+   UpDownNoteScale([vD4, F#4, vA4, vC5], 31-EDO)
+   UpDownNoteScale([E#4, ^Gx4, B#4, D#5], 31-EDO)
 
 Features
 ---------------
 
 A selection of things supported by xenharmlib:
 
-* Equal division tunings (e.g. Western, Modern Arabic, Turkish Makam,
-  Bohlen-Pierce, Wendy Carlos' Gamma Scale)
+* Scale, interval, sequence and abstract scale calculation in **any
+  regular temperament** (including, but not limited to: Western, Turkish
+  Makam, Slendro, Just Intonation / Prime Limit Tunings, Quarter-Comma
+  Meantone, Bohlen-Pierce, Wendy Carlos' Gamma Tuning)
 * Western notation (including interval naming)
 * Up/Down notation (a superset of Western notation)
-* Analysis of intervals, scales, and their relations to one another
-* Group theoretical analysis (integer pitches, pitch classes, etc)
-* Interval sequence pattern matching
+* Complete interval arithmetic with awareness of harmonic function
+* Posttonal analysis: Normal form & prime form calculation, pitch class
+  set arithmetic, interval vector calculation, etc
+* Extraction of playable chords from any scale
+* Structure discovery / Pattern matching in scales
 * Modulation suggestions for arbitrary key changes
-* Basic posttonal analysis (normal & prime form calculations, inversion, etc)
+* Approximation of arbitrary frequencies to pitches and notes
+  for spectralist compositions, including error calculation
 
 Roadmap
 -----------------
 
-A list of planned features (not necessarily in chronological order):
+(not necessarily in chronological order)
 
-* Templates for Western music
-* Plugin interface for score rendering backends
-* Advanced posttonal analysis (interval vectors, z-Relations, Forte numbers)
-* Rothenberg propriety and interval matrices
-* MOS scale generation utilities
-* Just Intonation and prime limit tunings
 * Extended Helmholtz-Ellis JI Pitch Notation
-* Odd Limit Tunings
 * Arel-Ezgi-Uzdilek notation
+* Rothenberg propriety and interval matrices
+* Scale generation tools (Euler-Fokker genus, combination product set,
+  Moment-of-Symmetry scales, odd limit scales)
+* Templates for traditional music (Western Scales, Makam tetrachords, etc)
+* Plugin interface for score rendering backends
+* Advanced posttonal analysis
+* Utilities for transformation theory
+
+Audience & Design Philosophy
+-----------------------------
+
+Xenharmlib is targeted at composers and researchers who already have
+basic knowledge in Python programming.
+
+Xenharmlib does **not** aim to be a score composition tool, sequencer,
+or synthesizer (however, it is possible to build such things on top of
+it). Rather, it wants to provide a toolset for exploring different
+concepts of harmonic relations with a scientific focus.
+
+Xenharmlib is object-oriented but mostly designed around functional
+programming principles: Objects are considered immutable and methods
+do not alter internal states but return modified versions of the
+original object.
 
 License
 ---------------
@@ -209,34 +186,77 @@ features.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Intro
 
    quickstart
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Harmonic Primitives
+
+   prim_intro
+   prim_freq_repr
+   prim_interval
+   prim_scale
+   prim_interval_seq
+   prim_interval_fan
+   prim_seq
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tunings
+
+   ed_tunings
+   primelimit_tunings
+   multigen_tunings
+   lattice_points
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Notations
+
    western_notation
-   adv_scale_methods
-   adv_notation_features
-   interval_seq
+   updown_notation
+   enharmonic_strategies
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Utilities
+
    periodic_package
    posttonal
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+
    core_api
    export_api
    notation_api
    periodic_api
    setc_api
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Release Doc
+
    changelog
+   whats_new_0_4_0
+
+
 
 Contributor Guide
 ---------------------
 
-You are always welcome to open a pull request, however, there are some
+You are always welcome to open a pull request; however, there are some
 prerequisites for a pull request to be accepted that you should know:
 
-* For formatting your commit messages please use
+* For formatting your commit messages, please use
   `conventional commits <https://www.conventionalcommits.org/>`_
-* To format your code please use the
+* To format your code, please use the
   `black code formatter <https://black.readthedocs.io/en/stable/>`_
   with string normalization turned off and maximum line length 79.
-  In regards to strings, xemharmlib follows the principle single quotes
+  In regard to strings, xenharmlib follows the principle of single quotes
   (') for data, double quotes (") for information meant to be read only
   by humans (like exception descriptions) and triple-double quotes (""")
   for docstrings.
@@ -245,9 +265,9 @@ prerequisites for a pull request to be accepted that you should know:
   `pytest <https://docs.pytest.org/>`_
 * Your code should come with type annotations. There are a few
   exceptions: Sometimes python's typing system is not mature enough to
-  do proper static-like typing (for example it doesn't support
+  do proper static-like typing (for example, it doesn't support
   higher-kinded types). Sometimes there are design reasons to use
-  python's dynamism. Just snoop around the existing code to get a
+  Python's dynamism. Just snoop around the existing code to get a
   feeling for this balance.
 * Xenharmlib is designed around functional programming principles.
   Objects should not alter their state when calling methods (except
@@ -256,7 +276,7 @@ prerequisites for a pull request to be accepted that you should know:
 Changelog
 ---------
 
-For a list of changes see :doc:`changelog`
+For a list of changes, see :doc:`changelog`
 
 
 Indices and tables

@@ -276,6 +276,9 @@ def test_note_interval_eq(
     assert interval_ab == interval_cd
     assert interval_cd == interval_ab
 
+    assert hash(interval_ab) == hash(interval_cd)
+    assert hash(interval_cd) == hash(interval_ab)
+
 
 @pytest.mark.parametrize(
     'not_an_interval',
@@ -370,6 +373,9 @@ def test_note_interval_eq_pitch(
     assert interval_ab == interval_cd
     assert interval_cd == interval_ab
 
+    assert hash(interval_ab) == hash(interval_cd)
+    assert hash(interval_cd) == hash(interval_ab)
+
 
 @pytest.mark.parametrize(
     'notation, pc_symbol_a, nat_bi_index_a, '
@@ -399,6 +405,267 @@ def test_note_interval_eq_abs(
     assert interval_ab != interval_ba
     assert abs(interval_ab) == abs(interval_ba)
     assert abs(interval_ba) == interval_ab
+
+    assert hash(abs(interval_ab)) == hash(abs(interval_ba))
+    assert hash(abs(interval_ba)) == hash(interval_ab)
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol_a, nat_bi_index_a, '
+    'pc_symbol_b, nat_bi_index_b, ',
+    [
+        (n_edo12, 'B+',  0, 'F',  0),
+        (n_edo12, 'Bx+', 0, 'F-', 2),
+        (n_edo12, 'A',   0, 'B',  0),
+    ]
+)
+def test_note_interval_neg(
+    notation,
+    pc_symbol_a,
+    nat_bi_index_a,
+    pc_symbol_b,
+    nat_bi_index_b,
+):
+    """
+    Test if negation works correctly
+    """
+
+    note_a = notation.note(pc_symbol_a, nat_bi_index_a)
+    note_b = notation.note(pc_symbol_b, nat_bi_index_b)
+    interval_ab = note_a.interval(note_b)
+    interval_ba = note_b.interval(note_a)
+
+    assert -interval_ab == interval_ba
+    assert -interval_ba == interval_ab
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name_a, shorthand_name_b, result_shorthand_name',
+    [
+        (n_edo12, ('+C', 4), ('F', 1), ('+C', 4)),
+        (n_edo12, ('+C', 4), ('+C', -2), ('F', 3)),
+        (n_edo12, ('+C', 4), ('++C', -2), ('-F', 3)),
+        (n_edo12, ('F', 3), ('C', 4), ('C', 6)),
+    ]
+)
+def test_note_interval_add(
+    notation,
+    shorthand_name_a,
+    shorthand_name_b,
+    result_shorthand_name,
+):
+    """
+    Test if addition works correctly
+    """
+
+    interval_a = notation.shorthand_interval(*shorthand_name_a)
+    interval_b = notation.shorthand_interval(*shorthand_name_b)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval_a + interval_b == result_interval
+    assert interval_b + interval_a == result_interval
+    assert (interval_b + interval_a).shorthand_name == result_shorthand_name
+    assert (interval_a + interval_b).shorthand_name == result_shorthand_name
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name_a, shorthand_name_b, result_shorthand_name',
+    [
+        (n_edo12, ('+C', 4), ('F', 1), ('+C', 4)),
+        (n_edo12, ('+C', 4), ('+C', -2), ('++F', 5)),
+        (n_edo12, ('+C', 4), ('+C', 2), ('F', 3)),
+        (n_edo12, ('F', 13), ('C', 4), ('C', 10)),
+        (n_edo12, ('C', 2), ('C', 4), ('F', -3)),
+    ]
+)
+def test_note_interval_sub(
+    notation,
+    shorthand_name_a,
+    shorthand_name_b,
+    result_shorthand_name,
+):
+    """
+    Test if subtraction works correctly
+    """
+
+    interval_a = notation.shorthand_interval(*shorthand_name_a)
+    interval_b = notation.shorthand_interval(*shorthand_name_b)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval_a - interval_b == result_interval
+    assert interval_b - interval_a == -result_interval
+    assert (interval_a - interval_b).shorthand_name == result_shorthand_name
+    assert (-(interval_b - interval_a)).shorthand_name == result_shorthand_name
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, scalar, result_shorthand_name',
+    [
+        (n_edo12, ('+C', 4), 0, ('F', 1)),
+        (n_edo12, ('+C', 4), -2, ('++F', -7)),
+        (n_edo12, ('-F', 3), 3, ('---F', 7)),
+        (n_edo12, ('F', 1), 3, ('F', 1)),
+    ]
+)
+def test_note_interval_mul(
+    notation,
+    shorthand_name,
+    scalar,
+    result_shorthand_name,
+):
+    """
+    Test if subtraction works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval * scalar == result_interval
+    assert scalar * interval == result_interval
+    assert (interval * scalar).shorthand_name == result_shorthand_name
+    assert (scalar * interval).shorthand_name == result_shorthand_name
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, sign',
+    [
+        (n_edo12, ('+C', 4), 1),
+        (n_edo12, ('+C', 4), 1),
+        (n_edo12, ('-F', -3), -1),
+        (n_edo12, ('F', 1), 0),
+    ]
+)
+def test_note_interval_sign(
+    notation,
+    shorthand_name,
+    sign,
+):
+    """
+    Test if sign property works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    assert interval.sign == sign
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, is_simple',
+    [
+        (n_edo12, ('+C', 4), True),
+        (n_edo12, ('F', 15), False),
+        (n_edo12, ('F', -15), False),
+        (n_edo24, ('F', -27), False),
+        (n_edo31, ('F', 1), True),
+    ]
+)
+def test_note_interval_simple_compound(
+    notation,
+    shorthand_name,
+    is_simple,
+):
+    """
+    Test if is_simple and is_compound attributes works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, result_shorthand_name',
+    [
+        (n_edo12, ('+C', 4), ('+C', 4)),
+        (n_edo12, ('F', 15), ('F', 3)),
+        (n_edo12, ('F', -15), ('F', -3)),
+        (n_edo24, ('F', -27), ('F', -3)),
+        (n_edo31, ('F', 1), ('F', 1)),
+    ]
+)
+def test_note_interval_to_simple(
+    notation,
+    shorthand_name,
+    result_shorthand_name,
+):
+    """
+    Test if to_simple works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval.to_simple() == result_interval
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, result_shorthand_name',
+    [
+        (n_edo31, ('F', 1), ('F', 17)),
+        (n_edo12, ('C', 2), ('C', 6)),
+        (n_edo12, ('+C', -2), ('+C', 8)),
+        (n_edo24, ('F', 27), ('F', -15)),
+    ]
+)
+def test_note_interval_inversion(
+    notation,
+    shorthand_name,
+    result_shorthand_name,
+):
+    """
+    Test if inversion works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval.inversion() == result_interval
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, result_shorthand_name',
+    [
+        (n_edo31, ('F', 1), ('F', 1)),
+        (n_edo12, ('C', 2), ('C', 2)),
+        (n_edo12, ('+C', -2), ('+C', 2)),
+        (n_edo24, ('F', 27), ('F', 3)),
+    ]
+)
+def test_note_interval_ic_normalized(
+    notation,
+    shorthand_name,
+    result_shorthand_name,
+):
+    """
+    Test if ic normalization works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    result_interval = notation.shorthand_interval(*result_shorthand_name)
+
+    assert interval.ic_normalized() == result_interval
+
+
+@pytest.mark.parametrize(
+    'notation, shorthand_name, ic_index',
+    [
+        (n_edo31, ('F', 1), 0),
+        (n_edo12, ('C', 2), 2),
+        (n_edo12, ('+C', -2), 3),
+        (n_edo24, ('F', 27), 4),
+    ]
+)
+def test_note_interval_ic_index(
+    notation,
+    shorthand_name,
+    ic_index,
+):
+    """
+    Test if ic_index property works correctly
+    """
+
+    interval = notation.shorthand_interval(*shorthand_name)
+    assert interval.ic_index == ic_index
 
 
 @pytest.mark.parametrize(
@@ -530,12 +797,12 @@ def test_get_generator_distance_incompatible_origin_contexts():
     'pc_symbol_b, nat_bi_index_b, '
     'expected',
     [
-        (n_edo12, 'B',    0, 'E', 2, 'NatAccNoteInterval(C, 16, 12-EDO)'),
-        (n_edo12, 'Bx',   1, 'E', 2, 'NatAccNoteInterval(--C, 10, 12-EDO)'),
-        (n_edo12, 'B++',  3, 'E', 2, 'NatAccNoteInterval(++C, -4, 12-EDO)'),
-        (n_edo31, 'C-',   2, 'E', 2, 'NatAccNoteInterval(+F, 3, 31-EDO)'),
-        (n_edo31, 'C--',  1, 'E', 2, 'NatAccNoteInterval(++F, 19, 31-EDO)'),
-        (n_edo12, 'A--', -1, 'E', 2, 'NatAccNoteInterval(++F, 23, 12-EDO)'),
+        (n_edo12, 'B',    0, 'E', 2, 'MyNatAccNoteInterval(C, 16, 12-EDO)'),
+        (n_edo12, 'Bx',   1, 'E', 2, 'MyNatAccNoteInterval(--C, 10, 12-EDO)'),
+        (n_edo12, 'B++',  3, 'E', 2, 'MyNatAccNoteInterval(++C, -4, 12-EDO)'),
+        (n_edo31, 'C-',   2, 'E', 2, 'MyNatAccNoteInterval(+F, 3, 31-EDO)'),
+        (n_edo31, 'C--',  1, 'E', 2, 'MyNatAccNoteInterval(++F, 19, 31-EDO)'),
+        (n_edo12, 'A--', -1, 'E', 2, 'MyNatAccNoteInterval(++F, 23, 12-EDO)'),
     ]
 )
 def test_note_repr(
@@ -569,3 +836,21 @@ def test_from_notes_incompatible_origin_contexts():
     with pytest.raises(IncompatibleOriginContexts):
         with pytest.deprecated_call():
             NatAccNoteInterval.from_notes(note_a, note_b)
+
+
+@pytest.mark.parametrize(
+    'interval_a, interval_b',
+    [
+        (n_edo12.diff_interval(0), n_edo31.diff_interval(0)),
+        (n_edo12.diff_interval(24), n_edo31.diff_interval(62)),
+        (n_edo12.diff_interval(7), n_edo31.diff_interval(18)),
+        (n_edo31.diff_interval(-18), n_edo12.diff_interval(-7)),
+    ]
+)
+def test_retune_closest(interval_a, interval_b):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    assert interval_a.retune_closest(interval_b.tuning) == interval_b
+    assert interval_b.retune_closest(interval_a.tuning) == interval_a

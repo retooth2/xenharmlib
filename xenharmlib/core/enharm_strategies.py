@@ -97,35 +97,97 @@ class EnharmonicStrategy:
             f'scale from a pitch scale is therefore not possible'
         )
 
-    def note_transpose(self, note, pitch_diff: int):
+    def guess_note_interval_seq(self, notation, pitch_interval_seq):
+        """
+        Notation.guess_note_interval_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_seq: The pitch interval sequence object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_interval_seq method. Creating a '
+            f'note interval sequence from a pitch interval sequence '
+            f'is therefore not possible'
+        )
+
+    def guess_note_interval_fan(self, notation, pitch_interval_fan):
+        """
+        Notation.guess_note_interval_fan relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_fan: The pitch interval fan object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_interval_fan method. Creating a '
+            f'note interval fan from a pitch interval fan is therefore '
+            f'not possible'
+        )
+
+    def guess_note_seq(self, notation, pitch_seq):
+        """
+        Notation.guess_note_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_seq: The pitch sequence object
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the guess_note_seq method. Creating a '
+            f'note sequence from a pitch sequence is therefore '
+            f'not possible'
+        )
+
+    def note_transpose(self, note, pitch_diff):
         """
         Note.transpose relays to here if the interval argument was
-        not given as a suitable NoteInterval object but as an integer.
+        not given as a suitable NoteInterval object but as a pitch diff.
 
         :param note: The note on which the transpose method was called
-        :param pitch_diff: The pitch difference as an integer
+        :param pitch_diff: The pitch difference
         """
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
             f'implement the note_transpose method. Transposing a note '
-            f'with an integer argument is therefore not possible'
+            f'with a pitch diff argument is therefore not possible'
         )
 
-    def note_scale_transpose(self, note_scale, pitch_diff: int):
+    def note_scale_transpose(self, note_scale, pitch_diff):
         """
         NoteScale.transpose relays to here if the interval argument was
-        not given as a suitable NoteInterval object but as an integer.
+        not given as a suitable NoteInterval object but as a pitch diff.
 
         :param note_scale: The note scale on which the transpose method
             was called
-        :param pitch_diff: The pitch difference as an integer
+        :param pitch_diff: The pitch difference
         """
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
             f'implement the note_scale_transpose method. Transposing a '
-            f'note scale with an integer argument is therefore not possible'
+            f'note scale with a pitch diff argument is therefore not possible'
+        )
+
+    def note_seq_transpose(self, note_seq, pitch_diff):
+        """
+        NoteSeq.transpose relays to here if the interval argument was
+        not given as a suitable NoteInterval object but as a pitch diff.
+
+        :param note_seq: The note seq on which the transpose method
+            was called
+        :param pitch_diff: The pitch difference
+        """
+
+        raise NotImplementedError(
+            f'Enharmonic strategy {self.__class__.__name__} does not '
+            f'implement the note_seq_transpose method. Transposing a '
+            f'note sequence with a pitch diff argument is therefore not '
+            f'possible'
         )
 
     def note_scale_pcs_complement(self, note_scale):
@@ -138,8 +200,8 @@ class EnharmonicStrategy:
 
         raise NotImplementedError(
             f'Enharmonic strategy {self.__class__.__name__} does not '
-            f'implement the note_scale_transpose method. Transposing a '
-            f'note scale with an integer argument is therefore not possible'
+            f'implement the note_scale_pcs_complement method. Calculating the '
+            f'complement of the scale is therefore not possible'
         )
 
 
@@ -182,7 +244,7 @@ class PCBlueprintStrategy(EnharmonicStrategy):
 
         self.pc_blueprint = notation.scale(pc_blueprint).pcs_normalized()
 
-        if len(self.pc_blueprint) != len(notation.tuning):
+        if len(self.pc_blueprint) != notation.eq_diff:
             # pick out the missing pitch class representative
             # in the blueprint to get a nicer error message
             for i, note in enumerate(self.pc_blueprint):
@@ -229,6 +291,48 @@ class PCBlueprintStrategy(EnharmonicStrategy):
             notes.append(note)
         return notation.scale(notes)
 
+    def guess_note_interval_seq(self, notation, pitch_interval_seq):
+        """
+        Notation.guess_note_interval_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_seq: The pitch interval sequence object
+        """
+
+        note_intervals = []
+        for pitch_interval in pitch_interval_seq:
+            note_interval = self.guess_note_interval(notation, pitch_interval)
+            note_intervals.append(note_interval)
+        return notation.interval_seq(note_intervals)
+
+    def guess_note_interval_fan(self, notation, pitch_interval_fan):
+        """
+        Notation.guess_note_interval_fan relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_interval_fan: The pitch interval fan object
+        """
+
+        note_intervals = []
+        for pitch_interval in pitch_interval_fan:
+            note_interval = self.guess_note_interval(notation, pitch_interval)
+            note_intervals.append(note_interval)
+        return notation.interval_fan(note_intervals)
+
+    def guess_note_seq(self, notation, pitch_seq):
+        """
+        Notation.guess_note_seq relays to here
+
+        :param notation: The notation object that relayed here
+        :param pitch_seq: The pitch sequence object
+        """
+
+        notes = []
+        for pitch in pitch_seq:
+            note = self.guess_note(notation, pitch)
+            notes.append(note)
+        return notation.seq(notes)
+
     def note_transpose(self, note, pitch_diff: int):
         """
         Note.transpose relays to here if the interval argument was
@@ -258,6 +362,23 @@ class PCBlueprintStrategy(EnharmonicStrategy):
             transposed = self.note_transpose(note, pitch_diff)
             notes.append(transposed)
         return notation.scale(notes)
+
+    def note_seq_transpose(self, note_seq, pitch_diff: int):
+        """
+        NoteScale.transpose relays to here if the interval argument was
+        not given as a suitable NoteInterval object but as an integer.
+
+        :param note_seq: The note seq on which the transpose method
+            was called
+        :param pitch_diff: The pitch difference as an integer
+        """
+
+        notation = note_seq.notation
+        notes = []
+        for note in note_seq:
+            transposed = self.note_transpose(note, pitch_diff)
+            notes.append(transposed)
+        return notation.seq(notes)
 
     def note_scale_pcs_complement(self, note_scale):
         """

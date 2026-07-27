@@ -91,6 +91,9 @@ class Scale(Sequence[FreqReprT], ABC):
     def __len__(self) -> int:
         return len(self._sorted_elements)
 
+    def __hash__(self):
+        return hash(('Scale', ) + tuple(self.frequencies))
+
     def __contains__(self, o: object) -> bool:
 
         if isinstance(o, FreqRepr):
@@ -132,7 +135,7 @@ class Scale(Sequence[FreqReprT], ABC):
                 return False
         return True
 
-    def with_element(self, element: FreqReprT) -> Self[FreqRepr]:
+    def with_element(self, element: FreqReprT) -> Self:
         """
         Returns a new scale containing all elements from this scale
         and the additional one given as a parameter.
@@ -151,6 +154,25 @@ class Scale(Sequence[FreqReprT], ABC):
         elements = list(self)
         elements.append(element)
         return self.origin_context.scale(elements)
+
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the scale in a target origin context that is closest
+        to the frequency series of this scale.
+
+        **A caveat**: Since scales are a structure of sorted unique
+        frequency representation this method may produce a scale with
+        a smaller size than the original because two representations
+        in this context can be approximated to the same representation
+        in the target context.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a proper
+            definition of a closest representation to a given frequency
+        """
+
+        return origin_context.closest_scale(self.frequencies)
 
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
@@ -339,6 +361,14 @@ class Scale(Sequence[FreqReprT], ABC):
         """
         return [element.frequency for element in self]
 
+    def to_seq(self):
+        """
+        Returns this scale represented as sequence of frequency
+        representations
+        """
+
+        return self.origin_context.seq(self)
+
     def to_interval_seq(self):
         """
         Returns this scale represented as an interval sequence
@@ -348,6 +378,27 @@ class Scale(Sequence[FreqReprT], ABC):
         for i in range(0, len(self) - 1):
             intervals.append(self[i].interval(self[i + 1]))
         return self.origin_context.interval_seq(intervals)
+
+    def to_interval_fan(self, ref: Optional[Self] = None):
+        """
+        Returns this scale represented as an interval fan
+        """
+
+        if len(self) == 0:
+            return self.origin_context.interval_fan()
+
+        _ref = self[0] if ref is None else ref
+
+        if _ref.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                f'The ref parameter {_ref} does not originate from context '
+                f'{self.origin_context}. Cannot construct interval fan.'
+            )
+
+        intervals = []
+        for element in self:
+            intervals.append(_ref.interval(element))
+        return self.origin_context.interval_fan(intervals)
 
     def spec_interval(self, source_index, target_index):
         """
@@ -364,10 +415,13 @@ class Scale(Sequence[FreqReprT], ABC):
 
     def to_intervals(self) -> List[Interval[FreqReprT]]:
         """
+        .. deprecated:: 0.3.0
+           Use :py:meth:`to_interval_seq` instead.
+
         Returns this scale represented as a list of intervals
         """
         warn(
-            f'{self.__class__.__name__}.to_interval is deprecated and '
+            f'{self.__class__.__name__}.to_intervals is deprecated and '
             f'will be removed in 1.0.0. Please use '
             f'{self.__class__.__name__}.to_interval_seq instead.',
             DeprecationWarning,
@@ -496,6 +550,30 @@ class Scale(Sequence[FreqReprT], ABC):
         operator shortcut for symmetric difference method
         """
         return self.symmetric_difference(other)
+
+    def __le__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset
+        """
+        return self.is_subset(other)
+
+    def __lt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_subset / proper=True
+        """
+        return self.is_subset(other, proper=True)
+
+    def __ge__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset
+        """
+        return self.is_superset(other)
+
+    def __gt__(self, other: Self) -> bool:
+        """
+        operator shortcut for is_superset / proper=True
+        """
+        return self.is_superset(other, proper=True)
 
     def is_disjoint(self, other: Self) -> bool:
         """
@@ -709,8 +787,7 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         last = self[-1]
 
         return (
-            root.is_equivalent(last) and
-            (last.bi_index - root.bi_index) == 1
+            root.is_equivalent(last) and (last.bi_index - root.bi_index) == 1
         )
 
     def zp_normalized(self) -> Self:
@@ -855,18 +932,20 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
         :param other: Another periodic scale
         """
 
-        if self.tuning is other.tuning:
-            return self.pc_indices == other.pc_indices
+        if self.tuning.eq_ratio != other.tuning.eq_ratio:
+            raise IncompatibleOriginContexts(
+                'Equivalency can only be tested for scales from tunings '
+                'with the same equivalency interval'
+            )
 
-        if self.tuning.eq_ratio == other.tuning.eq_ratio:
-            bi_diff = self[0].bi_index - other[0].bi_index
-            t_other = other.transpose_bi_index(bi_diff)
-            return self == t_other
+        if len(self) != len(other):
+            return False
 
-        raise IncompatibleOriginContexts(
-            'Equivalency can only be tested for scales from tunings '
-            'with the same equivalency interval'
-        )
+        for a, b in zip(self, other):
+            if not a.is_equivalent(b):
+                return False
+
+        return True
 
     def is_set_equivalent(self, other: PeriodicScale) -> bool:
         """
@@ -885,9 +964,6 @@ class PeriodicScale(Scale[PeriodicFreqReprT]):
 
         :param other: Another periodic scale
         """
-
-        if self.tuning is other.tuning:
-            return set(self.pc_indices) == set(other.pc_indices)
 
         if self.tuning.eq_ratio == other.tuning.eq_ratio:
             n_self = self.pcs_normalized()

@@ -145,10 +145,19 @@ def test_eq():
     interval_seq_e = edo24.diff_interval_seq([2, 4, 6])
 
     assert interval_seq_a == interval_seq_a
+    assert interval_seq_a == interval_seq_a
     assert interval_seq_a == interval_seq_b
     assert interval_seq_a == interval_seq_e
     assert interval_seq_a != interval_seq_c
     assert interval_seq_a != interval_seq_d
+
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_b)
+    assert hash(interval_seq_a) == hash(interval_seq_e)
+    assert hash(interval_seq_a) != hash(interval_seq_c)
+    assert hash(interval_seq_a) != hash(interval_seq_d)
+
     assert 'XYZ' != interval_seq_a
     assert 3 != interval_seq_a
     assert interval_seq_a != 'XYZ'
@@ -462,7 +471,7 @@ def test_in_operator(tuning, input_diffs):
         (ed13_3, [100, 50, 0], [9, 444, 3]),
     ]
 )
-def test_not_in_operator_pitch(tuning, input_diffs, excl_diffs):
+def test_not_in_operator(tuning, input_diffs, excl_diffs):
     """
     Test if 'not in' operator works
     """
@@ -652,6 +661,33 @@ def test_scalar_multiplication(tuning, diff, scalar, diff_result):
 
 
 @pytest.mark.parametrize(
+    'tuning, diff, diff_result',
+    [
+        (edo12, [4, 3, 7], [-4, -3, -7]),
+        (edo12, [], []),
+        (edo24, [-4, 3, 10, -5, 27], [4, -3, -10, 5, -27]),
+        (ed13_3, [0, -4], [0, 4]),
+    ]
+)
+def test_inversion(tuning, diff, diff_result):
+    """
+    Test if interval sequence inversion works correctly
+    """
+
+    interval_seq = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff]
+    )
+
+    interval_seq_result = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff_result]
+    )
+
+    assert interval_seq.inversion() == interval_seq_result
+
+
+@pytest.mark.parametrize(
     'tuning, diff, interval, result',
     [
         (edo12, [4, 3, 7], 3, 1),
@@ -828,6 +864,29 @@ def test_scale_conversion(tuning, diff, pitch_index, scale_pi):
     assert pitch.scale(interval_seq) == expected_scale
 
 
+@pytest.mark.parametrize(
+    'tuning, diff, pitch_index, seq_pi',
+    [
+        (edo12, [4, 2, 7, 9, 3], 3, [3, 7, 9, 16, 25, 28]),
+        (edo24, [2, -1, -5, 3], 6, [6, 8, 7, 2, 5]),
+    ]
+)
+def test_seq_conversion(tuning, diff, pitch_index, seq_pi):
+    """
+    Test if pitch interval sequence can be converted into sequence
+    """
+
+    interval_seq = PitchIntervalSeq(
+        tuning,
+        [tuning.diff_interval(diff) for diff in diff]
+    )
+    pitch = tuning.pitch(pitch_index)
+
+    expected_seq = tuning.index_seq(seq_pi)
+    assert interval_seq.to_seq(pitch) == expected_seq
+    assert pitch.seq(interval_seq) == expected_seq
+
+
 def test_scale_conversion_incompatible_origin_context():
     """
     Test if scale conversion raises correct error if parameter is
@@ -844,3 +903,25 @@ def test_scale_conversion_incompatible_origin_context():
 
     with pytest.raises(IncompatibleOriginContexts):
         pitch.scale(interval_seq)
+
+
+@pytest.mark.parametrize(
+    'tuning_a, input_pd, tuning_b, result_pd',
+    [
+        (edo12, [0, 3, 7, 8, 10], edo31, [0, 8, 18, 21, 26]),
+        (edo12, [1, 4, 6, 7, 8, 11], edo24, [2, 8, 12, 14, 16, 22]),
+        (edo24, [8, 16, 2, 12, 14, 22], edo12, [4, 8, 1, 6, 7, 11]),
+        (edo24, [12, 1, 8, 14, 16, 22], edo12, [6, 0, 4, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(tuning_a, input_pd, tuning_b, result_pd):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    interval_seq_a = tuning_a.diff_interval_seq(input_pd)
+
+    interval_seq_b = interval_seq_a.retune_closest(tuning_b)
+
+    expected_interval_seq_b = tuning_b.diff_interval_seq(result_pd)
+    assert interval_seq_b == expected_interval_seq_b

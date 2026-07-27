@@ -20,22 +20,30 @@ tuning that provides a human-friendly string interface to all the
 lower-level objects (pitch, pitch interval, pitch scale)
 """
 
+import operator
+from functools import reduce
 from typing import Tuple
 from typing import Dict
 from typing import Optional
 from typing import TypeVar
 from typing import List
+from typing import Iterable
 from warnings import warn
 from abc import abstractmethod
-import numpy as np
 
 from ..exc import UnknownNoteSymbol
+from .frequencies import Frequency
+from .frequencies import FrequencyRatio
 from .notes import NoteABC
 from .notes import NoteIntervalABC
 from .notes import NatAccNote
 from .notes import NatAccNoteInterval
+from .note_seq import NoteSeq
+from .note_seq import NatAccNoteSeq
 from .note_interval_seq import NoteIntervalSeq
 from .note_interval_seq import NatAccNoteIntervalSeq
+from .note_interval_fan import NoteIntervalFan
+from .note_interval_fan import NatAccNoteIntervalFan
 from .note_scale import NoteScale
 from .note_scale import NatAccNoteScale
 from .symbols import SymbolCode
@@ -46,48 +54,73 @@ from ..exc import IncompatibleOriginContexts
 from ..exc import InvalidIntervalNumber
 from ..exc import InvalidAccidentalValue
 from ..exc import InvalidNaturalDiffClassIndex
+from .protocols import Index
+from .protocols import PeriodicIndex
 from .symbols import AmbiguousSymbol
+from .utils import scalar_op
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
 IntervalT = TypeVar('IntervalT', bound=NoteIntervalABC)
 ScaleT = TypeVar('ScaleT', bound=NoteScale)
 IntervalSeqT = TypeVar('IntervalSeqT', bound=NoteIntervalSeq)
+IntervalFanT = TypeVar('IntervalFanT', bound=NoteIntervalFan)
+NoteSeqT = TypeVar('NoteSeqT', bound=NoteSeq)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
+class NotationABC(
+    OriginContext[
+        IndexT, NoteT, IntervalT, ScaleT, IntervalSeqT, IntervalFanT, NoteSeqT
+    ]
+):
     """
     Abstract base class for all notations. A notation can be
     understood as a wrapper around the tuning, providing a
-    string interface to the underlying integer system.
-
-    Notations in the core package are defined as generics
-    with three type variables: One for the note class,
-    one for the interval class, and one for the scale class.
+    string interface to the underlying integer or lattice
+    point system.
 
     :param tuning: The tuning for which the notation should
         be constructed
-    :param note_cls: The python class that is used to generate
-        the note object in the note method.
-    :param note_interval_cls: The python class that is used to
-        generate a note interval object in the note_interval
-        method.
-    :param note_scale_cls: The python class that is used to
-        generate a note scale object in the note_scale method.
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
+        *,
         note_cls: type[NoteT],
         note_interval_cls: type[IntervalT],
         note_scale_cls: type[ScaleT],
-        note_interval_seq_cls: type[IntervalSeqT]
+        note_interval_seq_cls: type[IntervalSeqT],
+        note_interval_fan_cls: type[IntervalFanT],
+        note_seq_cls: type[NoteSeqT],
     ):
         super().__init__(
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls
+            freq_repr_cls=note_cls,
+            interval_cls=note_interval_cls,
+            scale_cls=note_scale_cls,
+            interval_seq_cls=note_interval_seq_cls,
+            interval_fan_cls=note_interval_fan_cls,
+            freq_repr_seq_cls=note_seq_cls,
         )
         self._tuning = tuning
         self._enharm_strategy = None
@@ -160,7 +193,7 @@ class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
 
         return self.enharm_strategy.guess_note(self, pitch)
 
-    def guess_note_interval(self, pitch_interval) -> NoteT:
+    def guess_note_interval(self, pitch_interval) -> IntervalT:
         """
         Guesses a note interval from a pitch interval using the preferred
         enharmonic strategy of this notation
@@ -177,7 +210,7 @@ class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
 
         return self.enharm_strategy.guess_note_interval(self, pitch_interval)
 
-    def guess_note_scale(self, pitch_scale) -> NoteT:
+    def guess_note_scale(self, pitch_scale) -> ScaleT:
         """
         Guesses a note scale from a pitch scale using the preferred
         enharmonic strategy of this notation
@@ -194,6 +227,186 @@ class NotationABC(OriginContext[NoteT, IntervalT, ScaleT, IntervalSeqT]):
 
         return self.enharm_strategy.guess_note_scale(self, pitch_scale)
 
+    def guess_note_interval_seq(self, pitch_interval_seq) -> IntervalSeqT:
+        """
+        Guesses a note interval sequence from a pitch interval
+        sequence using the preferred enharmonic strategy of this
+        notation
+
+        :pitch_interval_seq: A pitch interval sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_seq(
+            self, pitch_interval_seq
+        )
+
+    def guess_note_interval_fan(self, pitch_interval_fan) -> IntervalFanT:
+        """
+        Guesses a note interval fan from a pitch interval fan
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_interval_fan: A pitch interval fan object
+            originating from the underlying tuning
+        """
+
+        if pitch_interval_fan.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch interval fan must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_interval_fan(
+            self, pitch_interval_fan
+        )
+
+    def guess_note_seq(self, pitch_seq) -> NoteSeqT:
+        """
+        Guesses a note sequence from a pitch sequence
+        using the preferred enharmonic strategy of this notation
+
+        :pitch_seq: A pitch sequence object
+            originating from the underlying tuning
+        """
+
+        if pitch_seq.tuning is not self.tuning:
+            raise IncompatibleOriginContexts(
+                'Pitch sequence must originate from the tuning '
+                'that this notation is build upon'
+            )
+
+        return self.enharm_strategy.guess_note_seq(
+            self, pitch_seq
+        )
+
+    def closest_freq_repr(self, frequency: Frequency) -> NoteT:
+        """
+        Returns the closest note in the notation to a given frequency.
+
+        :param frequency: The frequency in Hz
+        """
+        pitch = self.tuning.closest_freq_repr(frequency)
+        return self.guess_note(pitch)
+
+    def closest_interval(self, frequency_ratio: FrequencyRatio) -> IntervalT:
+        """
+        Returns the interval closest to a given frequency ratio
+
+        :param frequency_ratio: The frequency ratio to approximate
+        """
+
+        pitch_interval = self.tuning.closest_interval(frequency_ratio)
+        return self.guess_note_interval(pitch_interval)
+
+    def closest_scale(self, frequencies: Iterable[Frequency]) -> ScaleT:
+        """
+        Returns the scale closest to a given iterable of frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_scale = self.tuning.closest_scale(frequencies)
+        return self.guess_note_scale(pitch_scale)
+
+    def closest_interval_seq(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalSeqT:
+        """
+        Returns the interval sequence closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_seq = self.tuning.closest_interval_seq(frequency_ratios)
+        return self.guess_note_interval_seq(pitch_interval_seq)
+
+    def closest_interval_fan(
+        self, frequency_ratios: Iterable[FrequencyRatio]
+    ) -> IntervalFanT:
+        """
+        Returns the interval fan closest to a given iterable
+        of frequency ratios.
+
+        :param frequency_ratios: An iterable of frequency ratios
+        """
+
+        pitch_interval_fan = self.tuning.closest_interval_fan(frequency_ratios)
+        return self.guess_note_interval_fan(pitch_interval_fan)
+
+    def closest_seq(self, frequencies: Iterable[Frequency]) -> NoteSeqT:
+        """
+        Returns the note sequence closest to a given iterable of
+        frequencies
+
+        :param frequencies: An iterable of frequencies given in Hz
+        """
+
+        pitch_seq = self.tuning.closest_seq(frequencies)
+        return self.guess_note_seq(pitch_seq)
+
+    def diff_interval_seq(
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalSeqT:
+        """
+        Returns an interval sequence from an iterable of pitch index
+        differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_seq(
+            self.tuning.diff_interval_seq(pitch_diffs)
+        )
+
+    def diff_interval_fan(
+        self, pitch_diffs: Optional[Iterable[IndexT]] = None
+    ) -> IntervalFanT:
+        """
+        Returns a note interval fan from an iterable of pitch
+        index differences
+
+        :param pitch_diffs: An iterable containing pitch index
+            differences
+        """
+
+        return self.guess_note_interval_fan(
+            self.tuning.diff_interval_fan(pitch_diffs)
+        )
+
+    def index_scale(
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
+    ) -> ScaleT:
+        """
+        Constructs a note scale from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_scale(
+            self.tuning.index_scale(pitch_indices)
+        )
+
+    def index_seq(
+        self, pitch_indices: Optional[Iterable[IndexT]] = None
+    ) -> NoteSeqT:
+        """
+        Constructs a note sequence from a list of pitch indices.
+
+        :param pitch_indices: A list of pitch indices
+        """
+
+        return self.guess_note_seq(
+            self.tuning.index_seq(pitch_indices)
+        )
+
 
 class IncompleteNotation(Exception):
     """
@@ -201,181 +414,187 @@ class IncompleteNotation(Exception):
     """
 
 
-# We will give a formal definition of natural/accidental systems for sparse
-# tunings in here. We will first define the space of notes and subsequently
-# the space of intervals.
+# We will give a formal definition of a natural/accidental notation in here.
+# We will first define the structure of notes and intervals, then define the
+# transposition and interval determination operations.
 #
-# Formally notes in NatAccNotation are defined as elements in a vector space
-# (n, p(n), a_1, ..., a_l), with the following semantics:
+# We first define two terms:
 #
-#   * n is the natural index of the note (e.g. in Western notations C0 ^= 0,
-#     D0 ^=1, C0 ^=7). Natural indices are elements of the whole numbers,
-#     with negative elements behaving like in the group Z_k with the number
-#     of naturals per octave k. (e.g. B(-1) ^= -1, A(-1) ^= -2, etc)
-#   * p(n) is a function that returns the equivalent pitch index for n.
-#     (e.g. for positive n in 12-EDO: 0 (C0) ^= 0, 1 (D0) ^= 2, 4 (G0) ^= 7,
-#     for negative n: -1 (B(-1)) ^= -1, -1 (A(-1)) ^= -3, etc)
-#   * a_1, ... , a_l are categories of accidentals with each a_i holding the
-#     alteration in pitch introduced by the accidentals of class i.
+#   * A "pitch index" (subsequently denoted P) is any type of index that
+#     denotes a specific frequency ratio. Typical pitch indices in sparse
+#     tunings are integers (e.g. C0 = 0, C#0 = 1, etc), however a pitch
+#     index can also be something else that implements the necessary
+#     arithmetic protocol, e.g. a lattice point in a multi-dimensional
+#     tuning
 #
-# Let's give some simple examples in 12-EDO with a notation system that has
-# only sharps and flats:
+#   * An "accidental sum vector" (subsequently denoted 'A') is a vector that
+#     counts value sums of different accidental sets. An accidental set
+#     is a set of accidentals (e.g. {#, b, x}) where each element has
+#     a specific value (e.g. # = 1, b = -1, x = 2) and opposite values
+#     cancel each other out. In the standard western notation there
+#     exists only one accidental set, so the note Cbb corresponds
+#     to vector (-2,), C# to (1,), Cxx# to (5,) and both C and Cb# to
+#     (0,). UpDownNotation on the other hand has two different accidental
+#     sets, the aforementioned flat/sharp set and the independent up/down
+#     set ({v, ^}). A note ^Cbb in UpDownNotation has for example the
+#     corresponding vector A = (-2, 1) meaning "two flats, 1 up"
 #
-#   C0      ^=  (0, 0, 0)
-#   C#0     ^=  (0, 0, 1)
-#   Cb0     ^=  (0, 0, -1)
-#   Gb0     ^=  (4, 7, -1)
-#   C(-1)x  ^=  (-7, -12, 2)
-#   C(-1)   ^=  (-7, 0, -1)
+# A natural accidental notation is a structure (p, q, w, h) with the
+# following definition of its elements:
 #
-# Observe that the expression p(n) + sum_i(a_i) results in the pitch index
-# of the note (the pitch index of the natural + the pitch alterations of
-# all categories of accidentals)
+#   * p(n): Z -> P
+#     This function returns the equivalent pitch index for a natural index.
+#     A natural index is a whole number indicating the index of the natural
+#     part of a note. For example in Western notation C0 has natural index
+#     0, D0 natural index 1, C1 has natural index 7, B(-1) has natural
+#     index -1, A(-1) and A#(-1) have natural index -2.
 #
-# Observe also that there are integer vectors with the same dimensions that
-# are not part of the note vector space:
+#   * q(m): Z -> P
+#     This function returns the equivalent pitch diff for a natural diff.
+#     A natural diff is a whole number indicating the diff of the natural
+#     part of an interval. For example in Western notation M3 has natural
+#     diff 2, P1 natural diff 0, P5 has natural diff 4, P(-5) has natural
+#     diff -4, P(-4) has natural diff -3, etc.
+#     For reasons we will explain later it is defined as follows:
+#         p(m)    for positive m
+#       - p(|m|)  for negative m
 #
-#   v = (4, 6, 0) is not part of the note space because p(4) = 7, not 6
+#   * w(A): Z^n -> P^n
+#     A linear weighting function that multiplies an accidental sum
+#     vector component-wise with a fixed weight vector, more formally
+#     for a fixed weight vector (w_1, w_2, ..., w_n) in P^n the function
+#     w(A) is defined as w(A) = (w_1 * a_1, w_2 * a_2, ...w_n * a_n).
+#     The resulting vector is called "accidental diff vector"
 #
-# Depending on the definition of the accidentals other constraints can also
-# be in place. For example in 31-EDO flat/sharp accidentals alter the pitch
-# by 2 steps, so in a vector space defined by 31-EDO the vector (0, 0, 1)
-# would also not be valid since 1 is not a multiple of 2.
+#   * h(p): P -> Z^n
+#     A balancing function returning an accidental vector for a specific
+#     pitch index deviation (more on that later)
 #
-# Let's look at a vector like v in the above example with the form
+# Notes in natural accidental notations are defined as a structure (n, A)
+# with n being the natural index and A being the accidental sum vector.
 #
-#   (n, x, a_1, ..., a_n)   with x != p(n).
+# Let's give some simple examples for the UpDownNotation system that
+# has two accidental sets: sharp/flats and ups/downs:
 #
-# We will denote the difference p(n) - x with the letter d and use it to
-# invent a balancing function h(d) -> (d_1, ..., d_n)  with sum(d_i) = d
-# that distributes the difference across the accidentals. We can now make
-# (n, x, a_1, .., a_n) into an element of the note vector space by
-# normalizing it as follows:
+#   C0      ^=  (0, (0, 0))
+#   C#0     ^=  (0, (1, 0))
+#   vD0     ^=  (1, (0, -1))
+#   ^^Gb0   ^=  (4, (-1, 2))
+#   C(-1)x  ^=  (-7, (2, 0))
 #
-#   (n, p(n)) & (a_1, ..., a_n) - h(p(n) - x)   with & being concatenation
+# The (n, A) structure can be understood as: from C0 go n naturals up (n > 0)
+# or down (n < 0) and then alter the result according to accidentals in A.
 #
-# A very simple balancing function is h(d) = (d, 0, ..., 0) that just uses
-# the first category of accidentals as a "counter weight". Let's look at
-# out original example of v = (4, 6, 0) in 12-EDO: p(4) = 7, so the
-# difference d = (7 - 6) = 1. With using h(d) = (d,) we will receive
-# h(1) = (1,) and if applied to our vector (4, 7, 0 - 1) = (4, 7, -1)
-# which is a valid note vector (equal to Gb-0).
+# We define the total pitch index of a note (n, A) as:
 #
-# Observe that balancing the vector keeps the following equality intact:
+#       total((n, A)) := p(n) + sum(w(A))
 #
-#   x + sum_i(a_i) == p(n) + sum_i(a'_i)
+# (the pitch index of the natural + the weighted pitch alterations of
+# all sets of accidentals)
+
+# In an analogue fashion we can also define intervals I = (m, A) with m
+# being the difference(!) in natural index and A being the difference in
+# accidentals.
 #
-# We will call the function that balances a vector into an element of the
-# note vector space f_h. We will come back to it later, but first we will
-# define the interval vector space.
+# Please note that the (m, A) structure CAN NOT in general be understood
+# as "move m naturals and alter with A". The problem with intervals
+# in natural/accidental notations is that naturals are not uniformly
+# distributed, meaning that the (m, A) structure is dependent on an
+# implicit starting point. If we e.g. want to define a minor second
+# we will notice that starting from E0 it is "one natural up", while
+# starting from D0 it is "one natural up, 1 pitch down". Same goes
+# for interval direction: On C0 a minor second upwards would mean
+# "1 natural up, 1 pitch down". The downward minor second from C0
+# would however be "1 natural down"
 #
-# An interval vector is defined as (m, q(m), a_1, ..., a_l) with the following
-# semantics:
+# Following the path it is defined in common interval naming systems
+# we implicitely assume that an interval starts at the natural that
+# is also the zero element (C0) and points upwards, so for example
+# in the UpDownNotation system we have the following equivalencies:
 #
-#   * m is the natural difference of the interval, for example in upwards
-#     direction we have (C0, D0) ^= (1 - 0) = 1, (D0, G#0) ^= 4 - 1 = 3,
-#     (B(-1), D1) ^= 1 - (-1) = 2, etc. In downwards direction the same in
-#     reverse, e.g. (G#0, D0) ^= 1 - 4 = -3, (D1, A(-1)) ^= (-2) - 1 = -3
-#   * q(m) is a function that returns the standardized pitch difference of
-#     a natural difference. It is formally defined as:
-#           q(m) = p(m)         if m >= 0
-#           q(m) = - p(|m|)     if m < 0
-#     For positive natural differences the standardized pitch difference is
-#     the pitch difference from the natural with index 0 to the natural with
-#     index m. For example in 12-EDO the upwards P5 interval has always the
-#     size of (C0, G0) which is the pitch index of G0 which is 7. Because
-#     of this (D0, A0) is a P5, (E0, B0) is a P5, however (B0, F1) is NOT
-#     because the two naturals do not form a pitch difference of 7, but 6,
-#     so (B0, F1) is actually a diminished 5.
-#     For negative intervals the absolute natural difference is put into
-#     p and multiplied by (-1). For example for (C0, B(-1)) we take the
-#     natural difference 1, use p(1) to find out the standardized pitch
-#     difference, receive 2 and multiply it by (-1) to obtain -2. When
-#     checking the pitch difference for (C0, B(-1)) we will see that it
-#     is actually -1, which makes us need accidental values to balance
-#     it out.
-#   * a_1, ... , a_l are different categories of accidental values for
-#     the interval. Together with q(m) they form the pitch difference
-#     of the interval, which is defined as:
-#           q(m) + sum_i(a_i)
-#     To obtain the correct pitch difference of the vector in our earlier
-#     example of (C0, B(-1)) we have to balance it with one of different
-#     accidental categories. Let's suppose l=1 (only one type of accidental)
-#     then we will receive for (C0, B(-1)) the vector (-1, -2, 1) which is
-#     equivalent to a downwards minor second.
+#   P1 (unison)                     ^=   (0, (0, 0))
+#   M2 (major second)               ^=   (1, (0, 0))
+#   A3 (augmented third)            ^=   (2, (1, 0))
+#   P5 (perfect fifth)              ^=   (4, (0, 0))
+#   ^dim5 (up-diminished fifth)     ^=   (4, (-1, 1))
+#   M(-2) (inverted major second)   ^=   (-1, (0, 0))
 #
-# Let's give a couple of examples for 12-EDO with only 1-values sharps/flats:
+# This "implicit upward semantics" is the reason of why the q function
+# aligns with p on positive natural diffs, but is "flipped" on negative
+# natural diffs.
 #
-#   (2, 4, 0)       is a major third (upwards)
-#   (-2, -4, 0)     is a major third (downwards)
-#   (2, 4, -1)      is a minor third (upwards)
-#   (-2, -4, 1)     is a minor third (downwards)
-#   (5, 9, 1)       is an augmented 6 (upwards)
-#   (8, 14, -2)     is a diminished 9 (upwards)
+# The total pitch difference of an interval (m, A) is consequently defined
+# as:
 #
-# Observe again that there are vectors that are not part of the interval
-# vector space, for example
+#       total_diff((m, A)) := q(m) + sum(w(A))
+
+# Without knowing about the aforementioned problem of non-uniformity we
+# could naively assume that transposition would mean to just add the natural
+# index diff to the natural index and add the two accidental vectors together.
+# However this would give us an incorrect result.
 #
-#   v = (2, 5, 0)       q(2) is 4, therefor v is not part of the set
+# As example: If we want to transpose B0 in a Western notation by a perfect
+# fifth the correct result IS NOT (6 + 4, (0,) + (0,)) = F1, but F#1. We
+# need to "balance" the result first.
 #
-# We can again devise a normalization that refers to a balancing function
-# h(d) with now d being defined as q(m) - x for a vector
+# The question for transposition is: Find A' so that
 #
-#   v = (m, x, a_1, ..., a_n)   with x != q(m)
+#     total((n + m, A1 + A2 + A') = total((n, A1)) + total_diff((m, A2))
 #
-# v would be normalized in the same fashion:
+# We fill in the definition:
 #
-#   (m, q(m)) & (a_1, ..., a_n) - h(q(m) - x)   with & being concatenation
+#     p(n + m) + sum(w(A1)) + sum(w(A2)) + sum(w(A')) =
+#     p(n) + sum(w(A1)) + q(m) + sum(w(A2))
 #
-# We can now - finally - use these building blocks to define interval
-# determination and transposition. For this let N be a note vector space
-# with note-normalization function f_h and M be an interval vector space
-# with interval-normalization function g_h.
+# And simplify:
 #
-# Interval determination is a function det with domain (N x N) and
-# image M, and is defined as follows:
+#     p(n + m) + sum(w(A')) = p(n) + q(m)
+#     sum(w(A')) = p(n) + q(m) - p(n + m)
 #
-#   det(v_1, v_2) = g_h(v_2 - v1)
+# So every natural/accidental notation needs to define a function
+# h(p): P -> Z^n that receives the right side of this equation
+# and returns a suitable A' vector satisfying the equation.
 #
-# with the minus sign being pairwise vector subtraction
+# Transposition T: Notes x Intervals -> Notes is therefore defined as:
 #
-# Note transposition is a function t with domain (N X M) and image N
-# and is defined as follows:
+#     T((n, A1), (m, A2)) := (n + m, A1 + A2 + h(p(n) + q(m) - p(n + m)))
 #
-#   t(v, w) = f_h(v + w)
+# For interval determination between two notes (n1, A1) and (n2, A2) we
+# need to find a A' such that
 #
-# with the plus sign being pairwise vector addition
+#     total_diff((n2 - n1, A2 - A1 + A') = total((n2, A2)) - total((n1, A_1))
 #
-# A closing example in 12-EDO:
+# We fill in the definition
 #
-#   B0  is note vector (6, 11, 0)
-#   F#1 is note vector (10, 17, 1)
+#     q(n2 - n1) + sum(w(A2)) - sum(w(A1)) + sum(w(A')) =
+#     p(n2) + sum(w(A2)) - p(n1) - sum(w(A1))
 #
-# We want to determine the interval (B0, F#1), so we first subtract:
+# And simplify:
 #
-#   (10, 17, 1) - (6, 11, 0) = (4, 6, 1)
+#     q(n2 - n1) + sum(w(A')) = p(n2) - p(n1)
+#     sum(w(A')) = p(n2) - p(n1) - q(n2 - n1)
 #
-# and then normalize so the second dimension is p(4) = 7.
-# We receive as a result (4, 7, 0) which is an upward P5
+# Interval determination I: Notes x Notes -> Interval is therefore defined as:
 #
-# We now want to invert the direction of the interval, so we have a
-# downward P5. We invert the signs of all dimensions and receive
-# (-4, -7, 0). We can now use this to transpose the note C1 downwards
-# with t. C1 is (7, 12, 0). We first add the downwards P5 to C1:
+#     I((n1, A1), (n2, A2)) :=
+#           (n2 - n1, A2 - A1 + h(p(n2) - p(n1) - q(n2 - n1)))
 #
-#   (7, 12, 0) + (-4, -7, 0) = (3, 5, 0)
-#
-# Since p(3) = 5 already we don't need to normalize the result.
-# After inspecting (3, 5, 0) we see that it is indeed the note
-# vector for F0 which is exactly what we were expecting.
+# As for the definition of h: For typical sharp/flat accidental systems we
+# would just balance with flats or sharps. However depending on notation it
+# is possible that other strategies must be applied.
+
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
 class NatAccNotation(
     NotationABC[
+        PeriodicIndexT,
         NatAccNote,
         NatAccNoteInterval,
         NatAccNoteScale,
-        NatAccNoteIntervalSeq
+        NatAccNoteIntervalSeq,
+        NatAccNoteIntervalFan,
+        NatAccNoteSeq,
     ]
 ):
     """
@@ -404,32 +623,59 @@ class NatAccNotation(
     counterpart :meth:`interval_number_to_nat_diff`
 
     :param tuning: The tuning this notation refers to
-    :param note_cls: Note class used in the :meth:`note` builder
-        method (optional, defaults to the class NatAccNote)
-    :param note_interval_cls: Note interval class used in the
-        :meth:`note_interval` builder method (optional, defaults
-        to the class NatAccNoteInterval)
-    :param note_scale_cls: Note scale class used in the
-        :meth:`note_scale` builder method (optional, defaults
-        to the class NatAccNoteScale)
+    :param acc_weight: A vector defining a mapping between the
+        (unweighted) accidental sum vector and the (weighted)
+        accidental diff vector
+
+    Additional, optional keyword-only arguments:
+    (only relevant if you want to develop your own notation)
+
+    :param note_cls: The python class that is used for the note
+        object returned from the note method.
+    :param note_interval_cls: The python class that is used for
+        the note interval object returned from the interval
+        builder methods.
+    :param note_scale_cls: The python class that is used for the
+        note scale object returned from the scale builder methods.
+    :param note_interval_seq_cls: The python class that is used
+        for the note interval sequence object returned from the
+        interval sequence builder methods.
+    :param note_interval_fan_cls: The python class that is used
+        for the note interval fan object returned from the
+        interval fan builder methods.
+    :param note_seq_cls: The python class that is used for the
+        note sequence object returned from the sequence builder
+        methods.
     """
 
     def __init__(
         self,
         tuning,
+        acc_weights: Tuple[PeriodicIndexT, ...],
+        *,
         note_cls: type[NatAccNote] = NatAccNote,
         note_interval_cls: type[NatAccNoteInterval] = NatAccNoteInterval,
         note_scale_cls: type[NatAccNoteScale] = NatAccNoteScale,
-        note_interval_seq_cls: type[NatAccNoteIntervalSeq] = NatAccNoteIntervalSeq,
+        note_interval_seq_cls: type[
+            NatAccNoteIntervalSeq
+        ] = NatAccNoteIntervalSeq,
+        note_interval_fan_cls: type[
+            NatAccNoteIntervalFan
+        ] = NatAccNoteIntervalFan,
+        note_seq_cls: type[NatAccNoteSeq] = NatAccNoteSeq,
     ):
 
         super().__init__(
             tuning,
-            note_cls,
-            note_interval_cls,
-            note_scale_cls,
-            note_interval_seq_cls
+            note_cls=note_cls,
+            note_interval_cls=note_interval_cls,
+            note_scale_cls=note_scale_cls,
+            note_interval_seq_cls=note_interval_seq_cls,
+            note_interval_fan_cls=note_interval_fan_cls,
+            note_seq_cls=note_seq_cls,
         )
+
+        self._acc_weights = acc_weights
 
         # the naturals list will include tuples with two elements.
         # a tuple (symbol, natc_pitch_index) at position k in the
@@ -443,10 +689,18 @@ class NatAccNotation(
         # in notations of pentatonic EDOs where m2 = M2 the note
         # (B, 0) and (C, 1) refer to the same pitch
 
-        self._naturals: List[Tuple[str, int]] = []
+        self._naturals: List[Tuple[str, PeriodicIndexT]] = []
 
         self._acc_symbol_code: Optional[SymbolCode] = None
         self._interval_symbol_codes: Dict[int, SymbolCode] = {}
+
+    @property
+    def acc_weights(self) -> Tuple[PeriodicIndexT, ...]:
+        """
+        The weight vector that transforms the accidental sum vector
+        into the accidental diff vector
+        """
+        return self._acc_weights
 
     @property
     def zero_element(self) -> NatAccNote:
@@ -457,7 +711,7 @@ class NatAccNotation(
         natc_symbol = self._naturals[0][0]
         note = self.note(natc_symbol, 0)
 
-        if note.pitch_index != 0:
+        if note.pitch_index != self.zero_index:
             raise IncompleteNotation(
                 'First defined natural did not point to pitch index 0.'
                 'Please overwrite the zero_element property to return '
@@ -466,10 +720,127 @@ class NatAccNotation(
 
         return note
 
-    # start with the definition of functions for the formal system
-    # defined above the class
+    @property
+    def eq_diff(self) -> PeriodicIndexT:
+        """
+        The pitch difference of the equivalency interval of this notation
+        """
+        return self.tuning.eq_diff
 
-    def nat_index_to_pitch_index(self, nat_index: int) -> int:
+    @property
+    def eq_interval(self) -> NatAccNoteInterval:
+        """
+        The equivalency interval of this notation
+        """
+        return self.interval(
+            self.zero_element, self.zero_element.transpose_bi_index(1)
+        )
+
+    # we define the function w(A) from the definition and (for
+    # implementation detail reasons) also the inverse function
+
+    def acc_sum_vector_to_acc_diff_vector(
+        self, acc_sum_vector: Tuple[int, ...]
+    ) -> Tuple[PeriodicIndexT, ...]:
+        """
+        Transforms an (unweighted) accidental sum vector into a
+        (weighted) accidental diff vector.
+
+        :raises ValueError: If dimensions of accidental sum vector
+            do not match the weighting vector dimensions of this
+            notation
+
+        :param acc_sum_vector: The accidental sum vector
+        """
+
+        dimensions = len(self.acc_weights)
+
+        if len(acc_sum_vector) != dimensions:
+            raise ValueError(
+                f'accidental sum vector does not have the '
+                f'correct dimensions (should be {dimensions})'
+            )
+
+        result: Tuple[PeriodicIndexT, ...] = tuple()
+
+        for i, component in enumerate(acc_sum_vector):
+            result += (component * self.acc_weights[i],)
+
+        return result
+
+    def acc_diff_vector_to_acc_sum_vector(
+        self, acc_diff_vector: Tuple[PeriodicIndexT, ...]
+    ) -> Tuple[int, ...]:
+        """
+        Transforms a (weighted) accidental diff vector into a
+        (unweighted) accidental sum vector.
+
+        :raises ValueError: If dimensions of accidental diff vector
+            do not match the weighting vector dimensions of this
+            notation
+
+        :raises ValueError: If accidental diff vector is not in
+            the image of the accidental weight mapping of this
+            notation
+
+        :param acc_diff_vector: The accidental diff vector
+        """
+
+        dimensions = len(self.acc_weights)
+
+        if len(acc_diff_vector) != dimensions:
+            raise ValueError(
+                f'accidental diff vector does not have the '
+                f'correct dimensions (should be {dimensions})'
+            )
+
+        result: Tuple[int, ...] = tuple()
+
+        for i, component in enumerate(acc_diff_vector):
+            q, r = divmod(component, self.acc_weights[i])
+            if r != 0:
+                raise ValueError(
+                    'accidental diff vector is not in the image '
+                    'of the accidental weight mapping'
+                )
+            result += (q,)
+
+        return result
+
+    # we define the h(p) function from the definition
+
+    def get_acc_sum_balance_vector(
+        self, delta: PeriodicIndexT
+    ) -> Tuple[int, ...]:
+        """
+        Returns an accidental sum balance vector for a pitch difference
+        delta. By default this function assumes that pitch difference
+        deltas introduced on transposition or interval determination
+        can be counter-balanced by changing the first dimension of
+        the accidental sum vector (e.g. B0 + P5 = F#1). If your
+        subclassed notation does this differently you need to
+        change this behavior by overwriting the method in
+        your class.
+
+        :param delta: The delta in pitch difference
+        """
+
+        q, r = divmod(delta, self.acc_weights[0])
+
+        if r != self.zero_index:
+            raise ValueError(
+                f'heuristic for balancing accidental sum vector failed: '
+                f'pitch deviation {delta} can not be represented by '
+                f'the first accidental set. please replace the '
+                f'get_acc_sum_balance_vector method with a suitable '
+                f'strategy in your notation subclass'
+            )
+
+        return (q,) + (0,) * (len(self.acc_weights) - 1)
+
+    # we define the p(n) function from the definition
+
+    def nat_index_to_pitch_index(self, nat_index: int) -> PeriodicIndexT:
         """
         Returns the pitch index a natural index refers to
         (e.g. in 12-EDO: 0 -> 0, 1 -> 2, 3 -> 4, 4 -> 5)
@@ -477,13 +848,13 @@ class NatAccNotation(
         :param nat_index: A natural index
         """
 
-        # this is the p(n) function from the definition
-
         nat_bi_index, natc_index = divmod(nat_index, self.nat_count)
         natc_pitch_index = self.natc_pitch_indices[natc_index]
-        return natc_pitch_index + len(self.tuning) * nat_bi_index
+        return natc_pitch_index + self.eq_diff * nat_bi_index
 
-    def std_pitch_diff(self, nat_diff: int) -> int:
+    # we define the q(m) function from the definition
+
+    def std_pitch_diff(self, nat_diff: int) -> PeriodicIndexT:
         """
         Returns the standardized pitch difference for a
         natural index difference (e.g. in 12-EDO: 0 -> 0,
@@ -492,12 +863,10 @@ class NatAccNotation(
         :param nat_diff: A natural index difference
         """
 
-        # this is the q(m) function from the definition
-
         abs_nat_bi_diff, abs_natc_diff = divmod(abs(nat_diff), self.nat_count)
         abs_natc_pitch_diff = self.natc_pitch_indices[abs_natc_diff]
         abs_pitch_diff = (
-            abs_natc_pitch_diff + len(self.tuning) * abs_nat_bi_diff
+            abs_natc_pitch_diff + self.eq_diff * abs_nat_bi_diff
         )
 
         if nat_diff >= 0:
@@ -505,80 +874,8 @@ class NatAccNotation(
 
         return (-1) * abs_pitch_diff
 
-    def balance_note_acc_vector(
-        self,
-        nat_index: int,
-        unbalanced_nat_pitch_index: int,
-        unbalanced_acc_vector: Tuple[int],
-    ):
-        """
-        Returns a modified accidental vector that balances the
-        deviation of a pitch index from the natural pitch index
-        as defined in this notation. By default, deviations get
-        balanced by adding / subtracting the deviation from the
-        first dimension of the accidental vector.
-
-        :param nat_index: a natural index that determines the desired
-            pitch index in accordance with the mapping of natural
-            indices to pitch indices in this notation
-        :param unbalanced_nat_pitch_index: A pitch index for the
-            natural index that (possibly) deviates from the pitch
-            index as defined for nat_index in this notation
-        :param unbalanced_acc_vector: An accidental vector that
-            is (possibly) unbalanced because the given pitch index
-            of the natural index does not match the pitch index as
-            defined in this notation
-        """
-
-        # this is the f_h(v) function from the definition
-
-        balanced_nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
-        delta = balanced_nat_pitch_index - unbalanced_nat_pitch_index
-        balanced_acc_vector = (unbalanced_acc_vector[0] - delta,)
-
-        if len(unbalanced_acc_vector) > 1:
-            balanced_acc_vector += unbalanced_acc_vector[1:]
-
-        return balanced_acc_vector
-
-    def balance_interval_acc(
-        self,
-        nat_diff: int,
-        unbalanced_nat_pitch_diff: int,
-        unbalanced_acc_vector: Tuple[int],
-    ):
-        """
-        Returns a modified accidental vector that balances the
-        deviation of a pitch diff from the natural pitch diff
-        as defined in this notation. By default, deviations get
-        balanced by adding / subtracting the deviation from the
-        first dimension of the accidental vector.
-
-        :param nat_diff: a natural index difference that determines
-            the desired pitch difference in accordance with the
-            mapping of natural differences to pitch differences
-            in this notation
-        :param unbalanced_nat_pitch_diff: A pitch difference for the
-            natural index that (possibly) deviates from the pitch
-            difference as defined for nat_diff in this notation
-        :param unbalanced_acc_vector: An accidental vector that
-            is (possibly) unbalanced because the given pitch
-            difference of the natural difference does not match
-            the pitch difference as defined in this notation
-        """
-
-        # this is the g_h(v) function from the definition
-
-        balanced_nat_pitch_diff = self.std_pitch_diff(nat_diff)
-        delta = balanced_nat_pitch_diff - unbalanced_nat_pitch_diff
-        balanced_acc_vector = (unbalanced_acc_vector[0] - delta,)
-
-        if len(unbalanced_acc_vector) > 1:
-            balanced_acc_vector += unbalanced_acc_vector[1:]
-
-        return balanced_acc_vector
-
-    # first we define the builder methods
+    # after having implemented the formally defined functions we now
+    # implement builder and parsing methods and various properties.
 
     def note(self, pc_symbol: str, nat_bi_index: int) -> NatAccNote:
         """
@@ -592,16 +889,19 @@ class NatAccNotation(
             interval 1)
         """
 
-        natc_symbol, acc_symbol, natc_index, acc_vector = self.parse_pc_symbol(
-            pc_symbol
+        natc_symbol, acc_symbol, natc_index, acc_sum_vector = (
+            self.parse_pc_symbol(pc_symbol)
         )
         nat_index = natc_index + (nat_bi_index * self.nat_count)
         natc_pitch_index = self.nat_index_to_pitch_index(natc_index)
-        acc_value = int(sum(acc_vector))
+        acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
+            acc_sum_vector
+        )
+        acc_value = reduce(operator.add, acc_diff_vector)
 
         tuning = self.tuning
         pitch_index = (
-            natc_pitch_index + len(tuning) * nat_bi_index
+            natc_pitch_index + self.eq_diff * nat_bi_index
         ) + acc_value
         frequency = tuning.get_frequency_for_index(pitch_index)
 
@@ -610,7 +910,8 @@ class NatAccNotation(
             frequency,
             pitch_index,
             nat_index=nat_index,
-            acc_vector=acc_vector,
+            acc_sum_vector=acc_sum_vector,
+            acc_diff_vector=acc_diff_vector,
             pc_symbol=pc_symbol,
             natc_symbol=natc_symbol,
             acc_symbol=acc_symbol,
@@ -619,21 +920,25 @@ class NatAccNotation(
         return chosen_note
 
     def note_by_numdef(
-        self, nat_index: int, acc_vector: Tuple[int, ...]
+        self, nat_index: int, acc_sum_vector: Tuple[int, ...]
     ) -> NatAccNote:
         """
         Creates a natural/accidental note by its numerical definition.
         Autogenerates appropriate symbols
 
         :param nat_index: The natural index of the note
-        :param acc_vector: The accidental vector of the note
+        :param acc_sum_vector: The (unweighted) accidental sum vector
+            of the note
         """
 
-        acc_value = int(sum(acc_vector))
+        acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
+            acc_sum_vector
+        )
+        acc_value = reduce(operator.add, acc_diff_vector)
         nat_pitch_index = self.nat_index_to_pitch_index(nat_index)
         pitch_index = nat_pitch_index + acc_value
         frequency = self.tuning.get_frequency_for_index(pitch_index)
-        result = self.gen_pc_symbol(nat_index, acc_vector)
+        result = self.gen_pc_symbol(nat_index, acc_sum_vector)
 
         pc_symbol = result[0]
         natc_symbol = result[1]
@@ -644,7 +949,8 @@ class NatAccNotation(
             frequency,
             pitch_index,
             nat_index,
-            acc_vector,
+            acc_sum_vector,
+            acc_diff_vector,
             pc_symbol,
             natc_symbol,
             acc_symbol,
@@ -725,7 +1031,7 @@ class NatAccNotation(
         nat_diffc = abs(nat_diff) % self.nat_count
 
         symbol_code = self._interval_symbol_codes[nat_diffc]
-        acc_vector = symbol_code.get_vector(symbol)
+        acc_sum_vector = symbol_code.get_vector(symbol)
 
         # interval symbol codes are defined for positive natural
         # differences, so e.g. a ^d will result in an accidental
@@ -736,13 +1042,19 @@ class NatAccNotation(
         # to write albeit more difficult to comprehend)
 
         if nat_diff < 0:
-            acc_vector = tuple(np.array(acc_vector) * (-1))
+            acc_sum_vector = scalar_op(operator.mul, acc_sum_vector, -1)
 
         first_natc_symbol = self.get_natc_symbol(0)
         ref_note = self.note(first_natc_symbol, 0)
 
         nat_pitch_diff = self.std_pitch_diff(nat_diff)
-        pitch_diff_zero = int(sum(acc_vector)) + nat_pitch_diff
+
+        acc_diff_vector = self.acc_sum_vector_to_acc_diff_vector(
+            acc_sum_vector
+        )
+        pitch_diff_zero = (
+            reduce(operator.add, acc_diff_vector) + nat_pitch_diff
+        )
         pitch_diff = pitch_diff_zero - ref_note.pitch_index
 
         tuning = self.tuning
@@ -756,7 +1068,8 @@ class NatAccNotation(
             pitch_diff,
             ref_note,
             nat_diff,
-            acc_vector,
+            acc_sum_vector,
+            acc_diff_vector,
             symbol,
             number,
         )
@@ -779,10 +1092,13 @@ class NatAccNotation(
 
         return self.scale(notes)
 
+    # FIXME: should implementation here also allow iterable / generator
+    # type as a valid input?
+
     def pc_scale(
         self,
         pc_symbols: Optional[List[str]] = None,
-        root_nat_bi_index: int = 0
+        root_nat_bi_index: int = 0,
     ) -> NatAccNoteScale:
         """
         Constructs a note scale from a list of pitch class symbols.
@@ -822,7 +1138,7 @@ class NatAccNotation(
     # methods for mapping of natural indices / natural class
     # indices to pitch indices / pitch class indices
 
-    def nat_index_to_pc_index(self, nat_index: int) -> int:
+    def nat_index_to_pc_index(self, nat_index: int) -> PeriodicIndexT:
         """
         Returns the pitch class index a natural index refers to
 
@@ -830,9 +1146,9 @@ class NatAccNotation(
         """
 
         pitch_index = self.nat_index_to_pitch_index(nat_index)
-        return pitch_index % len(self.tuning)
+        return pitch_index % self.eq_diff
 
-    def is_natural(self, pitch_index: int) -> bool:
+    def is_natural(self, pitch_index: PeriodicIndexT) -> bool:
         """
         Returns True if the given pitch index refers to
         a natural in this notation, False otherwise
@@ -840,7 +1156,7 @@ class NatAccNotation(
         :param pitch_index: The pitch index to consider
         """
 
-        pc_index = pitch_index % len(self.tuning)
+        pc_index = pitch_index % self.eq_diff
         return pc_index in self.natc_pc_indices
 
     @property
@@ -853,7 +1169,7 @@ class NatAccNotation(
         return len(self._naturals)
 
     @property
-    def natc_pitch_indices(self) -> List[int]:
+    def natc_pitch_indices(self) -> List[PeriodicIndexT]:
         """
         A sorted list of natural class pitch indices
         that are present in this notation
@@ -861,20 +1177,22 @@ class NatAccNotation(
         return [t[1] for t in self._naturals]
 
     @property
-    def natc_pc_indices(self) -> List[int]:
+    def natc_pc_indices(self) -> List[PeriodicIndexT]:
         """
         A sorted list of natural class pitch class indices
         that are present in this notation
         """
 
         return [
-            natc_pitch_index % len(self.tuning)
+            natc_pitch_index % self.eq_diff
             for natc_pitch_index in self.natc_pitch_indices
         ]
 
     # natural symbol processing
 
-    def append_natural(self, natc_symbol: str, natc_pitch_index: int):
+    def append_natural(
+        self, natc_symbol: str, natc_pitch_index: PeriodicIndexT
+    ):
         """
         Appends a new natural to this notation. The order in which
         naturals are added determines their natural class index,
@@ -936,7 +1254,7 @@ class NatAccNotation(
     def acc_symbol_code(self, symbol_code: SymbolCode):
         self._acc_symbol_code = symbol_code
 
-    def get_acc_symbol(self, acc_vector: Tuple[int, ...]) -> str:
+    def get_acc_symbol(self, acc_sum_vector: Tuple[int, ...]) -> str:
         """
         Returns a symbol string for an accidental vector,
         like (1, 0) -> '#' or (-1, 1) -> '^b'
@@ -945,16 +1263,15 @@ class NatAccNotation(
             code of this notation does not have a symbol or
             symbol combination that maps to this value
 
-        :param acc_vector: An integer vector denoting the step
-            deviation from the natural pitch class
+        :param acc_sum_vector: The (unweighted) accidental sum vector
         """
 
         try:
-            return self.acc_symbol_code.get_symbol_str(acc_vector)
+            return self.acc_symbol_code.get_symbol_str(acc_sum_vector)
         except SymbolValueNotMapped:
             raise InvalidAccidentalValue(
-                f'Accidental vector {acc_vector} can not be '
-                f'represented by this notation'
+                f'Accidental vector {acc_sum_vector} can '
+                f'not be represented by this notation'
             )
 
     # interval symbol processing
@@ -1004,7 +1321,7 @@ class NatAccNotation(
         self._interval_symbol_codes[nat_diffc] = symbol_code
 
     def get_interval_symbol(
-        self, nat_diff: int, acc_vector: Tuple[int]
+        self, nat_diff: int, acc_sum_vector: Tuple[int]
     ) -> str:
         """
         Returns the interval symbol for a natural/accidental note
@@ -1019,7 +1336,8 @@ class NatAccNotation(
             registered for the given parameters
 
         :param nat_diff: The difference in natural indices
-        :param acc_vector: The accidental vector of the interval
+        :param acc_sum_vector: The (unweighted) accidental sum
+            vector of the interval
         """
 
         # the natural index difference is an indicator whether
@@ -1053,9 +1371,9 @@ class NatAccNotation(
         # comprehend)
 
         if nat_diff < 0:
-            acc_vector = tuple(np.array(acc_vector) * (-1))
+            acc_sum_vector = scalar_op(operator.mul, acc_sum_vector, -1)
 
-        symbol = symbol_code.get_symbol_str(acc_vector)
+        symbol = symbol_code.get_symbol_str(acc_sum_vector)
         return symbol
 
     def nat_diff_to_interval_number(self, nat_diff: int) -> int:
@@ -1098,7 +1416,7 @@ class NatAccNotation(
         """
         Parses a pitch class symbol into its natural class symbol
         part and its accidental symbol part. Returns a 4-tuple
-        (natc_symbol, acc_symbol, natc_index, acc_vector) with
+        (natc_symbol, acc_symbol, natc_index, acc_sum_vector) with
         the parsing result.
         """
 
@@ -1120,16 +1438,16 @@ class NatAccNotation(
         acc_tail = pc_symbol[len(best_natc_symbol):]
 
         try:
-            acc_vector = self.acc_symbol_code.get_vector(acc_tail)
+            acc_sum_vector = self.acc_symbol_code.get_vector(acc_tail)
         except UnknownSymbolString:
             raise UnknownNoteSymbol(
                 'Could not find a meaning for the accidentals'
             )
 
-        return (best_natc_symbol, acc_tail, best_natc_index, acc_vector)
+        return (best_natc_symbol, acc_tail, best_natc_index, acc_sum_vector)
 
     def gen_pc_symbol(
-        self, natc_index: int, acc_vector: Tuple[int, ...]
+        self, natc_index: int, acc_sum_vector: Tuple[int, ...]
     ) -> Tuple[str, str, str]:
         """
         Creates a pitch class symbol from a natural class index and an
@@ -1146,10 +1464,10 @@ class NatAccNotation(
         pc_symbols that have post-fix or in-fix naturals)
 
         :param natc_index: A natural class index of a note
-        :param acc_vector: An accidental value vector
+        :param acc_sum_vector: An (unweighted) accidental sum vector
         """
 
         natc_symbol = self.get_natc_symbol(natc_index)
-        acc_symbol = self.get_acc_symbol(acc_vector)
+        acc_symbol = self.get_acc_symbol(acc_sum_vector)
 
         return (natc_symbol + acc_symbol, natc_symbol, acc_symbol)

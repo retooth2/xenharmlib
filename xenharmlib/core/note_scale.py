@@ -20,20 +20,26 @@ types of scale notation systems.
 
 from typing import Self
 from typing import TypeVar
+from typing import Generic
 from typing import List
+from typing import Tuple
 from warnings import warn
 from bisect import insort
 from .notes import NoteABC
 from .notes import PeriodicNoteABC
 from .notes import NoteIntervalABC
+from .protocols import Index
+from .protocols import PeriodicIndex
 from .scale import Scale
 from .scale import PeriodicScale
+from .notes import NatAccNote
 from ..exc import IncompatibleOriginContexts
 
 NoteT = TypeVar('NoteT', bound=NoteABC)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NoteScale(Scale[NoteT]):
+class NoteScale(Scale[NoteT], Generic[IndexT, NoteT]):
     """
     Base class for all note scales. Implements list and
     set operations, transposition, etc
@@ -155,7 +161,7 @@ class NoteScale(Scale[NoteT]):
     # notes
 
     @property
-    def pitch_indices(self) -> List[int]:
+    def pitch_indices(self) -> List[IndexT]:
         """
         An ordered list of pitch indices present in this scale
         """
@@ -164,28 +170,27 @@ class NoteScale(Scale[NoteT]):
     def to_note_intervals(self) -> List[NoteIntervalABC]:
         """
         .. deprecated:: 0.2.0
-           Use :py:meth:`to_intervals` instead.
+           Use :py:meth:`to_interval_seq` instead.
 
         Returns this scale represented as a list of note intervals
         """
         warn(
             f'{self.__class__.__name__}.to_note_intervals is deprecated and '
             f'will be removed in 1.0.0. Please use '
-            f'{self.__class__.__name__}.to_intervals instead.',
+            f'{self.__class__.__name__}.to_interval_seq instead.',
             DeprecationWarning,
             stacklevel=2,
         )
         return self.to_intervals()
 
-    def transpose(self, diff: int | NoteIntervalABC) -> Self:
+    def transpose(self, diff: IndexT | NoteIntervalABC) -> Self:
         """
         Transposes the scale by the given interval
 
-        :param diff: A note interval or pitch difference given
-            as an integer
+        :param diff: A note interval or pitch difference
         """
 
-        if isinstance(diff, int):
+        if not isinstance(diff, NoteIntervalABC):
             return self.enharm_strategy.note_scale_transpose(self, diff)
 
         interval = diff
@@ -318,10 +323,11 @@ class NoteScale(Scale[NoteT]):
 
 
 PeriodicNoteT = TypeVar('PeriodicNoteT', bound=PeriodicNoteABC)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
 class PeriodicNoteScale(
-    NoteScale[PeriodicNoteT], PeriodicScale[PeriodicNoteT]
+    NoteScale[PeriodicIndexT, PeriodicNoteT], PeriodicScale[PeriodicNoteT]
 ):
     """
     Note scale class for periodic notations. Implements
@@ -330,7 +336,7 @@ class PeriodicNoteScale(
     """
 
     @property
-    def pc_indices(self) -> List[int]:
+    def pc_indices(self) -> List[PeriodicIndexT]:
         """
         Returns a list of pitch class indices in
         the order they appear in this scale. This can
@@ -535,7 +541,10 @@ class PeriodicNoteScale(
         return is_superset and not self.is_notated_equivalent(other)
 
 
-class NatAccNoteScale(PeriodicNoteScale):
+NatAccNoteT = TypeVar('NatAccNoteT', bound=NatAccNote)
+
+
+class NatAccNoteScale(PeriodicNoteScale[PeriodicIndexT, NatAccNoteT]):
     """
     Basic note scale class for natural/accidental notations.
     Implements the scale equivalents of properties special to
@@ -544,6 +553,9 @@ class NatAccNoteScale(PeriodicNoteScale):
 
     # properties on single natural/accidental notes that
     # should also apply to collections
+
+    # FIXME: in line with the "immutable design style" these
+    # should return tuples, not lists
 
     @property
     def nat_indices(self) -> List[int]:
@@ -589,17 +601,46 @@ class NatAccNoteScale(PeriodicNoteScale):
         return indices
 
     @property
-    def acc_vectors(self) -> List[int]:
+    def acc_vectors(self) -> List[Tuple[PeriodicIndexT]]:
         """
+        .. deprecated:: 0.4.0
+           Use :py:meth:`acc_diff_vectors` instead.
+
         A list of accidental vectors for each note in the scale
+        """
+        warn(
+            f'{self.__class__.__name__}.acc_vectors is deprecated and '
+            f'will be removed in 1.0.0. Please use '
+            f'{self.__class__.__name__}.acc_diff_vectors instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.acc_diff_vectors
+
+    @property
+    def acc_sum_vectors(self) -> List[Tuple[int]]:
+        """
+        A list of (unweighted) accidental sum vectors for
+        each note in the scale
         """
         vectors = []
         for note in self:
-            vectors.append(note.acc_vector)
+            vectors.append(note.acc_sum_vector)
         return vectors
 
     @property
-    def acc_values(self) -> List[int]:
+    def acc_diff_vectors(self) -> List[Tuple[PeriodicIndexT]]:
+        """
+        A list of (weighted) accidental diff vectors for
+        each note in the scale
+        """
+        vectors = []
+        for note in self:
+            vectors.append(note.acc_diff_vector)
+        return vectors
+
+    @property
+    def acc_values(self) -> List[PeriodicIndexT]:
         """
         A list of accidental values for each note in the scale
         """
@@ -609,7 +650,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return values
 
     @property
-    def nat_pc_indices(self) -> List[int]:
+    def nat_pc_indices(self) -> List[PeriodicIndexT]:
         """
         A list of pitch class indices of the natural part of each note
         in the scale (e.g. in 12-EDO [0, 2, 4] for [C#0, D1, Eb2])
@@ -620,7 +661,7 @@ class NatAccNoteScale(PeriodicNoteScale):
         return indices
 
     @property
-    def nat_pitch_indices(self) -> List[int]:
+    def nat_pitch_indices(self) -> List[PeriodicIndexT]:
         """
         A list of pitch indices of the natural part of each note
         in the scale (e.g. in 12-EDO [0, 14, 18] for [C#0, D1, Eb2])

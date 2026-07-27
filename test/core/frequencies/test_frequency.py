@@ -1301,6 +1301,7 @@ def test_mod_type_error(a, b):
 def test_eq(a, b):
     assert a == b
     assert b == a
+    assert hash(a) == hash(b)
 
 
 @pytest.mark.parametrize(
@@ -1521,6 +1522,19 @@ def test_to_float(freq, result):
 
 
 @pytest.mark.parametrize(
+    'freq, result',
+    [
+        (Frequency(3), 3),
+        (Frequency(124), 124),
+        (Frequency(Fraction(3, 2)), 1),
+        (Frequency(sp.Integer(3)**Fraction(10, 3)), 38),
+    ]
+)
+def test_to_int(freq, result):
+    assert freq.to_int() == result
+
+
+@pytest.mark.parametrize(
     'freq, ndigits, result',
     [
         (Frequency(Fraction(1, 3)), 4, 0.3333),
@@ -1557,3 +1571,39 @@ def test_repr(freq, result):
 def test_init_inconvertible(inconvertible):
     with pytest.raises(ValueError):
         Frequency(inconvertible)
+
+
+def test_hash_set():
+
+    # each element pair in this definition is
+    # equal under __eq__  implementation so each
+    # second element should be canceled out
+
+    set_a = {
+        Frequency(3),
+        Frequency(3),
+        Frequency(3),
+        Frequency(3.0),
+        Frequency(3),
+        Frequency(Fraction(6, 2)),
+        Frequency(3.5),
+        Frequency(3.5),
+        Frequency(0.5),
+        Frequency(Fraction(1, 2)),
+        Frequency(Fraction(2, 4)),
+        Frequency(Fraction(1, 2)),
+        Frequency(SP_NUM),
+        Frequency(SP_NUM),
+    }
+
+    set_b = {
+        Frequency(3),
+        Frequency(3),
+        Frequency(3),
+        Frequency(3.5),
+        Frequency(0.5),
+        Frequency(Fraction(2, 4)),
+        Frequency(SP_NUM),
+    }
+
+    assert set_a == set_b

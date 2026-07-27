@@ -274,6 +274,15 @@ def test_eq():
     assert scale_a == scale_e
     assert scale_a != scale_c
     assert scale_a != scale_d
+
+    assert hash(scale_a) == hash(scale_a)
+    assert hash(scale_a) == hash(scale_a_enharm)
+    assert hash(scale_a_enharm) == hash(scale_a)
+    assert hash(scale_a) == hash(scale_b)
+    assert hash(scale_a) == hash(scale_e)
+    assert hash(scale_a) != hash(scale_c)
+    assert hash(scale_a) != hash(scale_d)
+
     assert 'XYZ' != scale_a
     assert 3 != scale_a
     assert scale_a != 'XYZ'
@@ -1062,8 +1071,8 @@ def test_frequencies(notation):
 
     assert scale.frequencies == [
         tuning.pitch(0).frequency,
-        tuning.pitch(5+2*len(tuning)).frequency,
-        tuning.pitch(5+3*len(tuning)).frequency,
+        tuning.pitch(5+2*tuning.eq_diff).frequency,
+        tuning.pitch(5+3*tuning.eq_diff).frequency,
     ]
 
 
@@ -1120,9 +1129,9 @@ def test_pitch_indices(notation, input_pairs, result_pi):
         ),
     ]
 )
-def test_to_note_intervals(notation, input_pairs, intervals):
+def test_to_interval_seq(notation, input_pairs, intervals):
     """
-    Test if to_note_intervals method works correctly
+    Test if to_interval_seq method works correctly
     """
 
     scale = NoteScale(
@@ -1140,7 +1149,160 @@ def test_to_note_intervals(notation, input_pairs, intervals):
     with pytest.deprecated_call():
         assert scale.to_note_intervals() == note_intervals
 
-    assert scale.to_intervals() == note_intervals
+    with pytest.deprecated_call():
+        assert scale.to_intervals() == note_intervals
+
+    iseq = scale.to_interval_seq()
+    assert len(iseq) == len(note_intervals)
+
+    for interval_a, interval_b in zip(iseq, note_intervals):
+        assert interval_a.is_notated_same(interval_b)
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, interval_notes',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            [
+                (('A+', 0), ('A+', 0)),
+                (('A+', 0), ('B+', 0)),
+                (('A+', 0), ('D+', 0))
+            ],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('B+', 0), ('C', 1)],
+            [
+                (('A', 0), ('A', 0)),
+                (('A', 0), ('B+', 0)),
+                (('A', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [('B', -1), ('B+', 0), ('C', 1)],
+            [
+                (('B', -1), ('B', -1)),
+                (('B', -1), ('B+', 0)),
+                (('B', -1), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [],
+            []
+        ),
+    ]
+)
+def test_to_interval_fan_no_param(notation, input_pairs, interval_notes):
+    """
+    Test if to_interval_fan method works correctly
+    without giving additional ref parameter
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_intervals = []
+    for note_a, note_b in interval_notes:
+        interval = notation.note(*note_a).interval(
+            notation.note(*note_b)
+        )
+        note_intervals.append(interval)
+
+    ifan = notation.interval_fan(note_intervals)
+    assert scale.to_interval_fan() == ifan
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, ref_pair, interval_notes',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            ('B+', 0),
+            [
+                (('B+', 0), ('A+', 0)),
+                (('B+', 0), ('B+', 0)),
+                (('B+', 0), ('D+', 0))
+            ],
+        ),
+        (
+            n_edo12,
+            [('A', 0), ('B+', 0), ('C', 1)],
+            ('A', 0),
+            [
+                (('A', 0), ('A', 0)),
+                (('A', 0), ('B+', 0)),
+                (('A', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [('B', -1), ('B+', 0), ('C', 1)],
+            ('B', 0),
+            [
+                (('B', 0), ('B', -1)),
+                (('B', 0), ('B+', 0)),
+                (('B', 0), ('C', 1))
+            ],
+        ),
+        (
+            n_edo24,
+            [],
+            ('B', 0),
+            [],
+        ),
+    ]
+)
+def test_to_interval_fan_ref_param(
+    notation, input_pairs, ref_pair, interval_notes
+):
+    """
+    Test if to_interval_fan method works correctly
+    when giving additional ref parameter
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_intervals = []
+    for note_a, note_b in interval_notes:
+        interval = notation.note(*note_a).interval(
+            notation.note(*note_b)
+        )
+        note_intervals.append(interval)
+
+    ref = notation.note(*ref_pair)
+    ifan = notation.interval_fan(note_intervals)
+    assert scale.to_interval_fan(ref) == ifan
+
+
+def test_to_interval_fan_incompatible_origin_context():
+    """
+    Test if to_interval_fan method raises error
+    when giving incompatible ref parameter
+    """
+
+    scale = NoteScale(
+        n_edo12,
+        [n_edo12.note(*pair) for pair in [('A+', 0), ('B', 1)]]
+    )
+
+    ref = n_edo24.note('A+', 0)
+    with pytest.raises(IncompatibleOriginContexts) as excinfo:
+        scale.to_interval_fan(ref)
+    assert (
+        excinfo.value.args[0] ==
+        f'The ref parameter {ref} does not originate from context '
+        f'{scale.origin_context}. Cannot construct interval fan.'
+    )
 
 
 @pytest.mark.parametrize(
@@ -1188,6 +1350,62 @@ def test_transpose_interval(notation, input_pairs, interval, result_pairs):
     )
 
     transposed = scale.transpose(note_interval)
+
+    with pytest.deprecated_call():
+        assert transposed == notation.note_scale(
+            [notation.note(*pair) for pair in result_pairs]
+        )
+
+    assert transposed == notation.scale(
+        [notation.note(*pair) for pair in result_pairs]
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, input_pairs, interval, result_pairs',
+    [
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 0), ('D+', 0)],
+            (('A', 0), ('B', 0)),
+            [('B+', 0), ('C+', 0), ('E+', 0)],
+        ),
+        (
+            n_edo12,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('A', 0), ('B', 1)),
+            [('B+', 1), ('C+', 2), ('A', 4)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('B', 0), ('A', 0)),
+            [('L+', -1), ('A+', 1), ('E', 2)],
+        ),
+        (
+            n_edo24,
+            [('A+', 0), ('B+', 1), ('F', 2)],
+            (('B', 1), ('A', 0)),
+            [('L+', -2), ('A+', 0), ('E', 1)],
+        ),
+    ]
+)
+def test_transpose_pitch_diff(notation, input_pairs, interval, result_pairs):
+    """
+    Test if transpose method works correctly when given a pitch diff
+    """
+
+    scale = NoteScale(
+        notation,
+        [notation.note(*pair) for pair in input_pairs]
+    )
+
+    note_a, note_b = interval
+    note_interval = notation.note(*note_a).interval(
+        notation.note(*note_b)
+    )
+
+    transposed = scale.transpose(note_interval.pitch_diff)
 
     with pytest.deprecated_call():
         assert transposed == notation.note_scale(
@@ -2016,6 +2234,7 @@ def test_is_subset(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_subset(scale_b) == expected
+    assert (scale_a <= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2076,6 +2295,7 @@ def test_is_subset_proper(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_subset(scale_b, proper=True) == expected
+    assert (scale_a < scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2322,6 +2542,7 @@ def test_is_superset(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_superset(scale_b) == expected
+    assert (scale_a >= scale_b) == expected
 
 
 @pytest.mark.parametrize(
@@ -2382,6 +2603,7 @@ def test_is_superset_proper(notation, input_pairs_a, input_pairs_b, expected):
     )
 
     assert scale_a.is_superset(scale_b, proper=True) == expected
+    assert (scale_a > scale_b) == expected
 
 
 @pytest.mark.parametrize(

@@ -22,10 +22,14 @@ from __future__ import annotations
 
 from typing import Self
 from typing import Optional
+from typing import Generic
+from typing import TypeVar
 from functools import total_ordering
+from warnings import warn
 from abc import ABC
 from abc import abstractmethod
 from .frequencies import Frequency
+from .protocols import Index
 from ..exc import IncompatibleOriginContexts
 
 
@@ -91,6 +95,20 @@ class FreqRepr(ABC):
         """
         return self._frequency
 
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the frequency representation in a target origin context
+        that is closest to the frequency of this object.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency
+        """
+
+        return origin_context.closest_freq_repr(self.frequency)
+
     @property
     @abstractmethod
     def short_repr(self) -> str:
@@ -123,36 +141,53 @@ class FreqRepr(ABC):
     # FIXME: type annotation is omitted here because types have
     # cicular dependencies (we need to find a good solution for
     # this problem soon)
-    def scale(self, interval_seq):
+    def scale(self, istruct):
         """
-        Returns a scale that starts with this note and continues
-        with the given interval structure
+        Depending on given parameter this method constructs a new
+        scale with this pitch/note as a starting point (if an
+        interval sequence is given), or as a reference point
+        (if an interval fan is given)
 
-        :param interval_seq: An interval sequence of the same
-            origin context
+        :param istruct: An interval sequence or interval fan of
+            the same origin context
         """
 
-        if interval_seq.origin_context is not self.origin_context:
+        if istruct.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                'The interval structure does not originate from the '
+                'same origin context'
+            )
+
+        return istruct.to_scale(self)
+
+    def seq(self, istruct):
+        """
+        Depending on given parameter this method constructs a new
+        sequence with this pitch/note as a starting point (if an
+        interval sequence is given), or as a reference point
+        (if an interval fan is given)
+
+        :param istruct: An interval sequence or interval fan of
+            the same origin context
+        """
+
+        if istruct.origin_context is not self.origin_context:
             raise IncompatibleOriginContexts(
                 'The interval sequence does not originate from the '
                 'same origin context'
             )
 
-        current = self
-        scale_elements = [self]
-
-        for interval in interval_seq:
-            current = current.transpose(interval)
-            scale_elements.append(current)
-
-        return self.origin_context.scale(scale_elements)
+        return istruct.to_seq(self)
 
 
-class SDFreqRepr(FreqRepr):
+IndexT = TypeVar('IndexT', bound=Index)
+
+
+class IndexedFreqRepr(FreqRepr, Generic[IndexT]):
     """
-    Base class for single dimensional frequency representation
-    objects. Assumes an integer pitch index in addition to the
-    frequency as part of the data structure.
+    Base class for indexed frequency representation objects.
+    Assumes a pitch index in addition to the frequency as
+    part of the data structure.
 
     Implements optimizations on the total order based on pitch
     index data (if objects originate from same context).
@@ -160,15 +195,17 @@ class SDFreqRepr(FreqRepr):
     Demands that subclasses implement a transpose method
     """
 
-    def __init__(self, origin_context, frequency: Frequency, pitch_index: int):
+    def __init__(
+        self, origin_context, frequency: Frequency, pitch_index: IndexT
+    ):
         super().__init__(origin_context, frequency)
         self._pitch_index = pitch_index
 
     def __hash__(self):
-        return hash(self._pitch_index)
+        return hash(('FreqRepr', self.frequency))
 
     @property
-    def pitch_index(self) -> int:
+    def pitch_index(self) -> IndexT:
         """
         The pitch index of this object
         """
@@ -178,7 +215,7 @@ class SDFreqRepr(FreqRepr):
         if not isinstance(other, FreqRepr):
             return False
         if (
-            isinstance(other, SDFreqRepr)
+            isinstance(other, IndexedFreqRepr)
             and self.origin_context is other.origin_context
         ):
             return self.pitch_index == other.pitch_index
@@ -188,7 +225,7 @@ class SDFreqRepr(FreqRepr):
         if not isinstance(other, FreqRepr):
             return NotImplemented
         if (
-            isinstance(other, SDFreqRepr)
+            isinstance(other, IndexedFreqRepr)
             and self.origin_context is other.origin_context
         ):
             return self.pitch_index < other.pitch_index

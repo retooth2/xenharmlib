@@ -1,6 +1,8 @@
 import pytest
 
+from xenharmlib import EDTuning
 from xenharmlib import EDOTuning
+from xenharmlib import FrequencyRatio
 from xenharmlib.exc import UnknownNoteSymbol
 from xenharmlib.exc import IncompatibleOriginContexts
 from xenharmlib.exc import InvalidGenerator
@@ -9,6 +11,7 @@ from ..utils import make_nat_acc_test_notation
 edo12 = EDOTuning(12)
 edo24 = EDOTuning(24)
 edo31 = EDOTuning(31)
+ed13_3 = EDTuning(13, FrequencyRatio(3))
 
 n_edo12 = make_nat_acc_test_notation(edo12)
 n_edo24 = make_nat_acc_test_notation(edo24)
@@ -293,6 +296,135 @@ def test_note_acc_direction(
     note = notation.note(pc_symbol, nat_bi_index)
     assert note.acc_direction == acc_direction
 
+# FIXME: dummy notation should have at least one accidental with
+# a different sum and diff value
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, acc_diff_vector',
+    [
+        (n_edo12, 'Bx+', 0, (3,)),
+        (n_edo12, 'Bx+', 1, (3,)),
+        (n_edo31, 'D--', 0, (-2,)),
+        (n_edo31, 'D--', 2, (-2,)),
+        (n_edo12, 'F', -2, (0,)),
+    ]
+)
+def test_note_acc_diff_vector(
+    notation, pc_symbol, nat_bi_index, acc_diff_vector
+):
+    """
+    Test if acc_diff_vector is returned correctly
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+
+    with pytest.deprecated_call():
+        assert note.acc_vector == acc_diff_vector
+
+    assert note.acc_diff_vector == acc_diff_vector
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, acc_sum_vector',
+    [
+        (n_edo12, 'Bx+', 0, (3,)),
+        (n_edo12, 'Bx+', 1, (3,)),
+        (n_edo31, 'D--', 0, (-2,)),
+        (n_edo31, 'D--', 2, (-2,)),
+        (n_edo12, 'F', -2, (0,)),
+    ]
+)
+def test_note_acc_sum_vector(
+    notation, pc_symbol, nat_bi_index, acc_sum_vector
+):
+    """
+    Test if acc_sum_vector is returned correctly
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    assert note.acc_sum_vector == acc_sum_vector
+
+
+@pytest.mark.parametrize(
+    'notation, pcs_a, nat_bi_a, acc_diff_vector, pcs_b, nat_bi_b',
+    [
+        (n_edo12, 'Bx+', 0, (-3,), 'B', 0),
+        (n_edo12, 'Bx+', 1, (1,), 'Bxx', 1),
+        (n_edo31, 'D--', 0, (0,), 'D--', 0),
+        (n_edo31, 'D--', 2, (2,), 'D', 2),
+        (n_edo12, 'F', -2, (1,), 'F+', -2),
+    ]
+)
+def test_note_add_acc_diff_vector(
+    notation, pcs_a, nat_bi_a, acc_diff_vector, pcs_b, nat_bi_b
+):
+    """
+    Test if add_acc_diff_vector works correctly
+    """
+
+    note = notation.note(pcs_a, nat_bi_a)
+    result = note.add_acc_diff_vector(acc_diff_vector)
+
+    assert result == notation.note(pcs_b, nat_bi_b)
+
+
+def test_note_add_acc_diff_vector_incorrect_dim():
+    """
+    Test if add_acc_diff_vector works correctly
+    """
+
+    note = n_edo12.note('Bx', 4)
+
+    with pytest.raises(ValueError) as exc_info:
+        note.add_acc_diff_vector((1, 2, 3, 4, 5))
+
+    assert exc_info.value.args[0] == (
+        'The added accidental diff vector must have the same '
+        'number of dimensions as the accidental diff vector of '
+        'the note it is applied to'
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, pcs_a, nat_bi_a, acc_sum_vector, pcs_b, nat_bi_b',
+    [
+        (n_edo12, 'Bx+', 0, (-3,), 'B', 0),
+        (n_edo12, 'Bx+', 1, (1,), 'Bxx', 1),
+        (n_edo31, 'D--', 0, (0,), 'D--', 0),
+        (n_edo31, 'D--', 2, (2,), 'D', 2),
+        (n_edo12, 'F', -2, (1,), 'F+', -2),
+    ]
+)
+def test_note_add_acc_sum_vector(
+    notation, pcs_a, nat_bi_a, acc_sum_vector, pcs_b, nat_bi_b
+):
+    """
+    Test if add_acc_sum_vector works correctly
+    """
+
+    note = notation.note(pcs_a, nat_bi_a)
+    result = note.add_acc_sum_vector(acc_sum_vector)
+
+    assert result == notation.note(pcs_b, nat_bi_b)
+
+
+def test_note_add_acc_sum_vector_incorrect_dim():
+    """
+    Test if add_acc_sum_vector works correctly
+    """
+
+    note = n_edo12.note('Bx', 4)
+
+    with pytest.raises(ValueError) as exc_info:
+        note.add_acc_sum_vector((1, 2, 3, 4, 5))
+
+    assert exc_info.value.args[0] == (
+        'The added accidental sum vector must have the same '
+        'number of dimensions as the accidental sum vector of '
+        'the note it is applied to'
+    )
+
 
 @pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index',
@@ -399,6 +531,9 @@ def test_note_eq(
     assert note_a == note_b
     assert note_b == note_a
 
+    assert hash(note_a) == hash(note_b)
+    assert hash(note_b) == hash(note_a)
+
 
 @pytest.mark.parametrize(
     'not_a_note',
@@ -477,6 +612,8 @@ def test_note_eq_pitch(
     pitch = tuning.pitch(pitch_index)
     assert note == pitch
     assert pitch == note
+
+    assert hash(note) == hash(pitch)
 
 
 @pytest.mark.parametrize(
@@ -598,6 +735,48 @@ def test_note_is_equivalent_pitch_neg(
 
 
 @pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, '
+    'tuning, pitch_index',
+    [
+        (n_edo12, 'B',    0, ed13_3, 1),
+        (n_edo12, 'Bx',   1, ed13_3, 2),
+        (n_edo12, 'C',    1, ed13_3, 55),
+        (n_edo31, 'D--',  1, ed13_3, 31),
+        (n_edo31, 'D--', -1, ed13_3, 62),
+    ]
+)
+def test_note_is_equivalent_incompatible(
+    notation,
+    pc_symbol,
+    nat_bi_index,
+    tuning,
+    pitch_index
+):
+    """
+    Test if correct exception is raised on incompatible contexts
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    pitch = tuning.pitch(pitch_index)
+
+    with pytest.raises(IncompatibleOriginContexts) as exc_info:
+        note.is_equivalent(pitch)
+
+    assert exc_info.value.args[0] == (
+        'Equivalency can only be tested for notes from tunings '
+        'with the same equivalency interval'
+    )
+
+    with pytest.raises(IncompatibleOriginContexts) as exc_info:
+        pitch.is_equivalent(note)
+
+    assert exc_info.value.args[0] == (
+        'Equivalency can only be tested for pitches from tunings '
+        'with the same equivalency interval'
+    )
+
+
+@pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index, expected',
     [
         (n_edo12, 'B',    0, True),
@@ -650,12 +829,12 @@ def test_note_is_enharmonic_natural(
 @pytest.mark.parametrize(
     'notation, pc_symbol, nat_bi_index, expected',
     [
-        (n_edo12, 'B',    0, 'NatAccNote(B, 0, 12-EDO)'),
-        (n_edo12, 'Bx',   1, 'NatAccNote(Bx, 1, 12-EDO)'),
-        (n_edo12, 'B++',  3, 'NatAccNote(B++, 3, 12-EDO)'),
-        (n_edo31, 'C-',   2, 'NatAccNote(C-, 2, 31-EDO)'),
-        (n_edo31, 'C--',  1, 'NatAccNote(C--, 1, 31-EDO)'),
-        (n_edo12, 'A--', -1, 'NatAccNote(A--, -1, 12-EDO)'),
+        (n_edo12, 'B',    0, 'MyNatAccNote(B, 0, 12-EDO)'),
+        (n_edo12, 'Bx',   1, 'MyNatAccNote(Bx, 1, 12-EDO)'),
+        (n_edo12, 'B++',  3, 'MyNatAccNote(B++, 3, 12-EDO)'),
+        (n_edo31, 'C-',   2, 'MyNatAccNote(C-, 2, 31-EDO)'),
+        (n_edo31, 'C--',  1, 'MyNatAccNote(C--, 1, 31-EDO)'),
+        (n_edo12, 'A--', -1, 'MyNatAccNote(A--, -1, 12-EDO)'),
     ]
 )
 def test_note_repr(
@@ -670,6 +849,31 @@ def test_note_repr(
 
     note = notation.note(pc_symbol, nat_bi_index)
     assert repr(note) == expected
+
+
+@pytest.mark.parametrize(
+    'notation, pc_symbol, nat_bi_index, expected',
+    [
+        (n_edo12, 'B',    0, 'B'),
+        (n_edo12, 'Bx',   1, 'Bx'),
+        (n_edo12, 'B++',  3, 'B++'),
+        (n_edo31, 'C-',   2, 'C-'),
+        (n_edo31, 'C--',  1, 'C--'),
+        (n_edo12, 'A--', -1, 'A--'),
+    ]
+)
+def test_note_short_repr(
+    notation,
+    pc_symbol,
+    nat_bi_index,
+    expected
+):
+    """
+    Test if pc_short_repr property works correctly on notes
+    """
+
+    note = notation.note(pc_symbol, nat_bi_index)
+    assert note.pc_short_repr == expected
 
 
 @pytest.mark.parametrize(

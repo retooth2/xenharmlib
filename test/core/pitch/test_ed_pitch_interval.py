@@ -93,3 +93,36 @@ def test_get_generator_distance(interval, gen_pitch, distance):
 
     result = interval.get_generator_distance(gen_pitch)
     assert result == distance
+
+
+@pytest.mark.parametrize(
+    'interval_a, interval_b',
+    [
+        (edo12.diff_interval(0), edo31.diff_interval(0)),
+        (edo12.diff_interval(24), edo31.diff_interval(62)),
+        (edo12.diff_interval(7), edo31.diff_interval(18)),
+        (edo12.diff_interval(7), ed13_3.diff_interval(5)),
+        (edo12.diff_interval(-7), ed13_3.diff_interval(-5)),
+    ]
+)
+def test_retune_closest(interval_a, interval_b):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    assert interval_a.retune_closest(interval_b.tuning) == interval_b
+    assert interval_b.retune_closest(interval_a.tuning) == interval_a
+
+
+@pytest.mark.parametrize(
+    'pitch_diff',
+    [9, 0, -4, 2, 15, 19, -18]
+)
+def test_short_repr(pitch_diff):
+    """
+    Test short representations
+    """
+
+    interval = edo12.diff_interval(pitch_diff)
+    assert interval.short_repr == str(interval.pitch_diff)
+

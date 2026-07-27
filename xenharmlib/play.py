@@ -18,7 +18,6 @@ This module includes functions to play sounds on the console
 """
 
 from typing import *
-import sounddevice as sd
 from .export.audio import playable_to_raw_sine_audio
 from .export.audio import DEFAULT_SAMPLE_RATE
 from .core.protocols import HasFrequency
@@ -46,6 +45,15 @@ def play(
     :param sample_rate: (optional, default 22050) The sample
         rate of the output data
     """
+
+    try:
+        import sounddevice as sd
+    except ImportError as exc:
+        raise ImportError(
+            'For playing sound on the console the console-audio extra '
+            'is needed. Install with pip install xenharmlib[console-audio] '
+            'or the package manager of your choice'
+        ) from exc
 
     output = playable_to_raw_sine_audio(
         playable, duration, play_as_chord, sample_rate

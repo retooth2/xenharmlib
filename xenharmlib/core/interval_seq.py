@@ -15,24 +15,28 @@
 
 from abc import ABC
 from collections.abc import Sequence
+from typing import Generic
 from typing import Optional
 from typing import overload
 from typing import Self
 from typing import List
+from typing import Iterable
 from typing import TypeVar
 from typing import Tuple
 from types import EllipsisType
 from .interval import Interval
+from .protocols import Index
 from .masks import mask_select
 from ..exc import IncompatibleOriginContexts
 from .scale import Scale
 from .freq_repr import FreqRepr
 
 
-IntervalT = TypeVar('FreqReprT', bound=Interval)
+IntervalT = TypeVar('IntervalT', bound=Interval)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class IntervalSeq(Sequence[IntervalT], ABC):
+class IntervalSeq(Sequence[IntervalT], ABC, Generic[IndexT, IntervalT]):
     """
     IntervalSeq is the abstract base class for all interval sequence types.
     Interval sequences can be understood as "abstract scales" (for example
@@ -41,8 +45,8 @@ class IntervalSeq(Sequence[IntervalT], ABC):
 
     In line with its Sequence superclass interval sequences implement
     iteration, the 'in' operator, the == operator, item retrieval with
-    [], concatenation with +, repeated self-concatenation with *, searching
-    with index, and len().
+    [], concatenation with +, repeated self-concatenation with \\*,
+    searching with index, and len().
 
     Like scale types interval sequences also allow partitioning with partial,
     partial_not and partition.
@@ -52,15 +56,17 @@ class IntervalSeq(Sequence[IntervalT], ABC):
     """
 
     def __init__(
-        self, origin_context, intervals: Optional[Sequence[IntervalT]] = None
+        self, origin_context, intervals: Optional[Iterable[IntervalT]] = None
     ):
 
         self._origin_context = origin_context
 
         if intervals is None:
-            _intervals: Sequence[IntervalT] = []
+            _intervals: Iterable[IntervalT] = []
         else:
             _intervals = intervals
+
+        self._intervals = []
 
         for element in _intervals:
             if element.origin_context is not self.origin_context:
@@ -68,8 +74,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
                     f'The element {element} does not originate from context '
                     f'{origin_context}. Cannot construct interval sequence.'
                 )
-
-        self._intervals = _intervals
+            self._intervals.append(element)
 
     @property
     def origin_context(self):
@@ -78,25 +83,22 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         """
         return self._origin_context
 
+    def __hash__(self):
+        return hash(('IntervalSeq', ) + tuple(self.frequency_ratios))
+
     def __contains__(self, o: object) -> bool:
         if isinstance(o, Interval):
             return o in self._intervals
         return False
 
     def __add__(self, other: Self) -> Self:
-        return self.origin_context.interval_seq(
-            list(self) + list(other)
-        )
+        return self.origin_context.interval_seq(list(self) + list(other))
 
     def __mul__(self, scalar: int) -> Self:
-        return self.origin_context.interval_seq(
-            scalar * list(self)
-        )
+        return self.origin_context.interval_seq(scalar * list(self))
 
     def __rmul__(self, scalar: int) -> Self:
-        return self.origin_context.interval_seq(
-            scalar * list(self)
-        )
+        return self.origin_context.interval_seq(scalar * list(self))
 
     @overload
     def __getitem__(self, index_or_slice: int) -> IntervalT: ...
@@ -104,9 +106,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
     @overload
     def __getitem__(self, index_or_slice: slice) -> Self: ...
 
-    def __getitem__(
-        self, index_or_slice: int | slice
-    ) -> IntervalT | Self:
+    def __getitem__(self, index_or_slice: int | slice) -> IntervalT | Self:
 
         if type(index_or_slice) is slice:
             partial = self._intervals[index_or_slice]
@@ -156,9 +156,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         return True
 
     def with_interval(
-        self,
-        interval: IntervalT,
-        insert_pos: Optional[int] = None
+        self, interval: IntervalT, insert_pos: Optional[int] = None
     ) -> Self:
         """
         Returns a new interval sequence containing all intervals
@@ -187,6 +185,20 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         intervals = list(self)
         intervals.insert(insert_pos, interval)
         return self.origin_context.interval_seq(intervals)
+
+    def retune_closest(self, origin_context) -> Self:
+        """
+        Gets the interval sequence in a target origin context that
+        is closest to the frequency ratio series of this sequence.
+
+        :param origin_context: The target origin context
+
+        :raises TypeError: If the target context does not have a
+            proper definition of a closest representation to a
+            given frequency ratio
+        """
+
+        return origin_context.closest_interval_seq(self.frequency_ratios)
 
     def partial(self, mask_expr: int | Tuple[int | EllipsisType, ...]) -> Self:
         """
@@ -308,6 +320,23 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         seq_b = self.origin_context.interval_seq(intervals_b)
         return seq_a, seq_b
 
+    def inversion(self) -> Self:
+        """
+        Returns an interval sequence with all ascending intervals flipped
+        into descending intervals and vice versa.
+
+        .. warning::
+
+           Inversion has a different meaning on intervals and interval
+           sequences. This function does **not** call the inversion
+           function on every interval in the sequence but the negation
+           (-) function
+        """
+
+        return self.origin_context.interval_seq(
+            [-interval for interval in self]
+        )
+
     @property
     def frequency_ratios(self):
         """
@@ -323,7 +352,7 @@ class IntervalSeq(Sequence[IntervalT], ABC):
         return [interval.cents for interval in self]
 
     @property
-    def pitch_diffs(self) -> List[int]:
+    def pitch_diffs(self) -> List[IndexT]:
         """
         An ordered list of pitch differences representing the sequence
         """
@@ -351,3 +380,27 @@ class IntervalSeq(Sequence[IntervalT], ABC):
             scale_elements.append(current)
 
         return self.origin_context.scale(scale_elements)
+
+    def to_seq(self, start: FreqRepr) -> Scale:
+        """
+        Returns a pitch/note sequence that has the interval
+        structure of this object, starting with the given
+        note/pitch
+
+        :param start: A starting note/pitch of the same
+            origin context
+        """
+
+        if start.origin_context is not self.origin_context:
+            raise IncompatibleOriginContexts(
+                f'The element {start} does not originate from context '
+                f'{self.origin_context}. Cannot construct sequence.'
+            )
+
+        current = start
+        seq_elements = [current]
+        for interval in self:
+            current = current.transpose(interval)
+            seq_elements.append(current)
+
+        return self.origin_context.seq(seq_elements)

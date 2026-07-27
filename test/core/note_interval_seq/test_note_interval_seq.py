@@ -222,6 +222,13 @@ def test_eq():
     assert interval_seq_a == interval_seq_e
     assert interval_seq_a != interval_seq_c
     assert interval_seq_a != interval_seq_d
+
+    assert hash(interval_seq_a) == hash(interval_seq_a)
+    assert hash(interval_seq_a) == hash(interval_seq_b)
+    assert hash(interval_seq_a) == hash(interval_seq_e)
+    assert hash(interval_seq_a) != hash(interval_seq_c)
+    assert hash(interval_seq_a) != hash(interval_seq_d)
+
     assert 'XYZ' != interval_seq_a
     assert 3 != interval_seq_a
     assert interval_seq_a != 'XYZ'
@@ -246,7 +253,9 @@ def test_getitem(notation, input_shn):
         [notation.shorthand_interval(*shn) for shn in input_shn]
     )
     for i, shn in enumerate(input_shn):
-        assert interval_seq[i] == notation.shorthand_interval(*shn)
+        assert interval_seq[i].is_notated_same(
+            notation.shorthand_interval(*shn)
+        )
 
 
 @pytest.mark.parametrize(
@@ -299,7 +308,7 @@ def test_getitem_slice(notation, input_shn, start, stop, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[start:stop] == interval_seq_b
+    assert interval_seq_a[start:stop].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -353,7 +362,7 @@ def test_getitem_slice_omit_stop(notation, input_shn, start, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[start:] == interval_seq_b
+    assert interval_seq_a[start:].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -407,7 +416,7 @@ def test_getitem_slice_omit_start(notation, input_shn, stop, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert interval_seq_a[:stop] == interval_seq_b
+    assert interval_seq_a[:stop].is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -495,7 +504,7 @@ def test_partial(notation, input_shn, mask, result_shn):
         notation,
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
-    assert interval_seq_a.partial(mask) == interval_seq_b
+    assert interval_seq_a.partial(mask).is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -608,7 +617,7 @@ def test_partial_not(notation, input_shn, mask, result_shn):
         notation,
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
-    assert interval_seq_a.partial_not(mask) == interval_seq_b
+    assert interval_seq_a.partial_not(mask).is_notated_same(interval_seq_b)
 
 
 @pytest.mark.parametrize(
@@ -1011,7 +1020,49 @@ def test_addition(notation, shn_a, shn_b, shn_result):
         [notation.shorthand_interval(*shn) for shn in shn_result]
     )
 
-    assert interval_seq_a + interval_seq_b == interval_seq_result
+    assert (interval_seq_a + interval_seq_b).is_notated_same(
+        interval_seq_result
+    )
+
+
+@pytest.mark.parametrize(
+    'notation, shn, shn_result',
+    [
+        (
+            n_edo12,
+            [('C', 6), ('+C', 4), ('-F', 3)],
+            [('C', -6), ('+C', -4), ('-F', -3)],
+        ),
+        (
+            n_edo24,
+            [],
+            [],
+        ),
+        (
+            n_edo12,
+            [('F', 1), ('+C', -4), ('-F', 5)],
+            [('F', 1), ('+C', 4), ('-F', -5)],
+        ),
+    ]
+)
+def test_inversion(notation, shn, shn_result):
+    """
+    Test if interval sequence inversion works correctly
+    """
+
+    interval_seq = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in shn]
+    )
+
+    interval_seq_result = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in shn_result]
+    )
+
+    assert interval_seq.inversion().is_notated_same(
+        interval_seq_result
+    )
 
 
 @pytest.mark.parametrize(
@@ -1058,8 +1109,8 @@ def test_scalar_multiplication(notation, input_shn, scalar, result_shn):
         [notation.shorthand_interval(*shn) for shn in result_shn]
     )
 
-    assert scalar * interval_seq == interval_seq_result
-    assert interval_seq * scalar == interval_seq_result
+    assert (scalar * interval_seq).is_notated_same(interval_seq_result)
+    assert (interval_seq * scalar).is_notated_same(interval_seq_result)
 
 
 @pytest.mark.parametrize(
@@ -1358,6 +1409,66 @@ def test_scale_conversion_incompatible_origin_context():
 
 
 @pytest.mark.parametrize(
+    'notation, input_shn, note_pair, seq_pairs',
+    [
+        (
+            n_edo12,
+            [('C', 8), ('F', 9), ('C', 10), ('F', 3), ('C', 20), ('F', 9)],
+            ('A', 3),
+            [
+                ('A', 3), ('B', 4), ('D', 5), ('A', 7),
+                ('C', 7), ('D', 10), ('F', 11)
+            ]
+        ),
+        (
+            n_edo24,
+            [('C', 2), ('+C', 2), ('+C', 2), ('C', 2), ('+C', 4)],
+            ('C+', 3),
+            [
+                ('C+', 3), ('D+', 3), ('Ex', 3),
+                ('F+x', 3), ('G+x', 3), ('Jxx', 3)
+            ]
+        ),
+    ]
+)
+def test_seq_conversion(notation, input_shn, note_pair, seq_pairs):
+    """
+    Test if pitch interval sequence can be converted into seq
+    """
+
+    interval_seq = NoteIntervalSeq(
+        notation,
+        [notation.shorthand_interval(*shn) for shn in input_shn]
+    )
+    note = notation.note(*note_pair)
+
+    expected_seq = notation.seq(
+        [notation.note(*pair) for pair in seq_pairs]
+    )
+    assert interval_seq.to_seq(note) == expected_seq
+    assert note.seq(interval_seq) == expected_seq
+
+
+def test_seq_conversion_incompatible_origin_context():
+    """
+    Test if seq conversion raises correct error if parameter is
+    from different origin context
+    """
+
+    input_shn = [('C', 12), ('+C', 4), ('-F', 7), ('C', 2), ('F', 3)]
+    interval_seq = n_edo12.interval_seq(
+        [n_edo12.shorthand_interval(*shn) for shn in input_shn]
+    )
+    note = n_edo24.note('A', 1)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        interval_seq.to_seq(note)
+
+    with pytest.raises(IncompatibleOriginContexts):
+        note.seq(interval_seq)
+
+
+@pytest.mark.parametrize(
     'notation, input_shn, result_diff',
     [
         (n_edo12, [('++C', 6), ('--C', 4), ('C', 2)], [12, 4, 2]),
@@ -1376,3 +1487,25 @@ def test_pitch_interval_seq(notation, input_shn, result_diff):
     )
     expected = notation.tuning.diff_interval_seq(result_diff)
     assert interval_seq.pitch_interval_seq == expected
+
+
+@pytest.mark.parametrize(
+    'notation_a, input_pd, notation_b, result_pd',
+    [
+        (n_edo12, [0, 3, 7, 8, 10], n_edo31, [0, 8, 18, 21, 26]),
+        (n_edo12, [1, 4, 6, 7, 8, 11], n_edo24, [2, 8, 12, 14, 16, 22]),
+        (n_edo24, [8, 16, 2, 12, 14, 22], n_edo12, [4, 8, 1, 6, 7, 11]),
+        (n_edo24, [12, 1, 8, 14, 16, 22], n_edo12, [6, 0, 4, 7, 8, 11]),
+    ]
+)
+def test_retune_closest(notation_a, input_pd, notation_b, result_pd):
+    """
+    Test if retune_closest method works correctly
+    """
+
+    interval_seq_a = notation_a.diff_interval_seq(input_pd)
+
+    interval_seq_b = interval_seq_a.retune_closest(notation_b)
+
+    expected_interval_seq_b = notation_b.diff_interval_seq(result_pd)
+    assert interval_seq_b == expected_interval_seq_b

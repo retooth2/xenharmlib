@@ -1,0 +1,1159 @@
+import pytest
+import sympy as sp
+from xenharmlib.core.frequencies import FrequencyRatio
+from xenharmlib.core.multigen import MultiGenTuning
+from xenharmlib import EDOTuning
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, ratio',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+            FrequencyRatio(1)
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-1, 1),
+            (4, -5),
+            FrequencyRatio(32, 729)
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            (2, -1, -1),
+            FrequencyRatio(1)
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (4, -1, -1),
+            (2, -1, -1),
+            FrequencyRatio(1, 2)
+        ),
+    ]
+)
+def test_frequency_ratio(
+    gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, ratio
+):
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
+    pitch_b = tuning.pitch(tuning.lattice.point(pitch_vec_b))
+
+    interval = tuning.interval(pitch_a, pitch_b)
+    assert interval.frequency_ratio == ratio
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, interval_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-1, 1),
+            (4, -5),
+            (5, -6),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            (2, -1, -1),
+            (0, 0, 0),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (4, -1, -1),
+            (2, -1, -1),
+            (-2, 0, 0),
+        ),
+    ]
+)
+def test_pitch_diff(
+    gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, interval_vec
+):
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
+    pitch_b = tuning.pitch(tuning.lattice.point(pitch_vec_b))
+
+    interval = tuning.interval(pitch_a, pitch_b)
+    assert interval.pitch_diff == tuning.lattice.point(interval_vec)
+
+
+@pytest.mark.parametrize(
+    'gen_ratios_a, eq_diff_vec_a, diff_vec_a,'
+    'gen_ratios_b, eq_diff_vec_b, diff_vec_b',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (4, 1),
+            (FrequencyRatio(2), FrequencyRatio(5)),
+            (1, 0),
+            (2, 2),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)),
+            (1, 0, 0),
+            (4, 1, 1),
+            (FrequencyRatio(2), FrequencyRatio(5)),
+            (1, 0),
+            (4, 2),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)),
+            (1, 0, 0),
+            (-2, 0, 1),
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-1, 2),
+        ),
+    ]
+)
+def test_lt_gt(
+    gen_ratios_a,
+    eq_diff_vec_a,
+    diff_vec_a,
+    gen_ratios_b,
+    eq_diff_vec_b,
+    diff_vec_b
+):
+
+    tuning_a = MultiGenTuning(
+        gen_ratios_a,
+        eq_diff_vec_a
+    )
+    tuning_b = MultiGenTuning(
+        gen_ratios_b,
+        eq_diff_vec_b
+    )
+
+    interval_a = tuning_a.diff_interval(tuning_a.lattice.point(diff_vec_a))
+    interval_b = tuning_b.diff_interval(tuning_b.lattice.point(diff_vec_b))
+
+    assert interval_a < interval_b
+    assert interval_a <= interval_b
+    assert interval_b > interval_a
+    assert interval_b >= interval_a
+    assert interval_a != interval_b
+    assert interval_b != interval_a
+
+
+@pytest.mark.parametrize(
+    'gen_ratios_a, eq_diff_vec_a, diff_vec_a,'
+    'gen_ratios_b, eq_diff_vec_b, diff_vec_b',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 2),
+            (FrequencyRatio(2), FrequencyRatio(9)),
+            (1, 0),
+            (0, 1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (1, 1),
+            (FrequencyRatio(2), FrequencyRatio(6)),
+            (1, 0),
+            (0, 1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)),
+            (1, 0, 0),
+            (4, 0, 1),
+            (FrequencyRatio(2), FrequencyRatio(5)),
+            (1, 0),
+            (4, 1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3), FrequencyRatio(5)),
+            (1, 0, 0),
+            (-2, 1, 0),
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-2, 1),
+        ),
+    ]
+)
+def test_eq(
+    gen_ratios_a,
+    eq_diff_vec_a,
+    diff_vec_a,
+    gen_ratios_b,
+    eq_diff_vec_b,
+    diff_vec_b
+):
+
+    tuning_a = MultiGenTuning(
+        gen_ratios_a,
+        eq_diff_vec_a
+    )
+    tuning_b = MultiGenTuning(
+        gen_ratios_b,
+        eq_diff_vec_b
+    )
+
+    interval_a = tuning_a.diff_interval(tuning_a.lattice.point(diff_vec_a))
+    interval_b = tuning_b.diff_interval(tuning_b.lattice.point(diff_vec_b))
+
+    assert interval_a == interval_b
+    assert hash(interval_a) == hash(interval_b)
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, cents',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+            0
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (1, 0),
+            (0, 1),
+            701.9550008654
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            (4, -2, -1),
+            498.0449991346
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            (4, -1, -1),
+            1200
+        ),
+    ]
+)
+def test_cents(
+    gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b, cents
+):
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
+    pitch_b = tuning.pitch(tuning.lattice.point(pitch_vec_b))
+
+    interval = tuning.interval(pitch_a, pitch_b)
+    assert interval.cents == cents
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            (4, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, 3),
+            (1, 2, 7),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 0, 0),
+            (2, 0, 0),
+        ),
+    ]
+)
+def test_abs(gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b):
+    """
+    Test if abs() value of interval is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
+    pitch_b = tuning.pitch(tuning.lattice.point(pitch_vec_b))
+
+    interval_a = tuning.interval(
+        pitch_a,
+        pitch_b,
+    )
+    interval_b = tuning.interval(
+        pitch_b,
+        pitch_a,
+    )
+    assert abs(interval_a) == abs(interval_b)
+    assert abs(interval_b) == interval_a
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            (4, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, 3),
+            (1, 2, 7),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 0, 0),
+            (2, 0, 0),
+        ),
+    ]
+)
+def test_neg(gen_ratios, eq_diff_vec, pitch_vec_a, pitch_vec_b):
+    """
+    Test if negation of interval is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_a = tuning.pitch(tuning.lattice.point(pitch_vec_a))
+    pitch_b = tuning.pitch(tuning.lattice.point(pitch_vec_b))
+
+    interval_a = tuning.interval(
+        pitch_a,
+        pitch_b,
+    )
+    interval_b = tuning.interval(
+        pitch_b,
+        pitch_a,
+    )
+    assert -interval_a == interval_b
+    assert -interval_b == interval_a
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec_a, diff_vec_b, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            (4, 1),
+            (-5, 3),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, 3),
+            (1, 2, 7),
+            (3, 8, 10),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 0, 0),
+            (2, 0, 0),
+            (0, 0, 0),
+        ),
+    ]
+)
+def test_add(gen_ratios, eq_diff_vec, diff_vec_a, diff_vec_b, result_vec):
+    """
+    Test if addition of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval_a = tuning.diff_interval(tuning.lattice.point(diff_vec_a))
+    interval_b = tuning.diff_interval(tuning.lattice.point(diff_vec_b))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+
+    assert interval_a + interval_b == result_interval
+    assert interval_b + interval_a == result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec_a, diff_vec_b, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            (4, 1),
+            (-13, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, 3),
+            (1, 2, 7),
+            (1, 4, -4),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 0, 0),
+            (-2, 0, 0),
+            (0, 0, 0),
+        ),
+    ]
+)
+def test_sub(gen_ratios, eq_diff_vec, diff_vec_a, diff_vec_b, result_vec):
+    """
+    Test if subtraction of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval_a = tuning.diff_interval(tuning.lattice.point(diff_vec_a))
+    interval_b = tuning.diff_interval(tuning.lattice.point(diff_vec_b))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+
+    assert interval_a - interval_b == result_interval
+    assert interval_b - interval_a == -result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, scalar, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            5,
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            2,
+            (-18, 4),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, -3),
+            -3,
+            (-6, -18, 9),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 9, 11),
+            0,
+            (0, 0, 0),
+        ),
+    ]
+)
+def test_mul(gen_ratios, eq_diff_vec, diff_vec, scalar, result_vec):
+    """
+    Test if scalar multiplication of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+
+    assert interval * scalar == result_interval
+    assert scalar * interval == result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, sign',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            0,
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (-9, 2),
+            -1,
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (2, 6, -3),
+            1,
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (-2, 9, 11),
+            1,
+        ),
+    ]
+)
+def test_sign(gen_ratios, eq_diff_vec, diff_vec, sign):
+    """
+    Test if sign property of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+
+    assert interval.sign == sign
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, is_simple',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            True,
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+            False,
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, -1),
+            False,
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (-2, 0, 1),
+            True,
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (6, 0, -1),
+            False,
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (0, 1, 0),
+            False,
+        ),
+    ]
+)
+def test_simple_compound(gen_ratios, eq_diff_vec, diff_vec, is_simple):
+    """
+    Test if simple and compound property of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    assert interval.is_simple == is_simple
+    assert interval.is_compound != is_simple
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+            (-1, 1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, -1),
+            (1, -1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (-2, 0, 1),
+            (-2, 0, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (6, 0, -1),
+            (5, 0, -2),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (0, 1, 0),
+            (-6, 1, 0),
+        ),
+    ]
+)
+def test_to_simple(gen_ratios, eq_diff_vec, diff_vec, result_vec):
+    """
+    Test if to_simple method of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+    assert interval.to_simple() == result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (1, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+            (1, -1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, -1),
+            (1, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 0),
+            (-1, 1, 0),
+            (2, -1, 0),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (-2, 0, 1),
+            (3, 0, 0),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (6, 0, -1),
+            (-5, 0, 2),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (0, 1, 0),
+            (1, -1, 0),
+        ),
+    ]
+)
+def test_inversion(gen_ratios, eq_diff_vec, diff_vec, result_vec):
+    """
+    Test if inversion method of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+    assert interval.inversion() == result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+            (2, -1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, -1),
+            (2, -1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 0),
+            (2, -1, 0),
+            (2, -1, 0),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (3, 0, 0),
+            (-2, 0, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (6, 0, -1),
+            (5, 0, -2),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (0, 1, 0),
+            (7, -1, 0),
+        ),
+    ]
+)
+def test_ic_normalized(gen_ratios, eq_diff_vec, diff_vec, result_vec):
+    """
+    Test if ic normalization method of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    result_interval = tuning.diff_interval(
+        tuning.lattice.point(result_vec)
+    )
+    assert interval.ic_normalized() == result_interval
+    assert result_interval.inversion() >= result_interval
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, result_vec',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            (0, 0),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 1),
+            (2, -1),
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, -1),
+            (2, -1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 0),
+            (2, -1, 0),
+            (2, -1, 0),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (3, 0, 0),
+            (-2, 0, 1),
+        ),
+        (
+            (
+                FrequencyRatio(2),
+                FrequencyRatio(3),
+                FrequencyRatio(5)
+            ),
+            (1, 0, 1),
+            (6, 0, -1),
+            (5, 0, -2),
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (0, 1, 0),
+            (7, -1, 0),
+        ),
+    ]
+)
+def test_ic_index(gen_ratios, eq_diff_vec, diff_vec, result_vec):
+    """
+    Test if ic_index property of intervals is implemented correctly
+    """
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    interval = tuning.diff_interval(tuning.lattice.point(diff_vec))
+    ic_index = tuning.lattice.point(result_vec)
+    assert interval.ic_index == ic_index
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, str_repr',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            'MultiGenPitchInterval((0, 0), G=(2, 3))',
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (0, 1),
+            (-1, 1),
+            'MultiGenPitchInterval((-1, 1), G=(2, 3))',
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            'MultiGenPitchInterval((2, -1, -1), G=(sqrt(2), 11, 7))',
+        ),
+    ]
+)
+def test_repr(gen_ratios, eq_diff_vec, diff_vec, str_repr):
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_diff = tuning.lattice.point(diff_vec)
+
+    interval = tuning.diff_interval(pitch_diff)
+    assert repr(interval) == str_repr
+
+
+@pytest.mark.parametrize(
+    'gen_ratios, eq_diff_vec, diff_vec, str_repr',
+    [
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (1, 0),
+            (0, 0),
+            '(0, 0)',
+        ),
+        (
+            (FrequencyRatio(2), FrequencyRatio(3)),
+            (0, 1),
+            (-1, 1),
+            '(-1, 1)',
+        ),
+        (
+            (
+                FrequencyRatio(sp.Integer(2) ** sp.Rational(1, 2)),
+                FrequencyRatio(11),
+                FrequencyRatio(7)
+            ),
+            (1, 0, 0),
+            (2, -1, -1),
+            '(2, -1, -1)',
+        ),
+    ]
+)
+def test_short_repr(gen_ratios, eq_diff_vec, diff_vec, str_repr):
+
+    tuning = MultiGenTuning(
+        gen_ratios,
+        eq_diff_vec
+    )
+
+    pitch_diff = tuning.lattice.point(diff_vec)
+
+    interval = tuning.diff_interval(pitch_diff)
+    assert interval.short_repr == str_repr
+
+
+@pytest.mark.parametrize(
+    'source_tuning, source_vec, target_tuning, target_diff',
+    [
+        (
+            MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0)),
+            (-1, 1),
+            EDOTuning(31),
+            18
+        ),
+        (
+            MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0)),
+            (2, -1),
+            EDOTuning(12),
+            5
+        ),
+    ]
+)
+def test_retune_closest_edo(
+    source_tuning, source_vec, target_tuning, target_diff
+):
+
+    source_diff = source_tuning.lattice.point(source_vec)
+    source_interval = source_tuning.diff_interval(source_diff)
+
+    target_interval = source_interval.retune_closest(target_tuning)
+    assert target_interval.pitch_diff == target_diff
+
+
+def test_retune_closest_type_error():
+
+    tuning_a = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(3)), (1, 0))
+    tuning_b = MultiGenTuning((FrequencyRatio(2), FrequencyRatio(5)), (1, 0))
+    source_interval = tuning_a.diff_interval(tuning_a.lattice.point((2, 1)))
+
+    with pytest.raises(TypeError):
+        source_interval.retune_closest(tuning_b)

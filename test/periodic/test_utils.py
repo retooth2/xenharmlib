@@ -437,7 +437,7 @@ def test_index_mask_incompatible_origin_contexts():
     partial_scale = n_edo24.pc_scale(['C', 'G'])
 
     with pytest.raises(IncompatibleOriginContexts):
-        assert periodic.index_mask(scale, partial_scale)
+        periodic.index_mask(scale, partial_scale)
 
 
 @pytest.mark.parametrize(

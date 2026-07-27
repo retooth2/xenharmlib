@@ -1,6 +1,88 @@
+from xenharmlib.core.notes import NatAccNote
+from xenharmlib.core.notes import NatAccNoteInterval
+from xenharmlib.core.note_scale import NatAccNoteScale
+from xenharmlib.core.note_interval_seq import NatAccNoteIntervalSeq
+from xenharmlib.core.note_interval_fan import NatAccNoteIntervalFan
+from xenharmlib.core.note_seq import NatAccNoteSeq
+from xenharmlib.core.notes import SDPeriodicNoteMixin
+from xenharmlib.core.notes import SDPeriodicNoteIntervalMixin
 from xenharmlib.core.notation import NatAccNotation
 from xenharmlib.core.symbols import SymbolArithmetic
 from xenharmlib.core.symbols import SymbolArithmeticSet
+from xenharmlib.core.enharm_strategies import PCBlueprintStrategy
+
+
+class MyNatAccNote(NatAccNote[int], SDPeriodicNoteMixin):
+    pass
+
+
+class MyNatAccNoteInterval(
+    NatAccNoteInterval[int, MyNatAccNote], SDPeriodicNoteIntervalMixin
+):
+    pass
+
+
+class MyNatAccNoteScale(NatAccNoteScale[int, MyNatAccNote]):
+    pass
+
+
+class MyNatAccNoteIntervalSeq(NatAccNoteIntervalSeq[int, MyNatAccNote]):
+    pass
+
+
+class MyNatAccNoteIntervalFan(NatAccNoteIntervalFan[int, MyNatAccNote]):
+    pass
+
+
+class MyNatAccNoteSeq(NatAccNoteSeq[int, MyNatAccNote]):
+    pass
+
+
+class MyNatAccNotation(NatAccNotation[int]):
+
+    def __init__(
+        self,
+        tuning,
+        acc_weights,
+        note_cls=MyNatAccNote,
+        note_interval_cls=MyNatAccNoteInterval,
+        note_scale_cls=MyNatAccNoteScale,
+        note_interval_seq_cls=MyNatAccNoteIntervalSeq,
+        note_interval_fan_cls=MyNatAccNoteIntervalFan,
+        note_seq_cls=MyNatAccNoteSeq,
+    ):
+
+        super().__init__(
+            tuning,
+            acc_weights,
+            note_cls=MyNatAccNote,
+            note_interval_cls=MyNatAccNoteInterval,
+            note_scale_cls=NatAccNoteScale,
+            note_interval_seq_cls=NatAccNoteIntervalSeq,
+            note_interval_fan_cls=MyNatAccNoteIntervalFan,
+            note_seq_cls=MyNatAccNoteSeq,
+        )
+
+    @property
+    def zero_index(self):
+        return 0
+
+
+class MyEnharmStrategy(PCBlueprintStrategy):
+
+    def __init__(self, notation):
+
+        ALPHABET = [chr(x) for x in range(65, 65+26)]
+        scale = notation.scale()
+
+        for i, nat_pc_index in enumerate(range(0, notation.eq_diff)):
+            natc_symbol = ALPHABET[i // 2]
+            if i % 2 == 1:
+                natc_symbol += '+'
+            scale = scale.with_element(notation.note(natc_symbol, 0))
+
+        super().__init__(scale)
+
 
 def make_nat_acc_test_notation(tuning):
     """
@@ -22,9 +104,9 @@ def make_nat_acc_test_notation(tuning):
 
     ALPHABET = [chr(x) for x in range(65, 65+26)]
 
-    notation = NatAccNotation(tuning)
+    notation = MyNatAccNotation(tuning, acc_weights=(1,))
 
-    for nat_pc_index in range(0, len(tuning), 2):
+    for nat_pc_index in range(0, tuning.eq_diff, 2):
         natc_symbol = ALPHABET.pop(0)
         notation.append_natural(natc_symbol, nat_pc_index)
 
@@ -35,6 +117,7 @@ def make_nat_acc_test_notation(tuning):
     acc_arith.add_symbol('.', (-2,))
 
     notation.acc_symbol_code = acc_arith
+    notation.enharm_strategy = MyEnharmStrategy(notation)
 
     funky_upper = SymbolArithmetic()
     funky_upper.add_symbol(
@@ -64,7 +147,7 @@ def make_nat_acc_test_notation(tuning):
     cringe.add_arithmetic(cringe_upper)
     cringe.add_arithmetic(cringe_lower)
 
-    for nat_diffc in range(0, len(tuning) // 2):
+    for nat_diffc in range(0, tuning.eq_diff // 2):
         if nat_diffc % 2 == 0:
             notation.set_interval_symbol_code(
                 nat_diffc, funky

@@ -19,6 +19,7 @@ literal and each word represents an integer vector. These languages are
 called 'symbol codes' and are used as utils in notations.
 """
 
+import operator
 from typing import Tuple
 from typing import List
 from typing import Dict
@@ -29,6 +30,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from scipy.optimize import milp
 from scipy.optimize import LinearConstraint
+from .utils import componentwise
 
 
 class UnknownSymbolString(Exception):
@@ -130,7 +132,7 @@ class SymbolArithmetic(SymbolCode):
     vector (-11, 7), 'b' as the vector (11, -7), and so forth. The
     addition of the monzo vectors is then equal to the product in
     |R+: (e.g. 'b#' = (11, -7) + (-11, 7) = (0, 0), which is the
-    same as (2^11)/(3^7) * (3^7)/(2^11) = (2^0) * (3^0) = 1.
+    same as (2^11)/(3^7) \\* (3^7)/(2^11) = (2^0) \\* (3^0) = 1.
 
     On initialization of an arithmetic, an offset can be set, which
     adds a fixed integer vector to all symbol value vectors. This
@@ -283,11 +285,11 @@ class SymbolArithmetic(SymbolCode):
             symbol literal in this arithmetic
         """
 
-        result = np.array(self._offset)
+        result = self._offset
 
         for symbol in symbols:
             value = self._symbol_vectors[symbol]
-            result = np.add(result, value)
+            result = componentwise(operator.add, result, value)
 
         return tuple(result)
 

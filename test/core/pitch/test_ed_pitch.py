@@ -168,13 +168,19 @@ def test_pcs_normalized(pitch):
         (edo12.pitch(-7), ed13_3.pitch(-5)),
     ]
 )
-def test_retune(pitch_a, pitch_b):
+def test_retune_closest(pitch_a, pitch_b):
     """
-    Test if retune method works correctly
+    Test if retune_closest method works correctly
     """
 
-    assert pitch_a.retune(pitch_b.tuning) == pitch_b
-    assert pitch_b.retune(pitch_a.tuning) == pitch_a
+    with pytest.deprecated_call():
+        assert pitch_a.retune(pitch_b.tuning) == pitch_b
+
+    with pytest.deprecated_call():
+        assert pitch_b.retune(pitch_a.tuning) == pitch_a
+
+    assert pitch_a.retune_closest(pitch_b.tuning) == pitch_b
+    assert pitch_b.retune_closest(pitch_a.tuning) == pitch_a
 
 
 @pytest.mark.parametrize(
@@ -219,6 +225,7 @@ def test_eq(pitch_a, pitch_b):
     equal if they have the same frequency
     """
     assert pitch_a == pitch_b
+    assert hash(pitch_a) == hash(pitch_b)
 
 
 @pytest.mark.parametrize(
@@ -336,3 +343,18 @@ def test_arithmetic_incompatible_origin_contexts(index_a, index_b):
 
     with pytest.raises(IncompatibleOriginContexts):
         pitch_a + pitch_b
+
+
+@pytest.mark.parametrize(
+    'index',
+    [9, 0, -4, 2, 15, 19, -18]
+)
+def test_short_repr(index):
+    """
+    Test short representations
+    """
+
+    pitch = edo12.pitch(index)
+    assert pitch.short_repr == str(pitch.pitch_index)
+    assert pitch.pc_short_repr == str(pitch.pc_index)
+

@@ -170,7 +170,7 @@ class IndexMask:
         mask_expr = tuple()
         for index in self.indices:
             mask_expr = mask_expr + (index + offset,)
-        return InfiniteIndexMask(mask_expr)
+        return IndexMask(mask_expr)
 
     def __iter__(self):
         return self.indices.__iter__()

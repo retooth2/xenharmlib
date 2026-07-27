@@ -13,17 +13,21 @@
 # You should have received a copy of the GNU General Public License
 # along with xenharmlib. If not, see <https://www.gnu.org/licenses/>.
 
+from ..exc import IncompatibleOriginContexts
 from .notes import NoteIntervalABC
 from .notes import NatAccNoteInterval
 from .interval_seq import IntervalSeq
+from .protocols import Index
+from .protocols import PeriodicIndex
 from typing import Optional
 from typing import TypeVar
-from typing import List
+from typing import Iterable
 
 NoteIntervalT = TypeVar('NoteIntervalT', bound=NoteIntervalABC)
+IndexT = TypeVar('IndexT', bound=Index)
 
 
-class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
+class NoteIntervalSeq(IntervalSeq[IndexT, NoteIntervalT]):
     """
     Base class for note interval sequences
 
@@ -32,9 +36,7 @@ class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
     """
 
     def __init__(
-        self,
-        notation,
-        intervals: Optional[List[NoteIntervalT]] = None
+        self, notation, intervals: Optional[Iterable[NoteIntervalT]] = None
     ):
         super().__init__(notation, intervals)
         self.notation = notation
@@ -67,15 +69,42 @@ class NoteIntervalSeq(IntervalSeq[NoteIntervalT]):
             f'{self.tuning.name})'
         )
 
+    def is_notated_same(self, other) -> bool:
+        """
+        Returns True, if this interval sequence is notated the same
+        way as the other sequence, False otherwise
+
+        :param other: Another interval sequence to compare
+        """
+
+        if len(self) != len(other):
+            return False
+
+        if other.notation is not self.notation:
+            raise IncompatibleOriginContexts(
+                'Interval sequences must originate from the same '
+                'notation context'
+            )
+
+        for a, b in zip(self, other):
+            if not a.is_notated_same(b):
+                return False
+
+        return True
+
 
 NatAccNoteIntervalT = TypeVar('NatAccNoteIntervalT', bound=NatAccNoteInterval)
+PeriodicIndexT = TypeVar('PeriodicIndexT', bound=PeriodicIndex)
 
 
-class NatAccNoteIntervalSeq(NoteIntervalSeq[NatAccNoteIntervalT]):
+class NatAccNoteIntervalSeq(
+    NoteIntervalSeq[PeriodicIndexT, NatAccNoteIntervalT]
+):
     """
     Base class for natural/accidental notation interval sequences
 
     :param notation: The notation this interval sequences originates from
     :param intervals: A list of intervals from the same notation
     """
+
     pass

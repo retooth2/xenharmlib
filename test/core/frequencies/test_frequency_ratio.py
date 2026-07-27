@@ -2243,6 +2243,7 @@ def test_lt_bogus(x, y):
 def test_eq(x, y):
     assert x == y
     assert y == x
+    assert hash(x) == hash(y)
 
 
 @pytest.mark.parametrize(
@@ -2308,6 +2309,25 @@ def test_repr(ratio, result):
 
 
 @pytest.mark.parametrize(
+    'ratio, result',
+    [
+        # ratio(int)
+        (FrequencyRatio(3), '3'),
+        # ratio(int, int)
+        (FrequencyRatio(7, 2), '7/2'),
+        # ratio(float)
+        (FrequencyRatio(0.5), '1/2'),
+        # ratio(Fraction)
+        (FrequencyRatio(Fraction(5, 2)), '5/2'),
+        # ratio(SP_NUM)
+        (FrequencyRatio(SP_NUM), '2**(1/3)'),
+    ]
+)
+def test_short_repr(ratio, result):
+    assert ratio.short_repr == result
+
+
+@pytest.mark.parametrize(
     'ratio, cents',
     [
         (FrequencyRatio(Fraction(3, 2)), 701.9550008654),
@@ -2340,19 +2360,19 @@ def test_log(ratio, base, result):
     'monzo, expected_ratio',
     [
         (
-            [1, -2, 3, 0, 0, 1],
+            (1, -2, 3, 0, 0, 1),
             FrequencyRatio(Fraction(2*(5**3)*13, 3**2))
         ),
         (
-            [-4, 2, 3],
+            (-4, 2, 3),
             FrequencyRatio(Fraction((3**2)*(5**3), 2**4))
         ),
         (
-            [2, 2, -3, 0, 0, 6, -6],
+            (2, 2, -3, 0, 0, 6, -6),
             FrequencyRatio(Fraction((2**2)*(3**2)*(13**6), (5**3)*(17**6)))
         ),
         (
-            [9, 2, -3, 0, 0, -6, -6],
+            (9, 2, -3, 0, 0, -6, -6),
             FrequencyRatio(Fraction((2**9)*(3**2), (5**3)*(13**6)*(17**6))),
         )
     ]
@@ -2376,3 +2396,75 @@ def test_to_monzo_irrational():
 
     with pytest.raises(ValueError):
         ratio.to_monzo()
+
+
+def test_hash_set():
+
+    # each element pair in this definition is
+    # equal under __eq__  implementation so each
+    # second element should be canceled out
+
+    set_a = {
+        FrequencyRatio(3),
+        FrequencyRatio(3),
+        FrequencyRatio(6, 3),
+        FrequencyRatio(2),
+        FrequencyRatio(3),
+        FrequencyRatio(3.0),
+        FrequencyRatio(2),
+        FrequencyRatio(Fraction(4, 2)),
+        FrequencyRatio(22),
+        22,
+        FrequencyRatio(22),
+        22.0,
+        FrequencyRatio(33),
+        Fraction(66, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 2),
+        FrequencyRatio(0.5),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(Fraction(1, 3)),
+        FrequencyRatio(4, 2),
+        2,
+        FrequencyRatio(5, 2),
+        2.5,
+        FrequencyRatio(1, 3),
+        Fraction(1, 3),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(Fraction(1, 2)),
+        FrequencyRatio(2.0),
+        2,
+        FrequencyRatio(0.5),
+        0.5,
+        FrequencyRatio(0.75),
+        Fraction(3, 4),
+        FrequencyRatio(Fraction(4, 3)),
+        FrequencyRatio(Fraction(4, 3)),
+    }
+
+    set_b = {
+        FrequencyRatio(3),
+        FrequencyRatio(6, 3),
+        FrequencyRatio(3),
+        FrequencyRatio(2),
+        FrequencyRatio(22),
+        FrequencyRatio(22),
+        FrequencyRatio(33),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(1, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(4, 2),
+        FrequencyRatio(5, 2),
+        FrequencyRatio(1, 3),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.5),
+        FrequencyRatio(2.0),
+        FrequencyRatio(0.5),
+        FrequencyRatio(0.75),
+        FrequencyRatio(Fraction(4, 3)),
+    }
+
+    assert set_a == set_b

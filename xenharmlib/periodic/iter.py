@@ -31,8 +31,7 @@ ScaleT = TypeVar('ScaleT', bound=PeriodicScale)
 
 
 def cutouts(
-    scale: ScaleT,
-    mask_expr: int | Tuple[int, ...]
+    scale: ScaleT, mask_expr: int | Tuple[int, ...]
 ) -> Generator[ScaleT]:
     """
     Returns a generator yielding partial scales obtained by
@@ -66,9 +65,7 @@ def cutouts(
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'cutouts is only defined on period normalized scales'
-        )
+        raise ValueError('cutouts is only defined on period normalized scales')
 
     mask = InfiniteIndexMask(mask_expr)
 
@@ -80,8 +77,7 @@ def cutouts(
 
 
 def pairs(
-    scale: PeriodicScale[FreqReprT],
-    distance: int = 1
+    scale: PeriodicScale[FreqReprT], distance: int = 1
 ) -> Generator[Tuple[FreqReprT, FreqReprT]]:
     """
     Returns a generator yielding tuples of neighboring elements
@@ -94,9 +90,7 @@ def pairs(
     """
 
     if not scale.is_period_normalized:
-        raise ValueError(
-            'pairs is only defined on period normalized scales'
-        )
+        raise ValueError('pairs is only defined on period normalized scales')
 
     n = len(scale)
     for i in range(0, n):
