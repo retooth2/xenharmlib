@@ -233,6 +233,7 @@ class PitchScale(Scale[PitchT], Generic[IndexT, PitchT]):
 
     @property
     def pitch_indices(self) -> List[IndexT]:
+        # FIXME: this should be moved to the scale base class
         """
         A list of the ordered pitch indices
         present in this scale

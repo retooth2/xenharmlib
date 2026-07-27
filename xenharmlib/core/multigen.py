@@ -414,6 +414,8 @@ class MultiGenTuning(
         _vectors = [] if vectors is None else vectors
         return self.index_scale([self.lattice.point(v) for v in _vectors])
 
+    # TODO: vec_pc_scale
+
     def vec_seq(
         self, vectors: Optional[Iterable[Tuple[int, ...]]] = None
     ) -> MultiGenSeqT:
