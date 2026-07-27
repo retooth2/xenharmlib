@@ -60,8 +60,8 @@ tunings to the default frequency for C0 in an equally tempered Western system
    ed13_3 = EDTuning(13, FrequencyRatio(3), ref_frequency=new_ref)
    print(ed13_3.pitch(0).frequency.to_float())
 
-   edo24 = EDOTuning(24)
-   print(ed24.pitch(0).frequency.to_float())
+   edo24 = EDOTuning(24, ref_frequency=new_ref)
+   print(edo24.pitch(0).frequency.to_float())
 
 .. testoutput::
 
