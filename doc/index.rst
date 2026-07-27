@@ -217,7 +217,7 @@ features.
 
    western_notation
    updown_notation
-   adv_notation_features
+   enharmonic_strategies
 
 .. toctree::
    :maxdepth: 2

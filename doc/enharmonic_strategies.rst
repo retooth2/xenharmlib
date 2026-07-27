@@ -1,13 +1,5 @@
-Advanced Notation Features
-======================================
-
-This section talks about general features of the notation layer that have not
-been covered in the quickstart.
-
-.. _enharmonic_strategies:
-
 Enharmonic Strategies
--------------------------------
+===================================
 
 As you already know, each notation layer object has a unique counterpart in
 the pitch layer: Every note maps to exactly one pitch, and every note interval
