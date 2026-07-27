@@ -124,20 +124,13 @@ A selection of things supported by xenharmlib:
 Roadmap
 -----------------
 
-Planned for 0.5.0
-~~~~~~~~~~~~~~~~~~
+(not necessarily in chronological order)
 
 * Extended Helmholtz-Ellis JI Pitch Notation
 * Arel-Ezgi-Uzdilek notation
 * Rothenberg propriety and interval matrices
 * Scale generation tools (Euler-Fokker genus, combination product set,
   Moment-of-Symmetry scales, odd limit scales)
-
-Planned for later versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-(not necessarily in chronological order)
-
 * Templates for traditional music (Western Scales, Makam tetrachords, etc)
 * Plugin interface for score rendering backends
 * Advanced posttonal analysis
